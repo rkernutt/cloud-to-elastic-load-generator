@@ -9,7 +9,6 @@ import {
   randInt,
   randFloat,
   randId,
-  randHexId,
   randIp,
   randUUID,
   randAccount,
@@ -59,12 +58,12 @@ function generateBedrockGuardrailsLog(ts: string, er: number): EcsDocument {
   const tokenIn = randInt(120, 12_000);
   const tokenOut = randInt(40, 8_000);
 
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
 
   if (scenario === "throttle") {
     const retryAfter = randInt(1, 30);
-    message = `ApplyGuardrail throttled for ${guardrailId} — Retry-After: ${retryAfter}s (concurrent invocations exceeded)`;
+    messageDetails = { retryAfter };
     errorBlock = {
       code: "ThrottlingException",
       message: `Rate exceeded for guardrail ${guardrailId}`,
@@ -76,17 +75,14 @@ function generateBedrockGuardrailsLog(ts: string, er: number): EcsDocument {
       "GuardrailVersion DRAFT is not deployable",
       "Content type application/xml is not supported",
     ]);
-    message = `ApplyGuardrail ValidationException: ${reason}`;
     errorBlock = { code: "ValidationException", message: reason, type: "client" };
   } else if (scenario === "internal") {
-    message = `ApplyGuardrail InternalServerException for ${guardrailId} v${version} — upstream model endpoint returned 503`;
     errorBlock = {
       code: "InternalServerException",
       message: "Upstream service unavailable",
       type: "server",
     };
   } else if (scenario === "access_denied") {
-    message = `ApplyGuardrail AccessDeniedException: User arn:aws:iam::${acct.id}:user/dev is not authorized to invoke guardrail ${guardrailId}`;
     errorBlock = {
       code: "AccessDeniedException",
       message: "Insufficient permissions",
@@ -102,15 +98,22 @@ function generateBedrockGuardrailsLog(ts: string, er: number): EcsDocument {
     ]);
     const action = rand(["BLOCKED", "ANONYMIZED"]);
     const findings = randInt(1, 6);
-    message = `ApplyGuardrail OK — ${guardrailId} v${version}: ${action} by ${policyType} (${findings} finding${findings > 1 ? "s" : ""}, tokens_in=${tokenIn} tokens_out=${tokenOut})`;
+    messageDetails = { policyType, action, findings };
   } else if (scenario === "automated_reasoning") {
     const claims = randInt(1, 8);
     const hallucinations = randInt(0, 2);
-    message = `InvokeAutomatedReasoningCheck OK — ${guardrailId}: ${claims} claims validated, ${hallucinations} potential hallucination${hallucinations !== 1 ? "s" : ""} flagged`;
+    messageDetails = { claims, hallucinations };
   } else {
-    message = `ApplyGuardrail OK — ${guardrailId} v${version}: no intervention (tokens_in=${tokenIn} tokens_out=${tokenOut}, latency_ms=${Math.round(lat * 1000)})`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -163,7 +166,6 @@ function generateGwlbLog(ts: string, er: number): EcsDocument {
   const isErr = Math.random() < er;
   const gwlb = `gwlb-${randId(8).toLowerCase()}`;
   const gwlbArn = `arn:aws:elasticloadbalancing:${region}:${acct.id}:loadbalancer/gwy/${gwlb}/abc${randId(5)}`;
-  const tgArn = `arn:aws:elasticloadbalancing:${region}:${acct.id}:targetgroup/tg-${randId(8).toLowerCase()}/abc`;
   const endpointId = `vpce-${randId(17).toLowerCase()}`;
 
   const scenario = isErr
@@ -180,18 +182,18 @@ function generateGwlbLog(ts: string, er: number): EcsDocument {
   const srcIp = randIp();
   const dstIp = randIp();
 
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
 
   if (scenario === "target_unhealthy") {
     const targetIp = randIp();
+    messageDetails = { targetIp };
     const reason = rand([
       "Health check failed",
       "Target.ResponseCodeMismatch",
       "Target.Timeout",
       "Elb.InternalError",
     ]);
-    message = `Gateway LB ${gwlb}: target ${targetIp}:${rand([6081, 443])} UNHEALTHY — ${reason}. Target group: ${tgArn}`;
     errorBlock = { code: "TargetHealthCheckFailure", message: reason, type: "server" };
   } else if (scenario === "geneve_drop") {
     const dropped = randInt(100, 50_000);
@@ -201,7 +203,6 @@ function generateGwlbLog(ts: string, er: number): EcsDocument {
       "ApplianceTimeout",
       "InvalidGeneveVersion",
     ]);
-    message = `Gateway LB ${gwlb}: GENEVE tunnel ${endpointId} — ${dropped} packets dropped (${reason}). Source: ${srcIp} → ${dstIp}`;
     errorBlock = {
       code: "GenevePacketDrop",
       message: `${dropped} packets dropped: ${reason}`,
@@ -210,14 +211,13 @@ function generateGwlbLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "deregistration") {
     const targetIp = randIp();
     const drainSec = randInt(10, 300);
-    message = `Gateway LB ${gwlb}: target ${targetIp} deregistering — draining connections (${drainSec}s remaining). Reason: ${rand(["UserInitiated", "HealthCheckFailure", "CapacityReduction"])}`;
+    messageDetails = { targetIp, drainSec };
     errorBlock = {
       code: "TargetDeregistration",
       message: "Target deregistering from target group",
       type: "server",
     };
   } else if (scenario === "connection_timeout") {
-    message = `Gateway LB ${gwlb}: connection from ${srcIp} to appliance timed out after ${randInt(30, 120)}s — no GENEVE response. Endpoint: ${endpointId}`;
     errorBlock = {
       code: "ConnectionTimeout",
       message: "Appliance did not respond within timeout",
@@ -225,16 +225,22 @@ function generateGwlbLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "health_check_ok") {
     const healthy = randInt(2, 8);
-    message = `Gateway LB ${gwlb}: health check OK — ${healthy}/${healthy} targets healthy in ${tgArn}`;
+    messageDetails = { healthy };
   } else if (scenario === "target_registered") {
     const targetIp = randIp();
-    message = `Gateway LB ${gwlb}: target ${targetIp}:6081 registered in ${tgArn}. Initial health check pending.`;
+    messageDetails = { targetIp };
   } else if (scenario === "cross_zone_rebalance") {
-    message = `Gateway LB ${gwlb}: cross-zone load balancing rebalanced ${flows} flows across ${randInt(2, 6)} AZs`;
   } else {
-    message = `Gateway LB ${gwlb}: ${flows} active flows, GENEVE tunnel ${endpointId} healthy. ${srcIp} → ${dstIp}`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -311,13 +317,11 @@ function generateElbClassicLog(ts: string, er: number): EcsDocument {
 
   let elbStatus: number;
   let backendStatus: number;
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
 
   if (scenario === "backend_5xx") {
     elbStatus = rand([502, 502, 503]);
     backendStatus = rand([500, 502, 503]);
-    message = `${clientIp}:${clientPort} ${elbStatus} ${backendStatus} ${requestMs.toFixed(6)} ${backendMs.toFixed(6)} - "${method} http://${lb}-${acct.id}.${region}.elb.amazonaws.com${path} HTTP/1.1" "${rand(["Mozilla/5.0", "curl/7.88.1", "python-requests/2.31.0"])}"`;
     errorBlock = {
       code: `HTTP_${backendStatus}`,
       message: `Backend returned ${backendStatus}`,
@@ -326,7 +330,6 @@ function generateElbClassicLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "backend_timeout") {
     elbStatus = 504;
     backendStatus = 0;
-    message = `${clientIp}:${clientPort} 504 0 ${requestMs.toFixed(6)} -1 - "${method} http://${lb}-${acct.id}.${region}.elb.amazonaws.com${path} HTTP/1.1" "-"`;
     errorBlock = {
       code: "BackendConnectionTimeout",
       message: "Backend did not respond within idle timeout",
@@ -335,7 +338,6 @@ function generateElbClassicLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "no_healthy_targets") {
     elbStatus = 503;
     backendStatus = 0;
-    message = `${clientIp}:${clientPort} 503 0 ${requestMs.toFixed(6)} -1 - "${method} http://${lb}-${acct.id}.${region}.elb.amazonaws.com${path} HTTP/1.1" "-"`;
     errorBlock = {
       code: "NoHealthyBackends",
       message: "No registered targets are healthy",
@@ -344,7 +346,6 @@ function generateElbClassicLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "ssl_error") {
     elbStatus = 463;
     backendStatus = 0;
-    message = `${clientIp}:${clientPort} 463 0 ${requestMs.toFixed(6)} -1 - "${method} https://${lb}-${acct.id}.${region}.elb.amazonaws.com${path} HTTP/1.1" "-"`;
     errorBlock = {
       code: "SSLCertificateError",
       message: "Client TLS certificate verification failed",
@@ -353,7 +354,6 @@ function generateElbClassicLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "elb_5xx") {
     elbStatus = 500;
     backendStatus = 0;
-    message = `${clientIp}:${clientPort} 500 0 0.000001 -1 - "${method} http://${lb}-${acct.id}.${region}.elb.amazonaws.com${path} HTTP/1.1" "-"`;
     errorBlock = {
       code: "ELBInternalError",
       message: "Internal load balancer error",
@@ -362,13 +362,18 @@ function generateElbClassicLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "ssl_handshake") {
     elbStatus = 200;
     backendStatus = 200;
-    message = `${clientIp}:${clientPort} 200 200 ${requestMs.toFixed(6)} ${backendMs.toFixed(6)} - "${method} https://${lb}-${acct.id}.${region}.elb.amazonaws.com${path} HTTP/1.1" "Mozilla/5.0"`;
   } else {
     elbStatus = scenario === "access_301" ? 301 : scenario === "access_304" ? 304 : 200;
     backendStatus = elbStatus;
-    message = `${clientIp}:${clientPort} ${elbStatus} ${backendStatus} ${requestMs.toFixed(6)} ${backendMs.toFixed(6)} - "${method} http://${lb}-${acct.id}.${region}.elb.amazonaws.com${path} HTTP/1.1" "${rand(["Mozilla/5.0", "curl/7.88.1", "python-requests/2.31.0"])}"`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -439,26 +444,23 @@ function generateMediaConnectLog(ts: string, er: number): EcsDocument {
       ] as const);
 
   const bitrateMbps = randFloat(1.5, 80);
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
 
   if (scenario === "source_disconnect") {
     const protocol = rand(["SRT", "Zixi", "RIST", "RTP-FEC"]);
-    message = `MediaConnect flow ${flowName}: source disconnected — ${protocol} listener on port ${rand([5000, 5001, 9000])} lost connection from ${randIp()}. Last bitrate: ${bitrateMbps.toFixed(1)} Mbps`;
     errorBlock = {
       code: "SourceDisconnected",
       message: `${protocol} source lost connection`,
       type: "network",
     };
   } else if (scenario === "encoder_error") {
-    message = `MediaConnect flow ${flowName}: encoder format error — received ${rand(["HEVC/H.265", "AV1"])} but output expects ${rand(["AVC/H.264", "MPEG-2"])}. Transcoding not available on this flow.`;
     errorBlock = {
       code: "EncoderFormatMismatch",
       message: "Input codec incompatible with output profile",
       type: "client",
     };
   } else if (scenario === "entitlement_revoked") {
-    message = `MediaConnect flow ${flowName}: entitlement ${randId(8)} revoked by account ${randInt(100000000000, 999999999999)}. Output ${rand(["hls-origin", "srt-backup"])} will stop.`;
     errorBlock = {
       code: "EntitlementRevoked",
       message: "Sharing entitlement was revoked by granter",
@@ -467,23 +469,28 @@ function generateMediaConnectLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "network_congestion") {
     const packetLoss = randFloat(0.5, 8.0);
     const jitterMs = randFloat(5, 80);
-    message = `MediaConnect flow ${flowName}: network congestion detected — packet loss ${packetLoss.toFixed(1)}%, jitter ${jitterMs.toFixed(0)}ms. Source: ${srcArn}`;
+    messageDetails = { packetLoss, jitterMs };
     errorBlock = {
       code: "NetworkCongestion",
       message: `Packet loss ${packetLoss.toFixed(1)}%`,
       type: "network",
     };
   } else if (scenario === "failover_switch") {
-    message = `MediaConnect flow ${flowName}: failover triggered — switching from source A (${randIp()}) to source B (${randIp()}). Reason: ${rand(["SourceHealthCheckFailed", "PacketLossThresholdExceeded"])}`;
   } else if (scenario === "output_started") {
     const protocol = rand(["SRT", "Zixi", "RIST", "CDI"]);
-    message = `MediaConnect flow ${flowName}: output started — ${protocol} to ${randIp()}:${rand([5000, 5001, 9000])} at ${bitrateMbps.toFixed(1)} Mbps`;
+    messageDetails = { protocol };
   } else if (scenario === "source_health_ok") {
-    message = `MediaConnect flow ${flowName}: source health OK — ${bitrateMbps.toFixed(1)} Mbps, ${randInt(0, 2)} dropped frames in last 60s`;
   } else {
-    message = `MediaConnect flow ${flowName}: transport stable — bitrate ${bitrateMbps.toFixed(1)} Mbps, RTT ${randInt(1, 80)}ms`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -534,11 +541,10 @@ function generateMediaPackageLog(ts: string, er: number): EcsDocument {
         "harvest_complete",
       ] as const);
 
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
 
   if (scenario === "ingest_timeout") {
-    message = `MediaPackage channel ${channel}: ingest timeout — no segments received for ${randInt(30, 120)}s on endpoint ${endpoint}. Expected segment duration: ${rand([2, 4, 6])}s`;
     errorBlock = {
       code: "IngestTimeout",
       message: "No segments received within expected interval",
@@ -546,7 +552,6 @@ function generateMediaPackageLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "manifest_stale") {
     const staleSec = randInt(10, 60);
-    message = `MediaPackage channel ${channel}: stale manifest on ${endpoint} — last update ${staleSec}s ago (threshold: ${rand([6, 10])}s)`;
     errorBlock = {
       code: "StaleManifest",
       message: `Manifest not updated for ${staleSec}s`,
@@ -554,10 +559,8 @@ function generateMediaPackageLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "origin_4xx") {
     const status = rand([403, 404, 410]);
-    message = `MediaPackage channel ${channel}: origin returned ${status} for segment request — path: /v1/${channel}/${endpoint}/segment_${randInt(0, 99999)}.ts`;
     errorBlock = { code: `HTTP_${status}`, message: `Origin returned ${status}`, type: "client" };
   } else if (scenario === "drm_license_fail") {
-    message = `MediaPackage channel ${channel}: DRM license acquisition failed for ${rand(["Widevine", "FairPlay", "PlayReady"])} — SPEKE endpoint returned ${rand([500, 503])}`;
     errorBlock = {
       code: "DRMLicenseFailure",
       message: "SPEKE key provider unavailable",
@@ -566,15 +569,20 @@ function generateMediaPackageLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "segment_ingested") {
     const segNum = randInt(0, 99999);
     const segBytes = randInt(50_000, 4_000_000);
-    message = `MediaPackage channel ${channel}: segment ${segNum} ingested (${(segBytes / 1024).toFixed(0)} KB) on ${endpoint}. Latency: ${randInt(50, 800)}ms`;
+    messageDetails = { segNum, segBytes };
   } else if (scenario === "endpoint_created") {
-    message = `MediaPackage channel ${channel}: endpoint ${endpoint} created — format: ${rand(["HLS", "DASH", "CMAF", "MSS"])}, segment duration: ${rand([2, 4, 6])}s, DRM: ${rand(["enabled", "disabled"])}`;
   } else if (scenario === "harvest_complete") {
-    message = `MediaPackage channel ${channel}: VOD harvest job completed — ${randInt(100, 5000)} segments, ${randInt(60, 14400)}s duration, destination: s3://${rand(["media-archive", "vod-assets"])}-${acct.id}/`;
   } else {
-    message = `MediaPackage channel ${channel}: manifest published on ${endpoint} — ${randInt(10, 500_000)} egress requests/min, latency: ${randInt(200, 2500)}ms`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -606,112 +614,6 @@ function generateMediaPackageLog(ts: string, er: number): EcsDocument {
 }
 
 /* ------------------------------------------------------------------ */
-/*  MediaStore                                                        */
-/* ------------------------------------------------------------------ */
-function generateMediaStoreLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const container = rand(["live-origin", "vod-assets", "recording-store", "thumbnail-cache"]);
-  const containerArn = `arn:aws:mediastore:${region}:${acct.id}:container/${container}`;
-
-  const scenario = isErr
-    ? rand(["not_found", "throttle", "policy_denied", "internal"] as const)
-    : rand([
-        "put_object",
-        "put_object",
-        "get_object",
-        "get_object",
-        "describe_object",
-        "list_items",
-        "delete_object",
-      ] as const);
-
-  const objectPath = `/ingest/${rand(["channel-a", "channel-b"])}/${rand(["segment", "manifest", "init"])}${scenario === "list_items" ? "" : `-${randInt(0, 99999)}.${rand(["ts", "m3u8", "mpd", "mp4"])}`}`;
-  const bytes = scenario === "list_items" ? 0 : randInt(1_000, 8_000_000);
-  const requestId = randUUID();
-  const latMs = randFloat(1, isErr ? 500 : 80);
-
-  let op: string;
-  let message: string;
-  let errorBlock: Record<string, unknown> | null = null;
-
-  if (scenario === "not_found") {
-    op = "GetObject";
-    message = `MediaStore ${container}: GetObject 404 — path ${objectPath} not found. RequestId: ${requestId}`;
-    errorBlock = {
-      code: "ObjectNotFoundException",
-      message: `Object ${objectPath} does not exist`,
-      type: "client",
-    };
-  } else if (scenario === "throttle") {
-    op = rand(["PutObject", "GetObject"]);
-    message = `MediaStore ${container}: ${op} 429 — request throttled. Container throughput limit reached. RequestId: ${requestId}`;
-    errorBlock = {
-      code: "ContainerRateExceededException",
-      message: "Container throughput limit exceeded",
-      type: "client",
-    };
-  } else if (scenario === "policy_denied") {
-    op = rand(["PutObject", "DeleteObject"]);
-    message = `MediaStore ${container}: ${op} 403 — container policy denies action for principal arn:aws:iam::${acct.id}:role/${rand(["reader", "external-app"])}`;
-    errorBlock = {
-      code: "PolicyNotFoundException",
-      message: "Container policy denies this action",
-      type: "client",
-    };
-  } else if (scenario === "internal") {
-    op = rand(["PutObject", "GetObject"]);
-    message = `MediaStore ${container}: ${op} 500 — InternalServerError. RequestId: ${requestId}`;
-    errorBlock = { code: "InternalServerError", message: "Internal service error", type: "server" };
-  } else {
-    op =
-      scenario === "put_object"
-        ? "PutObject"
-        : scenario === "get_object"
-          ? "GetObject"
-          : scenario === "describe_object"
-            ? "DescribeObject"
-            : scenario === "delete_object"
-              ? "DeleteObject"
-              : "ListItems";
-    message = `MediaStore ${container}: ${op} 200 — path: ${objectPath}${bytes > 0 ? ` (${(bytes / 1024).toFixed(0)} KB)` : ""} in ${latMs.toFixed(0)}ms. RequestId: ${requestId}`;
-  }
-
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "mediastore" },
-    },
-    aws: {
-      mediastore: {
-        container_name: container,
-        container_arn: containerArn,
-        operation: op,
-        object_path: objectPath,
-        bytes,
-        request_id: requestId,
-      },
-    },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      dataset: "aws.mediastore",
-      category: ["file"],
-      type: awsEventType(
-        isErr,
-        scenario === "delete_object" ? "deletion" : scenario === "put_object" ? "change" : "access"
-      ),
-      duration: Math.round(latMs * 1e6),
-    },
-    message,
-    ...(errorBlock ? { error: errorBlock } : {}),
-  };
-}
-
-/* ------------------------------------------------------------------ */
 /*  MediaTailor                                                       */
 /* ------------------------------------------------------------------ */
 function generateMediaTailorLog(ts: string, er: number): EcsDocument {
@@ -731,19 +633,18 @@ function generateMediaTailorLog(ts: string, er: number): EcsDocument {
       ] as const);
 
   const availFilled = randFloat(scenario === "vast_empty" ? 0 : 40, isErr ? 55 : 98);
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
 
   if (scenario === "ads_timeout") {
     const adsUrl = `https://ads.${rand(EMAIL_DOMAINS)}/vast/${rand(["v3", "v4"])}`;
-    message = `MediaTailor ${config}: ADS timeout — ${adsUrl} did not respond within ${randInt(3, 10)}s. Avail at ${new Date(ts).toISOString()} unfilled.`;
+    messageDetails = { adsUrl };
     errorBlock = {
       code: "AdsDecisionServerTimeout",
       message: "ADS did not respond in time",
       type: "server",
     };
   } else if (scenario === "vast_empty") {
-    message = `MediaTailor ${config}: VAST response empty — ADS returned no ads for avail duration ${randInt(15, 120)}s. Slate will be inserted.`;
     errorBlock = {
       code: "EmptyVASTResponse",
       message: "No ad creatives returned for avail",
@@ -751,14 +652,12 @@ function generateMediaTailorLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "origin_error") {
     const status = rand([502, 503, 504]);
-    message = `MediaTailor ${config}: content origin returned ${status} for manifest request. Viewer session ${randId(16)} affected.`;
     errorBlock = {
       code: `OriginHTTP${status}`,
       message: `Content origin returned ${status}`,
       type: "server",
     };
   } else if (scenario === "stitch_failure") {
-    message = `MediaTailor ${config}: ad stitch failure — transcoding profile mismatch between ad creative (${rand(["1080p/H.264", "720p/H.265"])}) and content (${rand(["1080p/H.264", "4K/H.265"])})`;
     errorBlock = {
       code: "TranscodeProfileMismatch",
       message: "Ad creative codec incompatible with content profile",
@@ -767,16 +666,22 @@ function generateMediaTailorLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "ad_break_filled") {
     const breakDur = rand([15, 30, 60, 90, 120]);
     const filled = randInt(1, 6);
-    message = `MediaTailor ${config}: ad break filled — ${filled} creative${filled > 1 ? "s" : ""} for ${breakDur}s avail (${availFilled.toFixed(0)}% fill rate). Tracking events queued.`;
+    messageDetails = { breakDur, filled };
   } else if (scenario === "session_init") {
     const sessionId = randId(16);
-    message = `MediaTailor ${config}: session ${sessionId} initialized — player: ${rand(["HLS", "DASH"])}, personalization: ${rand(["ENABLED", "ENABLED", "DISABLED"])}`;
+    messageDetails = { sessionId };
   } else if (scenario === "prefetch_ok") {
-    message = `MediaTailor ${config}: ad prefetch completed — ${randInt(2, 10)} creatives cached for next ${randInt(1, 5)} avails`;
   } else {
-    message = `MediaTailor ${config}: personalized manifest served — ${randInt(100, 900_000)} requests/min, avail fill ${availFilled.toFixed(0)}%`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -835,52 +740,53 @@ function generateIvsLog(ts: string, er: number): EcsDocument {
 
   const bitrateKbps = randInt(800, 8500);
   const concurrentViews = randInt(0, 50_000);
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = { channelName };
 
   if (scenario === "ingest_starvation") {
     const gapSec = randFloat(2, 30);
-    message = `IVS channel ${channelName}: ingest starvation — no frames received for ${gapSec.toFixed(1)}s. Stream ${streamId} degraded. Bitrate dropped from ${bitrateKbps} to ${randInt(0, 200)} Kbps.`;
     errorBlock = {
       code: "StreamStarvation",
       message: `No frames for ${gapSec.toFixed(1)}s`,
       type: "network",
     };
   } else if (scenario === "stream_disconnect") {
-    message = `IVS channel ${channelName}: stream ${streamId} disconnected — encoder at ${randIp()} closed RTMPS connection. Duration: ${randInt(60, 28800)}s, peak viewers: ${concurrentViews}`;
     errorBlock = {
       code: "StreamDisconnected",
       message: "Encoder closed connection",
       type: "network",
     };
   } else if (scenario === "quota_exceeded") {
-    message = `IVS channel ${channelName}: ConcurrentStreams quota exceeded — limit ${rand([5, 10, 25])} active streams. CreateStream API returned ThrottlingException.`;
     errorBlock = {
       code: "ThrottlingException",
       message: "Concurrent stream limit exceeded",
       type: "client",
     };
   } else if (scenario === "recording_fail") {
-    message = `IVS channel ${channelName}: recording to S3 failed for stream ${streamId} — bucket s3://${rand(["ivs-recordings", "live-archive"])}-${acct.id}/ returned AccessDenied`;
     errorBlock = {
       code: "RecordingS3AccessDenied",
       message: "S3 bucket returned AccessDenied for recording",
       type: "client",
     };
   } else if (scenario === "stream_start") {
-    message = `IVS channel ${channelName}: stream ${streamId} started — RTMPS ingest from ${randIp()}, ${bitrateKbps} Kbps, ${rand(["1080p60", "720p30", "1080p30"])}`;
   } else if (scenario === "stream_end") {
     const durSec = randInt(60, 28800);
-    message = `IVS channel ${channelName}: stream ${streamId} ended gracefully — duration: ${durSec}s, peak viewers: ${concurrentViews}, avg bitrate: ${bitrateKbps} Kbps`;
+    messageDetails = { ...messageDetails, durSec };
   } else if (scenario === "recording_saved") {
-    message = `IVS channel ${channelName}: recording saved for stream ${streamId} — s3://${rand(["ivs-recordings", "live-archive"])}-${acct.id}/${streamId}.mp4 (${randInt(50, 5000)} MB)`;
   } else if (scenario === "viewer_spike") {
     const delta = randInt(1000, 20000);
-    message = `IVS channel ${channelName}: viewer spike detected — ${concurrentViews} → ${concurrentViews + delta} concurrent viewers in ${randInt(10, 60)}s`;
+    messageDetails = { ...messageDetails, delta };
   } else {
-    message = `IVS channel ${channelName}: stream ${streamId} healthy — ${bitrateKbps} Kbps, ${concurrentViews} viewers, 0 dropped frames`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -937,18 +843,16 @@ function generateIvsChatLog(ts: string, er: number): EcsDocument {
         "room_created",
       ] as const);
 
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
   let eventType: string;
 
   if (scenario === "send_fail") {
     eventType = "MESSAGE_SEND_FAILED";
     const reason = rand(["MessageTooLong", "RoomNotFound", "InternalError"]);
-    message = `IVS Chat ${roomId}: SendMessage failed for user ${userId} — ${reason}`;
     errorBlock = { code: reason, message: `Message delivery failed: ${reason}`, type: "client" };
   } else if (scenario === "rate_limited") {
     eventType = "RATE_LIMITED";
-    message = `IVS Chat ${roomId}: user ${userId} rate-limited — ${randInt(5, 20)} messages/s exceeds room limit of ${rand([5, 10])}/s`;
     errorBlock = {
       code: "ThrottlingException",
       message: "Message rate exceeded room limit",
@@ -956,7 +860,6 @@ function generateIvsChatLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "room_deleted") {
     eventType = "DELETE_ROOM";
-    message = `IVS Chat: room ${roomId} deleted by principal arn:aws:iam::${acct.id}:user/${rand(["admin", "moderator"])}. ${randInt(0, 500)} active connections disconnected.`;
     errorBlock = {
       code: "RoomDeleted",
       message: "Room was deleted while connections were active",
@@ -964,7 +867,6 @@ function generateIvsChatLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "auth_fail") {
     eventType = "CONNECT_FAILED";
-    message = `IVS Chat ${roomId}: connection rejected for token sub=${userId} — ${rand(["TokenExpired", "InvalidToken", "RoomCapacityExceeded"])}`;
     errorBlock = {
       code: rand(["TokenExpired", "InvalidToken"]),
       message: "Chat token validation failed",
@@ -972,23 +874,28 @@ function generateIvsChatLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "user_connect") {
     eventType = "CONNECT";
-    message = `IVS Chat ${roomId}: user ${userId} connected — active connections: ${randInt(1, 5000)}`;
   } else if (scenario === "user_disconnect") {
     eventType = "DISCONNECT";
     const dur = randInt(10, 7200);
-    message = `IVS Chat ${roomId}: user ${userId} disconnected after ${dur}s — ${randInt(0, 500)} messages sent during session`;
+    messageDetails = { dur };
   } else if (scenario === "moderation_action") {
     eventType = "MODERATION";
     const action = rand(["DELETE_MESSAGE", "DISCONNECT_USER", "BAN_USER"]);
-    message = `IVS Chat ${roomId}: moderator action ${action} on user ${userId} — reason: ${rand(["spam", "harassment", "inappropriate_content", "bot_detected"])}`;
+    messageDetails = { action };
   } else if (scenario === "room_created") {
     eventType = "CREATE_ROOM";
-    message = `IVS Chat: room ${roomId} created — max message length: ${rand([500, 1000, 5000])}, rate limit: ${rand([5, 10])}/s, logging: ${rand(["ENABLED", "DISABLED"])}`;
   } else {
     eventType = "MESSAGE_RECEIVED";
-    message = `IVS Chat ${roomId}: message from ${userId} — ${randInt(1, 500)} chars, type: ${rand(["TEXT", "CUSTOM"])}`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1012,112 +919,6 @@ function generateIvsChatLog(ts: string, er: number): EcsDocument {
       dataset: "aws.ivschat",
       category: ["network"],
       duration: randInt(500_000, 120_000_000),
-    },
-    message,
-    ...(errorBlock ? { error: errorBlock } : {}),
-  };
-}
-
-/* ------------------------------------------------------------------ */
-/*  CloudSearch                                                       */
-/* ------------------------------------------------------------------ */
-function generateCloudSearchLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const domain = `search-${rand(["products", "articles", "support-kb", "catalog"])}-${randId(4).toLowerCase()}`;
-  const domainArn = `arn:aws:cloudsearch:${region}:${acct.id}:domain/${domain}`;
-
-  const scenario = isErr
-    ? rand(["search_error", "throttle", "index_field_err", "capacity_limit"] as const)
-    : rand([
-        "search_ok",
-        "search_ok",
-        "search_ok",
-        "suggest_ok",
-        "upload_batch",
-        "index_config",
-      ] as const);
-
-  const queryTerms = rand([
-    "status:active category:books",
-    "release_date:[2024 TO *]",
-    "title:'machine learning'",
-    "*:*",
-    "color:red AND size:large",
-  ]);
-  const ms = randFloat(2, scenario === "search_error" ? 4000 : 180);
-  let message: string;
-  let errorBlock: Record<string, unknown> | null = null;
-
-  if (scenario === "search_error") {
-    const code = rand(["SearchException", "InternalException", "DisabledAction"]);
-    message = `CloudSearch ${domain}: search request failed — ${code}. Query: "${queryTerms}". RequestId: ${randId(12)}`;
-    errorBlock = { code, message: `Search request failed: ${code}`, type: "server" };
-  } else if (scenario === "throttle") {
-    message = `CloudSearch ${domain}: 507 — search request throttled (concurrent search limit reached). Query: "${queryTerms}". Retry after ${randInt(1, 5)}s.`;
-    errorBlock = {
-      code: "LimitExceededException",
-      message: "Concurrent search request limit exceeded",
-      type: "client",
-    };
-  } else if (scenario === "index_field_err") {
-    const field = rand(["description", "tags", "metadata.source"]);
-    message = `CloudSearch ${domain}: IndexField configuration error — field "${field}" type ${rand(["text-array", "literal"])} is incompatible with faceting. Domain: ${domainArn}`;
-    errorBlock = {
-      code: "InvalidTypeException",
-      message: `Index field type incompatible with requested option`,
-      type: "client",
-    };
-  } else if (scenario === "capacity_limit") {
-    message = `CloudSearch ${domain}: partition capacity at ${randInt(85, 100)}% — index size ${randInt(10, 500)} GB across ${randInt(1, 10)} partitions. Scale-up recommended.`;
-    errorBlock = {
-      code: "ResourceBusy",
-      message: "Domain partition near capacity",
-      type: "server",
-    };
-  } else if (scenario === "suggest_ok") {
-    const suggestions = randInt(1, 10);
-    message = `CloudSearch ${domain}: suggest OK — "${queryTerms}" returned ${suggestions} suggestions in ${ms.toFixed(0)}ms`;
-  } else if (scenario === "upload_batch") {
-    const docCount = randInt(100, 10_000);
-    const bytes = randInt(50_000, 10_000_000);
-    message = `CloudSearch ${domain}: documents/batch OK — ${docCount} documents (${(bytes / 1024).toFixed(0)} KB) indexed in ${randInt(200, 5000)}ms`;
-  } else if (scenario === "index_config") {
-    message = `CloudSearch ${domain}: IndexDocuments initiated — ${randInt(5, 50)} fields, ${rand(["text", "literal", "int", "date", "latlon"])} types. Reindexing in progress.`;
-  } else {
-    const hits = randInt(0, 500_000);
-    message = `CloudSearch ${domain}: search OK — query="${queryTerms}" hits=${hits} latency=${ms.toFixed(0)}ms facets=${randInt(0, 5)} highlights=${rand(["on", "off"])}`;
-  }
-
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "cloudsearch" },
-    },
-    aws: {
-      cloudsearch: {
-        domain_name: domain,
-        domain_arn: domainArn,
-        operation: scenario.startsWith("search")
-          ? "Search"
-          : scenario === "suggest_ok"
-            ? "Suggest"
-            : scenario === "upload_batch"
-              ? "UploadDocuments"
-              : "IndexDocuments",
-        hits_found: scenario.startsWith("search") && !isErr ? randInt(0, 500_000) : 0,
-        search_latency_ms: Math.round(ms),
-      },
-    },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      dataset: "aws.cloudsearch",
-      category: ["process"],
-      duration: Math.round(ms * 1e6),
     },
     message,
     ...(errorBlock ? { error: errorBlock } : {}),
@@ -1154,8 +955,8 @@ function generateDirectoryServiceLog(ts: string, er: number): EcsDocument {
         "schema_update",
       ] as const);
 
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
   let ldapCode: string;
 
   if (scenario === "auth_failed") {
@@ -1166,21 +967,18 @@ function generateDirectoryServiceLog(ts: string, er: number): EcsDocument {
         : ldapCode === "52"
           ? "unavailable"
           : "unwillingToPerform";
-    message = `Directory Service ${dirId} (${dirType}): LDAP Bind FAILED for ${principal} from ${clientIp} — result code ${ldapCode} (${reason}). Domain: ${domainName}`;
     errorBlock = { code: `LDAP_${ldapCode}`, message: reason, type: "authentication" };
   } else if (scenario === "ldap_bind_err") {
     ldapCode = "1";
-    message = `Directory Service ${dirId}: LDAP operations error — ${rand(["referral loop detected", "TLS handshake failed", "connection reset by peer"])} for ${clientIp}`;
     errorBlock = { code: "LDAP_1", message: "Operations error", type: "server" };
   } else if (scenario === "replication_fail") {
     ldapCode = "0";
     const partnerDc = `DC-${randId(4).toUpperCase()}`;
-    message = `Directory Service ${dirId}: replication FAILED from ${partnerDc} — ${rand(["network timeout after 30s", "USN rollback detected", "schema version mismatch"])}. Domain: ${domainName}`;
+    messageDetails = { partnerDc };
     errorBlock = { code: "ReplicationFailure", message: "AD replication failed", type: "server" };
   } else if (scenario === "dns_timeout") {
     ldapCode = "0";
     const target = `_ldap._tcp.${domainName}`;
-    message = `Directory Service ${dirId}: DNS SRV lookup timeout for ${target} — ${rand(["no response from forwarder", "NXDOMAIN", "SERVFAIL"])}`;
     errorBlock = {
       code: "DNSLookupFailed",
       message: `SRV lookup failed for ${target}`,
@@ -1188,7 +986,6 @@ function generateDirectoryServiceLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "account_locked") {
     ldapCode = "775";
-    message = `Directory Service ${dirId}: account ${principal} LOCKED after ${randInt(3, 10)} failed authentication attempts from ${clientIp}. Lockout duration: ${rand([15, 30, 60])} minutes.`;
     errorBlock = {
       code: "AccountLocked",
       message: `Account locked: too many failed attempts`,
@@ -1197,22 +994,27 @@ function generateDirectoryServiceLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "ldap_search") {
     ldapCode = "0";
     const base = `ou=${rand(["Users", "Computers", "Groups"])},dc=${domainName.split(".")[0]},dc=${domainName.split(".")[1]}`;
-    message = `Directory Service ${dirId}: LDAP Search OK — base="${base}" filter="(sAMAccountName=${rand(["*admin*", principal.split("@")[0], "svc-*"])})" scope=subtree results=${randInt(0, 500)} in ${randInt(1, 200)}ms`;
+    messageDetails = { base };
   } else if (scenario === "dns_lookup") {
     ldapCode = "0";
-    message = `Directory Service ${dirId}: DNS lookup OK — ${rand(["A", "SRV", "PTR"])} record for ${rand([`dc1.${domainName}`, `_kerberos._tcp.${domainName}`, clientIp])} resolved in ${randInt(1, 50)}ms`;
   } else if (scenario === "replication_ok") {
     ldapCode = "0";
     const partnerDc = `DC-${randId(4).toUpperCase()}`;
-    message = `Directory Service ${dirId}: replication OK with ${partnerDc} — ${randInt(0, 500)} objects synced, USN ${randInt(10000, 999999)}`;
+    messageDetails = { partnerDc };
   } else if (scenario === "schema_update") {
     ldapCode = "0";
-    message = `Directory Service ${dirId}: schema update applied — ${rand(["added custom attribute", "extended groupType", "updated objectClass"])} by ${principal}`;
   } else {
     ldapCode = "0";
-    message = `Directory Service ${dirId}: LDAP Bind OK for ${principal} from ${clientIp} — ${dirType} domain ${domainName}`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1275,8 +1077,8 @@ function generateAcmpcaLog(ts: string, er: number): EcsDocument {
         "audit_report",
       ] as const);
 
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
   let apiCall: string;
 
   if (scenario === "issue_fail") {
@@ -1286,11 +1088,9 @@ function generateAcmpcaLog(ts: string, er: number): EcsDocument {
       "Template not found",
       "Validity period exceeds CA validity",
     ]);
-    message = `ACM PCA ${caId}: IssueCertificate FAILED — ${reason}. CA: ${caArn}`;
     errorBlock = { code: "MalformedCSRException", message: reason, type: "client" };
   } else if (scenario === "revoke_fail") {
     apiCall = "RevokeCertificate";
-    message = `ACM PCA ${caId}: RevokeCertificate FAILED — certificate ${serial} not found or already revoked`;
     errorBlock = {
       code: "InvalidRequestException",
       message: "Certificate not found or already revoked",
@@ -1298,7 +1098,6 @@ function generateAcmpcaLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "ca_expired") {
     apiCall = "IssueCertificate";
-    message = `ACM PCA ${caId}: CA certificate expired — unable to issue new certificates. CA status: EXPIRED. Renew the CA certificate.`;
     errorBlock = {
       code: "InvalidStateException",
       message: "CA is in EXPIRED state",
@@ -1306,7 +1105,6 @@ function generateAcmpcaLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "quota_exceeded") {
     apiCall = "IssueCertificate";
-    message = `ACM PCA ${caId}: RequestThrottledException — certificate issuance rate exceeded (${randInt(50, 200)}/s, limit: ${rand([25, 50])}). CA: ${caArn}`;
     errorBlock = {
       code: "RequestThrottledException",
       message: "Certificate issuance rate limit exceeded",
@@ -1314,7 +1112,6 @@ function generateAcmpcaLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "access_denied") {
     apiCall = rand(["IssueCertificate", "RevokeCertificate", "GetCertificate"]);
-    message = `ACM PCA ${caId}: AccessDeniedException — arn:aws:iam::${acct.id}:role/${rand(["app-role", "ci-runner"])} does not have acm-pca:${apiCall} on ${caArn}`;
     errorBlock = {
       code: "AccessDeniedException",
       message: `Insufficient IAM permissions for ${apiCall}`,
@@ -1322,17 +1119,14 @@ function generateAcmpcaLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "revoke_ok") {
     apiCall = "RevokeCertificate";
-    message = `ACM PCA ${caId}: RevokeCertificate OK — serial ${serial}, reason: ${rand(["KEY_COMPROMISE", "CESSATION_OF_OPERATION", "SUPERSEDED", "UNSPECIFIED"])}. CRL updated.`;
   } else if (scenario === "describe_ca") {
     apiCall = "DescribeCertificateAuthority";
     const status = rand(["ACTIVE", "ACTIVE", "PENDING_CERTIFICATE", "DISABLED"]);
-    message = `ACM PCA ${caId}: DescribeCertificateAuthority — status: ${status}, type: ${rand(["ROOT", "SUBORDINATE"])}, algorithm: ${rand(["RSA_2048", "RSA_4096", "EC_prime256v1", "EC_secp384r1"])}`;
+    messageDetails = { status };
   } else if (scenario === "get_cert") {
     apiCall = "GetCertificate";
-    message = `ACM PCA ${caId}: GetCertificate OK — serial ${serial}, algorithm: ${rand(["SHA256WITHRSA", "SHA384WITHECDSA", "SHA512WITHRSA"])}`;
   } else if (scenario === "audit_report") {
     apiCall = "CreateCertificateAuthorityAuditReport";
-    message = `ACM PCA ${caId}: audit report created — s3://${rand(["pca-audits", "compliance-logs"])}-${acct.id}/audit-${new Date(ts).toISOString().slice(0, 10)}.json, ${randInt(10, 10_000)} certificates evaluated`;
   } else {
     apiCall = "IssueCertificate";
     const template = rand([
@@ -1340,9 +1134,17 @@ function generateAcmpcaLog(ts: string, er: number): EcsDocument {
       "SubordinateCACertificate_PathLen3/V1",
       "CodeSigningCertificate/V1",
     ]);
-    message = `ACM PCA ${caId}: IssueCertificate OK — serial ${serial}, template: ${template}, validity: ${rand([365, 730, 1095])} days, algorithm: ${rand(["SHA256WITHRSA", "SHA384WITHECDSA"])}`;
+    messageDetails = { template };
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1404,11 +1206,9 @@ function generateMgnLog(ts: string, er: number): EcsDocument {
   const replicationType = rand(["CONTINUOUS", "SNAPSHOT", "ON_DEMAND"]);
   const lagSec = isErr ? randFloat(300, 7200) : randFloat(0.2, 12);
   const bytesReplicated = randInt(1e9, 8e12);
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
 
   if (scenario === "replication_stall") {
-    message = `MGN source ${serverId} (${hostname}): replication STALLED — lag ${Math.round(lagSec)}s, last checkpoint ${new Date(Date.now() - lagSec * 1000).toISOString()}. Agent status: ${rand(["STALLED", "LAGGING"])}. Check network bandwidth and disk I/O.`;
     errorBlock = {
       code: "ReplicationStalled",
       message: `Replication lag ${Math.round(lagSec)}s exceeds threshold`,
@@ -1421,10 +1221,8 @@ function generateMgnLog(ts: string, er: number): EcsDocument {
       "Security group not found",
       "Subnet has no available IPs",
     ]);
-    message = `MGN source ${serverId} (${hostname}): CUTOVER FAILED — ${reason}. Job: mgnjob-${randId(8)}. Manual intervention required.`;
     errorBlock = { code: "CutoverFailedException", message: reason, type: "server" };
   } else if (scenario === "agent_disconnect") {
-    message = `MGN source ${serverId} (${hostname}): replication agent DISCONNECTED — last heartbeat ${randInt(5, 60)} min ago. OS: ${rand(["Windows Server 2019", "RHEL 8", "Ubuntu 22.04"])}. Verify agent process and network connectivity.`;
     errorBlock = {
       code: "AgentDisconnected",
       message: "No heartbeat from replication agent",
@@ -1432,28 +1230,28 @@ function generateMgnLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "launch_fail") {
     const reason = rand(["InsufficientInstanceCapacity", "InvalidAMI", "VolumeLimitExceeded"]);
-    message = `MGN source ${serverId} (${hostname}): test launch FAILED — EC2 returned ${reason} in ${region}`;
     errorBlock = { code: reason, message: `EC2 launch failed: ${reason}`, type: "server" };
   } else if (scenario === "disk_full") {
     const disk = rand(["C:\\", "/dev/sda1", "/dev/xvda1"]);
-    message = `MGN source ${serverId} (${hostname}): staging disk ${disk} at ${randInt(95, 100)}% — replication may stall. Total: ${randInt(50, 2000)} GB, used: ${randInt(48, 1990)} GB`;
     errorBlock = {
       code: "DiskSpaceLow",
       message: `Staging disk ${disk} near capacity`,
       type: "server",
     };
   } else if (scenario === "cutover_ok") {
-    message = `MGN source ${serverId} (${hostname}): CUTOVER SUCCESS — EC2 instance i-${randHexId(17)} launched in ${region}. DNS updated. Cutover duration: ${randInt(120, 3600)}s`;
   } else if (scenario === "test_launch") {
-    message = `MGN source ${serverId} (${hostname}): test launch SUCCESS — instance i-${randHexId(17)} running. Boot validation: ${rand(["PASSED", "PASSED", "WARNING_DRIVERS"])}`;
   } else if (scenario === "agent_connect") {
-    message = `MGN source ${serverId} (${hostname}): agent connected — OS: ${rand(["Windows Server 2019", "RHEL 8", "Ubuntu 22.04"])}, disks: ${randInt(1, 8)}, total: ${randInt(50, 4000)} GB`;
   } else if (scenario === "finalize") {
-    message = `MGN source ${serverId} (${hostname}): migration FINALIZED — source server archived. Total data replicated: ${(bytesReplicated / 1e9).toFixed(1)} GB over ${randInt(1, 90)} days`;
   } else {
-    message = `MGN source ${serverId} (${hostname}): replication healthy — lag ${lagSec.toFixed(1)}s, ${(bytesReplicated / 1e9).toFixed(1)} GB replicated, ${replicationType}`;
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1523,8 +1321,8 @@ function generateCwSyntheticsLog(ts: string, er: number): EcsDocument {
     "complete_checkout",
     "search_products",
   ]);
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
 
   if (scenario === "step_fail") {
     const reason = isNode
@@ -1537,7 +1335,6 @@ function generateCwSyntheticsLog(ts: string, er: number): EcsDocument {
           `NoSuchElementException: Unable to locate element: {"method":"css selector","selector":"#submit-btn"}`,
           `TimeoutException: page load timed out`,
         ]);
-    message = `Synthetics ${canary} run ${runId}: step "${stepName}" FAILED — ${reason}`;
     errorBlock = {
       code: isNode ? "TimeoutError" : "NoSuchElementException",
       message: reason,
@@ -1547,7 +1344,6 @@ function generateCwSyntheticsLog(ts: string, er: number): EcsDocument {
         : `selenium.common.exceptions.${rand(["NoSuchElementException", "TimeoutException"])}: Message: ${reason}\n  File "/opt/python/lib/python3.12/selenium/webdriver/remote/webdriver.py", line ${randInt(100, 500)}`,
     };
   } else if (scenario === "timeout") {
-    message = `Synthetics ${canary} run ${runId}: TIMEOUT — canary exceeded maximum duration of ${rand([60, 120, 300])}s. Last completed step: "${stepName}" at ${durMs}ms`;
     errorBlock = {
       code: "CanaryTimeout",
       message: `Exceeded maximum execution time`,
@@ -1555,7 +1351,6 @@ function generateCwSyntheticsLog(ts: string, er: number): EcsDocument {
     };
   } else if (scenario === "screenshot_diff") {
     const diffPct = randFloat(5, 40);
-    message = `Synthetics ${canary} run ${runId}: visual regression — step "${stepName}" screenshot differs by ${diffPct.toFixed(1)}% from baseline (threshold: 5%). Screenshot: s3://cw-syn-results-${acct.id}-${region}/${canary}/${runId}/screenshots/${stepName}.png`;
     errorBlock = {
       code: "VisualRegressionDetected",
       message: `Screenshot diff ${diffPct.toFixed(1)}% exceeds threshold`,
@@ -1568,26 +1363,36 @@ function generateCwSyntheticsLog(ts: string, er: number): EcsDocument {
       "net::ERR_CERT_DATE_INVALID",
       "net::ERR_NAME_NOT_RESOLVED",
     ]);
-    message = `Synthetics ${canary} run ${runId}: network error at "${stepName}" — ${netErr} for ${url}`;
-    errorBlock = { code: netErr, message: `Network request failed: ${netErr}`, type: "network" };
+    messageDetails = { url };
+    errorBlock = {
+      code: netErr,
+      message: `Network request failed for ${url}: ${netErr}`,
+      type: "network",
+    };
   } else if (scenario === "assertion_fail") {
     const assertion = rand([
       `Expected status 200 but got 503`,
       `Expected text "Welcome" but got "Service Unavailable"`,
       `Expected response time < 2000ms but was ${durMs}ms`,
     ]);
-    message = `Synthetics ${canary} run ${runId}: assertion failed at step "${stepName}" — ${assertion}`;
     errorBlock = { code: "AssertionError", message: assertion, type: "test" };
   } else if (scenario === "step_pass") {
     const stepMs = randInt(100, 5000);
-    message = `Synthetics ${canary} run ${runId}: step "${stepName}" PASSED in ${stepMs}ms — screenshot captured`;
+    messageDetails = { stepMs };
   } else if (scenario === "visual_pass") {
-    message = `Synthetics ${canary} run ${runId}: visual comparison PASSED — step "${stepName}" within 2% of baseline`;
   } else {
     const steps = randInt(3, 8);
-    message = `Synthetics ${canary} run ${runId}: PASSED — ${steps}/${steps} steps completed in ${durMs}ms. Runtime: ${runtime}. Screenshot S3: s3://cw-syn-results-${acct.id}-${region}/${canary}/${runId}/`;
+    messageDetails = { steps };
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1654,8 +1459,8 @@ function generateManagedPrometheusLog(ts: string, er: number): EcsDocument {
       ] as const);
 
   const samplesIngested = randInt(10_000, 500_000_000);
-  let message: string;
   let errorBlock: Record<string, unknown> | null = null;
+  let messageDetails: Record<string, unknown> = {};
 
   if (scenario === "remote_write_fail") {
     const reason = rand([
@@ -1664,7 +1469,6 @@ function generateManagedPrometheusLog(ts: string, er: number): EcsDocument {
       "Payload decompression failed",
       "Sample timestamp too old (>1h)",
     ]);
-    message = `AMP workspace ${wsAlias} (${wsId}): remote_write FAILED — ${reason}. Dropped ${randInt(100, 50_000)} samples from ${rand(["prometheus-k8s-0", "grafana-agent", "otel-collector"])}.`;
     errorBlock = {
       code: rand(["InvalidSignatureException", "ResourceNotFoundException", "ValidationException"]),
       message: reason,
@@ -1676,7 +1480,7 @@ function generateManagedPrometheusLog(ts: string, er: number): EcsDocument {
       `histogram_quantile(0.99, sum(rate(request_duration_seconds_bucket[5m])) by (le))`,
       `topk(10, container_memory_working_set_bytes)`,
     ]);
-    message = `AMP workspace ${wsAlias}: query_range TIMEOUT — "${queryExpr}" exceeded ${rand([30, 60, 120])}s limit. Time range: ${rand(["1h", "6h", "24h", "7d"])}. Consider reducing cardinality or time range.`;
+    messageDetails = { queryExpr };
     errorBlock = {
       code: "QueryTimeout",
       message: "PromQL query exceeded execution time limit",
@@ -1688,14 +1492,13 @@ function generateManagedPrometheusLog(ts: string, er: number): EcsDocument {
       "container_memory_usage_bytes",
       "http_request_duration_seconds",
     ]);
-    message = `AMP workspace ${wsAlias}: ${randInt(100, 10_000)} out-of-order samples discarded for metric "${metric}" — source: ${rand(["prometheus-k8s-0", "victoria-agent"])}. Ensure scrapers use consistent timestamps.`;
+    messageDetails = { metric };
     errorBlock = {
       code: "OutOfOrderSample",
       message: "Samples arrived with timestamps older than accepted window",
       type: "client",
     };
   } else if (scenario === "rate_limit") {
-    message = `AMP workspace ${wsAlias}: remote_write rate-limited — ${randInt(50_000, 500_000)} samples/s exceeds workspace limit of ${rand([50_000, 100_000, 200_000])}/s. ${randInt(1000, 50_000)} samples dropped.`;
     errorBlock = {
       code: "ThrottlingException",
       message: "Ingestion rate limit exceeded",
@@ -1704,7 +1507,7 @@ function generateManagedPrometheusLog(ts: string, er: number): EcsDocument {
   } else if (scenario === "rule_eval_fail") {
     const ruleName = rand(["HighErrorRate", "PodCrashLooping", "NodeNotReady", "DiskPressure"]);
     const ruleGroup = rand(["kubernetes-alerts", "sre-slos", "infrastructure"]);
-    message = `AMP workspace ${wsAlias}: rule evaluation FAILED — group "${ruleGroup}", rule "${ruleName}": ${rand(["query returned no data", "vector selector must be instant", "expression too complex"])}`;
+    messageDetails = { ruleName, ruleGroup };
     errorBlock = {
       code: "RuleEvaluationFailure",
       message: `Rule "${ruleName}" failed to evaluate`,
@@ -1717,15 +1520,13 @@ function generateManagedPrometheusLog(ts: string, er: number): EcsDocument {
       `node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes`,
     ]);
     const resultCount = randInt(1, 500);
-    message = `AMP workspace ${wsAlias}: query_range OK — "${queryExpr}" returned ${resultCount} series in ${randInt(5, 2000)}ms. Time range: ${rand(["1h", "6h", "24h"])}`;
+    messageDetails = { queryExpr, resultCount };
   } else if (scenario === "rule_eval_ok") {
     const ruleGroup = rand(["kubernetes-alerts", "sre-slos", "infrastructure"]);
     const rules = randInt(5, 50);
-    message = `AMP workspace ${wsAlias}: rule group "${ruleGroup}" evaluated — ${rules} rules in ${randInt(10, 500)}ms, ${randInt(0, 3)} alerts firing`;
+    messageDetails = { ruleGroup, rules };
   } else if (scenario === "ruler_reload") {
-    message = `AMP workspace ${wsAlias}: ruler configuration reloaded — ${randInt(1, 10)} rule groups, ${randInt(5, 100)} total rules. Source: ${rand(["API update", "config sync"])}`;
   } else if (scenario === "workspace_describe") {
-    message = `AMP workspace ${wsAlias} (${wsId}): DescribeWorkspace — status: ACTIVE, alias: ${wsAlias}, created: ${rand(["2024-01-15", "2024-06-01", "2025-03-10"])}`;
   } else {
     const scraper = rand([
       "prometheus-k8s-0",
@@ -1733,9 +1534,17 @@ function generateManagedPrometheusLog(ts: string, er: number): EcsDocument {
       "otel-collector",
       "adot-collector",
     ]);
-    message = `AMP workspace ${wsAlias}: remote_write OK — ${samplesIngested.toLocaleString()} samples ingested from ${scraper} in ${randInt(50, 2000)}ms. Active series: ${randInt(10_000, 5_000_000)}`;
+    messageDetails = { scraper };
   }
 
+  const message = JSON.stringify({
+    scenario,
+    timestamp: new Date(ts).toISOString(),
+    region,
+    accountId: acct.id,
+    ...messageDetails,
+    ...(errorBlock ? { status: "Failed", error: errorBlock } : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1783,11 +1592,9 @@ export {
   generateElbClassicLog,
   generateMediaConnectLog,
   generateMediaPackageLog,
-  generateMediaStoreLog,
   generateMediaTailorLog,
   generateIvsLog,
   generateIvsChatLog,
-  generateCloudSearchLog,
   generateDirectoryServiceLog,
   generateAcmpcaLog,
   generateMgnLog,

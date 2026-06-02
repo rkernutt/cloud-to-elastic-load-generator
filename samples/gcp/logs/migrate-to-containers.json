@@ -1,61 +1,64 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "NOTICE",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "NOT_FOUND" },
+  "error": { "code": "NOT_FOUND", "message": "NOT_FOUND: operation failed", "type": "gcp" },
+  "severity": "CRITICAL",
   "labels": {
-    "migration_plan": "plan-kbnpfsfr",
-    "phase": "DISCOVER",
-    "source_vm": "vm-monolith-9h61f"
+    "migration_plan": "plan-j0n0rcfs",
+    "phase": "GENERATE_ARTIFACTS",
+    "source_vm": "vm-monolith-b12q4",
+    "gcp.rpc.status_code": "NOT_FOUND"
   },
-  "insertId": "Z6G5S9PJIT96",
+  "insertId": "W3M40VVP1KD9",
   "resource": {
     "type": "gce_instance",
-    "labels": { "project_id": "globex-prod-482910", "instance_id": "vm-monolith-9h61f" }
+    "labels": { "project_id": "globex-stg-739158", "instance_id": "vm-monolith-b12q4" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-southeast1",
-    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
-    "account": { "id": "482910375621", "name": "Globex Production" },
+    "region": "asia-south2",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
     "service": { "name": "migrate-to-containers" }
   },
   "gcp": {
     "migrate_to_containers": {
-      "source_vm": "vm-monolith-9h61f",
-      "target_image": "gcr.io/globex-prod-482910/migrated/api:tq00c2",
-      "migration_plan": "plan-kbnpfsfr",
-      "phase": "DISCOVER",
-      "status": "SUCCEEDED",
-      "fit_assessment_score": 0.877
+      "source_vm": "vm-monolith-b12q4",
+      "target_image": "gcr.io/globex-stg-739158/migrated/worker:p11vzc",
+      "migration_plan": "plan-j0n0rcfs",
+      "phase": "GENERATE_ARTIFACTS",
+      "status": "RUNNING",
+      "fit_assessment_score": 0.45
     }
   },
   "event": {
-    "outcome": "success",
-    "duration": 601290,
+    "outcome": "failure",
+    "duration": 2788284,
     "module": "gcp",
     "dataset": "gcp.migrate_containers"
   },
-  "message": "migrate.kubernetes.io: vm-monolith-9h61f -> gcr.io/globex-prod-482910/migrated/api:tq00c2 phase DISCOVER SUCCEEDED (fit 88)",
+  "message": "migrate.kubernetes.io: plan \"plan-j0n0rcfs\" phase GENERATE_ARTIFACTS RUNNING: fit score 45 (vm-monolith-b12q4)",
   "service": { "name": "migrate-to-containers", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.migrate_containers", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-southeast1",
-    "id": "boyetp25x7gliebrgx1ljh0x70z7oj2pmgln"
+    "name": "elastic-agent-gcp-asia-south2",
+    "id": "ckvs2oee24d5uo8gpsmstvkkhic6bjh0dh3e"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-482910/logs/migrate-to-containers",
+  "logName": "projects/globex-stg-739158/logs/migrate-to-containers",
   "jsonPayload": {
     "migrate_to_containers": {
-      "source_vm": "vm-monolith-9h61f",
-      "target_image": "gcr.io/globex-prod-482910/migrated/api:tq00c2",
-      "migration_plan": "plan-kbnpfsfr",
-      "phase": "DISCOVER",
-      "status": "SUCCEEDED",
-      "fit_assessment_score": 0.877
+      "source_vm": "vm-monolith-b12q4",
+      "target_image": "gcr.io/globex-stg-739158/migrated/worker:p11vzc",
+      "migration_plan": "plan-j0n0rcfs",
+      "phase": "GENERATE_ARTIFACTS",
+      "status": "RUNNING",
+      "fit_assessment_score": 0.45
     },
-    "message": "migrate.kubernetes.io: vm-monolith-9h61f -> gcr.io/globex-prod-482910/migrated/api:tq00c2 phase DISCOVER SUCCEEDED (fit 88)"
+    "message": "migrate.kubernetes.io: plan \"plan-j0n0rcfs\" phase GENERATE_ARTIFACTS RUNNING: fit score 45 (vm-monolith-b12q4)"
   }
 }

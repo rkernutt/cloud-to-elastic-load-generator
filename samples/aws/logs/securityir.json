@@ -1,23 +1,23 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
+    "region": "ap-southeast-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "securityir" }
   },
   "aws": {
-    "dimensions": { "CaseId": "case-0erhiw8x", "Severity": "MEDIUM" },
+    "dimensions": { "CaseId": "case-7pwlvmz4", "Severity": "LOW" },
     "securityir": {
-      "case_id": "case-0erhiw8x",
-      "case_title": "Insider threat",
-      "case_status": "ACTIVE",
-      "severity": "MEDIUM",
-      "impacted_account_count": 8,
+      "case_id": "case-7pwlvmz4",
+      "case_title": "Ransomware detection",
+      "case_status": "FAILED",
+      "severity": "LOW",
+      "impacted_account_count": 10,
       "impacted_services": "CloudTrail,GuardDuty",
-      "resolver_type": "AWS",
-      "engagement_type": "SECURITY_INCIDENT",
-      "case_arn": "arn:aws:security-ir:ap-southeast-2:738291046572:case/case-0erhiw8x"
+      "resolver_type": "SELF_MANAGED",
+      "engagement_type": "INVESTIGATION",
+      "case_arn": "arn:aws:security-ir:ap-southeast-1:738291046572:case/case-7pwlvmz4"
     },
     "s3": {
       "bucket": {
@@ -25,34 +25,39 @@
         "arn": "arn:aws:s3:::aws-securityir-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/securityir/ap-southeast-2/2026/05/28/securityir_HGMJ5OBWRN55LOZX30SO.log.gz"
+        "key": "AWSLogs/738291046572/securityir/ap-southeast-1/2026/06/01/securityir_QE157OHBQVCLKRI7K83N.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/securityir/logs",
-      "log_stream": "ap-southeast-2/taa0kstu",
-      "ingestion_time": "2026-05-28T16:58:16.036Z"
+      "log_stream": "ap-southeast-1/7dixvpay",
+      "ingestion_time": "2026-06-01T18:12:00.355Z"
     }
   },
   "event": {
-    "action": "CloseCase",
-    "outcome": "success",
+    "action": "CreateCaseComment",
+    "outcome": "failure",
     "category": ["intrusion_detection", "process"],
     "type": ["info"],
     "dataset": "aws.securityir",
     "provider": "security-ir.amazonaws.com",
     "module": "aws"
   },
-  "message": "Security IR CloseCase: case=case-0erhiw8x severity=MEDIUM status=ACTIVE",
-  "log": { "level": "warn" },
+  "message": "{\"eventType\":\"CreateCaseComment\",\"eventTime\":\"2026-06-01T18:11:59.613Z\",\"caseId\":\"case-7pwlvmz4\",\"caseArn\":\"arn:aws:security-ir:ap-southeast-1:738291046572:case/case-7pwlvmz4\",\"caseTitle\":\"Ransomware detection\",\"caseStatus\":\"FAILED\",\"severity\":\"LOW\",\"impactedAccountCount\":10,\"impactedServices\":[\"CloudTrail\",\"GuardDuty\"],\"resolverType\":\"SELF_MANAGED\",\"engagementType\":\"SECURITY_INCIDENT\",\"errorCode\":\"ValidationException\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "Security IR operation failed",
+    "type": "security"
+  },
   "service": { "name": "securityir", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.securityir", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "bnpexfzfl8r2yps81twxwm8z6nd9kms52tiu"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "62um7bc3upqljroc7ktid6lnt73gwh3wvm3i"
   },
   "input": { "type": "http_endpoint" }
 }

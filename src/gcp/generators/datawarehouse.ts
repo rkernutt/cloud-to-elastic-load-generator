@@ -641,61 +641,6 @@ export function generateAnalyticsHubLog(ts: string, er: number): EcsDocument {
   return doc;
 }
 
-export function generateDataprepLog(ts: string, er: number): EcsDocument {
-  const { region, project, isErr } = makeGcpSetup(er);
-  const flowName = rand(["clean_user_events", "standardize_orders", "dedupe_leads"]);
-  const jobId = `wrangle-${randId(8)}`;
-  const recipeSteps = randInt(5, 40);
-  const inputRows = isErr ? randInt(1000, 50_000) : randInt(100_000, 20_000_000);
-  const outputRows = isErr
-    ? randInt(0, Math.min(500, inputRows))
-    : Math.round(inputRows * randFloat(0.95, 1.0));
-  const status = isErr ? "Failed" : rand(["Completed", "Running", "Completed"] as const);
-  const dataSource = rand(["BigQuery", "GCS", "Datastore"]);
-  const profileColumnsCount = isErr ? randInt(0, 3) : randInt(8, 200);
-  const durationNs = randLatencyMs(4000, isErr) * 1e6;
-  const severity = randSeverity(isErr);
-  const message = isErr
-    ? `dataprep.googleapis.com/jobs/${jobId}: flow=${flowName} status=${status} step=${randInt(1, recipeSteps)} Type mismatch casting to TIMESTAMP`
-    : `dataprep.googleapis.com/jobs/${jobId}: flow=${flowName} status=${status} outputRows=${outputRows} source=${dataSource} recipeSteps=${recipeSteps}`;
-
-  const doc: EcsDocument = {
-    "@timestamp": ts,
-    severity,
-    labels: { flow_name: flowName, job_id: jobId },
-    cloud: gcpCloud(region, project, "dataprep"),
-    gcp: {
-      dataprep: {
-        flow_name: flowName,
-        job_id: jobId,
-        recipe_steps: recipeSteps,
-        input_rows: inputRows,
-        output_rows: outputRows,
-        status,
-        data_source: dataSource,
-        profile_columns_count: profileColumnsCount,
-      },
-    },
-    event: gcpLogEvent(
-      isErr,
-      durationNs,
-      `dataprep.${flowName}`,
-      ["database"],
-      isErr ? ["error"] : ["change"]
-    ),
-    message,
-  };
-
-  if (isErr) {
-    doc.error = {
-      type: "TransformError",
-      message: "Column cast to TIMESTAMP failed on non-parseable values",
-    };
-  }
-
-  return doc;
-}
-
 export function generateDatastreamLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const streamName = `projects/${project.id}/locations/${region}/streams/${rand(["mysql-cdc", "oracle-warehouse", "postgres-oltp"])}`;

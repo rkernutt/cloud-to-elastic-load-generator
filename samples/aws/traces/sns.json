@@ -1,33 +1,34 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "bef7594777db75388e011e8d3db2a6e9" },
+  "trace": { "id": "08624c39eeb418aa370a52049a8e2fc5" },
   "transaction": {
-    "id": "3a1c325055b22d5a",
-    "name": "SNS Publish domain-events",
+    "id": "d0f149adebccae15",
+    "name": "SNS Publish critical-alerts.fifo",
     "type": "messaging",
-    "duration": { "us": 178000 },
+    "duration": { "us": 127000 },
     "result": "success",
     "sampled": true,
-    "span_count": { "started": 2, "dropped": 0 }
+    "span_count": { "started": 1, "dropped": 0 }
   },
   "labels": {
-    "topic_arn": "arn:aws:sns:ap-northeast-2:571938264710:domain-events",
+    "topic_arn": "arn:aws:sns:us-west-1:814726593401:critical-alerts.fifo",
     "message_count": "1",
-    "subject": "user.signup"
+    "subject": "user.signup",
+    "message_group_id": "group-a"
   },
   "service": {
-    "name": "event-publisher",
-    "environment": "dev",
-    "version": "2.14.2",
-    "language": { "name": "nodejs" },
-    "runtime": { "name": "node", "version": "20.15.1" },
-    "framework": { "name": "Express" }
+    "name": "alert-dispatcher",
+    "environment": "staging",
+    "version": "2.14.3",
+    "language": { "name": "java" },
+    "runtime": { "name": "OpenJDK", "version": "21.0.3" },
+    "framework": { "name": "Spring Boot" }
   },
-  "agent": { "name": "otlp", "version": "1.4.0" },
+  "agent": { "name": "otlp", "version": "1.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "nodejs", "version": "1.30.1" },
-    "distro": { "name": "elastic", "version": "1.4.0" },
+    "sdk": { "name": "opentelemetry", "language": "java", "version": "2.12.0" },
+    "distro": { "name": "elastic", "version": "1.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -36,11 +37,11 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-2",
-    "account": { "id": "571938264710", "name": "dev-aws" },
+    "region": "us-west-1",
+    "account": { "id": "814726593401", "name": "prod-aws" },
     "service": { "name": "sns" }
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.sns" },
+  "event": { "outcome": "success", "module": "aws", "dataset": "aws.cloudwatch_logs" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

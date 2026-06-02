@@ -141,9 +141,11 @@ function minimalDashboard(vendor, sid, dataset) {
       lensTable(
         `${pfx}t1`,
         { x: 0, y: 25, w: 48, h: 12 },
-        "By region",
+        vendor === "gcp" ? "By project" : "By subscription",
         q(
-          'STATS c = COUNT() BY region = COALESCE(cloud.region, "unknown") | SORT c DESC | LIMIT 15'
+          vendor === "gcp"
+            ? 'STATS c = COUNT() BY region = COALESCE(cloud.project.id, "unknown") | SORT c DESC | LIMIT 15'
+            : 'STATS c = COUNT() BY region = COALESCE(cloud.account.id, "unknown") | SORT c DESC | LIMIT 15'
         ),
         [
           ["region", "Region"],

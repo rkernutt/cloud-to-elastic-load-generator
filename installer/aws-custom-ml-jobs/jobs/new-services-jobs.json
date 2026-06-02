@@ -3,69 +3,15 @@
   "description": "v10 new service anomaly detection — Kendra search anomalies, Amazon VPC Lattice errors, Amazon MSK Connect lag, FIS experiment failures, and more",
   "jobs": [
     {
-      "id": "aws-kendra-query-failure-spike",
-      "description": "Detects spikes in Amazon Kendra query failures per index (degraded search service or misconfiguration)",
-      "job": {
-        "description": "Detects spikes in Kendra query failures per index (degraded search service or misconfiguration)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
-        "analysis_config": {
-          "bucket_span": "15m",
-          "detectors": [
-            {
-              "detector_description": "high_count partitionfield=aws.kendra.index_name",
-              "function": "high_count",
-              "partition_field_name": "aws.kendra.index_name",
-              "detector_index": 0
-            }
-          ],
-          "influencers": ["aws.kendra.index_name", "cloud.region"]
-        },
-        "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
-      },
-      "datafeed": {
-        "indices": ["logs-aws.*"],
-        "max_empty_searches": 10,
-        "query": {
-          "bool": {
-            "filter": [
-              {
-                "term": {
-                  "event.dataset": "aws.kendra"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
-            ]
-          }
-        },
-        "chunking_config": {
-          "mode": "auto"
-        },
-        "query_delay": "60s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
-      }
-    },
-    {
       "id": "aws-vpclattice-5xx-spike",
       "description": "Detects spikes in Amazon VPC Lattice 5xx errors per service (upstream failures or misconfigured routing)",
       "job": {
         "description": "Detects spikes in VPC Lattice 5xx errors per service (upstream failures or misconfigured routing)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "5m",
           "detectors": [
@@ -76,7 +22,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.vpclattice.service_name", "cloud.region"]
+          "influencers": [
+            "aws.vpclattice.service_name",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -87,11 +36,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -123,7 +76,11 @@
       "description": "Detects unusual consumer offset lag per Amazon MSK Connect connector (pipeline stalling or throughput degradation)",
       "job": {
         "description": "Detects unusual consumer offset lag per MSK Connect connector (pipeline stalling or throughput degradation)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -135,7 +92,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.mskconnect.connector_name", "cloud.region"]
+          "influencers": [
+            "aws.mskconnect.connector_name",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -146,11 +106,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -177,7 +141,11 @@
       "description": "Detects spikes in Amazon MWAA DAG run failures per DAG (Airflow pipeline instability)",
       "job": {
         "description": "Detects spikes in MWAA DAG run failures per DAG (Airflow pipeline instability)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -188,7 +156,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.mwaa.dag_id", "cloud.region"]
+          "influencers": [
+            "aws.mwaa.dag_id",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -199,11 +170,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -235,7 +210,11 @@
       "description": "Detects chaos experiment failures in AWS FIS (experiments failing unexpectedly rather than as designed)",
       "job": {
         "description": "Detects chaos experiment failures in AWS FIS (experiments failing unexpectedly rather than as designed)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -245,7 +224,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "cloud.account.id"]
+          "influencers": [
+            "cloud.region",
+            "cloud.account.id"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -256,11 +238,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -292,7 +278,11 @@
       "description": "Detects unusual spikes in AWS Security Incident Response case volume by severity (incident surge or detection pipeline misfiring)",
       "job": {
         "description": "Detects unusual spikes in Security Incident Response case volume by severity (incident surge or detection pipeline misfiring)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -303,7 +293,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.securityir.severity", "cloud.region"]
+          "influencers": [
+            "aws.securityir.severity",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -314,11 +307,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -345,7 +342,11 @@
       "description": "Detects spikes in AWS CloudHSM operation failures per cluster (HSM availability or key management issues)",
       "job": {
         "description": "Detects spikes in CloudHSM operation failures per cluster (HSM availability or key management issues)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -356,7 +357,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.cloudhsm.cluster_id", "cloud.region"]
+          "influencers": [
+            "aws.cloudhsm.cluster_id",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -367,11 +371,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -403,7 +411,11 @@
       "description": "Detects spikes in AWS IoT TwinMaker synchronisation failures per workspace (digital twin data pipeline disruption)",
       "job": {
         "description": "Detects spikes in IoT TwinMaker synchronisation failures per workspace (digital twin data pipeline disruption)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -414,7 +426,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.iottwinmaker.workspace_id", "cloud.region"]
+          "influencers": [
+            "aws.iottwinmaker.workspace_id",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -425,11 +440,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -461,7 +480,11 @@
       "description": "Detects anomalous counts of suspended AWS IoT FleetWise campaigns (vehicle data collection disruption)",
       "job": {
         "description": "Detects anomalous counts of suspended IoT FleetWise campaigns (vehicle data collection disruption)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -471,7 +494,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.iotfleetwise.campaign_status", "cloud.region"]
+          "influencers": [
+            "aws.iotfleetwise.campaign_status",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -482,11 +508,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -518,7 +548,11 @@
       "description": "Detects spikes in Amazon CodeCatalyst workflow failures per project (CI/CD pipeline degradation)",
       "job": {
         "description": "Detects spikes in CodeCatalyst workflow failures per project (CI/CD pipeline degradation)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -529,7 +563,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.codecatalyst.project_name", "cloud.region"]
+          "influencers": [
+            "aws.codecatalyst.project_name",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -540,11 +577,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -576,7 +617,11 @@
       "description": "Detects spikes in AWS Device Farm test failures per project (regression or device compatibility issues)",
       "job": {
         "description": "Detects spikes in Device Farm test failures per project (regression or device compatibility issues)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -587,7 +632,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.devicefarm.project_name", "cloud.region"]
+          "influencers": [
+            "aws.devicefarm.project_name",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -598,11 +646,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -634,7 +686,11 @@
       "description": "Detects anomalous counts of AWS Clean Rooms collaboration query failures (data sharing pipeline issues)",
       "job": {
         "description": "Detects anomalous counts of Clean Rooms collaboration query failures (data sharing pipeline issues)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -644,7 +700,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "cloud.account.id"]
+          "influencers": [
+            "cloud.region",
+            "cloud.account.id"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -655,11 +714,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -691,7 +754,11 @@
       "description": "Detects unusual spikes in Amazon DataZone subscription rejections (data governance policy friction or misconfiguration)",
       "job": {
         "description": "Detects unusual spikes in DataZone subscription rejections (data governance policy friction or misconfiguration)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -701,7 +768,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.datazone.subscription_status", "cloud.region"]
+          "influencers": [
+            "aws.datazone.subscription_status",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -712,11 +782,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -748,7 +822,11 @@
       "description": "Detects anomalous counts of AWS Entity Resolution job failures (identity graph pipeline issues)",
       "job": {
         "description": "Detects anomalous counts of Entity Resolution job failures (identity graph pipeline issues)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -758,7 +836,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "cloud.account.id"]
+          "influencers": [
+            "cloud.region",
+            "cloud.account.id"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -769,11 +850,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -805,7 +890,11 @@
       "description": "Detects spikes in AWS AWS Data Exchange job failures (third-party data delivery pipeline disruption)",
       "job": {
         "description": "Detects spikes in AWS Data Exchange job failures (third-party data delivery pipeline disruption)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -815,7 +904,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "cloud.account.id"]
+          "influencers": [
+            "cloud.region",
+            "cloud.account.id"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -826,11 +918,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -862,7 +958,11 @@
       "description": "Detects unusual spikes in Amazon Managed Grafana firing alerts per workspace (monitoring storm or infrastructure degradation)",
       "job": {
         "description": "Detects unusual spikes in Managed Grafana firing alerts per workspace (monitoring storm or infrastructure degradation)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
@@ -873,7 +973,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.managedgrafana.workspace_name", "cloud.region"]
+          "influencers": [
+            "aws.managedgrafana.workspace_name",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -884,11 +987,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -920,7 +1027,11 @@
       "description": "Detects anomalous counts of AWS AWS Supply Chain job failures (supply chain data pipeline disruption)",
       "job": {
         "description": "Detects anomalous counts of AWS Supply Chain job failures (supply chain data pipeline disruption)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -930,7 +1041,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "cloud.account.id"]
+          "influencers": [
+            "cloud.region",
+            "cloud.account.id"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -941,11 +1055,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -977,7 +1095,11 @@
       "description": "Detects unusual spikes in Amazon Application Recovery Controller zonal shift activity (unexpected multi-AZ failover events indicating availability issues)",
       "job": {
         "description": "Detects unusual spikes in ARC zonal shift activity (unexpected multi-AZ failover events indicating availability issues)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "60m",
           "detectors": [
@@ -987,7 +1109,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "cloud.account.id"]
+          "influencers": [
+            "cloud.region",
+            "cloud.account.id"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -998,11 +1123,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -1029,7 +1158,11 @@
       "description": "Detects spikes in AWS Deadline Cloud render job failures per farm (render pipeline or worker node issues)",
       "job": {
         "description": "Detects spikes in Deadline Cloud render job failures per farm (render pipeline or worker node issues)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -1040,7 +1173,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.deadlinecloud.farm_name", "cloud.region"]
+          "influencers": [
+            "aws.deadlinecloud.farm_name",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -1051,11 +1187,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -1087,7 +1227,11 @@
       "description": "Detects spikes in Amazon HealthLake FHIR operation failures per datastore (health data ingestion or query issues)",
       "job": {
         "description": "Detects spikes in HealthLake FHIR operation failures per datastore (health data ingestion or query issues)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -1098,7 +1242,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.healthlake.datastore_name", "cloud.region"]
+          "influencers": [
+            "aws.healthlake.datastore_name",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -1109,11 +1256,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -1145,7 +1296,11 @@
       "description": "Detects spikes in Amazon Augmented AI human review task failures (ML workflow disruption or workforce issues)",
       "job": {
         "description": "Detects spikes in Augmented AI human review task failures (ML workflow disruption or workforce issues)",
-        "groups": ["aws", "new-services", "cloudloadgen"],
+        "groups": [
+          "aws",
+          "new-services",
+          "cloudloadgen"
+        ],
         "analysis_config": {
           "bucket_span": "30m",
           "detectors": [
@@ -1155,7 +1310,10 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "cloud.account.id"]
+          "influencers": [
+            "cloud.region",
+            "cloud.account.id"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -1166,11 +1324,15 @@
         },
         "custom_settings": {
           "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
+          "tags": [
+            "cloudloadgen"
+          ]
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": [
+          "logs-aws.*"
+        ],
         "max_empty_searches": 10,
         "query": {
           "bool": {

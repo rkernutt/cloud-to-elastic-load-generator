@@ -1,6 +1,6 @@
 /**
  * GCP analytics & data/ML API metric generators: BigQuery, Dataproc, Composer,
- * Data Catalog, Data Fusion, DMS, Dataplex, Dataprep, Datastream, Analytics Hub,
+ * Data Catalog, Data Fusion, DMS, Dataplex, Datastream, Analytics Hub,
  * Looker, and Cloud AI API surfaces (Language, Speech, Translate, Vision, Video,
  * Retail, Document AI, Healthcare, Dialogflow, Contact Center AI).
  */
@@ -380,38 +380,6 @@ export function generateDataplexMetrics(ts: string, er: number): EcsDocument[] {
       metricKind: "DELTA",
       valueType: "DISTRIBUTION",
       point: unitScoreDistribution(score, distN, stressed),
-    }),
-  ];
-}
-
-export function generateDataprepMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, project } = pickGcpCloudContext();
-  const dataset = GCP_METRICS_DATASET_MAP.dataprep!;
-  const job_id = rand(["job-curate-01", "job-standardize", "job-pii-mask"]);
-  const stressed = Math.random() < er;
-  const res = {
-    resource_container: project.id,
-    location: region,
-    job_name: job_id,
-  };
-  const runs = randInt(30, stressed ? 6_200 : 3_400);
-  const rows = randInt(200_000, stressed ? 920_000_000_000 : 410_000_000_000);
-  return [
-    gcpMetricDoc(ts, "dataprep", dataset, region, project, {
-      metricType: "dataprep.googleapis.com/job/execution_count",
-      resourceType: "dataprep.googleapis.com/Job",
-      resourceLabels: res,
-      metricKind: "DELTA",
-      valueType: "INT64",
-      point: { int64Value: toInt64String(runs) },
-    }),
-    gcpMetricDoc(ts, "dataprep", dataset, region, project, {
-      metricType: "dataprep.googleapis.com/job/rows_processed",
-      resourceType: "dataprep.googleapis.com/Job",
-      resourceLabels: res,
-      metricKind: "DELTA",
-      valueType: "INT64",
-      point: { int64Value: toInt64String(rows) },
     }),
   ];
 }

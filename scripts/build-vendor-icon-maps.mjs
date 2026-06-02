@@ -236,7 +236,6 @@ function buildGcpServiceMap(/** @type {readonly string[]} */ validServiceIds) {
     "deployment-manager": "cloud-deployment-manager",
     "cloud-build": "cloud-build",
     "cloud-deploy": "cloud-build",
-    "cloud-shell": "home",
     "cloud-workstations": "home",
     iot: "iot-core",
     "iot-core": "iot-core",

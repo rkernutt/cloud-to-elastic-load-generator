@@ -1,10 +1,10 @@
 # Gap Analysis: Complete Logs and Metrics for All Services
 
-> **Last updated:** 2026-04-21
+> **Last updated:** 2026-06-02
 
 This document compares what **Cloud Loadgen for Elastic** (AWS catalog) currently emits per service with what is needed for **complete** logs and metrics as defined by **Elastic AWS integration** and **AWS service documentation**. Use it to prioritize additions (fields, message types, metrics) for full fidelity in Elastic dashboards, rules, and ML.
 
-**Current coverage (`npm run samples:verify`, [README](../README.md)):** **AWS:** **212** log services, **206** metrics-supported services, **54** trace generators — **GCP:** **130** logs, **124** metrics, **48** traces — **Azure:** **131** logs, **120** metrics, **40** traces.
+**Current coverage (`npm run samples:verify`, [README](../README.md)):** **AWS:** **233** services (**54** trace generators) — **GCP:** **137** services (**56** traces) — **Azure:** **141** services (**44** traces). Installer assets: **496** dashboards, **778** ML jobs, **243** alerting rules.
 
 **Historical release notes:** v8.0 expanded metrics coverage and made `aws.dimensions` always-present; v11.x aligned `METRICS_SUPPORTED_SERVICE_IDS` with `METRICS_GENERATORS`. v7.6 aligned CloudWatch metric names/dimensions and `event.category` as an ECS array across metrics generators; v7.5 closed `event.duration` gaps, addressed RDS Enhanced Monitoring fields, and Lambda START/END/REPORT patterns. All generators use real AWS API error codes on failure paths.
 
@@ -216,6 +216,16 @@ Failed findings include realistic resource evidence — for example, S3 buckets 
 - **Connect / WorkSpaces / AppStream / GameLift:** Session and user; connection and latency.
 - **MediaConvert / MediaLive:** Job and channel state; input/output and errors.
 - **Remaining catalog services:** Many have no Elastic integration; gaps are mainly (1) consistent `event.duration`, (2) optional `aws.<service>.metrics` block for future dashboards, (3) structured `message` where AWS supports it.
+
+### 3.10 Removed services (discontinued by cloud provider)
+
+The following were removed from the load-generator catalog — not open gaps. Per-cloud sunset lists:
+
+| Cloud | Service | Status |
+| ----- | ------- | ------ |
+| AWS | Artifact, Trusted Advisor, CloudShell, FreeRTOS, Panorama, SimSpace Weaver, QLDB, RoboMaker, Forecast, Lookout for Metrics, Kendra, CloudSearch, MediaStore | **Removed — service discontinued by cloud provider** |
+| GCP | Dataprep | **Removed — service discontinued by cloud provider** |
+| Azure | Time Series Insights, Blueprints | **Removed — service discontinued by cloud provider** |
 
 ---
 

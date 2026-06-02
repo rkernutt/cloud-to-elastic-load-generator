@@ -65,30 +65,43 @@ export type {
 } from "../../aws/generators/types";
 
 export const AZURE_REGIONS = [
+  // Americas — United States
   "eastus",
   "eastus2",
+  "westus",
   "westus2",
   "westus3",
   "centralus",
   "southcentralus",
   "northcentralus",
-  "centralindia",
-  "southeastasia",
-  "eastasia",
-  "australiaeast",
-  "uksouth",
-  "ukwest",
-  "northeurope",
-  "westeurope",
-  "swedencentral",
-  "francecentral",
-  "germanywestcentral",
-  "switzerlandnorth",
+  // Americas — Canada, Brazil, Mexico
   "canadacentral",
   "brazilsouth",
   "mexicocentral",
+  // Asia-Pacific
+  "centralindia",
+  "southeastasia",
+  "eastasia",
+  "japaneast",
+  "koreacentral",
+  "australiaeast",
+  // United Kingdom
+  "uksouth",
+  "ukwest",
+  // Europe
+  "northeurope",
+  "westeurope",
+  "swedencentral",
+  "norwayeast",
+  "polandcentral",
+  "francecentral",
+  "germanywestcentral",
+  "switzerlandnorth",
+  // Middle East
   "qatarcentral",
   "uaenorth",
+  // Africa
+  "southafricanorth",
 ] as const;
 
 export interface AzureSubscription {

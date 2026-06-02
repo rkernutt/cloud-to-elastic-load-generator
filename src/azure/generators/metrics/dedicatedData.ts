@@ -149,27 +149,6 @@ export function generateBackupDedicatedMetrics(ts: string, er: number): EcsDocum
   });
 }
 
-export function generateBlueprintsDedicatedMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, subscription, resourceGroup } = pickAzureContext();
-  const dataset = AZURE_METRICS_DATASET_MAP.blueprints!;
-  const assigns = ["landing-zone", "sox-baseline", "pci-scope"];
-  const n = Math.min(randInt(1, 3), assigns.length);
-  return Array.from({ length: n }, (_, i) => {
-    const assign = `bp-${assigns[i]}-${randId(3).toLowerCase()}`;
-    const fail = Math.random() < er;
-    return azureMetricDoc(ts, "blueprints", dataset, region, subscription, resourceGroup, {
-      namespace: "Microsoft.Blueprint/blueprintAssignments",
-      resourceName: assign,
-      armProviderSegments: ["Microsoft.Blueprint", "blueprintAssignments", assign],
-      dimensions: { BlueprintName: assigns[i]!, AssignmentName: assign },
-      metrics: {
-        AssignmentCount: counter(randInt(1, fail ? 120 : 80)),
-        CompliancePercentage: stat(dp(jitter(fail ? 72 : 96, fail ? 18 : 3, 0, 100))),
-      },
-    });
-  });
-}
-
 export function generateBotServiceDedicatedMetrics(ts: string, er: number): EcsDocument[] {
   const { region, subscription, resourceGroup } = pickAzureContext();
   const dataset = AZURE_METRICS_DATASET_MAP["bot-service"]!;

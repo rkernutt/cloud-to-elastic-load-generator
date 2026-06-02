@@ -554,7 +554,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
 
   if (failureMode === "special_chars") {
     docs.push({
-      __dataset: "aws.emr",
+      __dataset: "aws.emr_logs",
       "@timestamp": emrStartTs,
       cloud: cloudDoc(region, acct, "emr"),
       aws: {
@@ -573,7 +573,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
         outcome: "failure",
         category: ["process"],
         type: ["error"],
-        dataset: "aws.emr",
+        dataset: "aws.emr_logs",
         provider: "emr.amazonaws.com",
       },
       error: {
@@ -588,7 +588,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
     });
   } else if (failureMode === "wrong_format") {
     docs.push({
-      __dataset: "aws.emr",
+      __dataset: "aws.emr_logs",
       "@timestamp": emrStartTs,
       cloud: cloudDoc(region, acct, "emr"),
       aws: {
@@ -607,7 +607,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
         outcome: "failure",
         category: ["process"],
         type: ["error"],
-        dataset: "aws.emr",
+        dataset: "aws.emr_logs",
         provider: "emr.amazonaws.com",
       },
       error: {
@@ -623,7 +623,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
   } else {
     const recordsWritten = isNullFile ? 0 : Math.floor(sparkRecordsRead * randFloat(0.6, 0.95));
     docs.push({
-      __dataset: "aws.emr",
+      __dataset: "aws.emr_logs",
       "@timestamp": emrStartTs,
       cloud: cloudDoc(region, acct, "emr"),
       aws: {
@@ -651,7 +651,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
         outcome: "success",
         category: ["process"],
         type: ["info"],
-        dataset: "aws.emr",
+        dataset: "aws.emr_logs",
         provider: "emr.amazonaws.com",
       },
       message: `EMR Spark [${sparkAppId}]: COMPLETED — ${sparkRecordsRead} Avro records → ${recordsWritten} Parquet records`,

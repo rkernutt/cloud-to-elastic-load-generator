@@ -1,88 +1,93 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "elasticache" }
   },
   "aws": {
     "dimensions": {
-      "CacheClusterId": "prod-redis-2",
+      "CacheClusterId": "prod-redis-4",
       "CacheNodeId": "0005",
       "ReplicationGroupId": "prod-cache"
     },
     "elasticache": {
-      "cluster_id": "prod-redis-2",
+      "cluster_id": "prod-redis-4",
       "node_id": "0005",
       "engine": "redis",
       "engine_version": "7.1.0",
       "replication_group_id": "prod-cache",
-      "scenario": "scaling_event",
-      "api_operation": "ModifyReplicationGroupShardConfiguration",
-      "latency_us": 14.615687307484658,
-      "cache_hit": true,
-      "connected_clients": 337,
-      "used_memory_mb": 11131,
+      "scenario": "snapshot_create",
+      "api_operation": "CreateSnapshot",
+      "latency_us": 2967.2441590073586,
+      "cache_hit": false,
+      "connected_clients": 78,
+      "used_memory_mb": 817,
       "metrics": {
-        "BytesUsedForCache": { "avg": 2884643475 },
-        "CacheHits": { "sum": 91320 },
-        "CacheMisses": { "sum": 177 },
-        "CacheHitRate": { "avg": 0.8805883995211243 },
-        "CurrConnections": { "avg": 619 },
-        "NewConnections": { "sum": 19 },
-        "Evictions": { "sum": 0 },
-        "Reclaimed": { "sum": 87 },
-        "ReplicationBytes": { "avg": 4134862 },
-        "ReplicationLag": { "avg": 1 },
+        "BytesUsedForCache": { "avg": 5521948292 },
+        "CacheHits": { "sum": 82361 },
+        "CacheMisses": { "sum": 55 },
+        "CacheHitRate": { "avg": 0.9160858359110796 },
+        "CurrConnections": { "avg": 114 },
+        "NewConnections": { "sum": 40 },
+        "Evictions": { "sum": 591 },
+        "Reclaimed": { "sum": 51 },
+        "ReplicationBytes": { "avg": 3404620 },
+        "ReplicationLag": { "avg": 10 },
         "SaveInProgress": { "avg": 0 },
-        "CurrItems": { "avg": 823043 },
-        "NewItems": { "sum": 604 },
-        "NetworkBytesIn": { "avg": 41417752 },
-        "NetworkBytesOut": { "avg": 35327893 },
-        "CPUUtilization": { "avg": 4.112559020452144 },
-        "EngineCPUUtilization": { "avg": 12.218104375450027 },
-        "FreeableMemory": { "avg": 4445238813 },
-        "SwapUsage": { "avg": 19796679 },
-        "DatabaseMemoryUsagePercentage": { "avg": 19.765871174138717 },
-        "TrafficBasedCmdsLatency": { "avg": 0.7078713209376053 }
+        "CurrItems": { "avg": 877049 },
+        "NewItems": { "sum": 1571 },
+        "NetworkBytesIn": { "avg": 66478341 },
+        "NetworkBytesOut": { "avg": 91239700 },
+        "CPUUtilization": { "avg": 64.55128196834188 },
+        "EngineCPUUtilization": { "avg": 44.04333608943115 },
+        "FreeableMemory": { "avg": 5818718827 },
+        "SwapUsage": { "avg": 49875968 },
+        "DatabaseMemoryUsagePercentage": { "avg": 80.89250791009488 },
+        "TrafficBasedCmdsLatency": { "avg": 1.5417962207311966 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-elasticache-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-elasticache-logs-164820739518"
+        "name": "aws-elasticache-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-elasticache-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/elasticache/us-west-2/2026/05/28/elasticache_32XQHZE0PB4J6SCMEUH6.log.gz"
+        "key": "AWSLogs/501938274650/elasticache/ca-west-1/2026/06/01/elasticache_7RWVURM00G7FCZEFGV1Q.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/elasticache/logs",
-      "log_stream": "us-west-2/q6jsdjcx",
-      "ingestion_time": "2026-05-28T16:58:16.075Z"
+      "log_group": "/aws/elasticache/elasticache-4ya9tc",
+      "log_stream": "ca-west-1/p6784hdf",
+      "ingestion_time": "2026-06-01T18:12:00.371Z"
     }
   },
-  "db": { "type": "keyvalue", "operation": "ModifyReplicationGroupShardConfiguration" },
+  "db": { "type": "keyvalue", "operation": "CreateSnapshot" },
   "event": {
-    "duration": 14615.687307484657,
-    "outcome": "success",
+    "duration": 2967244.1590073584,
+    "outcome": "failure",
     "category": ["database", "network"],
     "type": ["connection"],
     "dataset": "aws.elasticache",
     "provider": "elasticache.amazonaws.com",
     "module": "aws"
   },
-  "message": "Scaling ModifyReplicationGroupShardConfiguration: slot migration 8220->10141 on prod-redis-2",
-  "log": { "level": "info" },
+  "message": "{\"replicationGroupId\":\"prod-cache\",\"scenario\":\"snapshot_create\",\"operation\":\"CreateSnapshot\",\"clusterId\":\"prod-redis-4\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"status\":\"FAILED\",\"snapshotName\":\"snap-be1858ac67\",\"retention\":6,\"awsException\":\"InsufficientCacheClusterCapacityFault\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "InsufficientCacheClusterCapacityFault",
+    "message": "CreateSnapshot rejected for replication group prod-cache",
+    "type": "aws"
+  },
   "service": { "name": "elasticache", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.elasticache", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "k2m0xx38usj54r9w88uimbo7xd76c8ghgd7a"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "sne3je8ymm41b54vt384042d7ieur0ri39iy"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -47,7 +47,6 @@ function generateWorkSpacesLog(ts: string, er: number): EcsDocument {
     "usb_redirection",
     "display_mode_change",
   ]);
-  const useStructured = Math.random() < 0.45;
   const structured = {
     eventType: action,
     directoryId,
@@ -124,11 +123,11 @@ function generateWorkSpacesLog(ts: string, er: number): EcsDocument {
       provider: "workspaces.amazonaws.com",
       duration: randInt(100, isErr ? 10000 : 5000) * 1e6,
     },
-    message: useStructured
-      ? JSON.stringify(structured)
-      : isErr
-        ? `WorkSpaces ${action} FAILED for ${user} (${wsId})`
-        : `WorkSpaces ${action}: ${user} on ${wsId} [${state}]`,
+    message: JSON.stringify({
+      ...structured,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     ...(isErr
       ? {
           error: {
@@ -219,7 +218,6 @@ function generateConnectLog(ts: string, er: number): EcsDocument {
     DisconnectReason: rand(["CUSTOMER_DISCONNECT", "AGENT_DISCONNECT", "OTHER", "FLOW_ERROR"]),
     Tags: { department: rand(["support", "sales", "billing"]) },
   };
-  const useCtrJson = Math.random() < 0.55;
   return {
     "@timestamp": ts,
     cloud: {
@@ -269,11 +267,7 @@ function generateConnectLog(ts: string, er: number): EcsDocument {
       dataset: "aws.connect",
       provider: "connect.amazonaws.com",
     },
-    message: useCtrJson
-      ? JSON.stringify(ctr)
-      : isErr
-        ? `Connect ${initiationMethod} FAILED: ${rand(["Queue capacity exceeded", "Flow error", "Agent unavailable"])}`
-        : `Connect ${initiationMethod}: ${queueName}${agent ? ` agent=${agent}` : ""}, ${dur}s, ${sentiment}`,
+    message: JSON.stringify(ctr),
     ...(isErr
       ? {
           error: {
@@ -359,9 +353,10 @@ function generateAppStreamLog(ts: string, er: number): EcsDocument {
       provider: "appstream2.amazonaws.com",
       duration: randInt(100, isErr ? 30000 : 5000) * 1e6,
     },
-    message: isErr
-      ? `AppStream ${stack} ${event} FAILED: ${rand(["Fleet at capacity", "IAM role error", "User not authorized"])}:`
-      : `AppStream ${event}: ${user} [${stack}]`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -459,9 +454,10 @@ function generateGameLiftLog(ts: string, er: number): EcsDocument {
       provider: "gamelift.amazonaws.com",
       duration: eventDurMs * 1e6,
     },
-    message: isErr
-      ? `GameLift ${fleet} ${event} FAILED: ${rand(["Fleet at capacity", "Invalid session", "Instance unavailable"])}:`
-      : `GameLift ${fleet}: ${event}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : event.includes("TimedOut") ? "warn" : "info" },
     ...(isErr
       ? {
@@ -591,8 +587,7 @@ function generateSesLog(ts: string, er: number): EcsDocument {
         }
       : {}),
   };
-  const message =
-    Math.random() < 0.65 ? JSON.stringify(sesNotification) : `SES ${eventType}: ${from} -> ${to}`;
+  const message = JSON.stringify(sesNotification);
   return {
     "@timestamp": ts,
     cloud: {
@@ -754,9 +749,10 @@ function generatePinpointLog(ts: string, er: number): EcsDocument {
       provider: "mobiletargeting.amazonaws.com",
       duration: randInt(50, isErr ? 5000 : 2000) * 1e6,
     },
-    message: isErr
-      ? `Pinpoint ${channel} FAILED [${campaign}]: ${rand(["Suppression list", "Invalid endpoint", "Quota exceeded"])}:`
-      : `Pinpoint ${event} [${campaign}]: ${user} via ${channel}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -826,9 +822,10 @@ function generateTransferFamilyLog(ts: string, er: number): EcsDocument {
       provider: "transfer.amazonaws.com",
       duration: randInt(100, isErr ? 300000 : 30000) * 1e6,
     },
-    message: isErr
-      ? `Transfer Family ${protocol} FAILED [${user}] ${file}: ${rand(["Auth failure", "Permission denied", "Connection reset"])}:`
-      : `Transfer Family ${protocol} [${user}] ${file}: ${(bytes / 1024 / 1024).toFixed(1)}MB`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -909,9 +906,10 @@ function generateLightsailLog(ts: string, er: number): EcsDocument {
       provider: "lightsail.amazonaws.com",
       duration: randInt(100, isErr ? 10000 : 2000) * 1e6,
     },
-    message: isErr
-      ? `Lightsail ${instance} ERROR: ${rand(["Instance unreachable", "Snapshot failed", "SSL renewal error"])}:`
-      : `Lightsail ${instance}: ${event} [${state}]`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : event.includes("EXCEEDED") ? "warn" : "info" },
     ...(isErr
       ? {
@@ -987,9 +985,10 @@ function generateFraudDetectorLog(ts: string, er: number): EcsDocument {
       provider: "frauddetector.amazonaws.com",
       duration: randInt(50, isErr ? 3000 : 500) * 1e6,
     },
-    message: isErr
-      ? `Fraud Detector BLOCK [${model}]: entity ${entity} score ${score}/1000`
-      : `Fraud Detector ${outcome} [${model}]: entity ${entity} score ${score}/1000`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: outcome === "BLOCK" ? "warn" : outcome === "HIGH_RISK" ? "warn" : "info" },
     ...(outcome === "BLOCK"
       ? {
@@ -1069,9 +1068,10 @@ function generateLocationServiceLog(ts: string, er: number): EcsDocument {
       provider: "geo.amazonaws.com",
       duration: randInt(10, isErr ? 5000 : 500) * 1e6,
     },
-    message: isErr
-      ? `Location Service ${operation} FAILED: ${rand(["Resource not found", "Throttled", "Invalid coordinates"])}:`
-      : `Location Service ${operation}: ${operation.includes("Device") ? deviceId : rand(["place search", "route calc", "geofence check"])}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1139,9 +1139,10 @@ function generateMediaConvertLog(ts: string, er: number): EcsDocument {
       dataset: "aws.mediaconvert",
       provider: "mediaconvert.amazonaws.com",
     },
-    message: isErr
-      ? `MediaConvert job ${jobId} ERROR: ${rand(["Invalid format", "Codec unsupported", "S3 write denied"])}`
-      : `MediaConvert job ${jobId} COMPLETE: ${audioMins.toFixed(1)} min -> ${outputGroup}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     ...(isErr
       ? {
           error: {
@@ -1222,7 +1223,12 @@ function generateMediaLiveLog(ts: string, er: number): EcsDocument {
       provider: "medialive.amazonaws.com",
       duration: randInt(1000, isErr ? 30000 : 10000) * 1e6,
     },
-    message: rand(MSGS[level]),
+    message: JSON.stringify({
+      level,
+      log: rand(MSGS[level]),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level },
     ...(level === "error"
       ? {
@@ -1297,9 +1303,10 @@ function generateManagedBlockchainLog(ts: string, er: number): EcsDocument {
       provider: "managedblockchain.amazonaws.com",
       duration: randInt(500, isErr ? 30000 : 5000) * 1e6,
     },
-    message: isErr
-      ? `ManagedBlockchain ${event} FAILED [${network}]: ${rand(["Unauthorized", "Proposal rejected", "Node unavailable"])}:`
-      : `ManagedBlockchain ${event} [${network}]: ${txId ? txId.substring(0, 16) + "..." : event}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1374,9 +1381,10 @@ function generateResilienceHubLog(ts: string, er: number): EcsDocument {
       provider: "resiliencehub.amazonaws.com",
       duration: randInt(30, isErr ? 600 : 180) * 1e9,
     },
-    message: isErr
-      ? `Resilience Hub ${app} POLICY BREACHED [${tier}]: score=${resiliencyScore}, RTO ${rto}s exceeds target`
-      : `Resilience Hub ${app} [${tier}]: score=${resiliencyScore}, RTO=${rto}s, RPO=${rpo}s`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1452,9 +1460,10 @@ function generateRamLog(ts: string, er: number): EcsDocument {
       provider: "ram.amazonaws.com",
       duration: randInt(50, isErr ? 3000 : 500) * 1e6,
     },
-    message: isErr
-      ? `RAM ${action} FAILED: ${rand(["Permission denied", "Resource not found", "Invalid principal"])}:`
-      : `RAM ${action}: ${resourceType} shared with account ${accountId}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1529,9 +1538,10 @@ function generateMigrationHubLog(ts: string, er: number): EcsDocument {
       provider: "mgh.amazonaws.com",
       duration: randInt(3600, isErr ? 864000 : 86400) * 1e9,
     },
-    message: isErr
-      ? `Migration Hub ${app} FAILED [${tool}]: ${rand(["Replication failed", "Agent offline", "Insufficient permissions"])}:`
-      : `Migration Hub ${app} [${tool}]: ${status} — ${server}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : status.includes("FAILED") ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1610,9 +1620,10 @@ function generateDevOpsGuruLog(ts: string, er: number): EcsDocument {
       provider: "devops-guru.amazonaws.com",
       duration: randInt(60, isErr ? 3600 : 900) * 1e9,
     },
-    message: isErr
-      ? `DevOps Guru ONGOING [${severity}]: ${anomaly}`
-      : `DevOps Guru ${insightType} insight [${severity}]: ${anomaly}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : severity === "HIGH" ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1706,9 +1717,10 @@ function generateDeadlineCloudLog(ts: string, er: number): EcsDocument {
       provider: "deadline.amazonaws.com",
       duration: durationSec * 1e9,
     },
-    message: isErr
-      ? `Deadline Cloud ${action} FAILED [${farmName}/${jobName}]: ${rand(["Render task failed", "Worker lost connection", "Insufficient capacity", "License unavailable"])}`
-      : `Deadline Cloud ${action}: farm=${farmName} queue=${queueName} job=${jobName} frames ${frameStart}-${frameEnd} ${taskStatus}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : taskStatus === "INTERRUPTED" ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1785,9 +1797,10 @@ function generateChimeSdkLog(ts: string, er: number): EcsDocument {
       dataset: "aws.chimesdkvoice",
       provider: "chime.amazonaws.com",
     },
-    message: isErr
-      ? `Chime SDK Voice ${direction} call ${callId}: ${callStatus} SIP ${sipResponseCode}`
-      : `Chime SDK Voice ${direction} call ${durationSeconds}s MOS:${mosScore} loss:${packetLossPercent}%`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1857,9 +1870,10 @@ function generateWorkMailLog(ts: string, er: number): EcsDocument {
       duration: randInt(10, 500) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.workmail", namespace: "default" },
-    message: isErr
-      ? `WorkMail org ${organizationId}: ${errorCode} for ${action}`
-      : `WorkMail org ${organizationId}: ${action} from ${fromUser}@${domain} to ${toUser}@${domain}`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1918,9 +1932,10 @@ function generateWickrLog(ts: string, er: number): EcsDocument {
       duration: randInt(1, 200) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.wickr", namespace: "default" },
-    message: isErr
-      ? `Wickr network ${networkId}: ${errorCode} for user ${userName}`
-      : `Wickr network ${networkId}: ${messagesSent} messages sent, ${activeUsers} active users`,
+    message: JSON.stringify({
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {

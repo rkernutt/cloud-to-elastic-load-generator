@@ -7,7 +7,12 @@
  */
 
 import { rand, randId, randIp, REGIONS } from "./index";
-import { ELASTIC_DATASET_MAP, ELASTIC_METRICS_DATASET_MAP } from "../data/elasticMaps";
+import {
+  ELASTIC_DATASET_MAP,
+  ELASTIC_METRICS_DATASET_MAP,
+  CLOUDWATCH_LOG_GROUPS,
+  resolveLogDatasetForSource,
+} from "../data/elasticMaps";
 import { INGESTION_META } from "../data/ingestion";
 import { clampGlobalIngestionOverride } from "./ingestionCompatibility";
 import {
@@ -71,13 +76,11 @@ const COMPUTE_SERVICES = new Set([
   "mainframemodernization",
   "parallelcomputing",
   "evs",
-  "simspaceweaver",
-  "robomaker",
 ]);
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function resolveDataset(serviceId: string, eventType: string): string {
+function resolveDataset(serviceId: string, eventType: string, source: string): string {
   if (eventType === "metrics") {
     return (
       (ELASTIC_METRICS_DATASET_MAP as LooseDoc)[serviceId] ??
@@ -85,7 +88,7 @@ function resolveDataset(serviceId: string, eventType: string): string {
       `aws.${serviceId}`
     );
   }
-  return (ELASTIC_DATASET_MAP as LooseDoc)[serviceId] || `aws.${serviceId}`;
+  return resolveLogDatasetForSource(serviceId, source);
 }
 
 function resolveSource(serviceId: string, override?: string): string {
@@ -193,7 +196,7 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
   const source = resolveSource(serviceId, opts.ingestionSource);
   const region = doc.cloud?.region || rand(REGIONS);
   const accountId = doc.cloud?.account?.id || "814726593401";
-  const dataset = resolveDataset(serviceId, eventType);
+  const dataset = doc.__dataset || resolveDataset(serviceId, eventType, source);
 
   // ── ecs.version ────────────────────────────────────────────────────────────
   const ecs = doc.ecs ?? { version: ECS_VERSION };
@@ -226,40 +229,75 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
     dataset: doc.event?.dataset || dataset,
   };
 
-  // ── S3 / CloudWatch context (logs only) — skip synthetic pull-path fields for OTLP pipelines
+  // ── S3 / CloudWatch / Firehose context (logs only) — skip synthetic pull-path fields for OTLP pipelines
   let awsContext: LooseDoc | undefined;
   if (eventType === "logs") {
     if (isOtelPipelineSource(source)) {
       awsContext = doc.aws && typeof doc.aws === "object" ? { ...doc.aws } : undefined;
     } else {
+      const logGroupTemplate =
+        (CLOUDWATCH_LOG_GROUPS as LooseDoc)[serviceId] || `/aws/${serviceId}/logs`;
+      const logGroup =
+        typeof logGroupTemplate === "function"
+          ? logGroupTemplate({ region })
+          : logGroupTemplate
+              .replace("${functionName}", `${serviceId}-handler-${randId(6).toLowerCase()}`)
+              .replace("${clusterName}", `${serviceId}-cluster-${randId(6).toLowerCase()}`)
+              .replace("${clusterId}", `j-${randId(13).toUpperCase()}`)
+              .replace("${dbInstanceId}", `${serviceId}-db-${randId(6).toLowerCase()}`)
+              .replace("${apiId}", randId(10).toLowerCase())
+              .replace("${stateMachineId}", randId(10).toLowerCase())
+              .replace("${envName}", `${serviceId}-env-${randId(6).toLowerCase()}`)
+              .replace("${ruleName}", `${serviceId}-rule-${randId(6).toLowerCase()}`)
+              .replace("${projectName}", `${serviceId}-project-${randId(6).toLowerCase()}`)
+              .replace("${domainName}", `${serviceId}-domain-${randId(6).toLowerCase()}`)
+              .replace("${cacheClusterId}", `${serviceId}-${randId(6).toLowerCase()}`)
+              .replace("${streamName}", `${serviceId}-stream-${randId(6).toLowerCase()}`)
+              .replace("${userPoolId}", `${region}_${randId(9)}`)
+              .replace("${stackName}", `${serviceId}-stack-${randId(6).toLowerCase()}`)
+              .replace("${vpnConnectionId}", `vpn-${randId(17).toLowerCase()}`)
+              .replace("${instanceId}", `i-${randId(17).toLowerCase()}`)
+              .replace("${hostedZoneId}", `Z${randId(12).toUpperCase()}`)
+              .replace("${webAclName}", `${serviceId}-acl-${randId(6).toLowerCase()}`)
+              .replace("${distributionId}", `E${randId(13).toUpperCase()}`)
+              .replace("${keyId}", randId(36).toLowerCase())
+              .replace("${taskId}", randId(36).toLowerCase())
+              .replace("${serviceName}", `${serviceId}-svc-${randId(6).toLowerCase()}`)
+              .replace("${accountId}", accountId);
+
+      const logStream = `${region}/${randId(8).toLowerCase()}`;
+
       const bucket = `aws-${serviceId}-logs-${accountId}`;
       const key = `AWSLogs/${accountId}/${serviceId}/${region}/${new Date().toISOString().slice(0, 10).replace(/-/g, "/")}/${serviceId}_${randId(20)}.log.gz`;
-      const logGroup = `/aws/${serviceId}/logs`;
-      const logStream = `${region}/${randId(8).toLowerCase()}`;
-      const cwDefault = {
-        log_group: logGroup,
-        log_stream: logStream,
-        ingestion_time: new Date().toISOString(),
-      };
-      const cwExtra =
-        doc.aws?.cloudwatch && typeof doc.aws.cloudwatch === "object" ? doc.aws.cloudwatch : {};
-      const cloudwatch = { ...cwDefault, ...cwExtra };
 
-      awsContext = {
-        ...doc.aws,
-        s3: doc.aws?.s3 ?? {
+      const ctx: LooseDoc = doc.aws && typeof doc.aws === "object" ? { ...doc.aws } : {};
+
+      if (source === "s3" || source === "cloudwatch" || source === "api") {
+        ctx.s3 = doc.aws?.s3 ?? {
           bucket: { name: bucket, arn: `arn:aws:s3:::${bucket}` },
           object: { key },
-        },
-        cloudwatch,
-      };
+        };
+      }
+
+      if (source === "cloudwatch" || source === "api" || source === "agent") {
+        const cwExtra =
+          doc.aws?.cloudwatch && typeof doc.aws.cloudwatch === "object" ? doc.aws.cloudwatch : {};
+        ctx.cloudwatch = {
+          log_group: logGroup,
+          log_stream: logStream,
+          ingestion_time: new Date().toISOString(),
+          ...cwExtra,
+        };
+      }
 
       if (source === "firehose") {
-        awsContext!.firehose = doc.aws?.firehose ?? {
+        ctx.firehose = doc.aws?.firehose ?? {
           arn: `arn:aws:firehose:${region}:${accountId}:deliverystream/aws-${serviceId}-stream`,
           request_id: randId(36).toLowerCase(),
         };
       }
+
+      awsContext = ctx;
     }
   }
 

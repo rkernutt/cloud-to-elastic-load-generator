@@ -1,65 +1,65 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "eu-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "elb" }
   },
   "aws": {
     "elb": {
-      "load_balancer_name": "classic-t3smm2",
-      "availability_zone": "ap-southeast-1c",
-      "scheme": "internal",
-      "dns_name": "classic-t3smm2-738291046572.ap-southeast-1.elb.amazonaws.com",
-      "elb_status_code": "200",
-      "target_status_code": "200",
-      "request_processing_time_sec": 0.001687,
-      "backend_processing_time_sec": 0.074959,
-      "response_processing_time_sec": 0.003374,
-      "received_bytes": 45153,
-      "sent_bytes": 31532
+      "load_balancer_name": "classic-us6r4y",
+      "availability_zone": "eu-west-2b",
+      "scheme": "internet-facing",
+      "dns_name": "classic-us6r4y-501938274650.eu-west-2.elb.amazonaws.com",
+      "elb_status_code": "503",
+      "target_status_code": "0",
+      "request_processing_time_sec": 0.000795,
+      "backend_processing_time_sec": 0.000575,
+      "response_processing_time_sec": 0.00159,
+      "received_bytes": 27416,
+      "sent_bytes": 18227
     },
     "s3": {
       "bucket": {
-        "name": "aws-elb-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-elb-logs-738291046572"
+        "name": "aws-elb-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-elb-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/elb/ap-southeast-1/2026/05/28/elb_FTLAPN45CQ4VRLHVEFUP.log.gz"
+        "key": "AWSLogs/501938274650/elb/eu-west-2/2026/06/01/elb_9K2YXLRFW02PW50QB3OK.log.gz"
       }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/elb/logs",
-      "log_stream": "ap-southeast-1/x0u604v3",
-      "ingestion_time": "2026-05-28T16:58:16.285Z"
     }
   },
-  "http": { "request": { "method": "PUT" }, "response": { "status_code": 200 } },
-  "source": { "ip": "97.103.234.190", "port": 51737 },
+  "http": { "request": { "method": "GET" }, "response": { "status_code": 503 } },
+  "source": { "ip": "82.40.105.209", "port": 1878 },
   "url": {
-    "path": "/api/v1/health",
-    "domain": "classic-t3smm2-738291046572.ap-southeast-1.elb.amazonaws.com"
+    "path": "/static/app.js",
+    "domain": "classic-us6r4y-501938274650.eu-west-2.elb.amazonaws.com"
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.elb_logs",
     "category": ["network"],
-    "type": ["access"],
-    "duration": 168722529,
+    "type": ["error"],
+    "duration": 79475785,
     "module": "aws"
   },
-  "message": "97.103.234.190:51737 200 200 168.722529 74.958733 - \"PUT http://classic-t3smm2-738291046572.ap-southeast-1.elb.amazonaws.com/api/v1/health HTTP/1.1\" \"Mozilla/5.0\"",
+  "message": "{\"scenario\":\"no_healthy_targets\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"region\":\"eu-west-2\",\"accountId\":\"501938274650\",\"status\":\"Failed\",\"error\":{\"code\":\"NoHealthyBackends\",\"message\":\"No registered targets are healthy\",\"type\":\"server\"}}",
+  "error": {
+    "code": "NoHealthyBackends",
+    "message": "No registered targets are healthy",
+    "type": "server"
+  },
   "service": { "name": "elb", "type": "aws" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.elb_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "b7g9l1dezaez1osdjbfrxvmms34dasyrfdi8"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "9bbak1svvm3ybm4072jbcfr5nqolggfmytd7"
   },
   "input": { "type": "aws-s3" },
-  "related": { "ip": ["97.103.234.190"] }
+  "related": { "ip": ["82.40.105.209"] }
 }

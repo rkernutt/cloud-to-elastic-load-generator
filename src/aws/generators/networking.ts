@@ -982,7 +982,7 @@ function generateRoute53Log(ts: string, er: number) {
       outcome: isErr ? "failure" : "success",
       category: ["network"],
       type: ["protocol"],
-      dataset: "aws.route53",
+      dataset: "aws.route53_public_logs",
       provider: "route53.amazonaws.com",
       duration: randInt(1, isErr ? 500 : 50) * 1e6,
     },
@@ -1469,7 +1469,7 @@ function generateDnsC2Chain(ts: string, _er: number): EcsDocument[] {
     labels: { ...fallbackBase.labels, dns_threat_indicator: "suspicious_domain" },
   });
 
-  return docs;
+  return docs.map((d) => ({ ...d, __dataset: "aws.route53_resolver_logs" }));
 }
 
 function generateNetworkFirewallLog(ts: string, er: number): EcsDocument {

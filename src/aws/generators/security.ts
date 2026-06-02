@@ -70,7 +70,6 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
   ];
   const ft = rand(findingTypes);
   const sev = isFinding ? rand([2.0, 4.0, 5.0, 7.0, 8.0]) : 0;
-  const sevValue = sev >= 7 ? "High" : sev >= 4 ? "Medium" : sev >= 1 ? "Low" : "Informational";
   const findingId = randId(32).toLowerCase();
   const detectorId = randId(32).toLowerCase();
   const instanceId = `i-${randHexId(17)}`;
@@ -377,9 +376,30 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
       dataset: "aws.guardduty",
       provider: "guardduty.amazonaws.com",
     },
-    message: isFinding
-      ? `GuardDuty finding [${sevValue}]: ${ft}`
-      : `GuardDuty: no threats detected`,
+    message: JSON.stringify({
+      schemaVersion: "2.0",
+      accountId: acct.id,
+      region,
+      partition: "aws",
+      id: findingId,
+      arn: `arn:aws:guardduty:${region}:${acct.id}:detector/${detectorId}/finding/${findingId}`,
+      type: ft,
+      resource: resourceObj,
+      service: {
+        serviceName: "guardduty",
+        detectorId,
+        action,
+        eventFirstSeen,
+        eventLastSeen,
+        archived: false,
+        count: randInt(1, 500),
+      },
+      severity: sev,
+      title,
+      description,
+      createdAt: ts,
+      updatedAt: ts,
+    }),
     log: { level: sev >= 7 ? "error" : sev >= 4 ? "warn" : "info" },
     ...(isFinding
       ? { error: { code: "ThreatFinding", message: `GuardDuty finding: ${ft}`, type: "security" } }
@@ -533,9 +553,27 @@ function generateSecurityHubLog(ts: string, er: number): EcsDocument {
       dataset: "aws.securityhub_findings",
       provider: "securityhub.amazonaws.com",
     },
-    message: isFinding
-      ? `Security Hub [${sev}]: Compliance check failed`
-      : `Security Hub: control passed`,
+    message: JSON.stringify({
+      SchemaVersion: "2018-10-08",
+      Id: findingId,
+      ProductArn: productArn,
+      GeneratorId: generatorId,
+      AwsAccountId: acct.id,
+      Types: [findingType],
+      CreatedAt: createdTs,
+      UpdatedAt: updatedTs,
+      Severity: { Label: sev, Normalized: severityNormalized, Original: sev },
+      Title: title,
+      Description: description,
+      Resources: resourcesAsff,
+      Compliance: {
+        Status: isFinding ? "FAILED" : "PASSED",
+        SecurityControlId: controlId,
+        RelatedRequirements: isCIS ? [`CIS ${controlId}`] : [],
+      },
+      Workflow: { Status: rand(["NEW", "NOTIFIED", "RESOLVED", "SUPPRESSED"]) },
+      RecordState: isFinding ? "ACTIVE" : "ARCHIVED",
+    }),
     log: { level: sev === "CRITICAL" ? "error" : sev === "HIGH" ? "warn" : "info" },
     ...(isFinding
       ? {
@@ -637,9 +675,31 @@ function generateMacieLog(ts: string, er: number): EcsDocument {
       dataset: "aws.macie",
       provider: "macie2.amazonaws.com",
     },
-    message: isFinding
-      ? `Macie detected sensitive data in s3://${bucketName}: ${findingType}`
-      : `Macie scan complete: no sensitive data found`,
+    message: JSON.stringify({
+      id: `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase(),
+      type: findingType,
+      severity: { description: isFinding ? rand(["HIGH", "MEDIUM", "LOW"]) : "INFORMATIONAL" },
+      category: isPolicyFinding ? "POLICY" : "SENSITIVE_DATA",
+      resourcesAffected: [
+        {
+          s3Bucket: { name: bucketName, arn: `arn:aws:s3:::${bucketName}`, owner: { id: ownerId } },
+        },
+      ],
+      ...(isFinding
+        ? {
+            classificationDetails: {
+              result: { totalSizeInBytes: randInt(1000, 500000), occurrences: randInt(1, 50000) },
+              sensitiveData: [
+                {
+                  category: rand(["PII", "FINANCIAL", "CREDENTIALS"]),
+                  totalCount: randInt(1, 50000),
+                },
+              ],
+              dataIdentifiers: [{ name: dataIdentifier }],
+            },
+          }
+        : {}),
+    }),
     log: { level: isFinding ? "warn" : "info" },
     ...(isFinding
       ? {
@@ -838,13 +898,31 @@ function generateInspectorLog(ts: string, er: number): EcsDocument {
       outcome: ["CRITICAL", "HIGH"].includes(severity) ? "failure" : "success",
       category: ["vulnerability"],
       type: ["info"],
-      dataset: "aws.inspector2",
+      dataset: "aws.inspector",
       provider: "inspector2.amazonaws.com",
     },
-    message:
-      findingType === "PACKAGE_VULNERABILITY"
-        ? `Inspector2 [${severity}]: ${cveId} in ${packageName} ${packageVersion} on ${resourceType} (fix: ${fixedVersion})`
-        : `Inspector2 [${severity}]: ${findingType} detected on ${resourceType}`,
+    message: JSON.stringify({
+      findingArn,
+      type: findingType,
+      title: inspectorTitle,
+      description: inspectorDescription,
+      severity,
+      status: rand(["ACTIVE", "ACTIVE", "ACTIVE", "SUPPRESSED"]),
+      resources: resourcesInspector,
+      ...(findingType === "PACKAGE_VULNERABILITY"
+        ? {
+            packageVulnerabilityDetails: {
+              vulnerabilityId: cveId,
+              cvss: [{ score: cvssScore, version: "3.1" }],
+              vulnerablePackages: [
+                { name: packageName, version: packageVersion, fixedInVersion: fixedVersion },
+              ],
+            },
+          }
+        : {}),
+      firstObservedAt: new Date(new Date(ts).getTime() - randInt(1, 30) * 86400000).toISOString(),
+      lastObservedAt: ts,
+    }),
     log: {
       level: ["CRITICAL", "HIGH"].includes(severity)
         ? "error"
@@ -940,7 +1018,26 @@ function generateConfigLog(ts: string, er: number): EcsDocument {
       dataset: "aws.config",
       provider: "config.amazonaws.com",
     },
-    message: isNonCompliantFinal ? `Config rule FAILED: ${rule}` : `Config rule PASSED: ${rule}`,
+    message: JSON.stringify({
+      configRuleName: rule,
+      configRuleArn: `arn:aws:config:${region}:${acct.id}:config-rule/config-rule-${randId(8).toLowerCase()}`,
+      resourceType: resource,
+      resourceId: `${rand(["i", "sg", "s3", "db"])}-${randId(8).toLowerCase()}`,
+      awsAccountId: acct.id,
+      awsRegion: region,
+      newEvaluationResult: {
+        complianceType: complianceStatus,
+        resultRecordedTime: ts,
+        annotation: isNonCompliantFinal
+          ? rand([
+              "Resource is not compliant",
+              "Missing required tag",
+              "Encryption not enabled",
+              "Public access enabled",
+            ])
+          : "Resource is compliant",
+      },
+    }),
     log: { level: isNonCompliantFinal ? "warn" : "info" },
     ...(isNonCompliantFinal
       ? {
@@ -1003,9 +1100,16 @@ function generateAccessAnalyzerLog(ts: string, er: number): EcsDocument {
       dataset: "aws.access_analyzer",
       provider: "access-analyzer.amazonaws.com",
     },
-    message: isFinding
-      ? `IAM Access Analyzer: external access found on ${rand(resourceTypes)}`
-      : `Access Analyzer: no external access paths detected`,
+    message: JSON.stringify({
+      id: `${randId(8)}-${randId(4)}-${randId(4)}`.toLowerCase(),
+      analyzerArn: `arn:aws:access-analyzer:${region}:${acct.id}:analyzer/analyzer-${region}`,
+      resourceType: rand(resourceTypes),
+      resource: `arn:aws:s3:::${rand(["prod", "staging", "dev"])}-bucket`,
+      status: isFinding ? rand(["ACTIVE", "ARCHIVED"]) : "RESOLVED",
+      findingType: isFinding ? rand(["EXTERNAL_ACCESS", "UNUSED_ACCESS"]) : "none",
+      principal: isFinding ? { AWS: "*" } : {},
+      condition: isFinding ? { StringEquals: { "aws:PrincipalOrgID": "o-example" } } : undefined,
+    }),
     log: { level: isFinding ? "warn" : "info" },
     ...(isFinding
       ? {
@@ -1131,11 +1235,19 @@ function generateCognitoLog(ts: string, er: number): EcsDocument {
       dataset: "aws.cognito",
       provider: "cognito-idp.amazonaws.com",
     },
-    message: isRiskEvent
-      ? `Cognito ${action} detected [${riskLevel}]: decision=${riskDecision} pool=${pool}`
-      : isErr
-        ? `Cognito ${action} FAILED: ${rand(["Incorrect password", "User not found", "Rate limit exceeded"])}`
-        : `Cognito ${action} success [${pool}]`,
+    message: JSON.stringify({
+      eventType: action,
+      eventResponse: isErr || (isRiskEvent && riskDecision === "BLOCK") ? "Fail" : "Pass",
+      userPoolId,
+      userPoolName: pool,
+      userName: isErr ? undefined : user,
+      clientId: `${pool}-web`,
+      ipAddress: randIp(),
+      riskLevel: isRiskEvent ? riskLevel : undefined,
+      riskDecision: isRiskEvent ? riskDecision : undefined,
+      challengeName: isErr ? errorCode : undefined,
+      ...(advancedSecurity ? { advancedSecurityFeatures: advancedSecurity } : {}),
+    }),
     log: { level: logLevel },
     ...(isErr
       ? { error: { code: errorCode, message: "Authentication failed", type: "authentication" } }
@@ -1208,9 +1320,38 @@ function generateKmsLog(ts: string, er: number): EcsDocument {
       dataset: "aws.kms",
       provider: "kms.amazonaws.com",
     },
-    message: isErr
-      ? `KMS ${op} FAILED on ${keyAlias}: ${rand(["Key disabled", "Access denied", "Key pending deletion"])}`
-      : `KMS ${op}: ${keyAlias}`,
+    message: JSON.stringify({
+      eventVersion: "1.11",
+      eventSource: "kms.amazonaws.com",
+      eventName: op,
+      eventTime: ts,
+      awsRegion: region,
+      recipientAccountId: acct.id,
+      requestParameters: { keyId: `arn:aws:kms:${region}:${acct.id}:key/${keyId}` },
+      responseElements: isErr ? {} : { keyId: `arn:aws:kms:${region}:${acct.id}:key/${keyId}` },
+      userIdentity: {
+        type: "IAMUser",
+        principalId: `AID${randId(16).toUpperCase()}`,
+        arn: `arn:aws:iam::${acct.id}:${rand([`user/${randIamUser()}`, "role/lambda-role", "role/ecs-task-role"])}`,
+        accountId: acct.id,
+      },
+      sourceIPAddress: randIp(),
+      userAgent: rand(USER_AGENTS),
+      requestID: randUUID(),
+      eventID: randUUID(),
+      eventType: "AwsApiCall",
+      readOnly: ["DescribeKey"].includes(op),
+      ...(isErr
+        ? {
+            errorCode: rand([
+              "DisabledException",
+              "AccessDeniedException",
+              "KMSInvalidStateException",
+            ]),
+            errorMessage: "KMS operation failed",
+          }
+        : {}),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1285,9 +1426,40 @@ function generateSecretsManagerLog(ts: string, er: number): EcsDocument {
       dataset: "aws.secretsmanager",
       provider: "secretsmanager.amazonaws.com",
     },
-    message: isErr
-      ? `Secrets Manager ${op} on ${secret} FAILED: ${rand(["Access denied", "Secret not found"])}`
-      : `Secrets Manager ${op}: ${secret}`,
+    message: JSON.stringify({
+      eventVersion: "1.11",
+      eventSource: "secretsmanager.amazonaws.com",
+      eventName: op,
+      eventTime: ts,
+      awsRegion: region,
+      recipientAccountId: acct.id,
+      requestParameters: { secretId: secret },
+      responseElements:
+        op === "GetSecretValue" && !isErr
+          ? { arn: `arn:aws:secretsmanager:${region}:${acct.id}:secret:${secret}`, name: secret }
+          : {},
+      userIdentity: {
+        type: "AssumedRole",
+        principalId: `AROA${randId(16).toUpperCase()}`,
+        arn: `arn:aws:sts::${acct.id}:assumed-role/${rand(["lambda-function", "ecs-task", "ec2-instance"])}/session`,
+        accountId: acct.id,
+      },
+      sourceIPAddress: randIp(),
+      requestID: randUUID(),
+      eventID: randUUID(),
+      eventType: "AwsApiCall",
+      readOnly: op === "GetSecretValue",
+      ...(isErr
+        ? {
+            errorCode: rand([
+              "DecryptionFailure",
+              "ResourceNotFoundException",
+              "AccessDeniedException",
+            ]),
+            errorMessage: "Secrets Manager operation failed",
+          }
+        : {}),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1356,9 +1528,29 @@ function generateAcmLog(ts: string, er: number): EcsDocument {
       dataset: "aws.acm",
       provider: "acm.amazonaws.com",
     },
-    message: isErr
-      ? `ACM certificate for ${domain}: ${status}${daysToExpiry < 0 ? ` (expired ${Math.abs(daysToExpiry)}d ago)` : ""}`
-      : `ACM certificate for ${domain}: ${status}, ${daysToExpiry}d remaining`,
+    message: JSON.stringify({
+      eventVersion: "1.11",
+      eventSource: "acm.amazonaws.com",
+      eventName: isErr
+        ? "CertificateExpired"
+        : rand(["RequestCertificate", "DescribeCertificate", "RenewCertificate"]),
+      eventTime: ts,
+      awsRegion: region,
+      recipientAccountId: acct.id,
+      requestParameters: { domainName: domain },
+      responseElements: {
+        certificateArn:
+          `arn:aws:acm:${region}:${acct.id}:certificate/${randId(8)}-${randId(4)}`.toLowerCase(),
+        domainName: domain,
+        status,
+        type: rand(["AMAZON_ISSUED", "IMPORTED"]),
+        notAfter: new Date(Date.now() + daysToExpiry * 86400000).toISOString(),
+        keyAlgorithm: rand(["RSA_2048", "EC_prime256v1"]),
+      },
+      requestID: randUUID(),
+      eventID: randUUID(),
+      eventType: "AwsApiCall",
+    }),
     log: { level: isErr ? "error" : daysToExpiry < 30 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1416,9 +1608,18 @@ function generateIamIdentityCenterLog(ts: string, er: number): EcsDocument {
       dataset: "aws.identitycenter",
       provider: "sso.amazonaws.com",
     },
-    message: isErr
-      ? `IAM Identity Center ${action} FAILED for ${user} on ${app}`
-      : `IAM Identity Center ${action}: ${user} -> ${app}`,
+    message: JSON.stringify({
+      eventType: action,
+      eventTime: ts,
+      userName: user,
+      applicationName: app,
+      permissionSetArn: `arn:aws:sso:::permissionSet/${rand(["AdministratorAccess", "ReadOnlyAccess", "PowerUserAccess", "BillingAccess"])}/ps-${randId(8)}`,
+      accountId: acct.id,
+      result: isErr ? "FAILURE" : "SUCCESS",
+      mfaAuthenticated: Math.random() > 0.2,
+      sourceIpAddress: randIp(),
+      ...(isErr ? { errorCode: rand(["AccessDeniedException", "MFARequired"]) } : {}),
+    }),
     log: { level: isErr ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1471,9 +1672,30 @@ function generateDetectiveLog(ts: string, er: number): EcsDocument {
       dataset: "aws.detective",
       provider: "detective.amazonaws.com",
     },
-    message: isFinding
-      ? `Detective [${sev}]: ${behavior} detected - ${randInt(1, 20)} related findings`
-      : `Detective: entity behavior within normal baseline`,
+    message: JSON.stringify({
+      eventVersion: "1.11",
+      eventSource: "detective.amazonaws.com",
+      eventName: isFinding ? "CreateGraph" : "GetMembers",
+      eventTime: ts,
+      awsRegion: region,
+      recipientAccountId: acct.id,
+      requestParameters: {
+        graphArn: `arn:aws:detective:${region}:${acct.id}:graph/${randId(12)}`,
+      },
+      responseElements: {
+        entityType: rand(["AwsAccount", "AwsIamRole", "AwsIamUser", "Ec2Instance"]),
+        entityArn: rand([
+          `arn:aws:iam::${acct.id}:user/suspicious`,
+          `arn:aws:ec2:${region}:${acct.id}:instance/i-${randHexId(17)}`,
+        ]),
+        behaviorType: isFinding ? behavior : "Normal",
+        severityScore: isFinding ? Number(randFloat(50, 99)) : Number(randFloat(0, 30)),
+        findingCount: isFinding ? randInt(1, 20) : 0,
+      },
+      requestID: randUUID(),
+      eventID: randUUID(),
+      eventType: "AwsApiCall",
+    }),
     log: { level: sev === "CRITICAL" ? "error" : sev === "HIGH" ? "warn" : "info" },
     ...(isFinding
       ? { error: { code: "AnomalousBehavior", message: `${behavior} detected`, type: "security" } }
@@ -1558,9 +1780,28 @@ function generateVerifiedAccessLog(ts: string, er: number): EcsDocument {
       provider: "verified-access.amazonaws.com",
       duration: randInt(1, 200) * 1e6,
     },
-    message: denied
-      ? `Verified Access DENIED: ${user} -> ${app} [${denyReason}]`
-      : `Verified Access allowed: ${user} -> ${app} (${devicePosture})`,
+    message: JSON.stringify({
+      endpointId: `vae-${randId(17).toLowerCase()}`,
+      applicationName: app,
+      userIdentity: { type: "IAMIdentityCenter", userName: user, userEmail: user },
+      trustProviderType: trustProvider,
+      devicePosture,
+      verdict: denied ? "deny" : "allow",
+      denyReason,
+      httpMethod,
+      httpPath,
+      httpStatus,
+      requestId: randUUID(),
+      connectionId: randId(20),
+      sessionId: randId(32),
+      sniHostname: `${app}.internal.${randEmailDomain()}`,
+      policyName: rand([
+        "require-mfa",
+        "corporate-device",
+        "require-mfa-and-device",
+        "jump-server-only",
+      ]),
+    }),
     log: { level: denied ? "warn" : "info" },
     ...(denied
       ? {
@@ -1778,7 +2019,26 @@ function generateSecurityLakeLog(ts: string, er: number): EcsDocument {
       dataset: "aws.securitylake",
       provider: "securitylake.amazonaws.com",
     },
-    message: `Security Lake [${cls.class_name}/${activityName}] ${severityName}: ${cls.source_type.split(":")[1]} ${statusId === 1 ? "success" : "failure"}`,
+    message: JSON.stringify({
+      class_uid: cls.class_uid,
+      class_name: cls.class_name,
+      category_uid: cls.category_uid,
+      category_name: cls.category_name,
+      activity_id: activityId,
+      activity_name: activityName,
+      severity_id: severityId,
+      severity: severityName,
+      status_id: statusId,
+      status: statusId === 1 ? "Success" : "Failure",
+      time: new Date(ts).getTime(),
+      metadata: {
+        version: "1.1.0",
+        product: { name: cls.source_type.split(":")[1], vendor_name: "AWS" },
+        uid: randUUID(),
+      },
+      cloud: { provider: "AWS", account: { uid: acct.id }, region },
+      ...classFields,
+    }),
     log: { level: severityId >= 5 ? "error" : severityId >= 3 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -2116,7 +2376,26 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
       dataset: "aws.cloudtrail",
       provider: "cloudtrail.amazonaws.com",
     },
-    message: `CloudTrail: ${eventName} by ${user} from ${sourceIPAddress} - ${errorCode || "Success"}`,
+    message: JSON.stringify({
+      eventVersion: "1.11",
+      userIdentity,
+      eventTime,
+      eventSource: ev.svc,
+      eventName,
+      awsRegion: region,
+      sourceIPAddress,
+      userAgent,
+      requestParameters: requestParametersObj,
+      responseElements: responseElementsObj,
+      requestID: requestId,
+      eventID: eventId,
+      eventType,
+      recipientAccountId: acct.id,
+      readOnly,
+      ...(isErr
+        ? { errorCode, errorMessage: "User is not authorized to perform this operation" }
+        : {}),
+    }),
     log: { level: isErr ? "warn" : "info" },
     ...(isErr
       ? {
@@ -2158,7 +2437,6 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
 
   const severity = rand(["HIGH", "HIGH", "CRITICAL", "MEDIUM"]);
   const sevCode = severity === "CRITICAL" ? 8.0 : severity === "HIGH" ? 7.0 : 4.0;
-  const sevValue = sevCode >= 7 ? "High" : "Medium";
   const findingType = rand([
     "UnauthorizedAccess:EC2/MaliciousIPCaller",
     "Recon:EC2/PortProbeUnprotectedPort",
@@ -2198,32 +2476,34 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
   const gdResource =
     resourceKind === "ec2"
       ? {
-          type: "Instance",
-          instance_details: {
-            instance_id: instanceId,
-            instance_type: rand(["t3.medium", "m5.large", "c6i.xlarge"]),
-            image_id: `ami-${randHexId(8)}`,
-            availability_zone: `${region}${rand(["a", "b", "c"])}`,
-            network_interfaces: [
+          resourceType: "Instance",
+          instanceDetails: {
+            instanceId,
+            instanceType: rand(["t3.medium", "m5.large", "c6i.xlarge"]),
+            imageId: `ami-${randHexId(8)}`,
+            availabilityZone: `${region}${rand(["a", "b", "c"])}`,
+            networkInterfaces: [
               {
-                network_interface_id: `eni-${randHexId(8)}`,
-                private_ip_address: randIp(),
-                subnet_id: `subnet-${randHexId(8)}`,
-                vpc_id: `vpc-${randHexId(8)}`,
+                networkInterfaceId: `eni-${randHexId(8)}`,
+                privateIpAddress: randIp(),
+                subnetId: `subnet-${randHexId(8)}`,
+                vpcId: `vpc-${randHexId(8)}`,
               },
             ],
             tags: [{ key: "Name", value: "app-server" }],
           },
         }
       : {
-          type: "S3Bucket",
-          s3_bucket_detail: {
-            arn: resourceArn,
-            name: bucketName,
-            type: "Destination",
-            created_at: eventFirstSeen,
-            owner: { id: acct.id },
-          },
+          resourceType: "S3Bucket",
+          s3BucketDetails: [
+            {
+              arn: resourceArn,
+              name: bucketName,
+              type: "Destination",
+              createdAt: eventFirstSeen,
+              owner: { id: acct.id },
+            },
+          ],
         };
 
   const actionType = rand(["NETWORK_CONNECTION", "PORT_PROBE", "DNS_REQUEST", "AWS_API_CALL"]);
@@ -2257,8 +2537,8 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
     aws: {
       dimensions: { DetectorId: detectorId },
       guardduty: {
-        schema_version: "2.0",
-        account_id: acct.id,
+        schemaVersion: "2.0",
+        accountId: acct.id,
         region,
         partition: "aws",
         id: gdFindingId,
@@ -2266,25 +2546,26 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
         type: findingType,
         title: gdTitle,
         description: gdDescription,
-        created_at: gdTs,
-        updated_at: gdTs,
-        severity: { code: sevCode, value: sevValue },
+        createdAt: gdTs,
+        updatedAt: gdTs,
+        severity: sevCode,
         confidence: Number(randFloat(70, 99)),
         resource: gdResource,
         service: {
-          detector_id: detectorId,
+          serviceName: "guardduty",
+          detectorId,
           count: randInt(1, 100),
           archived: false,
-          resource_role: resourceKind === "ec2" ? "TARGET" : "TARGET",
+          resourceRole: resourceKind === "ec2" ? "TARGET" : "TARGET",
           action: {
-            action_type: actionType,
+            actionType,
             ...(actionType === "PORT_PROBE"
               ? {
-                  port_probe_action: {
-                    port_probe_details: [
+                  portProbeAction: {
+                    portProbeDetails: [
                       {
-                        local_port_details: { port: rand([22, 3389, 443, 8080]) },
-                        remote_ip_details: { ip_address_v4: srcIp },
+                        localPortDetails: { port: rand([22, 3389, 443, 8080]) },
+                        remoteIpDetails: { ipAddressV4: srcIp },
                       },
                     ],
                   },
@@ -2312,7 +2593,21 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
       dataset: "aws.guardduty",
       provider: "guardduty.amazonaws.com",
     },
-    message: `GuardDuty finding [${severity}]: ${findingType} — ${resourceArn}`,
+    message: JSON.stringify({
+      schemaVersion: "2.0",
+      accountId: acct.id,
+      region,
+      id: gdFindingId,
+      arn: gdArn,
+      type: findingType,
+      title: gdTitle,
+      description: gdDescription,
+      severity: sevCode,
+      resource: gdResource,
+      service: { serviceName: "guardduty", detectorId, actionType },
+      createdAt: gdTs,
+      updatedAt: gdTs,
+    }),
     log: { level: sevCode >= 7 ? "error" : "warn" },
     labels: chainLabels,
     ...(isAttackFinding
@@ -3422,8 +3717,8 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
     aws: {
       dimensions: { DetectorId: detectorId },
       guardduty: {
-        schema_version: "2.0",
-        account_id: acct.id,
+        schemaVersion: "2.0",
+        accountId: acct.id,
         region,
         partition: "aws",
         id: gdFindingId,
@@ -3434,32 +3729,35 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
             ? "Unusual S3 data access volume or pattern detected"
             : "S3 object accessed from a known malicious IP address",
         description: `S3 bucket ${bucketName} in ${region} showed ${gdType.includes("Anomalous") ? "anomalous access patterns" : "access from malicious IP"} ${exfilSourceIp}. Related resource ${instanceArn}.`,
-        created_at: ts,
-        updated_at: ts,
-        severity: { code: 7.0, value: "High" },
+        createdAt: ts,
+        updatedAt: ts,
+        severity: 7.0,
         confidence: Number(randFloat(75, 95)),
         resource: {
-          type: "S3Bucket",
-          s3_bucket_detail: {
-            arn: `arn:aws:s3:::${bucketName}`,
-            name: bucketName,
-            type: "Destination",
-          },
+          resourceType: "S3Bucket",
+          s3BucketDetails: [
+            {
+              arn: `arn:aws:s3:::${bucketName}`,
+              name: bucketName,
+              type: "Destination",
+            },
+          ],
         },
         service: {
-          detector_id: detectorId,
+          serviceName: "guardduty",
+          detectorId,
           count: keyCount,
           archived: false,
           action: {
-            action_type: "AWS_API_CALL",
-            aws_api_call_action: {
+            actionType: "AWS_API_CALL",
+            awsApiCallAction: {
               api: "GetObject",
-              caller_type: "Remote IP",
-              remote_ip_details: {
-                ip_address_v4: exfilSourceIp,
+              callerType: "Remote IP",
+              remoteIpDetails: {
+                ipAddressV4: exfilSourceIp,
                 organization: (() => {
                   const o = randIspOrg();
-                  return { asn: o.asn, asn_org: o.asnOrg, isp: o.isp };
+                  return { asn: o.asn, asnOrg: o.asnOrg, isp: o.isp };
                 })(),
               },
             },
@@ -3716,9 +4014,28 @@ function generateSecurityIrLog(ts: string, er: number): EcsDocument {
       dataset: "aws.securityir",
       provider: "security-ir.amazonaws.com",
     },
-    message: isErr
-      ? `Security IR ${action} FAILED [${caseId}]: ${rand(["Access denied", "Case not found", "Invalid state transition"])}`
-      : `Security IR ${action}: case=${caseId} severity=${severity} status=${status}`,
+    message: JSON.stringify({
+      eventType: action,
+      eventTime: ts,
+      caseId,
+      caseArn: `arn:aws:security-ir:${region}:${acct.id}:case/${caseId}`,
+      caseTitle,
+      caseStatus: status,
+      severity,
+      impactedAccountCount: impactedAccts,
+      impactedServices: impactedServices.split(","),
+      resolverType: rand(["AWS", "SELF_MANAGED", "THIRD_PARTY"]),
+      engagementType: rand(["SECURITY_INCIDENT", "INVESTIGATION", "COMPROMISE_ASSESSMENT"]),
+      ...(isErr
+        ? {
+            errorCode: rand([
+              "AccessDeniedException",
+              "ResourceNotFoundException",
+              "ValidationException",
+            ]),
+          }
+        : {}),
+    }),
     log: {
       level: severity === "CRITICAL" || severity === "HIGH" ? "error" : isErr ? "error" : "warn",
     },
@@ -3795,9 +4112,27 @@ function generateCloudHsmLog(ts: string, er: number): EcsDocument {
       dataset: "aws.cloudhsm",
       provider: "cloudhsm.amazonaws.com",
     },
-    message: isErr
-      ? `CloudHSM ${action} FAILED [${clusterId}]: ${rand(["HSM not reachable", "Cluster not initialized", "Backup failed", "Access denied"])}`
-      : `CloudHSM ${action}: cluster=${clusterId}, hsm=${hsmId}, state=${hsmState}`,
+    message: JSON.stringify({
+      timestamp: ts,
+      clusterId,
+      hsmId,
+      hsmState,
+      action,
+      availabilityZone,
+      subnetId: `subnet-${randHexId(8)}`,
+      eniIp: `10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(1, 254)}`,
+      keyType,
+      operationType: rand([
+        "key_generation",
+        "key_usage",
+        "key_deletion",
+        "backup",
+        "restore",
+        "cluster_management",
+      ]),
+      ...(action.includes("Backup") ? { backupId: `backup-${randId(10).toLowerCase()}` } : {}),
+      result: isErr ? "FAILURE" : "SUCCESS",
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -3876,9 +4211,19 @@ function generateAuditManagerLog(ts: string, er: number): EcsDocument {
       dataset: "aws.auditmanager",
       provider: "auditmanager.amazonaws.com",
     },
-    message: isErr
-      ? `Audit Manager ${assessment} — ${controlId} ${evidenceStatus}: insufficient evidence in ${controlSet}`
-      : `Audit Manager ${assessment} — ${controlId} ${evidenceStatus}`,
+    message: JSON.stringify({
+      eventType: action,
+      eventTime: ts,
+      assessmentName: assessment,
+      assessmentId: randUUID(),
+      controlSetName: controlSet,
+      controlId,
+      evidenceStatus,
+      dataSource: rand(["AWS_CONFIG", "AWS_CLOUDTRAIL", "AWS_SECURITY_HUB", "MANUAL"]),
+      evidenceCount: randInt(1, 50),
+      complianceCheck: rand(["PASSED", "PASSED", "FAILED", "WARNING"]),
+      reviewer: rand(["auto-assessment", "compliance-team", "security-ops"]),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -3949,9 +4294,19 @@ function generateVerifiedPermissionsLog(ts: string, er: number): EcsDocument {
       dataset: "aws.verifiedpermissions",
       provider: "verifiedpermissions.amazonaws.com",
     },
-    message: isErr
-      ? `Verified Permissions DENY: ${principalType}/${principalId} → ${actionId} on ${resourceType}`
-      : `Verified Permissions ${decision}: ${principalType}/${principalId} → ${actionId}`,
+    message: JSON.stringify({
+      policyStoreId,
+      principal: { entityType: principalType, entityId: principalId },
+      action: { actionId, actionType: "Action" },
+      resource: {
+        entityType: resourceType,
+        entityId: `${resourceType.toLowerCase()}-${randId(8)}`,
+      },
+      decision,
+      determiningPolicies: [{ policyId: `policy-${randId(8)}` }],
+      errors: isErr ? [{ errorDescription: "Policy evaluation error" }] : [],
+      evaluationDuration: `${randInt(1, 50)}ms`,
+    }),
     log: { level: isErr ? "error" : decision === "DENY" ? "warn" : "info" },
     ...(decision === "DENY"
       ? {
@@ -4028,9 +4383,34 @@ function generatePaymentCryptographyLog(ts: string, er: number): EcsDocument {
       dataset: "aws.paymentcryptography",
       provider: "payment-cryptography.amazonaws.com",
     },
-    message: isErr
-      ? `Payment Cryptography ${operation} failed — key ${keyAlgorithm} state ${keyState}`
-      : `Payment Cryptography ${operation} using ${keyAlgorithm} (${keyUsage.split("_")[1]})`,
+    message: JSON.stringify({
+      eventVersion: "1.11",
+      eventSource: "payment-cryptography.amazonaws.com",
+      eventName: operation,
+      eventTime: ts,
+      awsRegion: region,
+      recipientAccountId: acct.id,
+      requestParameters: { keyIdentifier: keyArn },
+      responseElements: {
+        keyArn,
+        keyAlgorithm,
+        keyUsage,
+        keyState,
+        keyCheckValue: randId(6).toUpperCase(),
+      },
+      requestID: randUUID(),
+      eventID: randUUID(),
+      eventType: "AwsApiCall",
+      ...(isErr
+        ? {
+            errorCode: rand([
+              "ResourceNotFoundException",
+              "ValidationException",
+              "AccessDeniedException",
+            ]),
+          }
+        : {}),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -4042,83 +4422,6 @@ function generatePaymentCryptographyLog(ts: string, er: number): EcsDocument {
             ]),
             message: "Payment Cryptography operation failed",
             type: "authentication",
-          },
-        }
-      : {}),
-  };
-}
-
-function generateArtifactLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const reportName = rand([
-    "SOC2-Type-II",
-    "PCI-DSS-Attestation",
-    "ISO-27001",
-    "FedRAMP-Moderate",
-    "GDPR-DPA",
-    "HIPAA-BAA",
-  ]);
-  const reportCategory = rand(["Certification", "Attestation", "Agreement", "Regulation"]);
-  const agreementName = rand([
-    "Business-Associate-Agreement",
-    "GDPR-Data-Processing-Addendum",
-    "Non-Disclosure-Agreement",
-  ]);
-  const action = rand([
-    "GetReport",
-    "GetReportMetadata",
-    "ListReports",
-    "GetTermsForReport",
-    "AcceptAgreement",
-    "TerminateAgreement",
-    "ListAgreements",
-  ]);
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "artifact" },
-    },
-    aws: {
-      dimensions: { ReportName: reportName, ReportCategory: reportCategory },
-      artifact: {
-        report_name: reportName,
-        report_arn: `arn:aws:artifact:::report/${reportName.toLowerCase()}`,
-        report_category: reportCategory,
-        report_period: rand(["2024", "2024-Q4", "2025-H1"]),
-        agreement_name: agreementName,
-        agreement_type: rand(["CUSTOM", "DEFAULT"]),
-        accessed_by: acct.name,
-        download_format: rand(["PDF", "ZIP"]),
-      },
-    },
-    event: {
-      action,
-      outcome: isErr ? "failure" : "success",
-      category: ["configuration"],
-      type: ["info"],
-      dataset: "aws.artifact",
-      provider: "artifact.amazonaws.com",
-    },
-    message: isErr
-      ? `Artifact: access denied to ${reportName} for ${acct.name}`
-      : `Artifact: ${action} — ${reportName} (${reportCategory})`,
-    log: { level: isErr ? "error" : "info" },
-    user: { name: acct.name },
-    ...(isErr
-      ? {
-          error: {
-            code: rand([
-              "ResourceNotFoundException",
-              "AccessDeniedException",
-              "ValidationException",
-            ]),
-            message: "Artifact report access denied",
-            type: "audit",
           },
         }
       : {}),
@@ -4168,9 +4471,20 @@ function generateNetworkAccessAnalyzerLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(5e6, 3e8) },
-    message: isErr
-      ? `Network Access Analyzer: ${scope} — ${randInt(5, 50)} findings detected`
-      : `Network Access Analyzer: ${scope} analysis complete (${randInt(50, 500)} resources)`,
+    message: JSON.stringify({
+      scopeId: `naa-scope-${randId(8).toLowerCase()}`,
+      scopeName: scope,
+      analysisId: `naa-analysis-${randId(12).toLowerCase()}`,
+      findingType: rand(findings),
+      findingCount: isErr ? randInt(5, 50) : randInt(0, 3),
+      resourcesAnalyzed: randInt(50, 500),
+      pathsFound: randInt(0, isErr ? 20 : 5),
+      sourceVpc: `vpc-${randHexId(8)}`,
+      destinationResource: `arn:aws:ec2:${region}:${acct.id}:instance/i-${randHexId(17)}`,
+      protocol: rand(["tcp", "udp", "icmp"]),
+      portRange: `${randInt(1, 1024)}-${randInt(1025, 65535)}`,
+      status: isErr ? "FINDINGS_DETECTED" : "COMPLETE",
+    }),
   };
 }
 
@@ -4228,9 +4542,20 @@ function generateIncidentManagerLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(1e5, 2.88e10) },
-    message: isErr
-      ? `Incident Manager: ${ev} failed for ${plan} — ${rand(errMsgs)}`
-      : `Incident Manager: ${ev} on incident ${plan}`,
+    message: JSON.stringify({
+      opsItemId: `oi-${randId(10).toLowerCase()}`,
+      incidentId: `inc-${randId(10).toLowerCase()}`,
+      responsePlanArn: `arn:aws:ssm-incidents:${region}:${acct.id}:response-plan/${plan}`,
+      eventType: ev,
+      title: `${plan.replace(/-/g, " ")} — auto-detected`,
+      impact: rand(impacts),
+      status: rand(statuses),
+      runbookArn: `arn:aws:ssm:${region}:${acct.id}:automation-definition/${plan}-runbook`,
+      engagements: randInt(0, 5),
+      timelineEvents: randInt(1, 20),
+      durationMinutes: randInt(5, isErr ? 480 : 120),
+      ...(isErr ? { errorMessage: rand(errMsgs) } : {}),
+    }),
   };
 }
 
@@ -4260,7 +4585,6 @@ export {
   generateAuditManagerLog,
   generateVerifiedPermissionsLog,
   generatePaymentCryptographyLog,
-  generateArtifactLog,
   generateNetworkAccessAnalyzerLog,
   generateIncidentManagerLog,
 };

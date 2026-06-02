@@ -1,55 +1,56 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-central-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "ram" }
   },
   "aws": {
     "ram": {
-      "resource_share_arn": "arn:aws:ram:eu-west-1:501938274650:resource-share/zwahkp030qurlyfgdidf4tt0h3s3m13hicj1",
-      "resource_share_name": "shared-subnets",
+      "resource_share_arn": "arn:aws:ram:eu-central-2:814726593401:resource-share/4338xl438bb4xq7rjw5igg4hdwx6q932nrj1",
+      "resource_share_name": "resolver-rules-share",
       "resource_type": "ec2:TransitGateway",
-      "action": "DisassociateResourceShare",
-      "principal": "501938274650",
-      "allow_external_principals": true,
-      "status": "ACTIVE"
+      "action": "AcceptResourceShareInvitation",
+      "principal": "814726593401",
+      "allow_external_principals": false,
+      "status": "ACTIVE",
+      "invitation_status": "REJECTED"
     },
     "s3": {
       "bucket": {
-        "name": "aws-ram-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-ram-logs-501938274650"
+        "name": "aws-ram-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-ram-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/501938274650/ram/eu-west-1/2026/05/28/ram_COD50ZN2BQCNV9JG107A.log.gz"
+        "key": "AWSLogs/814726593401/ram/eu-central-2/2026/06/01/ram_QACOV47N2B5NUU3VUK9L.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/ram/logs",
-      "log_stream": "eu-west-1/kmockc8x",
-      "ingestion_time": "2026-05-28T16:58:16.226Z"
+      "log_stream": "eu-central-2/ke8pl06z",
+      "ingestion_time": "2026-06-01T18:12:00.463Z"
     }
   },
   "event": {
-    "action": "DisassociateResourceShare",
+    "action": "AcceptResourceShareInvitation",
     "outcome": "success",
     "category": ["configuration", "iam"],
     "dataset": "aws.ram",
     "provider": "ram.amazonaws.com",
-    "duration": 209000000,
+    "duration": 495000000,
     "module": "aws"
   },
-  "message": "RAM DisassociateResourceShare: ec2:TransitGateway shared with account 501938274650",
+  "message": "{\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"status\":\"Succeeded\"}",
   "log": { "level": "info" },
   "service": { "name": "ram", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.ram", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "s99sgyeb0ogn6r0w93omm72qx5wrijt7xy29"
+    "name": "filebeat-aws-eu-central-2",
+    "ephemeral_id": "4ycigivjj3a9bqfu5vq0nnlzxucv6bjpf0l3"
   },
   "input": { "type": "aws-cloudwatch" }
 }

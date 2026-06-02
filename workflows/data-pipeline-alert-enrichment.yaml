@@ -59,8 +59,8 @@ steps:
     with:
       message: |
         Data pipeline alert enrichment starting:
-          emailConnector: Elastic-Cloud-SMTP
-          notifyTo:       soc-oncall@example.com
+          emailConnector: {{ inputs.emailConnector }}
+          notifyTo:       {{ inputs.notifyTo }}
   # 1. Log the inbound alert.
   - name: log_alert_received
     type: console
@@ -205,10 +205,10 @@ steps:
   #    failures.
   - name: notify_email
     type: email
-    connector-id: "Elastic-Cloud-SMTP"
+    connector-id: "{{ inputs.emailConnector }}"
     with:
       to:
-        - "soc-oncall@example.com"
+        - "{{ inputs.notifyTo }}"
       subject: "[Data Pipeline Alert] {{ event.alerts[0].kibana.alert.rule.name }}"
       message: |
         A data pipeline alert has fired and been enriched with CMDB context.

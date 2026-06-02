@@ -488,41 +488,6 @@ export function generateLicensemanagerMetrics(ts: string, er: number): EcsDocume
   ];
 }
 
-// ─── CloudShell (AWS/CloudShell) ───────────────────────────────────────────────
-
-export function generateCloudshellMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const stressed = Math.random() < er;
-  const userArn = `arn:aws:iam::${account.id}:user/${rand(["build", "dba", "secops"])}`;
-  return [
-    metricDoc(
-      ts,
-      "cloudshell",
-      "aws.cloudshell",
-      region,
-      account,
-      { UserArn: userArn },
-      {
-        SessionCount: counter(randInt(10, 8_000)),
-        SessionDuration: stat(dp(stressed ? randFloat(800, 12_800) : jitter(420, 280, 30, 7200))),
-        ProvisionFailures: counter(stressed ? randInt(5, 100) : randInt(0, 2)),
-      }
-    ),
-    metricDoc(
-      ts,
-      "cloudshell",
-      "aws.cloudshell",
-      region,
-      account,
-      { UserArn: userArn, AZ: `${region}a` },
-      {
-        APIThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
-        MountErrors: counter(Math.random() < er ? randInt(50, 8000) : randInt(0, 280)),
-      }
-    ),
-  ];
-}
-
 // ─── Cloud9 (AWS/Cloud9) ─────────────────────────────────────────────────────────
 
 export function generateCloud9Metrics(ts: string, er: number): EcsDocument[] {

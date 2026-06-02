@@ -1,29 +1,29 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
+    "region": "ap-northeast-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "bedrock-guardrails" }
   },
   "aws": {
     "dimensions": {
-      "GuardrailArn": "arn:aws:bedrock:us-east-1:738291046572:guardrail/gr-jv3ovj8tjp",
-      "GuardrailVersion": "1",
+      "GuardrailArn": "arn:aws:bedrock:ap-northeast-1:738291046572:guardrail/gr-f0865d0ozn",
+      "GuardrailVersion": "2",
       "Operation": "ApplyGuardrail"
     },
     "bedrockguardrails": {
-      "guardrail_id": "gr-jv3ovj8tjp",
-      "guardrail_version": "1",
+      "guardrail_id": "gr-f0865d0ozn",
+      "guardrail_version": "2",
       "operation": "ApplyGuardrail",
-      "source": "OUTPUT",
-      "action": "NONE",
-      "findings": 0,
-      "policy_types": [],
-      "latency_ms": 1321,
-      "text_units": 39,
-      "tokens_input": 7722,
-      "tokens_output": 1066
+      "source": "INPUT",
+      "action": "BLOCKED",
+      "findings": 4,
+      "policy_types": ["DENIED_TOPICS"],
+      "latency_ms": 172,
+      "text_units": 21,
+      "tokens_input": 1914,
+      "tokens_output": 205
     },
     "s3": {
       "bucket": {
@@ -31,38 +31,33 @@
         "arn": "arn:aws:s3:::aws-bedrockguardrails-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/bedrockguardrails/us-east-1/2026/05/28/bedrockguardrails_9YT2W2HSY9DBO4CMZ4YP.log.gz"
+        "key": "AWSLogs/738291046572/bedrockguardrails/ap-northeast-1/2026/06/01/bedrockguardrails_HC6GEM2TOWZFQJABPR1A.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/bedrockguardrails/logs",
-      "log_stream": "us-east-1/v1xj81cc",
-      "ingestion_time": "2026-05-28T16:58:16.281Z"
+      "log_stream": "ap-northeast-1/9vz2ckk0",
+      "ingestion_time": "2026-06-01T18:12:00.495Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "aws.bedrockguardrails",
     "category": ["process"],
-    "type": ["error"],
-    "duration": 1320783466,
+    "type": ["change"],
+    "duration": 171786874,
     "module": "aws"
   },
-  "message": "ApplyGuardrail InternalServerException for gr-jv3ovj8tjp v1 — upstream model endpoint returned 503",
-  "error": {
-    "code": "InternalServerException",
-    "message": "Upstream service unavailable",
-    "type": "server"
-  },
+  "message": "{\"scenario\":\"intervened\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"region\":\"ap-northeast-1\",\"accountId\":\"738291046572\",\"status\":\"Succeeded\"}",
   "service": { "name": "bedrockguardrails", "type": "aws" },
-  "log": { "level": "error" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.bedrockguardrails", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "kgdadvj6t6bysictb6c7w4g2bf2pyfvd1rgf"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "vg9d0e4w7tefegt1aifout6lzolcw76nqswz"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,5 +1,5 @@
 {
-  "title": "Amazon Personalize — overview",
+  "title": "AWS Personalize — Overview",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "personalize-k1",
+      "uid": "personalize-kpi-events",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.personalize* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-aws.personalize* | STATS Events = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Events"
             }
           ]
         }
@@ -34,31 +34,112 @@
     },
     {
       "type": "lens",
-      "uid": "personalize-d1",
+      "uid": "personalize-kpi-failures",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.personalize* | STATS Failures = SUM(CASE(`event.outcome` == \"failure\", 1, 0))"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failures"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "personalize-kpi-actions",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.personalize* | STATS `Distinct actions` = COUNT_DISTINCT(`event.action`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Distinct actions"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "personalize-kpi-resources",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.personalize* | STATS Resources = COUNT_DISTINCT(`aws.personalize.user_id`)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Resources"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "personalize-donut-outcome",
       "grid": {
         "x": 0,
         "y": 5,
-        "w": 16,
-        "h": 10
+        "w": 24,
+        "h": 8
       },
       "config": {
-        "title": "Log level",
+        "title": "Event Outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.personalize* | STATS c = COUNT() BY o = log.level"
+            "query": "FROM logs-aws.personalize* | STATS count = COUNT() BY outcome = `event.outcome` | SORT ``count DESC"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "c"
+              "column": "count"
             }
           ],
           "group_by": [
             {
               "operation": "value",
-              "column": "o"
+              "column": "outcome"
             }
           ]
         }
@@ -66,15 +147,63 @@
     },
     {
       "type": "lens",
-      "uid": "personalize-l1",
+      "uid": "personalize-bar-dimension",
       "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 8
       },
       "config": {
-        "title": "Event volume",
+        "title": "Events by action",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.personalize* | STATS count = COUNT() BY dim = `aws.personalize.action` | SORT ``count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "dim"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "personalize-line-volume",
+      "grid": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "Event Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -94,16 +223,16 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.personalize* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.personalize* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
-                "column": "b"
+                "column": "bucket"
               },
               "y": [
                 {
                   "operation": "value",
-                  "column": "c",
+                  "column": "count",
                   "label": "Events"
                 }
               ]
@@ -114,31 +243,227 @@
     },
     {
       "type": "lens",
-      "uid": "personalize-t1",
+      "uid": "personalize-line-failures",
       "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
+        "x": 24,
+        "y": 13,
+        "w": 24,
+        "h": 8
       },
       "config": {
-        "title": "By region",
+        "title": "Failures over time",
         "attributes": {
-          "type": "datatable",
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.personalize* | STATS failures = SUM(CASE(`event.outcome` == \"failure\", 1, 0)) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "failures",
+                  "label": "Failures"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "personalize-bar-region",
+      "grid": {
+        "x": 0,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Events by Region",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.personalize* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "region"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "personalize-bar-resource",
+      "grid": {
+        "x": 16,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Events by user id",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.personalize* | STATS count = COUNT() BY res = `aws.personalize.user_id` | SORT ``count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "res"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "personalize-donut-log-level",
+      "grid": {
+        "x": 32,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Log Level",
+        "attributes": {
+          "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.personalize* | STATS c = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-aws.personalize* | STATS count = COUNT() BY lvl = log.level | SORT ``count DESC"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Region"
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "lvl"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "personalize-table-recent",
+      "grid": {
+        "x": 0,
+        "y": 29,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.personalize* | KEEP `@timestamp``@timestamp`, `aws.personalize.action`, `aws.personalize.user_id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "aws.personalize.action",
+              "label": "Action"
+            },
+            {
+              "operation": "value",
+              "column": "aws.personalize.user_id",
+              "label": "User id"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Level"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
             }
           ],
           "rows": []

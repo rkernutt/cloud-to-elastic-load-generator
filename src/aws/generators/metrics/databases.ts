@@ -1001,30 +1001,3 @@ export function generateStoragegatewayMetrics(ts: string, er: number) {
     ),
   ];
 }
-
-// ─── QLDB ─────────────────────────────────────────────────────────────────────
-
-export function generateQldbMetrics(ts: string, er: number) {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  return [
-    metricDoc(
-      ts,
-      "qldb",
-      "aws.qldb",
-      region,
-      account,
-      { LedgerName: rand(["vehicle-registration", "supply-chain", "financial-ledger"]) },
-      {
-        CommandsCount: counter(randInt(0, 10_000)),
-        SessionsCount: counter(randInt(0, 1_000)),
-        SystemErrors: counter(Math.random() < er ? randInt(1, 100) : 0),
-        UserErrors: counter(randInt(0, 20)),
-        TransactionSuccess: counter(randInt(0, 10_000)),
-        TransactionAbort: counter(Math.random() < er ? randInt(0, 500) : 0),
-        JournalStorage: stat(dp(jitter(5_000_000_000, 2_000_000_000, 0, 100_000_000_000))),
-        IndexedStorage: stat(dp(jitter(2_000_000_000, 800_000_000, 0, 50_000_000_000))),
-        OccConflictExceptions: counter(Math.random() < er ? randInt(0, 200) : randInt(0, 5)),
-      }
-    ),
-  ];
-}

@@ -83,9 +83,18 @@ function generateS3Log(ts: string, er: number) {
         },
       },
       event: { outcome: e ? "failure" : "success", duration: randInt(1e5, 3e7) },
-      message: e
-        ? `S3 Intelligent-Tiering ${bucket}: transition failed`
-        : `S3 Intelligent-Tiering ${bucket}: ${randInt(1, 10000)} objects ${fromTier} → ${toTier}`,
+      message: JSON.stringify({
+        eventType: ev,
+        bucketName: bucket,
+        fromTier,
+        toTier,
+        objectsTransitioned: randInt(1, e ? 0 : 10000),
+        bytesTransitioned: randInt(1024, 1e10),
+        monitoringEnabled: true,
+        costSavingsPct: randFloat(10, 75),
+        timestamp: new Date(ts).toISOString(),
+        ...(e ? { status: "Failed" } : { status: "Succeeded" }),
+      }),
     };
   }
   // ~10% chance of generating a Batch Operations event
@@ -133,9 +142,20 @@ function generateS3Log(ts: string, er: number) {
         },
       },
       event: { outcome: e ? "failure" : "success", duration: randInt(1e7, 8.64e10) },
-      message: e
-        ? `S3 Batch Ops job ${status}: ${op} — ${rand(errMsgs)}`
-        : `S3 Batch Ops job ${status}: ${op} on ${randInt(100, 1e6).toLocaleString()} objects`,
+      message: JSON.stringify({
+        eventType: "BatchOperationsJobStatusChange",
+        jobId: randId(36).toLowerCase(),
+        operation: op,
+        status,
+        objectsTotal: randInt(100, 1e6),
+        objectsSucceeded: e ? randInt(0, 100) : randInt(100, 1e6),
+        objectsFailed: e ? randInt(10, 1000) : 0,
+        manifestKey: `manifests/batch-${randId(8).toLowerCase()}.csv`,
+        reportBucket: `s3-batch-reports-${a.id}`,
+        elapsedSeconds: randInt(10, 86400),
+        timestamp: new Date(ts).toISOString(),
+        ...(e ? { errorMessage: rand(errMsgs), outcome: "Failed" } : { outcome: "Succeeded" }),
+      }),
     };
   }
   const region = rand(REGIONS);
@@ -345,7 +365,7 @@ function generateS3Log(ts: string, er: number) {
       outcome: isErr ? "failure" : "success",
       category: ["web", "file"],
       type: ["access"],
-      dataset: "aws.s3",
+      dataset: "aws.s3access",
       provider: "s3.amazonaws.com",
       duration: totalTime * 1e6,
     },
@@ -423,8 +443,7 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
     "fast_snapshot_restore",
   ]);
 
-  let eventData = {};
-  let message = "";
+  let eventData: Record<string, unknown> = {};
   let level = "info";
 
   if (eventType === "performance") {
@@ -457,9 +476,6 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       read_bytes: randInt(0, 536870912),
       write_bytes: randInt(0, 536870912),
     };
-    message = isErr
-      ? `EBS ${volumeId} IOPS throttled: consumed ${Math.round(iopsConsumed)} vs provisioned ${provisionedIops || 3000}, queue depth ${queueDepth}`
-      : `EBS ${volumeId} performance: ${Math.round(iopsConsumed)} IOPS, ${throughputMbps.toFixed(1)} MB/s, latency ${latencyMs.toFixed(2)}ms`;
   } else if (eventType === "state_change") {
     const okChain = rand([
       ["creating", "available"],
@@ -490,9 +506,6 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       attached_instance: toState === "in-use" ? instanceId : null,
       device: toState === "in-use" ? device : null,
     };
-    message = isErr
-      ? `EBS volume ${volumeId} entered error state from ${fromState}: ${rand(["I/O error", "hardware failure", "data integrity issue"])}`
-      : `EBS volume ${volumeId} state change: ${fromState} -> ${toState}${toState === "in-use" ? " on " + instanceId + " (" + device + ")" : ""}`;
   } else if (eventType === "snapshot") {
     const snapshotId = `snap-${randHexId(17)}`;
     const snapshotState = isErr ? "error" : rand(["pending", "completed", "completed"]);
@@ -520,9 +533,6 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
         null,
       ]),
     };
-    message = isErr
-      ? `EBS snapshot ${snapshotId} of volume ${volumeId} FAILED: ${rand(["Insufficient permissions", "Volume in use by unsupported configuration", "Concurrent snapshot limit exceeded"])}`
-      : `EBS snapshot ${snapshotId} of volume ${volumeId} [${sizeGb}GB]: ${snapshotState} (${progress})`;
   } else if (eventType === "modification") {
     const oldType = rand(volumeTypes);
     const newType = rand(volumeTypes);
@@ -546,9 +556,6 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       progress_percent:
         modState === "completed" ? 100 : modState === "failed" ? 0 : randInt(10, 90),
     };
-    message = isErr
-      ? `EBS volume modification FAILED for ${volumeId}: ${rand(["Instance type does not support requested volume type", "Insufficient capacity for io2 in AZ", "IOPS exceeds maximum for volume size"])}`
-      : `EBS volume ${volumeId} modification: ${oldType}/${oldSize}GB -> ${newType}/${newSize}GB [${modState}]`;
   } else if (eventType === "fast_snapshot_restore") {
     const snapId = `snap-${randHexId(17)}`;
     const fsrState = isErr
@@ -564,9 +571,6 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       source_availability_zones: [`${region}a`, `${region}b`, `${region}c`].slice(0, randInt(1, 3)),
       owner_id: acct.id,
     };
-    message = isErr
-      ? `EBS fast snapshot restore FAILED for ${snapId} in ${region}: ${rand(["Insufficient capacity", "Snapshot not completed", "Invalid snapshot state"])}`
-      : `EBS fast snapshot restore ${fsrState} for ${snapId} (${volumeId})`;
   } else {
     const metric = rand([
       "VolumeQueueLength",
@@ -588,11 +592,15 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       threshold: randInt(1, 100),
       current_value: alarmState === "ALARM" ? randInt(80, 200) : randInt(0, 60),
     };
-    message =
-      alarmState === "ALARM"
-        ? `EBS CloudWatch alarm TRIGGERED: ${metric} on ${volumeId} exceeded threshold`
-        : `EBS CloudWatch alarm OK: ${metric} on ${volumeId} within normal range`;
   }
+
+  const message = JSON.stringify({
+    eventType,
+    volumeId,
+    timestamp: new Date(ts).toISOString(),
+    outcome: isErr ? "failure" : "success",
+    ...eventData,
+  });
 
   return {
     "@timestamp": ts,
@@ -651,7 +659,7 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
               "SnapshotCreationError",
               "VolumeModificationError",
             ]),
-            message,
+            message: `EBS ${eventType} event for ${volumeId}`,
             type: "aws",
           },
         }
@@ -715,18 +723,18 @@ function generateEfsLog(ts: string, er: number): EcsDocument {
       event: isErr ? "CreateAccessPointFailed" : "CreateAccessPoint",
     };
   }
-  const efsMessage =
-    eventKind === "mount_target"
-      ? `EFS ${fsId}: mount target ${isErr ? "delete failed" : "created"} in ${az}`
-      : eventKind === "throughput_mode"
-        ? `EFS ${fsId}: throughput mode ${prevMode} -> ${newThroughputMode}`
-        : eventKind === "lifecycle"
-          ? `EFS ${fsId}: lifecycle transition to IA ${lifecyclePolicy}`
-          : eventKind === "access_point"
-            ? `EFS ${fsId}: access point ${apId} ${isErr ? "creation failed" : "created"}`
-            : isErr
-              ? `EFS ${fsId}: ${rand(["ThroughputLimitExceeded", "I/O limit reached"])}`
-              : `EFS ${fsId}: ${throughput.toFixed(1)} MB/s, ${randInt(1, 500)} connections`;
+  const message = JSON.stringify({
+    eventType: eventKind,
+    fileSystemId: fsId,
+    availabilityZone: az,
+    throughputMbps: throughput,
+    clientConnections: randInt(1, 500),
+    timestamp: new Date(ts).toISOString(),
+    ...extra,
+    ...(isErr
+      ? { status: "Failed", errorCode: rand(["ThroughputLimitExceeded", "FileLimitExceeded"]) }
+      : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -774,13 +782,13 @@ function generateEfsLog(ts: string, er: number): EcsDocument {
       provider: "elasticfilesystem.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 200) * 1e6,
     },
-    message: efsMessage,
+    message,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
           error: {
             code: rand(["FileSystemNotFound", "MountTargetConflict", "ThroughputLimitExceeded"]),
-            message: efsMessage,
+            message: `EFS ${eventKind} failed for ${fsId}`,
             type: "aws",
           },
         }
@@ -855,7 +863,16 @@ function generateFsxLog(ts: string, er: number): EcsDocument {
       provider: "fsx.amazonaws.com",
       duration: randInt(100, isErr ? 30000 : 5000) * 1e6,
     },
-    message: rand(MSGS[level]),
+    message: JSON.stringify({
+      eventType: "FileSystemEvent",
+      fileSystemId: fsId,
+      fileSystemType: fsType,
+      level,
+      log: rand(MSGS[level]),
+      storageUsedPercent: isErr ? randInt(90, 100) : randInt(10, 80),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level },
     ...(isErr
       ? {
@@ -906,9 +923,24 @@ function generateDataSyncLog(ts: string, er: number): EcsDocument {
       provider: "datasync.amazonaws.com",
       duration: durationSec * 1e9,
     },
-    message: isErr
-      ? `DataSync FAILED: ${rand(["NFS permission denied", "S3 access denied", "Network timeout"])}`
-      : `DataSync: ${filesXfr.toLocaleString()} files transferred from ${src.split("//")[0]}`,
+    message: JSON.stringify({
+      eventType: "TaskExecutionResult",
+      taskArn: `arn:aws:datasync:${region}:${acct.id}:task/task-${randId(17).toLowerCase()}`,
+      sourceLocationUri: src,
+      destinationLocationUri: dst,
+      status: isErr ? "ERROR" : "SUCCESS",
+      filesTransferred: filesXfr,
+      bytesTransferred: filesXfr * randInt(1024, 1048576),
+      filesFailed: isErr ? randInt(1, 100) : 0,
+      durationSeconds: durationSec,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr
+        ? {
+            errorCode: rand(["InvalidS3Config", "NfsPermissionError", "NetworkError"]),
+            outcome: "Failed",
+          }
+        : { outcome: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -979,18 +1011,24 @@ function generateBackupLog(ts: string, er: number): EcsDocument {
     resources_evaluated: randInt(1, 200),
     next_window_utc: new Date(Date.now() + randInt(3600, 86400) * 1000).toISOString(),
   };
-  const backupMessage =
-    eventSubtype === "restore_job"
-      ? isErr
-        ? `AWS Backup restore FAILED for ${resource}: ${rand(["IAM role insufficient", "Target volume busy", "Snapshot corrupted"])}`
-        : `AWS Backup restore ${jobStatus}: ${resource} from ${vault}`
-      : eventSubtype === "plan_execution"
-        ? `AWS Backup plan "${plan}" execution ${planRun.execution_id}: ${planRun.resources_evaluated} resources`
-        : eventSubtype === "vault_lock"
-          ? `AWS Backup vault ${vault}: ${vaultLock.lock_event} governance=${vaultLock.governance_lock_enabled} compliance=${vaultLock.compliance_lock_enabled}`
-          : isErr
-            ? `AWS Backup FAILED for ${resource}: ${rand(["IAM role insufficient", "Resource locked", "Vault full"])}`
-            : `AWS Backup ${jobStatus}: ${resource} -> ${vault} (${backupSizeGb.toFixed(1)}GB)`;
+  const message = JSON.stringify({
+    eventSubtype,
+    backupPlanName: plan,
+    backupVaultName: vault,
+    resource,
+    jobStatus,
+    backupSizeGb,
+    durationSeconds: durationSec,
+    timestamp: new Date(ts).toISOString(),
+    ...(eventSubtype === "plan_execution" ? { planExecution: planRun } : {}),
+    ...(eventSubtype === "vault_lock" ? { vaultLock } : {}),
+    ...(isErr
+      ? {
+          status: "Failed",
+          errorCode: rand(["LIMIT_EXCEEDED", "IAM_ROLE_ERROR", "RESOURCE_NOT_FOUND"]),
+        }
+      : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1035,7 +1073,7 @@ function generateBackupLog(ts: string, er: number): EcsDocument {
       provider: "backup.amazonaws.com",
       duration: durationSec * 1e9,
     },
-    message: backupMessage,
+    message,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1122,7 +1160,18 @@ function generateStorageGatewayLog(ts: string, er: number): EcsDocument {
       provider: "storagegateway.amazonaws.com",
       duration: randInt(100, isErr ? 10000 : 2000) * 1e6,
     },
-    message: rand(MSGS[level]),
+    message: JSON.stringify({
+      eventType: "GatewayEvent",
+      gatewayId: gwId,
+      gatewayName: gwName,
+      gatewayType: gwType,
+      level,
+      log: rand(MSGS[level]),
+      cacheUsedPercent: isErr ? randInt(90, 100) : randInt(10, 70),
+      uploadBufferUsedPercent: isErr ? randInt(85, 100) : randInt(5, 60),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level },
     ...(isErr
       ? { error: { code: "GatewayError", message: rand(MSGS.error), type: "storage" } }
@@ -1183,9 +1232,18 @@ function generateS3StorageLensLog(ts: string, er: number) {
       provider: "s3.amazonaws.com",
       duration: randInt(60, 300) * 1e9,
     },
-    message: isErr
-      ? `S3 Storage Lens ${configId}: report generation failed`
-      : `S3 Storage Lens ${configId}: ${bucketCount} buckets, ${(totalBytes / 1e9).toFixed(1)} GB, ${objectCount} objects`,
+    message: JSON.stringify({
+      eventType: "StorageLensMetricsExport",
+      configId,
+      bucketCount,
+      totalStorageBytes: totalBytes,
+      totalObjectCount: objectCount,
+      storageType,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr
+        ? { status: "Failed", errorCode: "ReportGenerationFailed" }
+        : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {

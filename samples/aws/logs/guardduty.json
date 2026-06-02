@@ -1,104 +1,112 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "host": { "name": "ip-10-128-4-22.eu-west-2.compute.internal" },
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-north-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "ezzxekqgh7i88qkxbghebx9sgih961hx" },
+    "dimensions": { "DetectorId": "l3xhhxp9mul2gqyjxbcisno88ol3xpy4" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "293847561023",
-      "region": "ap-southeast-1",
+      "accountId": "501938274650",
+      "region": "eu-north-1",
       "partition": "aws",
-      "id": "so0yqby1xfyzfbpj2wuumzx3z4ckl0b0",
-      "arn": "arn:aws:guardduty:ap-southeast-1:293847561023:detector/ezzxekqgh7i88qkxbghebx9sgih961hx/finding/so0yqby1xfyzfbpj2wuumzx3z4ckl0b0",
-      "type": "UnauthorizedAccess:EC2/SSHBruteForce",
+      "id": "nu43wret0zst5hmx4qaq0xao4qcdc7kj",
+      "arn": "arn:aws:guardduty:eu-north-1:501938274650:detector/l3xhhxp9mul2gqyjxbcisno88ol3xpy4/finding/nu43wret0zst5hmx4qaq0xao4qcdc7kj",
+      "type": "Persistence:IAMUser/AnomalousBehavior",
       "resource": {
-        "resourceType": "S3Bucket",
-        "s3BucketDetails": [
-          {
-            "arn": "arn:aws:s3:::globex-staging-data-6nciba",
-            "name": "globex-staging-data-kii34s",
-            "type": "Destination",
-            "createdAt": "2026-05-28T16:38:14.156Z",
-            "owner": { "id": "293847561023" },
-            "publicAccess": {
-              "permissionConfiguration": { "bucketLevel": { "blockPublicAccess": true } }
-            }
-          }
-        ]
+        "resourceType": "EKSCluster",
+        "eksClusterDetails": {
+          "name": "cluster-irxxi4",
+          "arn": "arn:aws:eks:eu-north-1:501938274650:cluster/cluster-3y315y",
+          "createdAt": "2026-06-01T17:11:52.613Z",
+          "vpcId": "vpc-aba97238",
+          "status": "ACTIVE",
+          "tags": [{ "key": "env", "value": "prod" }]
+        }
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "ezzxekqgh7i88qkxbghebx9sgih961hx",
+        "detectorId": "l3xhhxp9mul2gqyjxbcisno88ol3xpy4",
         "action": {
-          "actionType": "DNS_REQUEST",
-          "dnsRequestAction": {
-            "domain": "suspicious-6qmi1why.cascadeops.com",
-            "domainWithSuffix": "suspicious-6qmi1why.cascadeops.com.",
-            "blocked": false
+          "actionType": "AWS_API_CALL",
+          "awsApiCallAction": {
+            "api": "AssumeRole",
+            "callerType": "Remote IP",
+            "remoteIpDetails": { "ipAddressV4": "42.248.60.168", "organization": {} },
+            "serviceName": "sts.amazonaws.com"
           }
         },
         "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-05-28T16:38:14.156Z",
-        "eventLastSeen": "2026-05-28T16:58:15.156Z",
+        "eventFirstSeen": "2026-06-01T17:11:52.613Z",
+        "eventLastSeen": "2026-06-01T18:11:59.613Z",
         "archived": false,
-        "count": 359,
+        "count": 380,
         "additionalInfo": {}
       },
-      "severity": 0,
-      "title": "EC2 instance is performing SSH brute force attacks against a remote host.",
-      "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
-      "createdAt": "2026-05-28T16:58:15.156Z",
-      "updatedAt": "2026-05-28T16:58:15.156Z",
-      "confidence": 82.23071277259442,
+      "severity": 5,
+      "title": "IAMUser AnomalousBehavior",
+      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: Persistence:IAMUser/AnomalousBehavior.",
+      "createdAt": "2026-06-01T18:11:59.613Z",
+      "updatedAt": "2026-06-01T18:11:59.613Z",
+      "confidence": 93.6036506828468,
       "metrics": {
-        "FindingCount": { "sum": 0 },
+        "FindingCount": { "sum": 16 },
         "HighSeverityFindingCount": { "sum": 0 },
-        "MediumSeverityFindingCount": { "sum": 0 },
+        "MediumSeverityFindingCount": { "sum": 6 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
+        "name": "aws-guardduty-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/guardduty/ap-southeast-1/2026/05/28/guardduty_CL8HE0G0EHU5UGIQVTY4.log.gz"
+        "key": "AWSLogs/501938274650/guardduty/eu-north-1/2026/06/01/guardduty_1NPR7JU2E0V8SD4DR6YF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "ap-southeast-1/fiazzpez",
-      "ingestion_time": "2026-05-28T16:58:15.991Z"
+      "log_stream": "eu-north-1/hys5k9kp",
+      "ingestion_time": "2026-06-01T18:12:00.330Z"
     }
   },
-  "rule": { "category": "threat", "type": ["info"] },
-  "threat": { "indicator": [{ "type": "ip", "value": "41.125.230.250" }] },
+  "rule": {
+    "category": "intrusion_detection",
+    "type": ["info"],
+    "ruleset": "Persistence",
+    "name": "Persistence:IAMUser/AnomalousBehavior"
+  },
+  "threat": { "indicator": [{ "type": "ip", "value": "42.248.60.168" }] },
   "event": {
     "kind": "alert",
-    "severity": 0,
-    "outcome": "success",
-    "category": ["threat"],
+    "severity": 5,
+    "outcome": "failure",
+    "category": ["intrusion_detection"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "GuardDuty: no threats detected",
-  "log": { "level": "info" },
+  "message": "{\"schemaVersion\":\"2.0\",\"accountId\":\"501938274650\",\"region\":\"eu-north-1\",\"partition\":\"aws\",\"id\":\"nu43wret0zst5hmx4qaq0xao4qcdc7kj\",\"arn\":\"arn:aws:guardduty:eu-north-1:501938274650:detector/l3xhhxp9mul2gqyjxbcisno88ol3xpy4/finding/nu43wret0zst5hmx4qaq0xao4qcdc7kj\",\"type\":\"Persistence:IAMUser/AnomalousBehavior\",\"resource\":{\"resourceType\":\"EKSCluster\",\"eksClusterDetails\":{\"name\":\"cluster-irxxi4\",\"arn\":\"arn:aws:eks:eu-north-1:501938274650:cluster/cluster-3y315y\",\"createdAt\":\"2026-06-01T17:11:52.613Z\",\"vpcId\":\"vpc-aba97238\",\"status\":\"ACTIVE\",\"tags\":[{\"key\":\"env\",\"value\":\"prod\"}]}},\"service\":{\"serviceName\":\"guardduty\",\"detectorId\":\"l3xhhxp9mul2gqyjxbcisno88ol3xpy4\",\"action\":{\"actionType\":\"AWS_API_CALL\",\"awsApiCallAction\":{\"api\":\"AssumeRole\",\"callerType\":\"Remote IP\",\"remoteIpDetails\":{\"ipAddressV4\":\"42.248.60.168\",\"organization\":{}},\"serviceName\":\"sts.amazonaws.com\"}},\"eventFirstSeen\":\"2026-06-01T17:11:52.613Z\",\"eventLastSeen\":\"2026-06-01T18:11:59.613Z\",\"archived\":false,\"count\":400},\"severity\":5,\"title\":\"IAMUser AnomalousBehavior\",\"description\":\"GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: Persistence:IAMUser/AnomalousBehavior.\",\"createdAt\":\"2026-06-01T18:11:59.613Z\",\"updatedAt\":\"2026-06-01T18:11:59.613Z\"}",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "ThreatFinding",
+    "message": "GuardDuty finding: Persistence:IAMUser/AnomalousBehavior",
+    "type": "security"
+  },
   "service": { "name": "guardduty", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.guardduty", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "8s5vsuyhkku3ozv1bwq5x45oik1xh3glfyod"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "7haido6fo4pa1v5l69vrs433df2ei4bu123o"
   },
   "input": { "type": "http_endpoint" }
 }

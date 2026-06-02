@@ -2,48 +2,47 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "switzerlandnorth",
-    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
+    "region": "francecentral",
+    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
     "service": { "name": "Microsoft.Network/loadBalancers" }
   },
-  "category": "LoadBalancerAlertEvent",
-  "operationName": "UnhealthyBackendPool",
-  "resultType": "Failed",
-  "level": "Warning",
-  "correlationId": "f6vfihrmzfu0k4prik2ar7uk4k5ys4h3",
-  "callerIpAddress": "100.64.2.239",
+  "category": "LoadBalancerOperationEvent",
+  "operationName": "OutboundSnatConnection",
+  "resultType": "Succeeded",
+  "level": "Informational",
+  "correlationId": "id5hp7nx0cqp1hkj9w0u1we3dpfuid8r",
+  "callerIpAddress": "100.64.0.157",
   "properties": {
-    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-shared-39dpof/providers/Microsoft.Network/loadBalancers/lb-f46ad",
-    "frontendIP": "51.129.201.207",
-    "eventName": "BackendHealthProbeFailure",
-    "probePort": 443,
-    "probeProtocol": "Https",
-    "backendIPAddress": "10.2.163.156",
-    "backendPort": 443,
-    "failureReason": "HTTP 502 Bad Gateway"
+    "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-app-qtzpzk/providers/Microsoft.Network/loadBalancers/lb-02llg",
+    "frontendIP": "51.202.247.122",
+    "backendIPAddress": "36.27.157.42",
+    "backendPort": 12462,
+    "allocatedSnatPorts": 725,
+    "usedSnatPorts": 1015,
+    "snatPortExhaustion": true
   },
   "azure": {
     "load_balancer": {
-      "name": "lb-f46ad",
-      "resource_group": "rg-shared-39dpof",
+      "name": "lb-02llg",
+      "resource_group": "rg-app-qtzpzk",
       "sku": "Standard",
       "backend_health": "Unhealthy",
-      "bytes_in": 267144798
+      "bytes_in": 371244801
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
     "type": ["error"],
-    "action": "UnhealthyBackendPool",
+    "action": "OutboundSnatConnection",
     "outcome": "failure",
-    "duration": 171217256,
+    "duration": 74561400,
     "module": "azure",
     "dataset": "azure.load_balancer"
   },
-  "message": "Load balancer lb-f46ad: health probe failed for backend 10.2.163.156:443 (HTTP 502 Bad Gateway)",
+  "message": "Load balancer lb-02llg: SNAT port pressure frontend=51.202.247.122 used=1015/725",
   "error": {
-    "code": "QuotaExceeded",
+    "code": "InternalServerError",
     "message": "Load balancer health, probe, or SNAT telemetry reported a failure.",
     "type": "azure"
   },
@@ -54,9 +53,9 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-switzerlandnorth",
-    "id": "mbwburfn0gcibnritkx6okx9q1ag8uzm3eqw"
+    "name": "elastic-agent-azure-francecentral",
+    "id": "h3m7a6nledye3nakupj9dh36jbrt9cghv0sk"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourcegroups/rg-shared-39dpof/providers/Microsoft.Network/loadBalancers/load-balancer"
+  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourcegroups/rg-app-qtzpzk/providers/Microsoft.Network/loadBalancers/load-balancer"
 }

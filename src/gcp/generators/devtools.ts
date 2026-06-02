@@ -570,58 +570,6 @@ export function generateApigeeLog(ts: string, er: number): EcsDocument {
   };
 }
 
-export function generateCloudShellLog(ts: string, er: number): EcsDocument {
-  const { region, project, isErr } = makeGcpSetup(er);
-  const sessionId = `cloudshell-${randId(12).toLowerCase()}`;
-  const machineType = rand(["e2-small", "e2-medium", "n1-standard-1"] as const);
-  const eventType = rand([
-    "SESSION_START",
-    "SESSION_END",
-    "FILE_UPLOAD",
-    "FILE_DOWNLOAD",
-    "COMMAND_EXEC",
-  ] as const);
-  const shellType = rand(["bash", "zsh"] as const);
-  const storageUsedMb = isErr ? randInt(4800, 5120) : randInt(50, 4000);
-  const severity = randSeverity(isErr);
-  const message = isErr
-    ? `cloudshell.googleapis.com: ${eventType} session=${sessionId} FAILED: ${rand(["Disk quota exceeded on /home", "Session idle timeout", "User environment provisioning error"])}`
-    : `Cloud Shell ${eventType}: session=${sessionId} machine=${machineType} shell=${shellType} disk_used_mb=${storageUsedMb}`;
-  const { spread: faultSpread, rpcLabel } = grpcStructuredFault(isErr);
-
-  return {
-    "@timestamp": ts,
-    severity,
-    log: { level: severity.toLowerCase() },
-    labels: {
-      "resource.type": "cloudshell.googleapis.com/UserEnvironment",
-      session_id: sessionId,
-      api_method: `cloudshell.googleapis.com/v1/users/me/environments/default:start`,
-      ...rpcLabel,
-    },
-    cloud: gcpCloud(region, project, "cloudshell.googleapis.com"),
-    gcp: {
-      cloud_shell: {
-        session_id: sessionId,
-        machine_type: machineType,
-        event_type: eventType,
-        shell_type: shellType,
-        storage_used_mb: storageUsedMb,
-      },
-    },
-    event: {
-      kind: "event",
-      category: ["process"],
-      type: isErr ? ["error"] : ["info"],
-      action: String("devtools-operation"),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(500, isErr ? 60_000 : 15_000),
-    },
-    message,
-    ...faultSpread,
-  };
-}
-
 export function generateGeminiCodeAssistLog(ts: string, er: number): EcsDocument {
   const { region, project, isErr } = makeGcpSetup(er);
   const editor = rand(["vscode", "jetbrains", "cloud-shell"] as const);

@@ -360,7 +360,65 @@ function outcomeType() {
   ];
 }
 
-// ─── 10. Cleanup & on_failure ───────────────────────────────────────────────
+// ─── 10. Vendor namespace promotion ─────────────────────────────────────────
+// Dashboards, ML jobs, and rules query `aws.{ns}.*` fields. When the pipeline
+// extracts fields from parsed JSON into `{ns}.*`, also copy them into the
+// `aws.{ns}.*` namespace (fill-don't-overwrite) so both real-data-via-pipeline
+// and generator-populated docs work with the same dashboards.
+
+function vendorFieldPromotion(cloud, ns) {
+  if (cloud !== "aws") return [];
+  return [
+    {
+      script: {
+        lang: "painless",
+        description: `Promote extracted ${ns}.* fields to aws.${ns}.* for dashboard compatibility`,
+        tag: "promote_to_vendor_ns",
+        source: [
+          `def nsObj = ctx['${ns}'];`,
+          `if (nsObj == null || nsObj.isEmpty()) return;`,
+          `if (ctx.aws == null) ctx.aws = new HashMap();`,
+          `def svc = ctx.aws.containsKey('${ns}') ? ctx.aws.get('${ns}') : new HashMap();`,
+          `for (def entry : nsObj.entrySet()) {`,
+          `  if (entry.getKey().equals('parsed')) continue;`,
+          `  if (!svc.containsKey(entry.getKey())) {`,
+          `    svc.put(entry.getKey(), entry.getValue());`,
+          `  }`,
+          `}`,
+          `ctx.aws.put('${ns}', svc);`,
+        ].join(" "),
+        ignore_failure: true,
+      },
+    },
+  ];
+}
+
+// ─── 10b. Non-JSON fallback parsing ─────────────────────────────────────────
+// Many AWS services emit log4j, syslog, or plain-text messages rather than JSON.
+// When JSON parse fails (no {ns}.parsed), these processors extract key fields
+// from common formats.
+
+function nonJsonFallback(ns, group) {
+  const procs = [];
+  if (["analytics", "compute", "ml", "aiml", "serverless"].includes(group)) {
+    procs.push({
+      grok: {
+        field: "event.original",
+        tag: "grok_log4j_fallback",
+        patterns: [
+          "%{TIMESTAMP_ISO8601:_log4j_ts}[,.]?%{INT}? %{LOGLEVEL:log.level} \\[%{DATA:_log4j_thread}\\] %{JAVACLASS:_log4j_class}: %{GREEDYDATA:_log4j_message}",
+          "%{TIMESTAMP_ISO8601:_log4j_ts} %{LOGLEVEL:log.level} %{GREEDYDATA:_log4j_message}",
+        ],
+        ignore_failure: true,
+        ignore_missing: true,
+        if: `ctx['${ns}']?.parsed == null`,
+      },
+    });
+  }
+  return procs;
+}
+
+// ─── 11. Cleanup & on_failure ───────────────────────────────────────────────
 
 function cleanup(ns) {
   return [
@@ -370,6 +428,14 @@ function cleanup(ns) {
         ignore_missing: true,
         ignore_failure: true,
         tag: `remove_${tagFromField(`${ns}.parsed`)}`,
+      },
+    },
+    {
+      remove: {
+        field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
+        ignore_missing: true,
+        ignore_failure: true,
+        tag: "remove_log4j_temp_fields",
       },
     },
   ];
@@ -915,8 +981,11 @@ export function buildPipeline({ cloud, ns, group, pipelineId, custom = [] }) {
     setEcsVersion(),
     ...eventOriginalHandling(),
 
-    // 1. JSON parse
+    // 1. JSON parse (fails silently for non-JSON)
     jsonParse(ns),
+
+    // 1b. Non-JSON fallback (log4j grok, etc.) — only runs when JSON parse failed
+    ...nonJsonFallback(ns, group),
 
     // 2. Cloud-specific identity extraction (vendor fields → ECS)
     ...(cloud === "azure" ? azureIdentityExtract() : []),
@@ -935,31 +1004,34 @@ export function buildPipeline({ cloud, ns, group, pipelineId, custom = [] }) {
     // 6. Log-level normalisation
     ...logLevelNorm(ns),
 
-    // 7. ECS normalisation (fallback values, won't override existing)
+    // 7. Vendor namespace promotion ({ns}.* → aws.{ns}.* for dashboard compat)
+    ...vendorFieldPromotion(cloud, ns),
+
+    // 8. ECS normalisation (fallback values, won't override existing)
     ...ecsNorm(group),
 
-    // 8. Outcome-driven event.type override
+    // 9. Outcome-driven event.type override
     ...outcomeType(),
 
-    // 9. Duration normalisation
+    // 10. Duration normalisation
     ...durationNorm(ns),
 
-    // 10. GeoIP enrichment
+    // 11. GeoIP enrichment
     ...geoip(),
 
-    // 11. User-agent parsing
+    // 12. User-agent parsing
     ...userAgentParse(),
 
-    // 12. Related-field population
+    // 13. Related-field population
     ...relatedFields(),
 
-    // 13. Cleanup parsed intermediate fields
+    // 14. Cleanup parsed intermediate fields + log4j temps
     ...cleanup(ns),
 
-    // 14. Drop vendor envelope fields already mapped to ECS
+    // 15. Drop vendor envelope fields already mapped to ECS
     ...vendorCleanup(cloud),
 
-    // 15. Preserve original event tag when a prior processor recorded an error
+    // 16. Preserve original event tag when a prior processor recorded an error
     {
       append: {
         field: "tags",

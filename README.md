@@ -1,6 +1,6 @@
 # Cloud Loadgen for Elastic
 
-A web UI that bulk-generates **realistic** AWS, Google Cloud, and Microsoft Azure observability data — logs, metrics, and traces — and ships it straight into Elasticsearch with the `_bulk` API. Documents follow **ECS** naming and use each provider's **native log/metric shapes** (CloudWatch, Cloud Logging, Azure Monitor), so dashboards, ML jobs, and alerting rules behave the way they would with real cloud workloads.
+A web UI that bulk-generates **realistic** AWS, Google Cloud, and Microsoft Azure observability data — logs, metrics, and traces — and ships it straight into Elasticsearch with the `_bulk` API. Documents follow **ECS** naming and use each provider's **native log/metric shapes** (CloudWatch, Cloud Logging, Azure Monitor), with **JSON `message` fields** that match what each service actually exports, so dashboards, ML jobs, and alerting rules behave the way they would with real cloud workloads.
 
 > Use synthetic data for demos, training, and pilot builds. Don't ship to production-shared indices without explicit approval.
 
@@ -29,6 +29,8 @@ flowchart LR
 
 A four-step wizard. **Start** picks the cloud and Elastic deployment, **Setup** installs Cloud Loadgen Integrations, **Services** chooses what to generate, **Ship** runs the bulk index. Credentials live in the browser session; the small Node proxy forwards `_bulk` so the API key never leaves the host.
 
+The **ingestion source** you pick on **Start** (CloudWatch, S3, Firehose, API polling, OTel, and similar) drives a dynamic **`event.dataset`** per document — for example `aws.cloudwatch_logs`, `aws_logs.generic`, or `awsfirehose.logs` on AWS — so shipped data lands on the same data streams as the Fleet integration path you configured in **Setup**.
+
 ## Quick start
 
 ```bash
@@ -51,9 +53,9 @@ Catalog size today:
 
 | Cloud | Services | Pipelines | Dashboards | ML jobs | Traces | Alerting rules |
 | ----- | -------- | --------- | ---------- | ------- | ------ | -------------- |
-| AWS   | 246      | 188       | 237        | 421     | 56     | 115            |
-| GCP   | 139      | 149       | 136        | 182     | 59     | 62             |
-| Azure | 143      | 121       | 130        | 186     | 51     | 66             |
+| AWS   | 233      | 193       | 223        | 401     | 54     | 115            |
+| GCP   | 137      | 156       | 135        | 182     | 56     | 62             |
+| Azure | 141      | 133       | 138        | 195     | 44     | 66             |
 
 Trace generators produce APM transactions and spans for the Elastic **Service Map**; the remaining services emit logs and metrics only — matching real-world instrumentation patterns where not every cloud service is OTel-instrumented.
 

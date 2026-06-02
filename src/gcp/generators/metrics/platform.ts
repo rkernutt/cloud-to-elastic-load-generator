@@ -92,24 +92,6 @@ export function generateCloudSchedulerMetrics(ts: string, er: number): EcsDocume
   ];
 }
 
-export function generateCloudShellMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, project } = pickGcpCloudContext();
-  const dataset = GCP_METRICS_DATASET_MAP["cloud-shell"]!;
-  const stressed = Math.random() < er;
-  const proj = { project_id: project.id };
-  const active = randInt(stressed ? 1 : 4, stressed ? 42 : 180);
-  return [
-    gcpMetricDoc(ts, "cloud-shell", dataset, region, project, {
-      metricType: "cloudshell.googleapis.com/environment/active_count",
-      resourceType: "project",
-      resourceLabels: proj,
-      metricKind: "GAUGE",
-      valueType: "INT64",
-      point: { int64Value: toInt64String(active) },
-    }),
-  ];
-}
-
 export function generateCloudTpuMetrics(ts: string, er: number): EcsDocument[] {
   const { region, project } = pickGcpCloudContext();
   const dataset = GCP_METRICS_DATASET_MAP["cloud-tpu"]!;

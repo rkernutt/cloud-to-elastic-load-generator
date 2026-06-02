@@ -100,7 +100,7 @@ describe("setupDisplayPolish", () => {
     expect(polishSetupCategoryLabel("storagelens")).toBe("Amazon S3 Storage Lens");
     expect(polishSetupCategoryLabel("xray")).toBe("AWS X-Ray");
     expect(polishSetupCategoryLabel("iotcore")).toBe("AWS IoT Core");
-    expect(polishSetupCategoryLabel("freertos")).toBe("FreeRTOS");
+    expect(polishSetupCategoryLabel("cloud9")).toBe("AWS Cloud9");
     expect(polishSetupCategoryLabel("securityhub")).toBe("AWS Security Hub");
     expect(polishSetupCategoryLabel("msk")).toBe("Amazon MSK");
     expect(polishSetupCategoryLabel("eks")).toBe("Amazon EKS");

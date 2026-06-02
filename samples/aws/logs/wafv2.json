@@ -1,24 +1,25 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
+  "host": { "name": "ip-10-128-6-33.ap-southeast-1.compute.internal" },
   "cloud": {
     "provider": "aws",
     "region": "sa-east-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": { "WebACL": "cdn-waf", "Rule": "NoUserAgent", "Region": "sa-east-1" },
+    "dimensions": { "WebACL": "regional-waf", "Rule": "CrossSiteScripting", "Region": "sa-east-1" },
     "waf": {
-      "id": "5epey4ila4fsizl5ywefejclvs6z4kh55yrf",
-      "arn": "arn:aws:wafv2:sa-east-1:293847561023:regional/webacl/cdn-waf/7epgk1ja-uyqc-q3ss-ru6q-frn3r1uqbgbu",
+      "id": "j9jarnhz7ylei174g09wuhe3brag49tiocj1",
+      "arn": "arn:aws:wafv2:sa-east-1:501938274650:regional/webacl/regional-waf/o3p6ive4-gzdc-vjnt-ak6u-gtmgrxnml9ie",
       "format_version": "1",
-      "source": { "name": "CF", "id": "293847561023-app/cdn-waf/wbqcznqxstrllslx" },
-      "rule_group_list": [{ "ruleGroupId": "GeoBlockRule", "nonTerminatingMatchingRules": [] }],
+      "source": { "name": "ALB", "id": "501938274650-app/regional-waf/qperyw6wok8mxpf7" },
+      "rule_group_list": [{ "ruleGroupId": "IPRateBasedRule", "nonTerminatingMatchingRules": [] }],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "Host", "value": "mail.northwind-infra.net" },
+          { "name": "Host", "value": "dashboard.cascadeops.com" },
           {
             "name": "User-Agent",
             "value": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
@@ -30,33 +31,40 @@
       "metrics": {
         "AllowedRequests": { "sum": 1 },
         "BlockedRequests": { "sum": 0 },
-        "CountedRequests": { "sum": 0 },
+        "CountedRequests": { "sum": 1 },
         "PassedRequests": { "sum": 1 },
         "RequestsWithValidCaptchaToken": { "sum": 0 },
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
       },
-      "webaclId": "7epgk1ja-uyqc-q3ss-ru6q-frn3r1uqbgbu",
-      "terminatingRuleId": "NoUserAgent",
-      "terminatingRuleType": "GROUP",
-      "action": "ALLOW",
+      "webaclId": "o3p6ive4-gzdc-vjnt-ak6u-gtmgrxnml9ie",
+      "terminatingRuleId": "CrossSiteScripting",
+      "terminatingRuleType": "RATE_BASED",
+      "action": "COUNT",
       "httpRequest": {
-        "clientIp": "52.210.248.153",
-        "country": "ZA",
+        "clientIp": "221.205.223.212",
+        "country": "KR",
         "headers": [
-          { "name": "Host", "value": "mail.northwind-infra.net" },
+          { "name": "Host", "value": "dashboard.cascadeops.com" },
           {
             "name": "User-Agent",
             "value": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
           },
           { "name": "Accept", "value": "*/*" }
         ],
-        "httpMethod": "PUT",
+        "httpMethod": "PATCH",
         "httpVersion": "HTTP/1.1",
-        "uri": "/api/v1/users"
+        "uri": "/api/v1/orders"
       },
-      "httpSourceId": "293847561023-app/cdn-waf/wbqcznqxstrllslx",
-      "rateBasedRuleList": [],
+      "httpSourceId": "501938274650-app/regional-waf/qperyw6wok8mxpf7",
+      "rateBasedRuleList": [
+        {
+          "rateBasedRuleId": "IPRateBasedRule",
+          "rateLimitKey": "IP",
+          "limitKey": "221.205.223.212",
+          "maxRateAllowed": 5000
+        }
+      ],
       "nonTerminatingMatchingRules": [
         { "ruleId": "GeoBlockRule", "action": "COUNT", "ruleMatchDetails": [] }
       ],
@@ -65,44 +73,39 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-293847561023"
+        "name": "aws-wafv2-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/wafv2/sa-east-1/2026/05/28/wafv2_BUC36THBCVMZ8T9D8WKT.log.gz"
+        "key": "AWSLogs/501938274650/wafv2/sa-east-1/2026/06/01/wafv2_I90ZYN956JARSBAUEIPG.log.gz"
       }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/wafv2/logs",
-      "log_stream": "sa-east-1/7s0dr86l",
-      "ingestion_time": "2026-05-28T16:58:16.279Z"
     }
   },
   "source": {
-    "ip": "52.210.248.153",
+    "ip": "221.205.223.212",
     "geo": {
-      "country_iso_code": "ZA",
-      "country_name": "South Africa",
-      "city_name": "Johannesburg",
-      "location": { "lat": -26.2041, "lon": 28.0473 }
+      "country_iso_code": "KR",
+      "country_name": "South Korea",
+      "city_name": "Seoul",
+      "location": { "lat": 37.5665, "lon": 126.978 }
     }
   },
-  "http": { "request": { "method": "PUT", "bytes": 319 } },
-  "url": { "path": "/api/v1/users" },
+  "http": { "request": { "method": "PATCH", "bytes": 2745 } },
+  "url": { "path": "/api/v1/orders" },
   "user_agent": {
     "original": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
   },
   "event": {
-    "action": "allow",
-    "outcome": "success",
+    "action": "count",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "type": ["info"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 40000000,
+    "duration": 19000000,
     "module": "aws"
   },
-  "message": "{\"timestamp\":\"2026-05-28T16:58:15.156Z\",\"formatVersion\":1,\"webaclId\":\"7epgk1ja-uyqc-q3ss-ru6q-frn3r1uqbgbu\",\"terminatingRuleId\":\"NoUserAgent\",\"terminatingRuleType\":\"GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"52.210.248.153\",\"country\":\"ZA\",\"headers\":[{\"name\":\"Host\",\"value\":\"mail.northwind-infra.net\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"PUT\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v1/users\"},\"httpSourceId\":\"293847561023-app/cdn-waf/wbqcznqxstrllslx\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[{\"ruleId\":\"GeoBlockRule\",\"action\":\"COUNT\",\"ruleMatchDetails\":[]}],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
+  "message": "{\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"formatVersion\":1,\"webaclId\":\"o3p6ive4-gzdc-vjnt-ak6u-gtmgrxnml9ie\",\"terminatingRuleId\":\"CrossSiteScripting\",\"terminatingRuleType\":\"RATE_BASED\",\"action\":\"COUNT\",\"httpRequest\":{\"clientIp\":\"221.205.223.212\",\"country\":\"KR\",\"headers\":[{\"name\":\"Host\",\"value\":\"dashboard.cascadeops.com\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"PATCH\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/api/v1/orders\"},\"httpSourceId\":\"501938274650-app/regional-waf/qperyw6wok8mxpf7\",\"rateBasedRuleList\":[{\"rateBasedRuleId\":\"IPRateBasedRule\",\"rateLimitKey\":\"IP\",\"limitKey\":\"221.205.223.212\",\"maxRateAllowed\":5000}],\"nonTerminatingMatchingRules\":[{\"ruleId\":\"GeoBlockRule\",\"action\":\"COUNT\",\"ruleMatchDetails\":[]}],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
   "log": { "level": "info" },
   "service": { "name": "wafv2", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -111,8 +114,8 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "ox0ppj1vratz2686c1cqtgctbe5r7xzr4dj9"
+    "ephemeral_id": "ryvkipryf52d041hcmvsp8yu500xkz9ota47"
   },
   "input": { "type": "aws-s3" },
-  "related": { "ip": ["52.210.248.153"] }
+  "related": { "ip": ["221.205.223.212"] }
 }

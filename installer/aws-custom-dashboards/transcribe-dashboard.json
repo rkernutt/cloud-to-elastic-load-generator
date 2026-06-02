@@ -1,5 +1,5 @@
 {
-  "title": "Amazon Transcribe — overview",
+  "title": "AWS Transcribe — Overview",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "transcribe-k1",
+      "uid": "transcribe-kpi-events",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.transcribe* | STATS `Log events` = COUNT()"
+            "query": "FROM logs-aws.transcribe* | STATS Events = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Log events"
+              "column": "Events"
             }
           ]
         }
@@ -34,31 +34,112 @@
     },
     {
       "type": "lens",
-      "uid": "transcribe-d1",
+      "uid": "transcribe-kpi-failures",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.transcribe* | STATS Failures = SUM(CASE(`event.outcome` == \"failure\", 1, 0))"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failures"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "transcribe-kpi-metric3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.transcribe* | STATS avg_m = AVG(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg metric"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "transcribe-kpi-metric4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.transcribe* | STATS `Metric sum` = ROUND(SUM(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`), 0)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric sum"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "transcribe-donut-outcome",
       "grid": {
         "x": 0,
         "y": 5,
-        "w": 16,
-        "h": 10
+        "w": 24,
+        "h": 8
       },
       "config": {
-        "title": "Log level",
+        "title": "Event Outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.transcribe* | STATS c = COUNT() BY o = log.level"
+            "query": "FROM logs-aws.transcribe* | STATS count = COUNT() BY outcome = `event.outcome` | SORT ``count DESC"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "c"
+              "column": "count"
             }
           ],
           "group_by": [
             {
               "operation": "value",
-              "column": "o"
+              "column": "outcome"
             }
           ]
         }
@@ -66,15 +147,63 @@
     },
     {
       "type": "lens",
-      "uid": "transcribe-l1",
+      "uid": "transcribe-bar-dimension",
       "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
+        "x": 24,
+        "y": 5,
+        "w": 24,
+        "h": 8
       },
       "config": {
-        "title": "Event volume",
+        "title": "Events by transcription job name",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.transcribe* | STATS count = COUNT() BY dim = `aws.transcribe.transcription_job_name` | SORT ``count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "dim"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "transcribe-line-volume",
+      "grid": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "Event Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -94,16 +223,16 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.transcribe* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.transcribe* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
-                "column": "b"
+                "column": "bucket"
               },
               "y": [
                 {
                   "operation": "value",
-                  "column": "c",
+                  "column": "count",
                   "label": "Events"
                 }
               ]
@@ -114,31 +243,232 @@
     },
     {
       "type": "lens",
-      "uid": "transcribe-t1",
+      "uid": "transcribe-line-metric",
       "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
+        "x": 24,
+        "y": 13,
+        "w": 24,
+        "h": 8
       },
       "config": {
-        "title": "By region",
+        "title": "Key metric over time",
         "attributes": {
-          "type": "datatable",
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.transcribe* | STATS avg_m = AVG(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "avg_m",
+                  "label": "Avg metric"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "transcribe-bar-region",
+      "grid": {
+        "x": 0,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Events by Region",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.transcribe* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "region"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "transcribe-bar-resource",
+      "grid": {
+        "x": 16,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Events by TranscriptionJobName",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.transcribe* | STATS count = COUNT() BY res = `aws.transcribe.TranscriptionJobName` | SORT ``count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "res"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "transcribe-donut-log-level",
+      "grid": {
+        "x": 32,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Log Level",
+        "attributes": {
+          "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.transcribe* | STATS c = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-aws.transcribe* | STATS count = COUNT() BY lvl = log.level | SORT ``count DESC"
           },
           "metrics": [
             {
               "operation": "value",
-              "column": "region",
-              "label": "Region"
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "lvl"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "transcribe-table-recent",
+      "grid": {
+        "x": 0,
+        "y": 29,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Recent Events",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.transcribe* | KEEP `@timestamp``@timestamp`, `aws.transcribe.transcription_job_name`, `aws.transcribe.TranscriptionJobName`, `aws.transcribe.metrics.TranscriptionJobsFailed.sum`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Timestamp"
             },
             {
               "operation": "value",
-              "column": "c",
-              "label": "Count"
+              "column": "aws.transcribe.transcription_job_name",
+              "label": "Transcription job name"
+            },
+            {
+              "operation": "value",
+              "column": "aws.transcribe.TranscriptionJobName",
+              "label": "TranscriptionJobName"
+            },
+            {
+              "operation": "value",
+              "column": "aws.transcribe.metrics.TranscriptionJobsFailed.sum",
+              "label": "Sum"
+            },
+            {
+              "operation": "value",
+              "column": "log.level",
+              "label": "Level"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "message",
+              "label": "Message"
             }
           ],
           "rows": []

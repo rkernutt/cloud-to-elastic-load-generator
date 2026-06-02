@@ -407,7 +407,6 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         icon: "⟺",
         desc: "Data sharing & exchange logs",
       },
-      { id: "dataprep", label: "Dataprep", icon: "⊕", desc: "Data preparation job logs" },
       {
         id: "dataform",
         label: "Dataform",
@@ -547,7 +546,6 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
       },
       { id: "cloud-endpoints", label: "Cloud Endpoints", icon: "⊕", desc: "API management logs" },
       { id: "apigee", label: "Apigee", icon: "⇌", desc: "API proxy & analytics logs" },
-      { id: "cloud-shell", label: "Cloud Shell", icon: "⊙", desc: "Managed shell session logs" },
       {
         id: "colab-enterprise",
         label: "Colab Enterprise",

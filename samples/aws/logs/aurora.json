@@ -1,32 +1,32 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
+    "region": "ca-west-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "aurora" }
   },
   "aws": {
     "aurora": {
       "cluster_id": "prod-aurora-cluster",
-      "instance_id": "prod-aurora-cluster-instance-1",
-      "engine": "aurora-postgresql",
-      "engine_version": "15.4",
-      "replica_lag_seconds": 1.799956880642461,
-      "db_connections": 197,
+      "instance_id": "prod-aurora-cluster-instance-5",
+      "engine": "aurora-mysql",
+      "engine_version": "8.0.36",
+      "replica_lag_seconds": 151,
+      "db_connections": 90,
       "max_connections": 1000,
       "failover_in_progress": false,
       "metrics": {
-        "AuroraBinlogReplicaLag": { "avg": 8 },
-        "AuroraGlobalDBReplicatedWriteIO": { "sum": 55558385 },
-        "AuroraGlobalDBDataTransferBytes": { "sum": 612991080 },
-        "AuroraGlobalDBProgressLag": { "avg": 251 },
-        "BacktrackChangeRecordsCreationRate": { "avg": 6666 },
-        "BacktrackChangeRecordsStored": { "avg": 236824254 },
-        "BacktrackWindowActual": { "avg": 70283 },
+        "AuroraBinlogReplicaLag": { "avg": 3271 },
+        "AuroraGlobalDBReplicatedWriteIO": { "sum": 12772572 },
+        "AuroraGlobalDBDataTransferBytes": { "sum": 968667180 },
+        "AuroraGlobalDBProgressLag": { "avg": 5931 },
+        "BacktrackChangeRecordsCreationRate": { "avg": 4374 },
+        "BacktrackChangeRecordsStored": { "avg": 7040556 },
+        "BacktrackWindowActual": { "avg": 75770 },
         "BacktrackWindowAlert": { "avg": 0 },
-        "ServerlessDatabaseCapacity": { "avg": 85.33262571781526 },
-        "ACUUtilization": { "avg": 43.49800675754271 }
+        "ServerlessDatabaseCapacity": { "avg": 114.93602199541145 },
+        "ACUUtilization": { "avg": 3.2964711507441375 }
       }
     },
     "s3": {
@@ -35,34 +35,35 @@
         "arn": "arn:aws:s3:::aws-aurora-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/aurora/ap-southeast-3/2026/05/28/aurora_RR4I7QBPZ1FJQSJAJXHT.log.gz"
+        "key": "AWSLogs/814726593401/aurora/ca-west-1/2026/06/01/aurora_CRR8Q44EABCTQBGMUVGI.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/aurora/logs",
-      "log_stream": "ap-southeast-3/4uul4ois",
-      "ingestion_time": "2026-05-28T16:58:16.082Z"
+      "log_group": "/aws/rds/cluster/j-RP1IL4AROBAPC/error",
+      "log_stream": "ca-west-1/7m9u0g72",
+      "ingestion_time": "2026-06-01T18:12:00.375Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["database"],
     "type": ["access"],
     "dataset": "aws.aurora",
     "provider": "rds.amazonaws.com",
-    "duration": 26000000000,
+    "duration": 108000000000,
     "module": "aws"
   },
-  "message": "2026-05-28 16:58:15.156 UTC,92.180.210.70,app_rw,warehouse,76089,CONNECT,,,0",
-  "log": { "level": "info" },
+  "message": "2026-06-01 18:11:59.613 UTC 99627 [ERROR] [MY-47689] [Server] Replica SQL thread stopped because of error",
+  "log": { "level": "error" },
+  "error": { "code": "AuroraError", "message": "Storage auto-scaling failed", "type": "db" },
   "service": { "name": "aurora", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.aurora", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "e4zjmcegdnezuid6b3reggvwvofpbbsbphns"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "v1dov3ba4ovt5peryp4tmrtf6xq3kg7rkmc7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

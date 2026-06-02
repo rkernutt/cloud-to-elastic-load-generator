@@ -87,22 +87,7 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
           "Eventual consistency check initiated",
         ])
       : null;
-  const plainMessage =
-    scenario === "stack_drift_detection"
-      ? `${awsApiOperation} stack=${stack} drift_status=${isErr ? "UNKNOWN" : "SUCCESS"} detected=${randInt(
-          0,
-          isErr ? 0 : 12
-        )}_resources`
-      : scenario === "changeset_execute"
-        ? `${awsApiOperation} ChangeSet=${changeSetId ?? "pending"} Stack=${stackId} exec=${isErr ? "DENIED" : "OK"}`
-        : scenario === "nested_stack_update"
-          ? `Nested stack update ROOT=${stack} child=${rand(["vpc-nested", "db-nested"])} status=${resourceStatus}`
-          : scenario === "rollback_complete"
-            ? `Rollback ${awsApiOperation}: ${stack} stabilized=${isErr ? "false" : "true"} failed_events=${isErr ? randInt(1, 8) : 0}`
-            : isErr
-              ? `CloudFormation ${stack} ${resourceStatus}: ${resourceType} failed - ${rand(["Capacity", "IAM denied", "Limit exceeded"])}`
-              : `CloudFormation ${stack}: UPDATE_STACK -> ${resourceStatus}`;
-  const useStructuredLogging = Math.random() < 0.55;
+  const useStructuredLogging = true;
   const stackEventPayload = {
     StackId: stackId,
     StackName: stack,
@@ -113,7 +98,7 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
     ResourceStatusReason: resourceStatusReason,
     Timestamp: new Date(ts).toISOString(),
   };
-  const message = useStructuredLogging ? JSON.stringify(stackEventPayload) : plainMessage;
+  const message = JSON.stringify(stackEventPayload);
   return {
     "@timestamp": ts,
     cloud: {
@@ -232,13 +217,7 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
     `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
   const complianceType = rand(["Patch", "Association", "Inventory"]);
   const complianceStatus = isErr ? "NON_COMPLIANT" : "COMPLIANT";
-  const plainMessage =
-    scenario === "maintenance_window_exec"
-      ? `${action} mw=${maintenanceWindowId} execution=${maintenanceWindowExecId} targets=${randInt(5, 200)} status=${isErr ? "TimedOut" : "Success"}`
-      : isErr
-        ? `SSM ${action} FAILED on ${instance}: exit code ${rand([1, 2, 127])}`
-        : `SSM ${action} on ${instance}: ${document}`;
-  const useStructuredLogging = Math.random() < 0.55;
+  const useStructuredLogging = true;
   const structuredPayload: Record<string, unknown> = {
     commandId,
     documentName: document,
@@ -287,7 +266,7 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
       taskInvocationId: `ti-${randId(8)}`,
     };
   }
-  const message = useStructuredLogging ? JSON.stringify(structuredPayload) : plainMessage;
+  const message = JSON.stringify(structuredPayload);
   return {
     "@timestamp": ts,
     cloud: {
@@ -431,7 +410,24 @@ function generateCloudWatchAlarmsLog(ts: string, er: number): EcsDocument {
       provider: "monitoring.amazonaws.com",
       duration: rand([60, 300, 3600]) * 1e9,
     },
-    message: `CloudWatch alarm "${alarmName}": ${alarmState} (${ns}/${metric}=${val.toFixed(1)})`,
+    message: JSON.stringify({
+      AlarmName: alarmName,
+      AlarmArn: `arn:aws:cloudwatch:${region}:${acct.id}:alarm:${alarmName}`,
+      NewStateValue: alarmState,
+      OldStateValue: rand(["OK", "ALARM", "INSUFFICIENT_DATA"]),
+      NewStateReason: `Threshold Crossed: 1 datapoint [${val.toFixed(2)}] was ${alarmState === "ALARM" ? "greater" : "not greater"} than the threshold (${threshold}).`,
+      StateChangeTime: new Date(ts).toISOString(),
+      Trigger: {
+        MetricName: metric,
+        Namespace: ns,
+        Statistic: rand(["Average", "Maximum", "Sum", "p99"]),
+        Period: rand([60, 300, 3600]),
+        EvaluationPeriods: rand([1, 2, 3]),
+        ComparisonOperator: "GreaterThanThreshold",
+        Threshold: threshold,
+        TreatMissingData: rand(["missing", "notBreaching", "breaching"]),
+      },
+    }),
     log: { level: alarmState === "ALARM" ? "warn" : "info" },
     ...(alarmState !== "OK"
       ? {
@@ -491,9 +487,19 @@ function generateHealthLog(ts: string, er: number): EcsDocument {
       provider: "health.amazonaws.com",
       duration: randInt(1, isIssue ? 7200 : 600) * 1e9,
     },
-    message: isIssue
-      ? `AWS Health: ${svc} service issue in ${region} - ${rand(["Increased errors", "Degraded performance"])}`
-      : `AWS Health: ${svc} event resolved in ${region}`,
+    message: JSON.stringify({
+      eventArn: `arn:aws:health:${region}::event/${svc}/${randId(8)}/${randId(36)}`.toLowerCase(),
+      service: svc,
+      eventTypeCode: `AWS_${svc.toUpperCase()}_${rand(["OPERATIONAL_ISSUE", "MAINTENANCE_SCHEDULED", "API_ISSUE"])}`,
+      eventTypeCategory: rand(["issue", "scheduledChange", "accountNotification"]),
+      eventScopeCode: rand(["ACCOUNT", "PUBLIC"]),
+      statusCode: rand(statuses),
+      region: rand([region, "global"]),
+      startTime: new Date(new Date(ts).getTime() - randInt(3600, 86400) * 1000).toISOString(),
+      lastUpdatedTime: new Date(ts).toISOString(),
+      affectedEntitiesCount: randInt(1, 50),
+      description: `${svc} ${rand(["Increased error rates", "Degraded performance", "Scheduled maintenance", "Connectivity issues"])} in ${region}`,
+    }),
     ...(isIssue
       ? {
           error: {
@@ -504,85 +510,6 @@ function generateHealthLog(ts: string, er: number): EcsDocument {
         }
       : {}),
     log: { level: isIssue ? "warn" : "info" },
-  };
-}
-
-function generateTrustedAdvisorLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isFinding = Math.random() < er + 0.2;
-  const cat = rand([
-    "security",
-    "cost_optimizing",
-    "performance",
-    "fault_tolerance",
-    "service_limits",
-  ]);
-  const checks = {
-    security: [
-      "Security Groups - Ports Unrestricted",
-      "MFA on Root Account",
-      "S3 Bucket Permissions",
-      "CloudTrail Logging",
-    ],
-    cost_optimizing: [
-      "Underutilized Amazon EC2 Instances",
-      "Idle Load Balancers",
-      "Underutilized Amazon RDS",
-    ],
-    performance: [
-      "High Utilization Amazon EC2 Instances",
-      "Large Number of Rules in Security Group",
-    ],
-    fault_tolerance: ["Amazon S3 Bucket Versioning", "Multi-AZ for RDS", "Amazon RDS Backups"],
-    service_limits: ["EC2 On-Demand Instances", "RDS DB Instances", "VPCs"],
-  };
-  const check = rand(checks[cat as keyof typeof checks]);
-  const status = isFinding ? rand(["error", "warning"]) : "ok";
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "trustedadvisor" },
-    },
-    aws: {
-      trustedadvisor: {
-        check_name: check,
-        category: cat,
-        status,
-        affected_resource: rand([
-          `i-${randHexId(17)}`,
-          `sg-${randHexId(8)}`,
-          `arn:aws:s3:::${acct.name}-${rand(["data", "logs", "backups", "assets"])}-${randId(4).toLowerCase()}`,
-        ]),
-        estimated_monthly_savings:
-          cat === "cost_optimizing" && isFinding ? Number(randFloat(10, 5000)) : null,
-        flagged_resources: isFinding ? randInt(1, 20) : 0,
-      },
-    },
-    event: {
-      kind: "alert",
-      outcome: isFinding ? "failure" : "success",
-      category: ["configuration", "vulnerability"],
-      dataset: "aws.trustedadvisor",
-      provider: "trustedadvisor.amazonaws.com",
-      duration: randInt(5, 60) * 1e9,
-    },
-    message: isFinding
-      ? `Trusted Advisor [${status.toUpperCase()}]: ${check} - ${randInt(1, 20)} resources affected`
-      : `Trusted Advisor OK: ${check}`,
-    ...(isFinding
-      ? {
-          error: {
-            code: "TrustedAdvisorFinding",
-            message: `${check}: ${status}`,
-            type: "configuration",
-          },
-        }
-      : {}),
-    log: { level: status === "error" ? "error" : status === "warning" ? "warn" : "info" },
   };
 }
 
@@ -634,9 +561,20 @@ function generateControlTowerLog(ts: string, er: number): EcsDocument {
       provider: "controltower.amazonaws.com",
       duration: randInt(30, isErr ? 1800 : 600) * 1e9,
     },
-    message: isErr
-      ? `Control Tower ${action} FAILED: ${rand(["SCP error", "Enrollment failed", "Guardrail issue"])}`
-      : `Control Tower ${action}: ${status}`,
+    message: JSON.stringify({
+      eventType: action,
+      operationId: randId(36).toLowerCase(),
+      accountId: acct.id,
+      organizationalUnit: rand(["Sandbox", "Production", "Workloads", "Infrastructure"]),
+      guardrailIdentifier: action.includes("Guardrail") ? guardrail : null,
+      guardrailComplianceStatus: isErr ? "NONCOMPLIANT" : rand(["COMPLIANT", "NOT_APPLICABLE"]),
+      landingZoneVersion: rand(["3.1", "3.2", "3.3"]),
+      status,
+      errorMessage: isErr
+        ? rand(["Enrollment failed", "SCP error", "Compliance check failed"])
+        : null,
+      timestamp: new Date(ts).toISOString(),
+    }),
     ...(isErr
       ? {
           error: {
@@ -699,9 +637,26 @@ function generateOrganizationsLog(ts: string, er: number): EcsDocument {
       provider: "organizations.amazonaws.com",
       duration: randInt(100, isErr ? 5000 : 2000) * 1e6,
     },
-    message: isErr
-      ? `Organizations ${action} FAILED: ${rand(["Duplicate account", "Constraint violation", "Access denied"])}`
-      : `Organizations ${action}: ${rand(ous)}`,
+    message: JSON.stringify({
+      eventType: action,
+      accountId: acct.id,
+      accountName: rand(["prod-workloads", "security-audit", "shared-services", "sandbox-dev"]),
+      organizationalUnit: rand(ous),
+      policyId: action.includes("Policy") ? `p-${randId(8).toLowerCase()}` : null,
+      policyType: action.includes("Policy") ? policyType : null,
+      policyName: action.includes("Policy")
+        ? rand(["DenyRootUserActions", "RequireS3Encryption", "TagCompliance"])
+        : null,
+      status: isErr ? "FAILED" : "SUCCESS",
+      errorCode: isErr
+        ? rand([
+            "DuplicateAccountException",
+            "ConstraintViolationException",
+            "AccessDeniedException",
+          ])
+        : null,
+      timestamp: new Date(ts).toISOString(),
+    }),
     ...(isErr
       ? {
           error: {
@@ -768,9 +723,21 @@ function generateServiceCatalogLog(ts: string, er: number): EcsDocument {
       provider: "servicecatalog.amazonaws.com",
       duration: randInt(30, isErr ? 3600 : 600) * 1e9,
     },
-    message: isErr
-      ? `ServiceCatalog ${action} FAILED [${product}]: ${rand(["Unauthorized", "Resource limit", "Invalid params"])}:`
-      : `ServiceCatalog ${action}: ${user} → ${product} [${status}]`,
+    message: JSON.stringify({
+      eventType: action,
+      productName: product,
+      productId: `prod-${randId(13)}`,
+      portfolioId: `port-${randId(13)}`,
+      provisionedProductName: `${product.toLowerCase().replace(/ /g, "-")}-${randId(6).toLowerCase()}`,
+      recordId: `rec-${randId(13)}`,
+      status,
+      requesterArn: `arn:aws:iam::${acct.id}:user/${user}`,
+      launchRoleArn: rand([null, `arn:aws:iam::${acct.id}:role/ServiceCatalogLaunchRole`]),
+      errorMessage: isErr
+        ? rand(["Launch role not authorized", "Resource limit exceeded", "Invalid parameters"])
+        : null,
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -832,10 +799,20 @@ function generateServiceQuotasLog(ts: string, er: number): EcsDocument {
       provider: "servicequotas.amazonaws.com",
       duration: randInt(50, isErr ? 3000 : 500) * 1e6,
     },
-    message:
-      current >= limit
-        ? `Service Quotas EXCEEDED: ${svc} ${quotaName} at ${current}/${limit} (${Math.round((current / limit) * 100)}%)`
-        : `Service Quotas: ${svc} ${quotaName} at ${current}/${limit} (${Math.round((current / limit) * 100)}%)`,
+    message: JSON.stringify({
+      serviceCode: svc,
+      quotaCode: `L-${randId(8)}`,
+      quotaName,
+      quotaValue: limit,
+      currentUtilization: current,
+      utilizationPercent: Math.round((current / limit) * 100),
+      adjustable: rand([true, false]),
+      requestId: isErr ? `${randId(8)}-${randId(4)}`.toLowerCase() : null,
+      requestStatus: isErr ? rand(["PENDING", "CASE_OPENED"]) : "APPROVED",
+      appliedLevel: rand(["ACCOUNT", "RESOURCE"]),
+      status: current >= limit ? "QUOTA_EXCEEDED" : "WITHIN_QUOTA",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: current >= limit ? "error" : current / limit >= 0.9 ? "warn" : "info" },
     ...(current >= limit
       ? { error: { code: "QuotaExceeded", message: "Service Quota exceeded", type: "quota" } }
@@ -900,12 +877,30 @@ function generateComputeOptimizerLog(ts: string, er: number): EcsDocument {
       provider: "compute-optimizer.amazonaws.com",
       duration: randInt(5, 60) * 1e9,
     },
-    message:
-      finding === "OVERPROVISIONED"
-        ? `Compute Optimizer: ${resourceType} OVERPROVISIONED — downsize ${currentType}→${recommendedType}, save ${saving.toFixed(0)}/mo`
-        : finding === "UNDERPROVISIONED"
-          ? `Compute Optimizer: ${resourceType} UNDERPROVISIONED — consider upgrading ${currentType}→${recommendedType}:`
-          : `Compute Optimizer: ${resourceType} OPTIMIZED (${currentType})`,
+    message: JSON.stringify({
+      resourceType,
+      resourceArn: `arn:aws:ec2:${region}:${acct.id}:instance/i-${randHexId(17)}`,
+      finding,
+      currentConfiguration: {
+        instanceType: currentType,
+        vcpu: randInt(2, 32),
+        memoryGb: randInt(4, 128),
+      },
+      recommendedConfiguration: {
+        instanceType: recommendedType,
+        vcpu: randInt(1, 16),
+        memoryGb: randInt(2, 64),
+      },
+      estimatedMonthlySavingsUsd: saving,
+      estimatedMonthlySavingsPercent: saving > 0 ? Number(randFloat(10, 60)) : 0,
+      lookbackPeriodDays: rand([14, 32, 93]),
+      utilizationMetrics: {
+        cpuMaxPercent: Number(randFloat(5, 95)),
+        memoryMaxPercent: Number(randFloat(10, 95)),
+      },
+      performanceRisk: rand(["VeryLow", "Low", "Medium", "High"]),
+      lastRefreshTimestamp: new Date(ts).toISOString(),
+    }),
     log: { level: finding === "UNDERPROVISIONED" ? "warn" : "info" },
     ...(isErr
       ? {
@@ -973,9 +968,23 @@ function generateBudgetsLog(ts: string, er: number): EcsDocument {
       provider: "budgets.amazonaws.com",
       duration: randInt(1, 30) * 1e9,
     },
-    message: isErr
-      ? `Budget ALERT: ${budget} exceeded ${threshold}% — ${actual.toFixed(0)} of ${limit.toFixed(0)}`
-      : `Budget OK: ${budget} at ${actual.toFixed(0)}/${limit.toFixed(0)} (${Math.round((actual / limit) * 100)}%)`,
+    message: JSON.stringify({
+      budgetName: budget,
+      budgetType,
+      timePeriod: rand(["MONTHLY", "QUARTERLY", "ANNUALLY"]),
+      budgetLimit: { amount: parseFloat(limit.toFixed(2)), unit: "USD" },
+      actualSpend: { amount: parseFloat(actual.toFixed(2)), unit: "USD" },
+      forecastedSpend: {
+        amount: parseFloat((actual * Number(randFloat(0.9, 1.4))).toFixed(2)),
+        unit: "USD",
+      },
+      thresholdExceeded: isErr,
+      thresholdPercentage: threshold,
+      notificationType: rand(["ACTUAL", "FORECASTED"]),
+      subscribers: [rand(["ops@company.com", "finance@company.com"])],
+      alertType: isErr ? "ACTUAL_GREATER_THAN_THRESHOLD" : "OK",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "warn" : "info" },
     ...(isErr
       ? { error: { code: "BudgetExceeded", message: "Budget threshold exceeded", type: "billing" } }
@@ -1038,9 +1047,19 @@ function generateBillingLog(ts: string, er: number): EcsDocument {
       provider: "ce.amazonaws.com",
       duration: randInt(100, 5000) * 1e6,
     },
-    message: isErr
-      ? `Billing anomaly: ${service} ${amount.toFixed(2)} ${currency}`
-      : `Billing: ${service} ${amount.toFixed(2)} ${currency}`,
+    message: JSON.stringify({
+      anomalyId: `ANOMALY-${randId(12).toUpperCase()}`,
+      monitorArn: `arn:aws:ce::${acct.id}:anomalymonitor/${randId(8)}`,
+      anomalyStartDate: period.toISOString().slice(0, 10),
+      anomalyEndDate: new Date(ts).toISOString().slice(0, 10),
+      dimensionValue: service,
+      maxImpact: { amount, unit: currency },
+      totalImpact: { amount: amount * Number(randFloat(1, 3)), unit: currency },
+      impactPercentage: isErr ? Number(randFloat(25, 400)) : Number(randFloat(5, 24)),
+      rootCauses: isErr ? [{ service, usageType, linkedAccount: acct.id }] : [],
+      status: isErr ? "ACTIVE" : "RESOLVED",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "warn" : "info" },
     ...(isErr
       ? { error: { code: "BillingAnomaly", message: "Unusual cost detected", type: "billing" } }
@@ -1093,9 +1112,19 @@ function generateDmsLog(ts: string, er: number): EcsDocument {
         },
       },
       event: { outcome: e ? "failure" : "success", duration: randInt(1e6, 6e8) },
-      message: e
-        ? `DMS Serverless ${repl}: ${phase} error — ${rand(errMsgs)}`
-        : `DMS Serverless ${repl}: ${phase} active (${dcu} DCU, ${randInt(100, 10000)} rows/s)`,
+      message: JSON.stringify({
+        replicationConfigArn: `arn:aws:dms:${r}:${a.id}:replication-config:${repl}`,
+        replicationType: phase,
+        provisionedCapacity: dcu,
+        status: e ? "FAILED" : "RUNNING",
+        tablesLoaded: randInt(0, 500),
+        tablesLoading: randInt(0, 20),
+        tablesErrored: e ? randInt(1, 10) : 0,
+        cdcLatencySeconds: phase === "cdc" ? randFloat(0.1, e ? 300 : 5) : 0,
+        rowsApplied: randInt(0, 1e6),
+        errorMessage: e ? rand(errMsgs) : null,
+        timestamp: new Date(ts).toISOString(),
+      }),
     };
   }
   const region = rand(REGIONS);
@@ -1169,9 +1198,25 @@ function generateDmsLog(ts: string, er: number): EcsDocument {
       provider: "dms.amazonaws.com",
       duration: randInt(60, isErr ? 86400 : 28800) * 1e9,
     },
-    message: isErr
-      ? `DMS ${taskName} FAILED (${srcEngine}->${dstEngine}): ${rand(["Table mapping error", "Connection lost"])}`
-      : `DMS ${taskName}: ${rows.toLocaleString()} rows (${srcEngine}->${dstEngine} ${migrationType})`,
+    message: JSON.stringify({
+      replicationTaskArn: `arn:aws:dms:${region}:${acct.id}:task:${taskName}`,
+      replicationTaskIdentifier: taskName,
+      migrationType,
+      sourceEngine: srcEngine,
+      targetEngine: dstEngine,
+      replicationInstanceIdentifier: replicationInstanceId,
+      status: isErr ? "failed" : "running",
+      fullLoadProgressPercent: isErr ? randInt(10, 90) : 100,
+      fullLoadRowsTransferred: rows,
+      cdcIncomingChanges: migrationType.includes("cdc") ? randInt(0, 100000) : 0,
+      cdcLatencySeconds: migrationType.includes("cdc") ? randInt(1, isErr ? 60 : 5) : 0,
+      tablesLoaded: randInt(1, 500),
+      tablesErrored: isErr ? randInt(1, 20) : 0,
+      errorMessage: isErr
+        ? rand(["Table does not exist", "Column mapping failure", "Connection timeout"])
+        : null,
+      timestamp: new Date(ts).toISOString(),
+    }),
     ...(isErr
       ? { error: { code: "DMSError", message: "DMS task failed", type: "migration" } }
       : {}),
@@ -1244,9 +1289,20 @@ function generateFisLog(ts: string, er: number): EcsDocument {
       dataset: "aws.fis",
       provider: "fis.amazonaws.com",
     },
-    message: isErr
-      ? `FIS ${action} FAILED [${expId}]: ${rand(["Experiment failed", "Target not found", "Permission denied", "Stop condition triggered"])}`
-      : `FIS ${action}: exp=${expId} (${expName}) state=${expState}, target=${target}`,
+    message: JSON.stringify({
+      eventType: action,
+      experimentId: expId,
+      experimentTemplateId: expTemplateId,
+      experimentName: expName,
+      state: { status: expState },
+      targetResourceType: target,
+      actionId: `action-${randId(8).toLowerCase()}`,
+      actionType: action_type,
+      stopCondition: rand(["none", "aws:cloudwatch:alarm"]),
+      roleArn: `arn:aws:iam::${acct.id}:role/FISRole-${expName}`,
+      status: isErr ? "FAILED" : "SUCCESS",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : expState === "stopped" ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1322,9 +1378,19 @@ function generateManagedGrafanaLog(ts: string, er: number): EcsDocument {
       dataset: "aws.managedgrafana",
       provider: "grafana.amazonaws.com",
     },
-    message: isErr
-      ? `Managed Grafana ${action} FAILED [${workspaceName}]: ${rand(["Workspace not active", "License required", "Access denied"])}`
-      : `Managed Grafana ${action}: workspace=${workspaceName} alert=${alertState} dashboard="${dashboardTitle}"`,
+    message: JSON.stringify({
+      eventType: action,
+      workspaceId,
+      workspaceName,
+      workspaceStatus: isErr ? "FAILED" : rand(["ACTIVE", "CREATING", "UPDATING"]),
+      grafanaVersion: rand(["9.4", "10.2", "10.4"]),
+      alertState: isErr ? "alerting" : alertState,
+      dashboardTitle,
+      dataSourceType: rand(["prometheus", "cloudwatch", "elasticsearch", "influxdb", "athena"]),
+      authenticationProviders: [rand(["AWS_SSO", "SAML"])],
+      status: isErr ? "FAILED" : "SUCCESS",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : alertState === "alerting" ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1407,9 +1473,29 @@ function generateSupplyChainLog(ts: string, er: number): EcsDocument {
       dataset: "aws.supplychain",
       provider: "scn.amazonaws.com",
     },
-    message: isErr
-      ? `Supply Chain ${action} FAILED [${instanceName}]: ${rand(["Data validation error", "Integration timeout", "Dataset not found"])}`
-      : `Supply Chain ${action}: instance=${instanceName} event=${eventType} status=${jobStatus}`,
+    message: JSON.stringify({
+      eventType: action,
+      instanceArn: instanceId,
+      instanceName,
+      namespace,
+      dataIntegrationEventType: eventType,
+      jobStatus,
+      recordCount: randInt(100, 1000000),
+      forecastHorizonDays: randInt(7, 180),
+      dataLakeDataset: rand([
+        "demand_forecast",
+        "inventory_levels",
+        "supplier_lead_times",
+        "purchase_orders",
+        "shipments",
+      ]),
+      ingestionSource: rand(["ERP", "WMS", "TMS", "EDI"]),
+      status: isErr ? "FAILED" : "SUCCESS",
+      errorMessage: isErr
+        ? rand(["Data validation error", "Integration timeout", "Dataset not found"])
+        : null,
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1482,9 +1568,20 @@ function generateArcLog(ts: string, er: number): EcsDocument {
       dataset: "aws.arc",
       provider: "arc-zonal-shift.amazonaws.com",
     },
-    message: isErr
-      ? `ARC ${action} FAILED [${shiftId}]: ${rand(["Resource not found", "Invalid state", "Access denied"])}`
-      : `ARC ${action}: shift=${shiftId}, az=${az} status=${shiftStatus}, ${comment}`,
+    message: JSON.stringify({
+      eventType: action,
+      zonalShiftId: shiftId,
+      resourceIdentifier: resourceArn,
+      awayFrom: az,
+      status: shiftStatus,
+      availabilityZoneStatus: azStatus,
+      comment,
+      expiryTime: new Date(new Date(ts).getTime() + randInt(3600, 86400) * 1000).toISOString(),
+      routingControlArn: `arn:aws:route53-recovery-control::${acct.id}:controlpanel/${randId(32).toLowerCase()}/routingcontrol/${randId(32).toLowerCase()}`,
+      routingControlState: isErr ? "Off" : rand(["On", "Off"]),
+      statusCode: isErr ? "FAILED" : "SUCCESS",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: {
       level:
         azStatus === "IMPAIRED" || isErr ? "error" : shiftStatus === "ACTIVE" ? "warn" : "info",
@@ -1554,9 +1651,21 @@ function generateAppConfigLog(ts: string, er: number): EcsDocument {
       dataset: "aws.appconfig",
       provider: "appconfig.amazonaws.com",
     },
-    message: isErr
-      ? `AppConfig ${app}/${env}: deployment #${deploymentNum} ROLLED_BACK at ${percentageComplete}%`
-      : `AppConfig ${app}/${env}: ${profile} deployment #${deploymentNum} ${state}`,
+    message: JSON.stringify({
+      eventType: action,
+      applicationName: app,
+      environmentName: env,
+      configurationProfileName: profile,
+      deploymentNumber: deploymentNum,
+      deploymentStrategy,
+      growthFactor,
+      percentageComplete,
+      state,
+      startedAt: new Date(new Date(ts).getTime() - randInt(60, 3600) * 1000).toISOString(),
+      completedAt: state === "COMPLETE" ? new Date(ts).toISOString() : null,
+      status: isErr ? "FAILED" : "SUCCESS",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1618,9 +1727,20 @@ function generateDrsLog(ts: string, er: number): EcsDocument {
       dataset: "aws.drs",
       provider: "drs.amazonaws.com",
     },
-    message: isErr
-      ? `DRS ${sourceHostname} (${sourceServerId}): replication ${replicationStatus}, lag ${lagDuration}s`
-      : `DRS ${sourceHostname}: replication ${replicationStatus}, RPO ${rpoSeconds}s`,
+    message: JSON.stringify({
+      eventType: action,
+      sourceServerId,
+      sourceServerArn: `arn:aws:drs:${region}:${acct.id}:source-server/${sourceServerId}`,
+      sourceHostname,
+      replicationStatus,
+      lagDurationSeconds: lagDuration,
+      recoveryPointObjectiveSeconds: rpoSeconds,
+      dataReplicationState: rand(["Continuous", "InProgress", "Paused", "Disconnected"]),
+      recoveryInstanceId: rand([null, null, `i-${randHexId(17)}`]),
+      stagingAreaSubnet: rand(["us-east-1", "us-west-2", "eu-west-1"]),
+      status: isErr ? "FAILED" : "SUCCESS",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1690,9 +1810,18 @@ function generateLicenseManagerLog(ts: string, er: number): EcsDocument {
       dataset: "aws.licensemanager",
       provider: "license-manager.amazonaws.com",
     },
-    message: isErr
-      ? `License Manager ${licenseConfig}: limit exceeded (${consumedLicenses}/${licensedCount})`
-      : `License Manager ${licenseConfig}: ${consumedLicenses}/${licensedCount} (${utilizationPercentage}%) ${resourceType}`,
+    message: JSON.stringify({
+      eventType: action,
+      licenseConfigurationName: licenseConfig,
+      licenseConfigurationArn: `arn:aws:license-manager:${region}:${acct.id}:license-configuration:${randId(36)}`,
+      resourceType,
+      consumedLicenses,
+      licenseCount: licensedCount,
+      utilizationPercentage,
+      ruleType: rand(["vCPU", "Sockets", "Cores", "Instances"]),
+      status,
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1766,9 +1895,19 @@ function generateChatbotLog(ts: string, er: number): EcsDocument {
       dataset: "aws.chatbot",
       provider: "chatbot.amazonaws.com",
     },
-    message: isErr
-      ? `Chatbot ${channelConfig} (${channelType}): ${notificationType} delivery ${deliveryStatus}`
-      : `Chatbot ${channelConfig}: ${notificationType} delivered to ${channelType}`,
+    message: JSON.stringify({
+      eventType: action,
+      channelConfigurationName: channelConfig,
+      channelType,
+      notificationType,
+      workspaceId: `T${randId(8).toUpperCase()}`,
+      channelId: `C${randId(8).toUpperCase()}`,
+      deliveryStatus,
+      messageId: randUUID(),
+      snsTopicArn: `arn:aws:sns:${region}:${acct.id}:${notificationType.toLowerCase()}-topic`,
+      status: isErr ? "FAILED" : "SUCCESS",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1846,9 +1985,26 @@ function generateCloudWatchRumLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(1e3, 8e6) },
-    message: isErr
-      ? `RUM ${appMonitor}: ${evType.split(".").pop()} error on ${rand(pages)}`
-      : `RUM ${appMonitor}: ${evType.split(".").pop()} (LCP ${webVitals.lcp_ms.toFixed(0)}ms)`,
+    message: JSON.stringify({
+      event_type: evType,
+      application_id: randId(36).toLowerCase(),
+      application_name: appMonitor,
+      application_version: "1.0.0",
+      page_id: rand(pages),
+      session_id: randId(32).toLowerCase(),
+      browser: rand(browsers),
+      os: rand(["Windows 11", "macOS 14", "iOS 17", "Android 14"]),
+      device_type: rand(["desktop", "mobile", "tablet"]),
+      country: rand(["US", "GB", "DE", "JP", "IN", "BR"]),
+      ...(evType.includes("navigation") ? { web_vitals: webVitals } : {}),
+      ...(evType.includes("js_error")
+        ? { error_message: rand(jsErrors), error_type: "js_error" }
+        : {}),
+      ...(evType.includes("http_event")
+        ? { http_status: isErr ? rand([500, 502, 503]) : 200, http_method: rand(["GET", "POST"]) }
+        : {}),
+      timestamp: new Date(ts).toISOString(),
+    }),
   };
 }
 
@@ -1857,7 +2013,6 @@ export {
   generateSsmLog,
   generateCloudWatchAlarmsLog,
   generateHealthLog,
-  generateTrustedAdvisorLog,
   generateControlTowerLog,
   generateOrganizationsLog,
   generateServiceCatalogLog,

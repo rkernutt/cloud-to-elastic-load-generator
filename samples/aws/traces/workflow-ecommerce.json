@@ -1,20 +1,20 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "062d870b0ec347c3a871b5ab05456e4c" },
+  "trace": { "id": "4ae3228fbfffba8106e93bcf52d03a41" },
   "transaction": {
-    "id": "9a8b0d35536c4730",
+    "id": "2d8b174a73236b48",
     "name": "POST /orders",
     "type": "request",
-    "duration": { "us": 677000 },
-    "result": "success",
+    "duration": { "us": 611000 },
+    "result": "failure",
     "sampled": true,
     "span_count": { "started": 1, "dropped": 0 }
   },
   "service": {
     "name": "api-orders",
-    "environment": "staging",
-    "version": "2026.04.1",
+    "environment": "dev",
+    "version": "2.13.8",
     "language": { "name": "nodejs" },
     "runtime": { "name": "nodejs20.x", "version": "20.15.1" },
     "framework": { "name": "AWS API Gateway" }
@@ -31,11 +31,16 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "571938264710", "name": "dev-aws" },
+    "region": "ap-south-1",
+    "account": { "id": "814726593401", "name": "prod-aws" },
     "service": { "name": "apigateway" }
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.workflow-ecommerce" },
+  "labels": {
+    "error.type": "aws",
+    "error.code": "ResourceNotFoundException",
+    "error.message": "The requested resource does not exist"
+  },
+  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.cloudwatch_logs" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

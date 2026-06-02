@@ -51,8 +51,8 @@ steps:
     with:
       message: |
         Security alert enrichment starting:
-          emailConnector: Elastic-Cloud-SMTP
-          notifyTo:       rob.kernutt@elastic.co
+          emailConnector: {{ inputs.emailConnector }}
+          notifyTo:       {{ inputs.notifyTo }}
 
   # 1. Log the inbound alert
   - name: log_alert_received
@@ -215,10 +215,10 @@ steps:
   # 8. Send enriched notification to SOC
   - name: notify_email
     type: email
-    connector-id: "Elastic-Cloud-SMTP"
+    connector-id: "{{ inputs.emailConnector }}"
     with:
       to:
-        - "rob.kernutt@elastic.co"
+        - "{{ inputs.notifyTo }}"
       subject: "[SECURITY ALERT] {{ event.alerts[0].kibana.alert.rule.name }}"
       message: |
         A security alert has fired and been enriched with CMDB context.

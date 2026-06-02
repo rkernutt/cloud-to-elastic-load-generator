@@ -111,58 +111,41 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
       ])
     );
   const errCodeResolved = isErr ? errForScenario() : null;
-  const plainMessage =
-    scenario === "stream_processing"
-      ? isErr
-        ? `DynamoDB Streams ${op} streamArn=arn:aws:dynamodb:${region}:${acct.id}:table/${table}/stream/${randId(
-            8
-          ).toLowerCase()} shard=${randId(
-            12
-          ).toLowerCase()} ${errCodeResolved}: latency_ms=${latencyMs}`
-        : `DynamoDB Streams ${op} processed ${randInt(1, 500)} records from ${table} (${latencyMs}ms)`
-      : scenario === "global_table_replication"
-        ? isErr
-          ? `DynamoDB global table sync ${op} replicas=[${rand(["eu-west-1", "us-west-2"])},${region}] failed: ${errCodeResolved}`
-          : `DynamoDB ${op}: global replicas in sync lag_ms=${randInt(50, 400)}`
-        : scenario === "backup_restore"
-          ? isErr
-            ? `DynamoDB ${op} backupId=${randId(10)} table=${table} ${errCodeResolved}`
-            : `DynamoDB ${op}: on-demand backup arn:aws:dynamodb:${region}:${acct.id}:table/${table}/backup/${randId(8)} complete`
-          : scenario === "capacity_autoscale"
-            ? isErr
-              ? `Application Auto Scaling target ${table} scaling policy rejected: ${errCodeResolved}`
-              : `Consumed capacity auto-scale applied targetReadCapacityUnits=${randInt(5, 200)} (${op})`
-            : scenario === "ttl_deletion"
-              ? isErr
-                ? `TTL watermark delete ${op} table=${table} ${errCodeResolved}`
-                : `TTL deleted ${randInt(1, 5000)} items table=${table} window=${latencyMs}ms`
-              : isErr
-                ? `DynamoDB ${op} table=${table} latency_ms=${latencyMs} returned_items=${returnedItems}: ${errCodeResolved}`
-                : `DynamoDB ${op} table=${table} consumed_rcu=${rcu} consumed_wcu=${wcu} returned_items=${returnedItems} latency_ms=${latencyMs}`;
-  const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        table,
-        operation: op,
-        scenario,
-        ...(scenario === "global_table_replication"
-          ? {
-              replica_regions: rand([["eu-west-1"], ["us-east-2", "ap-southeast-1"]]),
-              replication_lag_ms: randInt(20, 500),
-            }
-          : {}),
-        ...(scenario === "backup_restore"
-          ? {
-              backup_arn: `arn:aws:dynamodb:${region}:${acct.id}:table/${table}/backup/${randId(12)}`,
-            }
-          : {}),
-        consumedReadCapacityUnits: rcu,
-        consumedWriteCapacityUnits: wcu,
-        returnedItemCount: returnedItems,
-        latencyMs,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const message = JSON.stringify({
+    eventVersion: "1.1",
+    eventSource: "dynamodb.amazonaws.com",
+    eventName: op,
+    awsRegion: region,
+    requestParameters: {
+      tableName: table,
+      ...(scenario === "stream_processing"
+        ? {
+            streamArn: `arn:aws:dynamodb:${region}:${acct.id}:table/${table}/stream/${new Date(ts).toISOString()}`,
+          }
+        : {}),
+    },
+    responseElements: isErr
+      ? null
+      : { tableDescription: { tableName: table, tableStatus: "ACTIVE" } },
+    ...(isErr
+      ? {
+          errorCode: errCodeResolved,
+          errorMessage: `${errCodeResolved}: Operation ${op} failed on table ${table}`,
+        }
+      : {}),
+    userIdentity: {
+      type: "IAMUser",
+      principalId: `${acct.id}:dynamodb-user`,
+      arn: `arn:aws:iam::${acct.id}:user/dynamodb-user`,
+    },
+    eventTime: new Date(ts).toISOString(),
+    consumedCapacity: {
+      tableName: table,
+      capacityUnits: rcu + wcu,
+      readCapacityUnits: rcu,
+      writeCapacityUnits: wcu,
+    },
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -190,7 +173,7 @@ function generateDynamoDbLog(ts: string, er: number): EcsDocument {
         returned_item_count: returnedItems,
         latency_ms: latencyMs,
         items_count: randInt(0, 1000),
-        structured_logging: useStructuredLogging,
+        structured_logging: true,
         error_code: isErr ? errCodeResolved : null,
         metrics: {
           AccountMaxReads: { max: randInt(1000, 1e6) },
@@ -298,9 +281,16 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
         },
       },
       event: { outcome: e ? "failure" : "success", duration: randInt(1e5, 3e7) },
-      message: e
-        ? `ElastiCache Global ${globalDs}: ${ev} failed — ${rand(errMsgs)}`
-        : `ElastiCache Global ${globalDs}: ${ev} completed`,
+      message: JSON.stringify({
+        eventSource: "elasticache.amazonaws.com",
+        eventName: ev,
+        globalReplicationGroupId: globalDs,
+        primaryRegion: r,
+        secondaryRegions: secondaryRegions.filter((reg) => reg !== r),
+        replicationLagMs: Math.round(randFloat(0.5, e ? 15000 : 50)),
+        status: e ? "FAILED" : "COMPLETE",
+        ...(e ? { errorMessage: rand(errMsgs) } : {}),
+      }),
       ...(e
         ? {
             error: {
@@ -350,10 +340,6 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
     engine_update: "ModifyReplicationGroup",
   };
   const apiOp = apiOpByScenario[scenario];
-  const logFlavor = rand(["cmd", "slowlog", "engine", "replication", "failover"]);
-  const redisPid = randInt(1, 32);
-  const slowUsecs = randInt(15_000, 8_000_000);
-  const tsHuman = new Date(ts).toISOString().replace("T", " ").slice(0, 23);
   const apiErrCodes = [
     "ReplicationGroupNotFoundFault",
     "CacheClusterNotFoundFault",
@@ -451,36 +437,43 @@ function generateElastiCacheLog(ts: string, er: number): EcsDocument {
       dataset: "aws.elasticache",
       provider: "elasticache.amazonaws.com",
     },
-    message:
-      structuredJson ??
-      (() => {
-        if (scenario !== "redis_command") {
-          return isErr
-            ? `ElastiCache ${apiOp} replicationGroup=${replicationGroupId} ${apiErrResolved}: ${scenario.replace(/_/g, " ")}`
-            : rand([
-                `ElastiCache ${apiOp}: snapshot ${randId(8)} queued for ${replicationGroupId}`,
-                `Scaling ${apiOp}: slot migration ${randInt(0, 16383)}->${randInt(0, 16383)} on ${clusterId}`,
-                `Engine upgrade ${apiOp}: maintenance window mw-${randInt(1000, 9999)} applied`,
-                `FailoverShard: primary swapped for ${replicationGroupId} duration_ms=${randInt(800, 12000)}`,
-              ]);
-        }
-        if (isErr) {
-          return `Redis ${cmd} failed: ${rand(redisEngineErrCodes)}`;
-        }
-        if (logFlavor === "slowlog") {
-          return `${redisPid}:M ${tsHuman} * ${slowUsecs} ${cmd} ${rand(["user:*", "session:*", "idx:products:*"])}`;
-        }
-        if (logFlavor === "engine") {
-          return `[${redisPid}] ${tsHuman} # ${rand(["WARN", "INFO"])} ${rand(["Replica is read-only", "AOF rewrite finished", "RDB: 0 MB of memory used by copy-on-write", "Overcommit_memory is set to 0"])}`;
-        }
-        if (logFlavor === "replication") {
-          return `[${redisPid}] ${tsHuman} # INFO Partial resynchronization request accepted. Sending ${randInt(1, 500)} bytes of backlog starting from offset ${randInt(1000, 9_000_000_000)}.`;
-        }
-        if (logFlavor === "failover") {
-          return `[${redisPid}] ${tsHuman} # NOTICE Failover auth granted to replica ${clusterId}-002.${region}.cache.amazonaws.com:6379 for epoch ${randInt(1, 50)}`;
-        }
-        return `Redis ${cmd} ${lat.toFixed(2)}us`;
-      })(),
+    message: (() => {
+      const redisKey = rand(["user:*", "session:*", "idx:products:*"]);
+      if (scenario === "redis_command") {
+        return JSON.stringify({
+          id: randInt(1, 999999),
+          timestamp: Math.floor(new Date(ts).getTime()),
+          duration: Math.round(lat),
+          command: [cmd, redisKey],
+          key: redisKey,
+          clusterId,
+          replicationGroupId,
+          ...(isErr ? { error: rand(redisEngineErrCodes), status: "failed" } : { status: "ok" }),
+        });
+      }
+      if (structuredJson) return structuredJson;
+      return JSON.stringify({
+        replicationGroupId,
+        scenario,
+        operation: apiOp,
+        clusterId,
+        timestamp: new Date(ts).toISOString(),
+        status: isErr ? "FAILED" : "COMPLETE",
+        ...(scenario === "snapshot_create"
+          ? { snapshotName: `snap-${randHexId(10)}`, retention: randInt(1, 35) }
+          : {}),
+        ...(scenario === "scaling_event"
+          ? { shardCount: randInt(2, 8), appliedStrategy: rand(["preferred", "none"]) }
+          : {}),
+        ...(scenario === "engine_update"
+          ? {
+              engineVersionTarget: rand(["7.1.0", "7.2.6"]),
+              applyImmediately: Math.random() > 0.5,
+            }
+          : {}),
+        ...(isErr ? { awsException: apiErrResolved } : {}),
+      });
+    })(),
     log: { level: isErr ? "error" : lat > 1000 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -787,10 +780,15 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
     "blue_green_deploy",
     "warm_migration",
   ]);
-  const queryBody =
-    '{"query":{"bool":{"filter":[{"range":{"@timestamp":{"gte":"now-1h"}}}],"must":[{"match":{"service.name":"checkout"}}]}},"size":500}';
-  const gcLine = `[${new Date(ts).toISOString()}][INFO ][o.e.m.j.JvmGcMonitorService] [${rand(["data-0", "master-1", "ingest-2"])}] [gc][${randInt(100, 9999)}] overhead, spent [${Number(randFloat(200, isErr ? 5000 : 800)).toFixed(1)}ms] collecting in the last [1s]`;
-  const cbLine = `[${new Date(ts).toISOString()}][WARN ][o.e.i.b.request.RequestBreaker] [${rand(["data-0", "data-1"])}] breaking incoming request: [parent] Data too large, data for [<reused_arrays>] would be [${randInt(512, 4096)}mb], which is larger than the limit of [${randInt(256, 2048)}mb]`;
+  const querySource = {
+    query: {
+      bool: {
+        filter: [{ range: { "@timestamp": { gte: "now-1h" } } }],
+        must: [{ match: { "service.name": "checkout" } }],
+      },
+    },
+    size: 500,
+  };
   const awsOsErrCodes = [
     "ClusterBlockException",
     "SnapshotMissingException",
@@ -799,79 +797,166 @@ function generateOpenSearchLog(ts: string, er: number): EcsDocument {
     "SnapshotRestoreException",
   ];
   const resolvedOsErr = isErr ? rand(awsOsErrCodes) : null;
-  let message: string;
+  const tsIso = new Date(ts).toISOString();
   let operation = op;
   let logExtras: Record<string, unknown> = {};
+  let messagePayload: Record<string, unknown>;
   if (variant === "index_mgmt") {
     operation = rand(["create_index", "delete_index", "close_index", "open_index"]);
-    message = `[${new Date(ts).toISOString()}] cluster=${domainName} action=${operation} index=${idx} ack=${isErr ? "false" : "true"}`;
+    messagePayload = {
+      type: "cluster_index_management",
+      timestamp: tsIso,
+      cluster: domainName,
+      action: operation,
+      index: idx,
+      acknowledged: !isErr,
+    };
   } else if (variant === "allocation") {
     operation = "shard_allocation";
-    message = `[${new Date(ts).toISOString()}] reroute started: allocate replica shard [${idx}][${randInt(0, 9)}] on node [i-${randHexId(17)}] reason=CLUSTER_RECOVERED`;
-    logExtras = { allocation_explanation: isErr ? "NO_VALID_SHARD_COPY" : "ALLOCATED" };
+    const allocationExplanation = isErr ? "NO_VALID_SHARD_COPY" : "ALLOCATED";
+    messagePayload = {
+      type: "shard_allocation",
+      timestamp: tsIso,
+      index: idx,
+      shard: randInt(0, 9),
+      node: `i-${randHexId(17)}`,
+      reason: "CLUSTER_RECOVERED",
+      allocation_explanation: allocationExplanation,
+    };
+    logExtras = { allocation_explanation: allocationExplanation };
   } else if (variant === "cluster_health") {
     operation = "cluster_health";
     const health = isErr ? rand(["red", "yellow"]) : "green";
-    message = `[${new Date(ts).toISOString()}] cluster health changed: ${health} (active_shards=${randInt(40, 200)}, relocating_shards=${randInt(0, 5)}, unassigned_shards=${isErr ? randInt(1, 20) : 0})`;
+    messagePayload = {
+      type: "cluster_health",
+      timestamp: tsIso,
+      status: health,
+      active_shards: randInt(40, 200),
+      relocating_shards: randInt(0, 5),
+      unassigned_shards: isErr ? randInt(1, 20) : 0,
+    };
     logExtras = { cluster_health: health };
   } else if (variant === "slow_query") {
     operation = "slow_search";
-    message = `[${new Date(ts).toISOString()}] [index.search.slowlog.query] [${idx}] took[${dur.toFixed(1)}ms], took_millis[${Math.round(dur)}], types[], stats[], search_type[QUERY_THEN_FETCH], total_shards[${totalShards}], source[${queryBody}]`;
-    logExtras = { slow_query_source: queryBody };
+    messagePayload = {
+      type: "index_search_slowlog",
+      timestamp: tsIso,
+      index: idx,
+      took_millis: Math.round(dur),
+      search_type: "QUERY_THEN_FETCH",
+      total_shards: totalShards,
+      source: querySource,
+      latency_ms: Math.round(dur),
+      status: isErr ? "failed" : "success",
+    };
+    logExtras = { slow_query_source: JSON.stringify(querySource) };
   } else if (variant === "gc") {
     operation = "jvm_gc";
-    message = gcLine;
+    messagePayload = {
+      type: "jvm_gc",
+      timestamp: tsIso,
+      node: rand(["data-0", "master-1", "ingest-2"]),
+      gc_overhead_ms: Number(randFloat(200, isErr ? 5000 : 800).toFixed(1)),
+      collection_interval_ms: 1000,
+    };
     logExtras = { gc_event: true };
   } else if (variant === "circuit_breaker") {
     operation = "circuit_breaker";
-    message = cbLine;
+    messagePayload = {
+      type: "circuit_breaker",
+      timestamp: tsIso,
+      node: rand(["data-0", "data-1"]),
+      breaker: "parent",
+      bytes_requested_mb: randInt(512, 4096),
+      limit_mb: randInt(256, 2048),
+      status: "tripped",
+    };
     logExtras = { circuit_breaker: "parent" };
   } else if (variant === "index_rotation") {
     operation = "rollover_index";
-    const newIdx = `${idx}-${new Date(ts).toISOString().slice(0, 10).replace(/-/g, ".")}-000001`;
-    message = isErr
-      ? JSON.stringify({
+    const newIdx = `${idx}-${tsIso.slice(0, 10).replace(/-/g, ".")}-000001`;
+    messagePayload = isErr
+      ? {
           acknowledged: false,
           error: {
             type: resolvedOsErr,
             reason: `rollover for [${idx}] failed: rollover target already exists`,
           },
-        })
-      : `[${new Date(ts).toISOString()}] ILM rollover ${idx} → ${newIdx} conditions[max_age=30d,min_docs=${randInt(1e6, 5e7)}] met=true`;
+        }
+      : {
+          type: "ilm_rollover",
+          timestamp: tsIso,
+          index: idx,
+          new_index: newIdx,
+          conditions: { max_age: "30d", min_docs: randInt(1e6, 5e7) },
+          met: true,
+        };
     logExtras = {
       ilm_policy: rand(["logs-policy", "metrics-ilm", "traces-hot-warm"]),
       new_index: newIdx,
     };
   } else if (variant === "snapshot_lifecycle") {
     operation = rand(["CREATE_SNAPSHOT", "DELETE_SNAPSHOT"]);
-    message = `[${new Date(ts).toISOString()}] SLM start snapshot [repo=${rand(["daily-snap", "cs-automated"])}] name=${idx}-snapshot-${randId(6)} state=${isErr ? "FAILED" : "SUCCESS"}`;
+    messagePayload = {
+      type: "slm_snapshot",
+      timestamp: tsIso,
+      repository: rand(["daily-snap", "cs-automated"]),
+      snapshot: `${idx}-snapshot-${randId(6)}`,
+      state: isErr ? "FAILED" : "SUCCESS",
+    };
     logExtras = {
       snapshot_repository: rand(["s3-repo-prod", "fs-backup"]),
       slm_retention_days: randInt(7, 90),
     };
   } else if (variant === "blue_green_deploy") {
     operation = "blue_green_deploy";
-    message = `[${new Date(ts).toISOString()}] AOS blue/green deployment ${domainName} changeId=${randId(10)} status=${isErr ? "failed" : "succeeded"} step=${rand(["CREATE_NEW_ENV", "MIGRATE_SHARDS", "CUTOVER"])}`;
+    messagePayload = {
+      type: "blue_green_deploy",
+      timestamp: tsIso,
+      domain: domainName,
+      changeId: randId(10),
+      status: isErr ? "failed" : "succeeded",
+      step: rand(["CREATE_NEW_ENV", "MIGRATE_SHARDS", "CUTOVER"]),
+    };
     logExtras = {
       deployment_type: "BlueGreen",
       configuration_change_status: isErr ? "failed" : "completed",
     };
   } else if (variant === "warm_migration") {
     operation = "migrate_to_warm_tier";
-    message = isErr
-      ? `Warm tier migration blocked for index=${idx}: ${resolvedOsErr}`
-      : `[${new Date(ts).toISOString()}] shard [${idx}][${randInt(0, 5)}] relocated to warm tier node warm-${randInt(0, 3)}`;
+    messagePayload = isErr
+      ? {
+          type: "warm_migration",
+          index: idx,
+          status: "blocked",
+          error: { type: resolvedOsErr },
+        }
+      : {
+          type: "warm_migration",
+          timestamp: tsIso,
+          index: idx,
+          shard: randInt(0, 5),
+          target_node: `warm-${randInt(0, 3)}`,
+          status: "relocated",
+        };
     logExtras = { warm_tier_enabled: true, ultra_warm: Math.random() > 0.5 };
   } else {
-    message = isErr
-      ? Math.random() < 0.5
-        ? JSON.stringify({
-            status: status,
-            error: { type: resolvedOsErr, reason: `OpenSearch ${op} on ${idx} rejected` },
-          })
-        : `OpenSearch ${op} on ${idx} failed [${status}] after ${dur.toFixed(0)}ms`
-      : `OpenSearch ${op} on ${idx}: ${dur.toFixed(0)}ms`;
+    messagePayload = isErr
+      ? {
+          status,
+          error: { type: resolvedOsErr, reason: `OpenSearch ${op} on ${idx} rejected` },
+        }
+      : {
+          type: "http_request",
+          timestamp: tsIso,
+          method: op,
+          index: idx,
+          took_millis: Math.round(dur),
+          status,
+          latency_ms: Math.round(dur),
+        };
   }
+  const message = JSON.stringify(messagePayload);
   return {
     "@timestamp": ts,
     cloud: {
@@ -1023,9 +1108,26 @@ function generateDocumentDbLog(ts: string, er: number): EcsDocument {
       dataset: "aws.docdb",
       provider: "docdb.amazonaws.com",
     },
-    message: isErr
-      ? `DocumentDB ${op} on ${col} failed: ${rand(["DuplicateKey", "WriteConflict"])}`
-      : `DocumentDB ${op} on ${col}: ${dur.toFixed(1)}ms`,
+    message: JSON.stringify({
+      atype: isErr ? "authCheck" : op,
+      ts: { $date: new Date(ts).toISOString() },
+      uuid: { $binary: { base64: randId(16), subType: "04" } },
+      local: { ip: randIp(), port: randInt(1024, 65535) },
+      remote: { ip: randIp(), port: randInt(30000, 65000) },
+      users: [{ user: randIamUser(), db: "appdb" }],
+      param: {
+        command: {
+          op,
+          ns: `appdb.${col}`,
+          ...(op === "find" ? { filter: { status: "active" } } : {}),
+        },
+        latency_ms: Math.round(dur),
+        documentsAffected: isErr ? 0 : randInt(1, 1000),
+      },
+      result: isErr
+        ? rand(["CursorNotFound", "DuplicateKey", "WriteConflict", "ExceededTimeLimit"])
+        : 0,
+    }),
     log: { level: isErr ? "error" : dur > 1000 ? "warn" : "info" },
     ...(isErr
       ? { error: { code: rand(docdbErrCodes), message: `DocumentDB ${op} failed`, type: "db" } }
@@ -1183,6 +1285,10 @@ function generateNeptuneLog(ts: string, er: number): EcsDocument {
       "MATCH (n)-[r]->(m) WHERE n.id=$id RETURN n,r,m",
     ],
   };
+  const query = rand(QUERIES[queryLang as keyof typeof QUERIES]);
+  const neptuneErr = isErr
+    ? rand(["QueryTimeout", "ReadOnlyEngineException", "ConcurrentModificationException"])
+    : null;
   return {
     "@timestamp": ts,
     cloud: {
@@ -1195,13 +1301,11 @@ function generateNeptuneLog(ts: string, er: number): EcsDocument {
       neptune: {
         cluster_id: cluster,
         query_language: queryLang,
-        query: rand(QUERIES[queryLang as keyof typeof QUERIES]),
+        query,
         duration_ms: Math.round(dur),
         http_status: isErr ? rand([400, 429, 500]) : 200,
         db_connections: randInt(1, isErr ? 500 : 200),
-        error_code: isErr
-          ? rand(["QueryTimeout", "ReadOnlyEngineException", "ConcurrentModificationException"])
-          : null,
+        error_code: neptuneErr,
         metrics: {
           CPUUtilization: { avg: Number(randFloat(1, isErr ? 95 : 60)) },
           FreeableMemory: { avg: randInt(1e8, 8e9) },
@@ -1222,9 +1326,15 @@ function generateNeptuneLog(ts: string, er: number): EcsDocument {
       dataset: "aws.neptune",
       provider: "neptune.amazonaws.com",
     },
-    message: isErr
-      ? `Neptune ${queryLang} FAILED after ${dur.toFixed(0)}ms: ${rand(["QueryTimeout", "ConcurrentModification"])}`
-      : `Neptune ${queryLang}: ${dur.toFixed(0)}ms`,
+    message: JSON.stringify({
+      eventType: "neptune_audit",
+      clusterId: cluster,
+      queryLanguage: queryLang,
+      query,
+      latency_ms: Math.round(dur),
+      status: isErr ? "failed" : "success",
+      ...(isErr ? { errorCode: neptuneErr } : {}),
+    }),
     log: { level: isErr ? "error" : dur > 5000 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1280,9 +1390,26 @@ function generateTimestreamLog(ts: string, er: number): EcsDocument {
       dataset: "aws.timestream",
       provider: "timestream.amazonaws.com",
     },
-    message: isErr
-      ? `Timestream ${op} FAILED on ${db}.${table}: ${rand(["RejectedRecords", "Throttling", "Not found"])}`
-      : `Timestream ${op} on ${db}.${table}: ${op === "WriteRecords" ? records + " records" : dur.toFixed(0) + "ms"}`,
+    message: JSON.stringify({
+      eventType: op === "WriteRecords" ? "timestream_write" : "timestream_query",
+      databaseName: db,
+      tableName: table,
+      operation: op,
+      latency_ms: Math.round(dur),
+      status: isErr ? "failed" : "success",
+      ...(op === "WriteRecords"
+        ? { recordsIngested: records }
+        : { rowsReturned: randInt(0, 10000) }),
+      ...(isErr
+        ? {
+            errorCode: rand([
+              "ThrottlingException",
+              "ResourceNotFoundException",
+              "RejectedRecordsException",
+            ]),
+          }
+        : {}),
+    }),
     log: { level: isErr ? "error" : dur > 5000 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1293,69 +1420,6 @@ function generateTimestreamLog(ts: string, er: number): EcsDocument {
               "RejectedRecordsException",
             ]),
             message: "Timestream operation failed",
-            type: "db",
-          },
-        }
-      : {}),
-  };
-}
-
-function generateQldbLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const ledger = rand([
-    "vehicle-registrations",
-    "supply-chain",
-    "financial-records",
-    "audit-trail",
-  ]);
-  const table = rand(["Vehicles", "Orders", "Transactions", "Users"]);
-  const op = rand(["INSERT", "UPDATE", "SELECT", "CREATE_INDEX", "HISTORY"]);
-  const dur = Number(randFloat(1, isErr ? 5000 : 500));
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "qldb" },
-    },
-    aws: {
-      qldb: {
-        ledger_name: ledger,
-        table_name: table,
-        operation: op,
-        transaction_id: randId(22).toLowerCase(),
-        document_id: randId(22).toLowerCase(),
-        revision_hash: randId(44).toLowerCase(),
-        duration_ms: Math.round(dur),
-        error_code: isErr
-          ? rand(["TransactionExpiredException", "OccConflictException", "InvalidSessionException"])
-          : null,
-      },
-    },
-    event: {
-      duration: dur * 1e6,
-      outcome: isErr ? "failure" : "success",
-      category: ["database"],
-      type: ["access"],
-      dataset: "aws.qldb",
-      provider: "qldb.amazonaws.com",
-    },
-    message: isErr
-      ? `QLDB ${op} on ${ledger}.${table} FAILED: ${rand(["OCC conflict", "Transaction expired"])}`
-      : `QLDB ${op} on ${ledger}.${table}: ${dur.toFixed(0)}ms`,
-    log: { level: isErr ? "error" : "info" },
-    ...(isErr
-      ? {
-          error: {
-            code: rand([
-              "TransactionExpiredException",
-              "OccConflictException",
-              "InvalidSessionException",
-            ]),
-            message: "QLDB transaction failed",
             type: "db",
           },
         }
@@ -1406,9 +1470,25 @@ function generateKeyspacesLog(ts: string, er: number): EcsDocument {
       dataset: "aws.keyspaces",
       provider: "cassandra.amazonaws.com",
     },
-    message: isErr
-      ? `Keyspaces ${op} on ${keyspace}.${table} FAILED: ${rand(["Throughput exceeded", "Write conflict", "Timeout"])}`
-      : `Keyspaces ${op} on ${keyspace}.${table}: ${dur.toFixed(0)}ms`,
+    message: JSON.stringify({
+      eventType: "cql_operation",
+      keyspace,
+      table,
+      operation: op,
+      query: `${op} FROM ${keyspace}.${table} WHERE id = ?`,
+      latency_ms: Math.round(dur),
+      status: isErr ? "failed" : "success",
+      cqlVersion: "3.11.2",
+      ...(isErr
+        ? {
+            errorCode: rand([
+              "ProvisionedThroughputExceededException",
+              "WriteConflictException",
+              "TimeoutException",
+            ]),
+          }
+        : {}),
+    }),
     log: { level: isErr ? "error" : dur > 1000 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1463,9 +1543,16 @@ function generateMemoryDbLog(ts: string, er: number): EcsDocument {
       dataset: "aws.memorydb",
       provider: "memory-db.amazonaws.com",
     },
-    message: isErr
-      ? `MemoryDB ${cluster} ${cmd} FAILED: ${rand(["READONLY replica", "OOM", "WRONGTYPE"])}`
-      : `MemoryDB ${cluster} ${cmd}: ${lat.toFixed(2)}us`,
+    message: JSON.stringify({
+      id: randInt(1, 999999),
+      timestamp: Math.floor(new Date(ts).getTime()),
+      duration: Math.round(lat),
+      command: [cmd, rand(["user:*", "session:*", `leaderboard:${randInt(1, 9999)}`])],
+      key: rand(["user:*", "session:*", `leaderboard:${randInt(1, 9999)}`]),
+      clusterName: cluster,
+      status: isErr ? "failed" : "ok",
+      ...(isErr ? { error: rand(["READONLY", "OOM", "WRONGTYPE"]) } : {}),
+    }),
     log: { level: isErr ? "error" : lat > 500 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1910,9 +1997,19 @@ function generateDaxLog(ts: string, er: number): EcsDocument {
       provider: "dax.amazonaws.com",
       duration: requestLatencyMs * 1e6,
     },
-    message: isErr
-      ? `DAX ${clusterName}: ${operation} failed — ${errorCode}`
-      : `DAX ${clusterName}: ${operation} ${cacheHit ? "CACHE_HIT" : "CACHE_MISS"} ${requestLatencyMs}ms`,
+    message: JSON.stringify({
+      eventType: "dax_cluster_event",
+      clusterName,
+      nodeId,
+      operation,
+      tableName,
+      cacheHit,
+      itemSizeBytes,
+      latency_ms: requestLatencyMs,
+      consumedReadCapacityUnits,
+      status: isErr ? "failed" : "success",
+      ...(isErr ? { errorCode } : {}),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? { error: { code: errorCode, message: `DAX ${operation} failed`, type: "database" } }
@@ -1968,9 +2065,18 @@ function generateNeptuneAnalyticsLog(ts: string, er: number): EcsDocument {
       duration: durationMs * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.neptuneanalytics", namespace: "default" },
-    message: isErr
-      ? `Neptune Analytics graph ${graphId}: ${errorCode} running ${algorithm}`
-      : `Neptune Analytics graph ${graphId}: ${algorithm} processed ${nodesProcessed} nodes, ${edgesProcessed} edges in ${durationMs}ms`,
+    message: JSON.stringify({
+      eventType: "neptune_analytics_query",
+      graphId,
+      queryId,
+      algorithm,
+      query: `${algorithm}(graph='${graphId}')`,
+      latency_ms: durationMs,
+      nodesProcessed,
+      edgesProcessed,
+      status: isErr ? "failed" : "success",
+      ...(isErr ? { errorCode } : {}),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -2031,9 +2137,22 @@ function generateAuroraDsqlLog(ts: string, er: number): EcsDocument {
       duration: randInt(1, isErr ? 5000 : 200) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.auroradsql", namespace: "default" },
-    message: isErr
-      ? `Aurora DSQL cluster ${clusterId}: ${errorCode} (${regionMode})`
-      : `Aurora DSQL cluster ${clusterId}: ${tps.toFixed(0)} TPS, storage=${storageGb.toFixed(1)}GB, replication_lag=${replicationLagMs}ms`,
+    message: JSON.stringify({
+      eventType: "aurora_dsql_event",
+      clusterId,
+      transactionId,
+      regionMode,
+      linkedClusterArns,
+      metrics: {
+        transactionsPerSec: tps,
+        storageUsedGb: storageGb,
+        replicationLagMs,
+      },
+      query: `BEGIN TRANSACTION /* ${transactionId} */`,
+      latency_ms: randInt(1, isErr ? 5000 : 200),
+      status: isErr ? "failed" : "success",
+      ...(isErr ? { errorCode } : {}),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -2056,7 +2175,6 @@ export {
   generateAuroraLog,
   generateNeptuneLog,
   generateTimestreamLog,
-  generateQldbLog,
   generateKeyspacesLog,
   generateMemoryDbLog,
   generateRdsLog,

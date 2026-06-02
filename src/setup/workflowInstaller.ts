@@ -39,12 +39,17 @@ export function applyWorkflowOverrides(yaml: string, overrides: WorkflowOverride
 
   if (overrides.notifyTo) {
     out = replaceInputDefault(out, "notifyTo", overrides.notifyTo);
+    out = out.replace(/\{\{\s*inputs\.notifyTo\s*\}\}/g, overrides.notifyTo);
     out = out.replace(/soc-oncall@example\.com/g, overrides.notifyTo);
     out = out.replace(/rob\.kernutt@elastic\.co/g, overrides.notifyTo);
   }
 
   if (overrides.emailConnector) {
     out = replaceInputDefault(out, "emailConnector", overrides.emailConnector);
+    out = out.replace(
+      /connector-id:\s*"\{\{\s*inputs\.emailConnector\s*\}\}"/g,
+      `connector-id: "${overrides.emailConnector}"`
+    );
     out = out.replace(
       /connector-id:\s*"Elastic-Cloud-SMTP"/g,
       `connector-id: "${overrides.emailConnector}"`

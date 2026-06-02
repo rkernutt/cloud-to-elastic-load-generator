@@ -352,12 +352,6 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         icon: "⊚",
         desc: "DPS enrollments",
       },
-      {
-        id: "time-series-insights",
-        label: "Time Series Insights",
-        icon: "📉",
-        desc: "TSI queries",
-      },
       { id: "media-services", label: "Media Services", icon: "🎬", desc: "Encoding jobs" },
       {
         id: "communication-services",
@@ -410,7 +404,6 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
       { id: "advisor", label: "Advisor", icon: "💡", desc: "Recommendations" },
       { id: "cost-management", label: "Cost Management", icon: "$", desc: "Cost & billing" },
       { id: "resource-graph", label: "Resource Graph", icon: "⬡", desc: "ARG queries" },
-      { id: "blueprints", label: "Blueprints", icon: "📐", desc: "Blueprint assignment" },
       { id: "automation-account", label: "Automation", icon: "⚙", desc: "Runbooks" },
       { id: "app-configuration", label: "App Configuration", icon: "☰", desc: "Feature flags" },
       {

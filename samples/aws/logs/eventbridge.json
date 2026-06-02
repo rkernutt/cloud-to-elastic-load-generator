@@ -1,68 +1,66 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-central-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "events" }
   },
   "aws": {
-    "dimensions": { "EventBusName": "custom-events", "RuleName": "user-signup-trigger" },
+    "dimensions": { "EventBusName": "default", "RuleName": "scheduled-cleanup" },
     "eventbridge": {
-      "event_bus": "custom-events",
-      "rule": "user-signup-trigger",
-      "source": "aws.s3",
+      "event_bus": "default",
+      "rule": "scheduled-cleanup",
+      "source": "custom.app",
       "detail_type": "Order Placed",
-      "targets_invoked": 3,
+      "targets_invoked": 1,
       "targets_failed": 0,
-      "event_id": "1973516b-128c-4717-a635-4988c7e66835",
-      "log_kind": "pipe_enrichment",
-      "enrichment_arn": "arn:aws:lambda:ap-south-2:164820739518:function:enrichOrder",
-      "pipe_name": "metrics-to-kinesis",
+      "event_id": "b91c9cf8-a073-49bd-9e41-3b2dda9193b5",
+      "log_kind": "schema_discovery",
       "structured_logging": true,
       "metrics": {
         "Invocations": { "sum": 1 },
         "FailedInvocations": { "sum": 0 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 63 },
+        "MatchedEvents": { "sum": 57 },
         "ThrottledRules": { "sum": 0 },
         "DeadLetterInvocations": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eventbridge-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-eventbridge-logs-164820739518"
+        "name": "aws-eventbridge-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-eventbridge-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/eventbridge/ap-south-2/2026/05/28/eventbridge_ANMSSZVEXDQGC0J66QEC.log.gz"
+        "key": "AWSLogs/501938274650/eventbridge/ca-central-1/2026/06/01/eventbridge_W3JYTCCBM87X1YW0ER9D.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/eventbridge/logs",
-      "log_stream": "ap-south-2/htfrpsvz",
-      "ingestion_time": "2026-05-28T16:58:16.103Z"
+      "log_group": "/aws/events/eventbridge-rule-qmhjuh",
+      "log_stream": "ca-central-1/tre6wgtd",
+      "ingestion_time": "2026-06-01T18:12:00.386Z"
     }
   },
   "event": {
     "outcome": "success",
     "category": ["process"],
-    "type": ["deletion"],
+    "type": ["change"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 71000000,
+    "duration": 116000000,
     "module": "aws"
   },
-  "message": "{\"id\":\"1973516b-128c-4717-a635-4988c7e66835\",\"source\":\"aws.s3\",\"detailType\":\"EC2 Instance State-change Notification\",\"rule\":\"user-signup-trigger\",\"eventBus\":\"custom-events\",\"log_kind\":\"pipe_enrichment\",\"pipe\":\"metrics-to-kinesis\",\"enrichment_arn\":\"arn:aws:lambda:ap-south-2:164820739518:function:enrichOrder\",\"dlq_arn\":\"arn:aws:sqs:ap-south-2:164820739518:eb-dlq\",\"message\":\"EventBridge Pipe enrichment pipe=metrics-to-kinesis stage=Enrichment enrichment=arn:aws:lambda:ap-south-2:164820739518:function:enrichOrder records_transformed=859 transform=OK\",\"timestamp\":\"2026-05-28T16:58:15.156Z\"}",
+  "message": "{\"version\":\"0\",\"id\":\"b91c9cf8-a073-49bd-9e41-3b2dda9193b5\",\"detail-type\":\"Health Event\",\"source\":\"custom.app\",\"account\":\"501938274650\",\"time\":\"2026-06-01T18:11:59.613Z\",\"region\":\"ca-central-1\",\"resources\":[\"arn:aws:events:ca-central-1:501938274650:rule/scheduled-cleanup\"],\"detail\":{\"eventBus\":\"default\",\"rule\":\"scheduled-cleanup\",\"logKind\":\"schema_discovery\",\"registryName\":\"partner-events\",\"discoveredType\":\"InvoicePaid@v1\",\"revision\":10}}",
   "log": { "level": "info" },
   "service": { "name": "eventbridge", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.eventbridge", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "f0crn6e8kbo1vd44imxih566y51jrmizzv6c"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "549e2g2c85dblwy9txiqy4a0ghzqi4854jya"
   },
   "input": { "type": "aws-cloudwatch" }
 }

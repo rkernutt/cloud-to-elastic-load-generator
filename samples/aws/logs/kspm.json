@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -8,40 +8,41 @@
   "cloud": {
     "provider": "aws",
     "region": "ap-south-1",
-    "account": { "id": "738291046572", "name": "globex-development" }
+    "account": { "id": "501938274650", "name": "globex-security-tooling" }
   },
   "orchestrator": {
     "cluster": { "id": "data-processing-eks", "name": "data-processing-eks" },
     "type": "kubernetes",
-    "namespace": "kube-system"
+    "namespace": "default"
   },
   "resource": {
-    "id": "/etc/kubernetes/kubelet/kubeconfig",
-    "name": "kubeconfig",
-    "type": "k8s_object",
-    "sub_type": "file",
-    "raw": { "path": "/var/lib/kubelet/kubeconfig", "mode": "0666" }
+    "id": "arn:aws:eks:ap-south-1:501938274650:cluster/data-processing-eks",
+    "name": "data-processing-eks",
+    "type": "eks-cluster",
+    "sub_type": "cluster"
   },
   "rule": {
-    "id": "90b8ae5e-df30-5ba6-9fe9-03aab2b7a1c3",
-    "name": "Ensure that the kubeconfig file permissions are set to 644 or more restrictive",
-    "section": "3.1.1",
-    "description": "If `kubelet` is running, and if it is using a file-based kubeconfig file, ensure that the proxy kubeconfig file has permissions of `644` or more restrictive.",
-    "tags": ["CIS", "EKS", "CIS 3.1.1", "Worker Node Configuration Files"],
+    "id": "c28e606d-f6a7-58b2-820f-e2fb702bf956",
+    "name": "Restrict Access to the Control Plane Endpoint",
+    "section": "5.4.1",
+    "description": "Enable Endpoint Private Access to restrict access to the cluster's control plane to only an allowlist of authorized IPs.",
+    "tags": ["CIS", "EKS", "CIS 5.4.1", "Cluster Networking"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "3.1.1",
+      "rule_number": "5.4.1",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1",
-    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 3.1.1 — Ensure that the kubeconfig file permissions are set to 644 or more restrictive",
-    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 3.1.1."
+    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 5.4.1 — Restrict Access to the Control Plane Endpoint",
+    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 5.4.1."
   },
   "result": {
     "evaluation": "failed",
-    "evidence": { "mode": "0666", "path": "/var/lib/kubelet/kubeconfig" }
+    "evidence": {
+      "resourcesVpcConfig": { "endpointPublicAccess": true, "publicAccessCidrs": ["0.0.0.0/0"] }
+    }
   },
   "event": {
     "kind": "state",
@@ -52,6 +53,6 @@
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/3.1.1] failed: Ensure that the kubeconfig file permissions are set to 644 or more restrictive",
+  "message": "[cis_eks/5.4.1] failed: Restrict Access to the Control Plane Endpoint",
   "log": { "level": "warn" }
 }

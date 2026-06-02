@@ -3,52 +3,52 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east2",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
-    "service": { "name": "config-connector" }
+    "region": "us-south1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "gke" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-asia-east2",
-    "ephemeral_id": "xvpmzd1cmubzeaxyd5m2jw6cp5okqsyhsxqc"
+    "name": "metricbeat-gcp-us-south1",
+    "ephemeral_id": "vc3i3jgo7wy5rjh5mrjp7sv102zluo1bot6z"
   },
   "monitoringTimeSeries": {
     "metric": { "type": "kubernetes.io/container/cpu/request_utilization", "labels": {} },
     "resource": {
       "type": "k8s_container",
       "labels": {
-        "project_id": "globex-sec-847293",
-        "location": "asia-east2",
+        "project_id": "globex-shared-529384",
+        "location": "us-south1",
         "cluster_name": "gke-ml-asia-southeast1",
-        "namespace_name": "cnrm-system",
-        "pod_name": "cnrm-controller-manager-0",
-        "container_name": "manager"
+        "namespace_name": "production",
+        "pod_name": "collector-ylpmm-5ge0d",
+        "container_name": "collector"
       }
     },
     "metricKind": "GAUGE",
     "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.3 } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.46 } }
     ]
   },
   "gcp": {
-    "config-connector": {
+    "gke": {
       "labels": {
-        "project_id": "globex-sec-847293",
-        "location": "asia-east2",
+        "project_id": "globex-shared-529384",
+        "location": "us-south1",
         "cluster_name": "gke-ml-asia-southeast1",
-        "namespace_name": "cnrm-system",
-        "pod_name": "cnrm-controller-manager-0",
-        "container_name": "manager"
+        "namespace_name": "production",
+        "pod_name": "collector-ylpmm-5ge0d",
+        "container_name": "collector"
       },
       "metrics": {
-        "kubernetes.io/container/cpu/request_utilization": { "avg": 0.3, "sum": 0.3, "count": 1 }
+        "kubernetes.io/container/cpu/request_utilization": { "avg": 0.46, "sum": 0.46, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "config-connector", "period": 60000 },
+  "metricset": { "name": "gke", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.gke_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "kind": "metric", "dataset": "gcp.gke_metrics", "module": "gcp" }

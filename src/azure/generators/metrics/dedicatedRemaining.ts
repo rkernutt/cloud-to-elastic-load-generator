@@ -283,39 +283,6 @@ export function generateTableStorageDedicatedRemainingMetrics(
   });
 }
 
-export function generateTimeSeriesInsightsDedicatedRemainingMetrics(
-  ts: string,
-  er: number
-): EcsDocument[] {
-  const { region, subscription, resourceGroup } = pickAzureContext();
-  const dataset = AZURE_METRICS_DATASET_MAP["time-series-insights"]!;
-  const envs = ["tsi-factory", "tsi-smartgrid", "tsi-iot"];
-  const n = Math.min(randInt(1, 3), envs.length);
-  return Array.from({ length: n }, (_, i) => {
-    const env = `${envs[i]}-${randId(4).toLowerCase()}`;
-    const fail = Math.random() < er;
-    return azureMetricDoc(
-      ts,
-      "time_series_insights",
-      dataset,
-      region,
-      subscription,
-      resourceGroup,
-      {
-        namespace: "Microsoft.TimeSeriesInsights/environments",
-        resourceName: env,
-        armProviderSegments: ["Microsoft.TimeSeriesInsights", "environments", env],
-        dimensions: { Source: rand(["IoTHub", "EventHub", "Blob"]) },
-        metrics: {
-          IngressReceivedMessages: counter(randInt(1000, fail ? 8_000_000 : 5_500_000)),
-          IngressReceivedInvalidMessages: counter(fail ? randInt(10, 220_000) : randInt(0, 900)),
-          WarmStorageUsedProperties: stat(dp(jitter(1.2e7 + (fail ? 2e6 : 0), 4e6, 0, 5e8))),
-        },
-      }
-    );
-  });
-}
-
 export function generateTrafficManagerDedicatedRemainingMetrics(
   ts: string,
   er: number

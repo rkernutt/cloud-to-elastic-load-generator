@@ -6,6 +6,5 @@ export {
   generateDataplexLog,
   generateDataCatalogLog,
   generateAnalyticsHubLog,
-  generateDataprepLog,
   generateDatastreamLog,
 } from "./datawarehouse.js";

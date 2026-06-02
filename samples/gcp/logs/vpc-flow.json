@@ -3,60 +3,68 @@
   "log": { "level": "info" },
   "labels": {},
   "severity": "INFO",
-  "logName": "projects/globex-shared-529384/logs/compute.googleapis.com%2Fnetwork_tier_usage",
-  "insertId": "ump3o3cg97vxai4m",
-  "resource": { "type": "project", "labels": { "project_id": "globex-shared-529384" } },
+  "logName": "projects/globex-stg-739158/logs/compute.googleapis.com%2Fpacket_mirroring",
+  "insertId": "ope2fxop1hgmt5h8",
+  "resource": {
+    "type": "packet_mirroring_policy",
+    "labels": {
+      "project_id": "globex-stg-739158",
+      "policy": "pm-policy-7kzdm",
+      "region": "southamerica-west1"
+    }
+  },
   "jsonPayload": {
-    "network_tier": "PREMIUM",
-    "resource_kind": "VPN",
-    "region": "northamerica-northeast1",
-    "egress_bytes": "3689246211",
-    "routing_preference": "COLD_POTATO",
-    "project": "globex-shared-529384"
+    "packet_mirroring_policy": "projects/globex-stg-739158/regions/southamerica-west1/packetMirrorings/pm-policy-7kzdm",
+    "mirrored_network": "projects/globex-stg-739158/global/networks/shared-vpc",
+    "collector_ilb": "projects/globex-stg-739158/regions/southamerica-west1/forwardingRules/ilb-node-4mp1",
+    "mirrored_instance_count": 11,
+    "filter": { "ip_cidr_range": "10.211.233.0/24", "protocol": "udp" },
+    "health": "HEALTHY"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast1",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
-    "service": { "name": "network-service-tiers" }
+    "region": "southamerica-west1",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "packet-mirroring" }
   },
   "gcp": {
-    "network_service_tiers": {
+    "packet_mirroring": {
       "json_payload": {
-        "network_tier": "PREMIUM",
-        "resource_kind": "VPN",
-        "region": "northamerica-northeast1",
-        "egress_bytes": "3689246211",
-        "routing_preference": "COLD_POTATO",
-        "project": "globex-shared-529384"
+        "packet_mirroring_policy": "projects/globex-stg-739158/regions/southamerica-west1/packetMirrorings/pm-policy-7kzdm",
+        "mirrored_network": "projects/globex-stg-739158/global/networks/shared-vpc",
+        "collector_ilb": "projects/globex-stg-739158/regions/southamerica-west1/forwardingRules/ilb-node-4mp1",
+        "mirrored_instance_count": 11,
+        "filter": { "ip_cidr_range": "10.211.233.0/24", "protocol": "udp" },
+        "health": "HEALTHY"
       },
-      "tier": "PREMIUM",
-      "resource_type": "VPN",
-      "region": "northamerica-northeast1",
-      "egress_bytes": 3689246211,
-      "routing_type": "COLD_POTATO"
+      "policy_name": "pm-policy-7kzdm",
+      "mirrored_network": "shared-vpc",
+      "collector_instance": "node-4mp1",
+      "mirrored_instances_count": 11,
+      "filter_protocol": "udp",
+      "filter_cidr": "10.211.233.0/24"
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
     "type": ["connection"],
-    "action": "network-tier",
+    "action": "packet-mirror",
     "outcome": "success",
-    "duration": 8000000,
+    "duration": 41000000,
     "module": "gcp",
-    "dataset": "gcp.nst"
+    "dataset": "gcp.packetmirroring"
   },
-  "message": "compute.googleapis.com/network_tiers PREMIUM VPN egress=3689246211",
-  "service": { "name": "network-service-tiers", "type": "gcp" },
+  "message": "compute.googleapis.com/packet_mirroring pm-policy-7kzdm mirrored=11",
+  "service": { "name": "packet-mirroring", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.nst", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.packetmirroring", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast1",
-    "id": "h0cbb119nntdty84dei1kjo3cehvwdu8i0gq"
+    "name": "elastic-agent-gcp-southamerica-west1",
+    "id": "fjms5o7rfthraxmie9i3sg53b0i5f5j0wj96"
   },
   "input": { "type": "gcp-pubsub" }
 }

@@ -2,58 +2,68 @@
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "cloud": {
     "provider": "azure",
-    "region": "germanywestcentral",
+    "region": "southcentralus",
     "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Network/applicationGateways" }
   },
-  "category": "ApplicationGatewayFirewallLog",
-  "operationName": "MatchedRule",
-  "resultType": "Succeeded",
-  "level": "Informational",
-  "correlationId": "nrn795dpj16ihikp15jgwlo3kgrpo8sp",
-  "callerIpAddress": "18.162.44.206",
+  "category": "ApplicationGatewayAccess",
+  "operationName": "ApplicationGatewayAccess",
+  "resultType": "Failed",
+  "level": "Error",
+  "correlationId": "drtt13emfnyvnq94u2vagx1tl8um6wc6",
+  "callerIpAddress": "104.18.22.152",
   "properties": {
-    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-network-zalbf9/providers/Microsoft.Network/applicationGateways/agw-vs7k",
-    "instanceId": "appgw_02U1UG97",
-    "clientIP": "18.162.44.206",
-    "httpStatus": 200,
-    "ruleId": "920528",
-    "ruleGroup": "REQUEST-920-PROTOCOL-ENFORCEMENT",
-    "action": "Detected",
-    "message": "SQL Injection Attack Detected via libinjection",
-    "details": { "match": "SELECT.*FROM", "severity": "Warning" }
+    "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-shared-xyvvgs/providers/Microsoft.Network/applicationGateways/agw-xst8",
+    "instanceId": "appgw_C5TTSSA1",
+    "clientIP": "104.18.22.152",
+    "httpStatus": 504,
+    "httpMethod": "POST",
+    "requestUri": "https://www.cascadeops.com/health",
+    "listener": "listener-https-443",
+    "ruleName": "rule-R8Y",
+    "backendPoolName": "pool-web",
+    "backendHostname": "web.internal",
+    "timeTaken": 80.4534696828338,
+    "receivedBytes": 20493,
+    "sentBytes": 986,
+    "userAgent": "kube-probe/1.29"
   },
   "azure": {
     "application_gateway": {
-      "name": "agw-vs7k",
-      "resource_group": "rg-network-zalbf9",
+      "name": "agw-xst8",
+      "resource_group": "rg-shared-xyvvgs",
       "backend_host": "web.internal",
-      "http_status": 200,
-      "latency_ms": 397,
-      "rule": "rule-VS0"
+      "http_status": 504,
+      "latency_ms": 80453,
+      "rule": "rule-R8Y"
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
-    "type": ["info"],
-    "action": "MatchedRule",
-    "outcome": "success",
-    "duration": 415210846,
+    "type": ["error"],
+    "action": "ApplicationGatewayAccess",
+    "outcome": "failure",
+    "duration": 329745619,
     "module": "azure",
     "dataset": "azure.application_gateway"
   },
-  "message": "Application Gateway agw-vs7k: WAF Detected rule=REQUEST-920-PROTOCOL-ENFORCEMENT",
+  "message": "Application Gateway agw-xst8: POST https://www.cascadeops.com/health returned 504 in 80.45s",
+  "error": {
+    "code": "BadRequest",
+    "message": "Application Gateway access, performance, or WAF log indicated a failure.",
+    "type": "azure"
+  },
   "service": { "name": "application-gateway", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.application_gateway", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-germanywestcentral",
-    "id": "gvqumzyt8e9mwo7lbwrj3536dxa77isy3zcd"
+    "name": "elastic-agent-azure-southcentralus",
+    "id": "sjllx9tvast583edhngi3r2jxzfv8jcftvbm"
   },
   "input": { "type": "azure-eventhub" },
-  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourcegroups/rg-network-zalbf9/providers/Microsoft.Network/applicationGateways/application-gateway"
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourcegroups/rg-shared-xyvvgs/providers/Microsoft.Network/applicationGateways/application-gateway"
 }

@@ -1,22 +1,22 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
+    "region": "eu-north-1",
     "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "paymentcryptography" }
   },
   "aws": {
-    "dimensions": { "KeyAlgorithm": "AES_128", "Operation": "DecryptData" },
+    "dimensions": { "KeyAlgorithm": "AES_256", "Operation": "GeneratePinData" },
     "paymentcryptography": {
-      "key_arn": "arn:aws:payment-cryptography:ap-east-1:738291046572:key/VD5R4CV0M6G9767KSH0YZ0IZUVW1W527X0WQ",
-      "key_alias": "alias/payment-dek-key",
-      "key_algorithm": "AES_128",
+      "key_arn": "arn:aws:payment-cryptography:eu-north-1:738291046572:key/22B0Z6RMMUVVRAAH8XSPHYRA2RQ35ZPBPSX0",
+      "key_alias": "alias/payment-pin-key",
+      "key_algorithm": "AES_256",
       "key_usage": "TR31_P0_PIN_ENCRYPTION_KEY",
-      "operation": "DecryptData",
-      "key_state": "CREATE_COMPLETE",
+      "operation": "GeneratePinData",
+      "key_state": "PENDING_DELETE",
       "exportable": false,
-      "key_check_value": "3X5NJK"
+      "key_check_value": "L5CUH1"
     },
     "s3": {
       "bucket": {
@@ -24,34 +24,39 @@
         "arn": "arn:aws:s3:::aws-paymentcryptography-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/738291046572/paymentcryptography/ap-east-1/2026/05/28/paymentcryptography_P3WIJ9UI23C9DK9X2XK8.log.gz"
+        "key": "AWSLogs/738291046572/paymentcryptography/eu-north-1/2026/06/01/paymentcryptography_Z84LECRFX5X78G7577LF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/paymentcryptography/logs",
-      "log_stream": "ap-east-1/k7y49rab",
-      "ingestion_time": "2026-05-28T16:58:16.042Z"
+      "log_stream": "eu-north-1/ycvw4kpz",
+      "ingestion_time": "2026-06-01T18:12:00.359Z"
     }
   },
   "event": {
-    "action": "VerifyMac",
-    "outcome": "success",
+    "action": "EncryptData",
+    "outcome": "failure",
     "category": ["authentication"],
     "type": ["start"],
     "dataset": "aws.paymentcryptography",
     "provider": "payment-cryptography.amazonaws.com",
     "module": "aws"
   },
-  "message": "Payment Cryptography DecryptData using AES_128 (P0)",
-  "log": { "level": "info" },
+  "message": "{\"eventVersion\":\"1.11\",\"eventSource\":\"payment-cryptography.amazonaws.com\",\"eventName\":\"GeneratePinData\",\"eventTime\":\"2026-06-01T18:11:59.613Z\",\"awsRegion\":\"eu-north-1\",\"recipientAccountId\":\"738291046572\",\"requestParameters\":{\"keyIdentifier\":\"arn:aws:payment-cryptography:eu-north-1:738291046572:key/22B0Z6RMMUVVRAAH8XSPHYRA2RQ35ZPBPSX0\"},\"responseElements\":{\"keyArn\":\"arn:aws:payment-cryptography:eu-north-1:738291046572:key/22B0Z6RMMUVVRAAH8XSPHYRA2RQ35ZPBPSX0\",\"keyAlgorithm\":\"AES_256\",\"keyUsage\":\"TR31_P0_PIN_ENCRYPTION_KEY\",\"keyState\":\"PENDING_DELETE\",\"keyCheckValue\":\"87SVT3\"},\"requestID\":\"7e172673-18d4-45f8-9140-d3c33abcdf98\",\"eventID\":\"f5ef318b-8407-49e2-95fd-2e74277bad49\",\"eventType\":\"AwsApiCall\",\"errorCode\":\"AccessDeniedException\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "Payment Cryptography operation failed",
+    "type": "authentication"
+  },
   "service": { "name": "paymentcryptography", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.paymentcryptography", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "9t9qkyvsbggzlwufceag6j122er48ahf27av"
+    "name": "filebeat-aws-eu-north-1",
+    "ephemeral_id": "uy65p1v2qqyecca37lf530mafpgcu1htlmy4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

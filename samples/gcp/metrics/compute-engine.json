@@ -3,54 +3,47 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "africa-south1",
-    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
-    "account": { "id": "482910375621", "name": "Globex Production" },
-    "service": { "name": "sole-tenant-nodes" }
+    "region": "us-west1",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "confidential-computing" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-africa-south1",
-    "ephemeral_id": "11smrh8dwdpyb1rleecxhs1psegmr4bcb5gh"
+    "name": "metricbeat-gcp-us-west1",
+    "ephemeral_id": "3h4yy1s8nvhy2irb3a734gfldjkns5mwrzuf"
   },
   "monitoringTimeSeries": {
-    "metric": {
-      "type": "compute.googleapis.com/node_group/nodes",
-      "labels": {
-        "node_name": "st-node-aa",
-        "node_group_name": "ng-compliance",
-        "status": "healthy"
-      }
-    },
+    "metric": { "type": "compute.googleapis.com/instance/cpu/utilization", "labels": {} },
     "resource": {
-      "type": "gce_node_group",
+      "type": "gce_instance",
       "labels": {
-        "project_id": "globex-prod-482910",
-        "node_group_id": "sole-tenant-pci",
-        "zone": "africa-south1-a"
+        "project_id": "globex-stg-739158",
+        "instance_id": "3440836208065",
+        "zone": "us-west1-c"
       }
     },
     "metricKind": "GAUGE",
-    "valueType": "INT64",
+    "valueType": "DOUBLE",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "14" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "doubleValue": 0.89 } }
     ]
   },
   "gcp": {
-    "sole-tenant-nodes": {
+    "confidential-computing": {
       "labels": {
-        "project_id": "globex-prod-482910",
-        "node_group_id": "sole-tenant-pci",
-        "zone": "africa-south1-a",
-        "node_name": "st-node-aa",
-        "node_group_name": "ng-compliance",
-        "status": "healthy"
+        "project_id": "globex-stg-739158",
+        "instance_id": "3440836208065",
+        "zone": "us-west1-c",
+        "instance_name": "db-lttn"
       },
-      "metrics": { "compute.googleapis.com/node_group/nodes": { "avg": 14, "sum": 14, "count": 1 } }
+      "metrics": {
+        "compute.googleapis.com/instance/cpu/utilization": { "avg": 0.89, "sum": 0.89, "count": 1 }
+      }
     }
   },
-  "metricset": { "name": "sole-tenant-nodes", "period": 60000 },
+  "metricset": { "name": "confidential-computing", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.compute_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "kind": "metric", "dataset": "gcp.compute_metrics", "module": "gcp" }

@@ -290,28 +290,6 @@ export function generatePaymentcryptographyMetrics(ts: string, er: number): EcsD
   ];
 }
 
-// ─── SimSpace Weaver ──────────────────────────────────────────────────────────
-
-export function generateSimspaceweaverMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  return [
-    metricDoc(
-      ts,
-      "simspaceweaver",
-      dataset("simspaceweaver"),
-      region,
-      account,
-      { SimulationName: rand(["traffic-grid", "warehouse-flow", "robot-swarm", "disaster-drill"]) },
-      {
-        ActiveSimulations: counter(randInt(0, 400)),
-        SimulationClockTicks: counter(randInt(1_000_000, 500_000_000_000)),
-        MemoryUtilization: stat(dp(jitter(62, 22, 5, 99))),
-        SimulationErrors: counter(Math.random() < er ? randInt(1, 5_000) : randInt(0, 80)),
-      }
-    ),
-  ];
-}
-
 // ─── Device Farm ─────────────────────────────────────────────────────────────
 
 export function generateDevicefarmMetrics(ts: string, er: number): EcsDocument[] {
@@ -486,28 +464,6 @@ export function generateArcMetrics(ts: string, er: number): EcsDocument[] {
         ClusterEndpointHealthy: stat(
           dp(Math.random() < er ? jitter(0.94, 0.04, 0.5, 1) : jitter(0.998, 0.002, 0.95, 1))
         ),
-      }
-    ),
-  ];
-}
-
-// ─── Artifact (AWS/Artifact) ─────────────────────────────────────────────────
-
-export function generateArtifactMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const isErr = Math.random() < er;
-  return [
-    metricDoc(
-      ts,
-      "artifact",
-      dataset("artifact"),
-      region,
-      account,
-      { AgreementId: rand(["baa", "nda", "iso27001", "soc2"]) },
-      {
-        ReportDownloadCount: counter(randInt(20, 80_000)),
-        AgreementAcceptanceCount: counter(isErr ? randInt(0, 1_200) : randInt(50, 2_000)),
-        ApiThrottles: counter(isErr ? randInt(1, 2_000) : randInt(0, 40)),
       }
     ),
   ];

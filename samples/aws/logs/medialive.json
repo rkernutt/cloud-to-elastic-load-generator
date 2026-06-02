@@ -1,29 +1,29 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-2",
+    "region": "me-central-1",
     "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "medialive" }
   },
   "aws": {
-    "dimensions": { "ChannelId": "ACACM9I8LGD", "Pipeline": "PIPELINE_1" },
+    "dimensions": { "ChannelId": "0ZDJX2G8983", "Pipeline": "PIPELINE_0" },
     "medialive": {
-      "channel_id": "ACACM9I8LGD",
+      "channel_id": "0ZDJX2G8983",
       "channel_name": "concert-stream",
-      "channel_state": "RUNNING",
-      "pipeline": "PIPELINE_1",
-      "input_type": "MEDIACONNECT",
-      "output_type": "HLS",
-      "video_bitrate_kbps": 5003,
-      "input_loss_frames": 0,
-      "encoder_fps": 24,
+      "channel_state": "ERROR",
+      "pipeline": "PIPELINE_0",
+      "input_type": "UDP_PUSH",
+      "output_type": "MEDIAPACKAGE",
+      "video_bitrate_kbps": 865,
+      "input_loss_frames": 981,
+      "encoder_fps": 15,
       "metrics": {
-        "ActiveAlerts": { "sum": 0 },
-        "ChannelInputErrorSeconds": { "sum": 0 },
-        "NetworkOut": { "avg": 40684056 },
-        "OutputLossSeconds": { "sum": 0 },
-        "FillMsec": { "sum": 0 }
+        "ActiveAlerts": { "sum": 5 },
+        "ChannelInputErrorSeconds": { "sum": 60 },
+        "NetworkOut": { "avg": 24056250 },
+        "OutputLossSeconds": { "sum": 17 },
+        "FillMsec": { "sum": 1046 }
       }
     },
     "s3": {
@@ -32,33 +32,38 @@
         "arn": "arn:aws:s3:::aws-medialive-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/501938274650/medialive/eu-south-2/2026/05/28/medialive_QO46KQTH8CVK3SOP97VS.log.gz"
+        "key": "AWSLogs/501938274650/medialive/me-central-1/2026/06/01/medialive_6V9S3QUUDHB6BK74ZUZY.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/medialive/logs",
-      "log_stream": "eu-south-2/7ak4zjyy",
-      "ingestion_time": "2026-05-28T16:58:16.243Z"
+      "log_stream": "me-central-1/ldet9pqo",
+      "ingestion_time": "2026-06-01T18:12:00.475Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "dataset": "aws.medialive",
     "provider": "medialive.amazonaws.com",
-    "duration": 1422000000,
+    "duration": 21532000000,
     "module": "aws"
   },
-  "message": "Input switch to backup completed",
-  "log": { "level": "info" },
+  "message": "{\"level\":\"error\",\"log\":\"Encoder error: resolution mismatch\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"status\":\"Failed\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ConflictException",
+    "message": "Input loss detected: primary input failed",
+    "type": "aws"
+  },
   "service": { "name": "medialive", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.medialive", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-2",
-    "ephemeral_id": "bubqgrv79ag740oqozz9djscc5bo1oapp0sv"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "0vv5qqbcoxmabv3msh7s96g2gt3zfdix6a5v"
   },
   "input": { "type": "aws-cloudwatch" }
 }

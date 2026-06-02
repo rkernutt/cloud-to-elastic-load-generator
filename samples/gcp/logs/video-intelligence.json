@@ -1,70 +1,77 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "log": { "level": "info" },
+  "severity": "ERROR",
+  "log": { "level": "error" },
   "labels": {
     "resource.type": "videointelligence.googleapis.com/Operation",
-    "operation": "operation-apo23499-r21r-j8td",
-    "api_method": "videointelligence.googleapis.com/v1/videos:annotateSpeechTranscription",
-    "video_intel_scenario": "speech_transcribe"
+    "operation": "operation-wb52l5gp-bx0w-yofa",
+    "api_method": "videointelligence.googleapis.com/v1/videos:annotateObject",
+    "video_intel_scenario": "detect_object",
+    "gcp.rpc.status_code": "RESOURCE_EXHAUSTED"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "europe-central2",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
     "service": { "name": "videointelligence.googleapis.com" }
   },
   "gcp": {
     "video_intelligence": {
-      "scenario": "speech_transcribe",
-      "api_method": "videointelligence.googleapis.com/v1/videos:annotateSpeechTranscription",
-      "operation_id": "operation-apo23499-r21r-j8td",
-      "input_uri": "gs://globex-sec-847293-video/source/PTDOTHFCJJ.mp4",
-      "features": "TEXT_DETECTION",
-      "video_duration_seconds": 5832.73,
-      "segments_analyzed": 62,
-      "annotations_count": 428453
+      "scenario": "detect_object",
+      "api_method": "videointelligence.googleapis.com/v1/videos:annotateObject",
+      "operation_id": "operation-wb52l5gp-bx0w-yofa",
+      "input_uri": "gs://globex-prod-482910-video/source/2EQDESUORK.mp4",
+      "features": "SHOT_CHANGE_DETECTION",
+      "video_duration_seconds": 5157.75,
+      "segments_analyzed": 3,
+      "annotations_count": 1
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["access"],
-    "action": "videointelligence.googleapis.com/v1/videos:annotateSpeechTranscription",
-    "outcome": "success",
-    "duration": 494553,
+    "type": ["error"],
+    "action": "videointelligence.googleapis.com/v1/videos:annotateObject",
+    "outcome": "failure",
+    "duration": 728548,
     "module": "gcp",
     "dataset": "gcp.videointelligence"
   },
-  "message": "SpeechTranscription transcripts=30 language=de-DE",
+  "message": "Object tracking FAILED operation-wb52l5gp-bx0w-yofa: INVALID_INPUT_URI",
+  "gcp.rpc": { "status_code": "RESOURCE_EXHAUSTED" },
+  "error": {
+    "code": "RESOURCE_EXHAUSTED",
+    "message": "Regional encoder or API quota exhausted",
+    "type": "gcp"
+  },
   "service": { "name": "video-intelligence", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.videointelligence", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-east1",
-    "id": "zjc68nnhbe057ie4dl7l467wcyml3gb8f6lm"
+    "name": "elastic-agent-gcp-europe-central2",
+    "id": "xf2a3tqwna96n4cn85hw6fu3fs7mjcozw1ha"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/video-intelligence",
+  "logName": "projects/globex-prod-482910/logs/video-intelligence",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-sec-847293", "region": "asia-east1" }
+    "labels": { "project_id": "globex-prod-482910", "region": "europe-central2" }
   },
-  "insertId": "GK4FM5XAHT04",
+  "insertId": "6O098A9SKDN4",
   "jsonPayload": {
     "video_intelligence": {
-      "scenario": "speech_transcribe",
-      "api_method": "videointelligence.googleapis.com/v1/videos:annotateSpeechTranscription",
-      "operation_id": "operation-apo23499-r21r-j8td",
-      "input_uri": "gs://globex-sec-847293-video/source/PTDOTHFCJJ.mp4",
-      "features": "TEXT_DETECTION",
-      "video_duration_seconds": 5832.73,
-      "segments_analyzed": 62,
-      "annotations_count": 428453
+      "scenario": "detect_object",
+      "api_method": "videointelligence.googleapis.com/v1/videos:annotateObject",
+      "operation_id": "operation-wb52l5gp-bx0w-yofa",
+      "input_uri": "gs://globex-prod-482910-video/source/2EQDESUORK.mp4",
+      "features": "SHOT_CHANGE_DETECTION",
+      "video_duration_seconds": 5157.75,
+      "segments_analyzed": 3,
+      "annotations_count": 1
     },
-    "message": "SpeechTranscription transcripts=30 language=de-DE"
+    "message": "Object tracking FAILED operation-wb52l5gp-bx0w-yofa: INVALID_INPUT_URI"
   }
 }

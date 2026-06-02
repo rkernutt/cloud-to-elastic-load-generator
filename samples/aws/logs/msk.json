@@ -1,81 +1,81 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ca-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "msk" }
   },
   "aws": {
     "dimensions": {
-      "Cluster Name": "prod-kafka-ap-south-1",
-      "Broker ID": "2",
-      "Topic": "notifications"
+      "Cluster Name": "prod-kafka-ca-central-1",
+      "Broker ID": "4",
+      "Topic": "payments"
     },
     "msk": {
-      "cluster_name": "prod-kafka-ap-south-1",
-      "broker_id": 2,
+      "cluster_name": "prod-kafka-ca-central-1",
+      "broker_id": 4,
       "kafka_version": "3.5.1",
-      "topic": "notifications",
-      "partition": 10,
-      "offset": 23137905,
-      "consumer_group": "alerting-service",
-      "lag": 36,
+      "topic": "payments",
+      "partition": 16,
+      "offset": 32350938,
+      "consumer_group": "analytics-consumer",
+      "lag": 88,
       "under_replicated_partitions": 0,
       "metrics": {
-        "BytesInPerSec": { "avg": 2430962 },
-        "BytesOutPerSec": { "avg": 1951638 },
-        "MessagesInPerSec": { "avg": 2407 },
-        "FetchConsumerTotalTimeMsMean": { "avg": 22 },
-        "ProduceTotalTimeMsMean": { "avg": 32 },
+        "BytesInPerSec": { "avg": 7241411 },
+        "BytesOutPerSec": { "avg": 6595889 },
+        "MessagesInPerSec": { "avg": 2024 },
+        "FetchConsumerTotalTimeMsMean": { "avg": 52 },
+        "ProduceTotalTimeMsMean": { "avg": 27 },
         "UnderReplicatedPartitions": { "avg": 0 },
         "UnderMinIsrPartitionCount": { "avg": 0 },
         "OfflinePartitionsCount": { "avg": 0 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 730 },
-        "GlobalTopicCount": { "avg": 39 },
-        "KafkaDataLogsDiskUsed": { "avg": 20.048627697662322 },
-        "CPUUser": { "avg": 42.69975487929089 },
-        "CPUSystem": { "avg": 15.220088938177257 },
+        "GlobalPartitionCount": { "avg": 754 },
+        "GlobalTopicCount": { "avg": 52 },
+        "KafkaDataLogsDiskUsed": { "avg": 57.79410222224263 },
+        "CPUUser": { "avg": 6.420469237064168 },
+        "CPUSystem": { "avg": 12.483431038043296 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-msk-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-msk-logs-164820739518"
+        "name": "aws-msk-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-msk-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/msk/ap-south-1/2026/05/28/msk_2OCXZOR2GCLPSSNLW2EP.log.gz"
+        "key": "AWSLogs/293847561023/msk/ca-central-1/2026/06/01/msk_SYTQ9OU2BEXLI24WSXDA.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/msk/logs",
-      "log_stream": "ap-south-1/vdydwaql",
-      "ingestion_time": "2026-05-28T16:58:16.099Z"
+      "log_group": "/aws/msk/msk-cluster-12zhn9/broker-logs",
+      "log_stream": "ca-central-1/cyrvrj3v",
+      "ingestion_time": "2026-06-01T18:12:00.384Z"
     }
   },
-  "kafka": { "topic": "notifications", "partition": 10 },
+  "kafka": { "topic": "payments", "partition": 16 },
   "event": {
     "outcome": "success",
     "category": ["process", "network"],
     "type": ["connection"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 73000000,
+    "duration": 4000000,
     "module": "aws"
   },
-  "message": "[2026-05-28 16:58:15.156] INFO [ReplicaFetcherManager broker=2] Created topic \"notifications\" with 5 partitions, replication factor 3 (kafka.server.KafkaApis)",
+  "message": "{\"broker_id\":4,\"topic\":\"payments\",\"partition\":16,\"offset\":57594161,\"level\":\"INFO\",\"component\":\"KafkaApi\",\"logger\":\"kafka.log.LogManager\",\"cluster\":\"prod-kafka-ca-central-1\",\"consumer_group\":\"analytics-consumer\",\"message\":\"Preparing to rebalance group analytics-consumer with old generation 2\",\"timestamp\":\"2026-06-01T18:11:59.613Z\"}",
   "log": { "level": "info" },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.kafka_metrics", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "w9ij647vgz1eljtg42pnfm0eieajz00sdlqw"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "orca7h4qodct99p5vyf6frvp827uw09bmlbt"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -325,7 +325,7 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       category: ["process"],
       type: isErr ? ["error"] : ["info"],
-      dataset: "aws.lambda",
+      dataset: "aws.lambda_logs",
       provider: "lambda.amazonaws.com",
     },
     service: { name: fn, type: "lambda" },
@@ -748,10 +748,8 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
   const scaleAction = rand(["scale_out", "scale_in", "none"]);
   const buildPhase = rand(["DOWNLOAD_SOURCE", "BUILD", "DEPLOY", "COMPLETE"]);
   const buildProgress = randInt(0, 100);
-  let plainMessage: string;
   let structuredPayload: Record<string, unknown>;
   if (eventKind === "deployment") {
-    plainMessage = `[AppRunner] Deployment ${deploymentId} on service ${svc}: ${isErr ? "FAILED" : "SUCCEEDED"}`;
     structuredPayload = {
       eventType: "DeploymentStatusChange",
       serviceName: svc,
@@ -759,11 +757,9 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
       deploymentId,
       status: isErr ? "FAILED" : rand(["ROLLBACK_SUCCEEDED", "SUCCEEDED", "IN_PROGRESS"]),
       operationId,
-      message: plainMessage,
       timestamp: new Date(ts).toISOString(),
     };
   } else if (eventKind === "health_check") {
-    plainMessage = `[AppRunner] Health check ${healthState} for instance ${randId(8)} target port ${rand([8080, 3000, 443])}`;
     structuredPayload = {
       eventType: "HealthCheck",
       serviceName: svc,
@@ -775,7 +771,6 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
       timestamp: new Date(ts).toISOString(),
     };
   } else if (eventKind === "autoscaling") {
-    plainMessage = `[AppRunner] Auto scaling ${scaleAction}: desired ${randInt(1, 8)} min ${rand([0, 1])} max ${rand([5, 10, 25])}`;
     structuredPayload = {
       eventType: "AutoScalingConfigurationRevision",
       serviceName: svc,
@@ -786,7 +781,6 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
       timestamp: new Date(ts).toISOString(),
     };
   } else if (eventKind === "build") {
-    plainMessage = `[AppRunner] Build ${buildPhase} ${buildProgress}% for ${svc}`;
     structuredPayload = {
       eventType: "ServiceBuildProgress",
       serviceName: svc,
@@ -797,17 +791,18 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
       timestamp: new Date(ts).toISOString(),
     };
   } else {
-    plainMessage = `${rand(HTTP_METHODS)} ${rand(HTTP_PATHS)} ${status} ${latMs}ms`;
     structuredPayload = {
       eventType: "Request",
-      service: svc,
+      serviceName: svc,
+      serviceId: svcId,
+      httpMethod: rand(HTTP_METHODS),
+      path: rand(HTTP_PATHS),
       status,
       latency_ms: latMs,
       timestamp: new Date(ts).toISOString(),
     };
   }
-  const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging ? JSON.stringify(structuredPayload) : plainMessage;
+  const message = JSON.stringify(structuredPayload);
   return {
     "@timestamp": ts,
     cloud: {
@@ -833,7 +828,7 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
           desired_count: randInt(1, 10),
           scale_from_zero: Math.random() < 0.1,
         },
-        structured_logging: useStructuredLogging,
+        structured_logging: true,
         metrics: {
           Requests: { sum: eventKind === "application_http" ? 1 : 0 },
           "2xxStatusResponses": { sum: status < 300 && eventKind === "application_http" ? 1 : 0 },
@@ -920,19 +915,25 @@ export function generateFargateLog(ts: string, er: number): EcsDocument {
     ],
   };
   const durationSec = randInt(10, level === "error" ? 600 : 3600);
-  const plainMessage = rand(MSGS[level]);
-  const useStructuredLogging = Math.random() < 0.6;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        cluster: clusterName,
-        taskId,
-        taskDefinition: taskDef,
-        container: task,
-        level,
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const logText = rand(MSGS[level]);
+  const stream = Math.random() < 0.5 ? "stdout" : "stderr";
+  const message = JSON.stringify({
+    cluster: clusterName,
+    taskArn: `arn:aws:ecs:${region}:${acct.id}:task/${clusterName}/${taskId}`,
+    taskId,
+    taskDefinitionArn: `arn:aws:ecs:${region}:${acct.id}:task-definition/${taskDef}`,
+    containerName: task,
+    stream,
+    level,
+    log: logText,
+    timestamp: new Date(ts).toISOString(),
+    ...(level === "error"
+      ? {
+          exitCode: randInt(1, 137),
+          reason: rand(["EssentialContainerExited", "TaskFailedToStart", "OutOfMemoryError"]),
+        }
+      : {}),
+  });
   const cpuPct = level === "error" ? randInt(90, 100) : randInt(10, 80);
   const fargateMemReservation = Number(randFloat(20, 70));
   const memPct = randFloat(10, Math.min(fargateMemReservation, level === "error" ? 99 : 80));

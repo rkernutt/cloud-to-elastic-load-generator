@@ -984,26 +984,6 @@ export function generateAppsyncMetrics(ts: string, er: number) {
   ];
 }
 
-export function generateTrustedadvisorMetrics(ts: string, er: number) {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  return [
-    metricDoc(
-      ts,
-      "trustedadvisor",
-      "aws.trustedadvisor",
-      region,
-      account,
-      { AwsAccountId: account.id },
-      {
-        ErrorCount: counter(Math.random() < er ? randInt(0, 50) : 0),
-        WarningCount: counter(randInt(0, 200)),
-        OkCount: counter(randInt(50, 500)),
-        NotAvailableCount: counter(randInt(0, 20)),
-      }
-    ),
-  ];
-}
-
 export function generateImagebuilderMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
   return [

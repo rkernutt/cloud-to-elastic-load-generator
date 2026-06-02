@@ -16,7 +16,7 @@ describe("generateLambdaLog", () => {
     expect(doc.aws.lambda).toHaveProperty("request_id");
     expect(doc).toHaveProperty("message");
     expect(doc).toHaveProperty("event");
-    expect(doc.event).toHaveProperty("dataset", "aws.lambda");
+    expect(doc.event).toHaveProperty("dataset", "aws.lambda_logs");
   });
 
   it("includes metrics when present", () => {

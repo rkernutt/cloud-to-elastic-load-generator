@@ -1,5 +1,5 @@
 {
-  "title": "Amazon Kinesis Data Streams — Throughput & Iterator Health",
+  "title": "Amazon Kinesis — Overview",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -7,7 +7,7 @@
   "panels": [
     {
       "type": "lens",
-      "uid": "kinesis-kpi-avg-incoming-records",
+      "uid": "kin-kpi-events",
       "grid": {
         "x": 0,
         "y": 0,
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS avg_r = AVG(`aws.kinesis.metrics.IncomingRecords.avg`) | EVAL `Avg Incoming Records` = ROUND(avg_r, 0)"
+            "query": "FROM logs-aws.kinesis* | STATS `Events` = COUNT()"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Avg Incoming Records"
+              "column": "Events"
             }
           ]
         }
@@ -34,7 +34,7 @@
     },
     {
       "type": "lens",
-      "uid": "kinesis-kpi-avg-iterator-age",
+      "uid": "kin-kpi-failures",
       "grid": {
         "x": 12,
         "y": 0,
@@ -47,13 +47,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS avg_ia = AVG(`aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg`) | EVAL `Avg Iterator Age (ms)` = ROUND(avg_ia, 0)"
+            "query": "FROM logs-aws.kinesis* | STATS `Failures` = SUM(CASE(`event.outcome` == \"failure\", 1, 0))"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Avg Iterator Age (ms)"
+              "column": "Failures"
             }
           ]
         }
@@ -61,7 +61,7 @@
     },
     {
       "type": "lens",
-      "uid": "kinesis-kpi-failed-put-records",
+      "uid": "kin-kpi-records",
       "grid": {
         "x": 24,
         "y": 0,
@@ -74,13 +74,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS `Failed Put Records` = SUM(`aws.kinesis.metrics.PutRecords_FailedRecords.sum`)"
+            "query": "FROM logs-aws.kinesis* | STATS `Incoming Records` = SUM(`aws.kinesis.metrics.IncomingRecords.sum`)"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Failed Put Records"
+              "column": "Incoming Records"
             }
           ]
         }
@@ -88,7 +88,7 @@
     },
     {
       "type": "lens",
-      "uid": "kinesis-kpi-throttled-records",
+      "uid": "kin-kpi-bytes",
       "grid": {
         "x": 36,
         "y": 0,
@@ -101,13 +101,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS `Throttled Records` = SUM(`aws.kinesis.metrics.PutRecords_ThrottledRecords.sum`)"
+            "query": "FROM logs-aws.kinesis* | STATS `Incoming Bytes` = SUM(`aws.kinesis.metrics.IncomingBytes.sum`)"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Throttled Records"
+              "column": "Incoming Bytes"
             }
           ]
         }
@@ -115,52 +115,20 @@
     },
     {
       "type": "lens",
-      "uid": "kinesis-donut-events-by-stream",
+      "uid": "kin-donut-outcome",
       "grid": {
         "x": 0,
         "y": 5,
-        "w": 16,
-        "h": 10
+        "w": 24,
+        "h": 8
       },
       "config": {
-        "title": "Events by Stream",
+        "title": "Event Outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY stream = `aws.dimensions.StreamName` | SORT ``count DESC | LIMIT 8"
-          },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "stream"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
-      "uid": "kinesis-donut-outcomes",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
-      "config": {
-        "title": "Event Outcomes",
-        "attributes": {
-          "type": "donut",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY outcome = log.level"
+            "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY outcome = `event.outcome` | SORT ``count DESC"
           },
           "metrics": [
             {
@@ -179,201 +147,15 @@
     },
     {
       "type": "lens",
-      "uid": "kinesis-donut-throughput-exceeded",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
-      "config": {
-        "title": "Read vs Write Throughput Exceeded",
-        "attributes": {
-          "type": "donut",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-aws.kinesis* | EVAL throttle_type = CASE(`aws.kinesis.metrics.ReadProvisionedThroughputExceeded.avg` > 0, \"Read Throttled\", `aws.kinesis.metrics.WriteProvisionedThroughputExceeded.avg` > 0, \"Write Throttled\", \"Not Throttled\") | STATS count = COUNT() BY throttle_type"
-          },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "throttle_type"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
-      "uid": "kinesis-incoming-over-time",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
-      "config": {
-        "title": "Incoming Records & Bytes Over Time",
-        "attributes": {
-          "type": "xy",
-          "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
-          },
-          "layers": [
-            {
-              "type": "line",
-              "dataset": {
-                "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS records = AVG(`aws.kinesis.metrics.IncomingRecords.avg`), bytes = AVG(`aws.kinesis.metrics.IncomingBytes.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
-              },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "records",
-                  "label": "Incoming Records"
-                },
-                {
-                  "operation": "value",
-                  "column": "bytes",
-                  "label": "Incoming Bytes"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
-      "uid": "kinesis-iterator-age-over-time",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
-      "config": {
-        "title": "Iterator Age Over Time (ms)",
-        "attributes": {
-          "type": "xy",
-          "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
-          },
-          "layers": [
-            {
-              "type": "line",
-              "dataset": {
-                "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS iter_age = AVG(`aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
-              },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "iter_age",
-                  "label": "Iterator Age (ms)"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
-      "uid": "kinesis-put-latency-over-time",
+      "uid": "kin-bar-operation",
       "grid": {
         "x": 24,
-        "y": 25,
+        "y": 5,
         "w": 24,
-        "h": 10
+        "h": 8
       },
       "config": {
-        "title": "Put Records Latency Over Time (ms)",
-        "attributes": {
-          "type": "xy",
-          "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
-          },
-          "layers": [
-            {
-              "type": "line",
-              "dataset": {
-                "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS put_lat = AVG(`aws.kinesis.metrics.PutRecords_Latency.avg`), get_lat = AVG(`aws.kinesis.metrics.GetRecords_Latency.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
-              },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "put_lat",
-                  "label": "PutRecords Latency (ms)"
-                },
-                {
-                  "operation": "value",
-                  "column": "get_lat",
-                  "label": "GetRecords Latency (ms)"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
-      "uid": "kinesis-success-failed-puts-by-stream",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 24,
-        "h": 10
-      },
-      "config": {
-        "title": "Successful vs Failed Puts by Stream",
+        "title": "Events by Operation",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -393,22 +175,17 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS success = SUM(`aws.kinesis.metrics.PutRecords_SuccessfulRecords.sum`), failed = SUM(`aws.kinesis.metrics.PutRecords_FailedRecords.sum`) BY stream = `aws.dimensions.StreamName` | SORT ``success DESC | LIMIT 10"
+                "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY op = `aws.kinesis.operation` | SORT ``count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
-                "column": "stream"
+                "column": "op"
               },
               "y": [
                 {
                   "operation": "value",
-                  "column": "success",
-                  "label": "Successful Records"
-                },
-                {
-                  "operation": "value",
-                  "column": "failed",
-                  "label": "Failed Records"
+                  "column": "count",
+                  "label": "Events"
                 }
               ]
             }
@@ -418,15 +195,15 @@
     },
     {
       "type": "lens",
-      "uid": "kinesis-throughput-exceeded-over-time",
+      "uid": "kin-line-volume",
       "grid": {
-        "x": 24,
-        "y": 35,
+        "x": 0,
+        "y": 13,
         "w": 24,
-        "h": 10
+        "h": 8
       },
       "config": {
-        "title": "Throughput Exceeded Over Time",
+        "title": "Event Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -446,7 +223,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS read_ex = AVG(`aws.kinesis.metrics.ReadProvisionedThroughputExceeded.avg`), write_ex = AVG(`aws.kinesis.metrics.WriteProvisionedThroughputExceeded.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -455,13 +232,8 @@
               "y": [
                 {
                   "operation": "value",
-                  "column": "read_ex",
-                  "label": "Read Throughput Exceeded"
-                },
-                {
-                  "operation": "value",
-                  "column": "write_ex",
-                  "label": "Write Throughput Exceeded"
+                  "column": "count",
+                  "label": "Events"
                 }
               ]
             }
@@ -471,12 +243,193 @@
     },
     {
       "type": "lens",
-      "uid": "kinesis-log-table",
+      "uid": "kin-line-latency",
+      "grid": {
+        "x": 24,
+        "y": 13,
+        "w": 24,
+        "h": 8
+      },
+      "config": {
+        "title": "Get/Put Latency Over Time (ms)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.kinesis* | STATS get_lat = AVG(`aws.kinesis.metrics.GetRecords.Latency.avg`), put_lat = AVG(`aws.kinesis.metrics.PutRecords.Latency.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+              },
+              "x": {
+                "operation": "value",
+                "column": "bucket"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "get_lat",
+                  "label": "GetRecords"
+                },
+                {
+                  "operation": "value",
+                  "column": "put_lat",
+                  "label": "PutRecords"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kin-bar-region",
       "grid": {
         "x": 0,
-        "y": 45,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Events by Region",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "region"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kin-bar-stream",
+      "grid": {
+        "x": 16,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Top Streams",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar_horizontal",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY stream = `aws.kinesis.stream_name` | SORT ``count DESC | LIMIT 10"
+              },
+              "x": {
+                "operation": "value",
+                "column": "stream"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "count",
+                  "label": "Events"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kin-donut-log-level",
+      "grid": {
+        "x": 32,
+        "y": 21,
+        "w": 16,
+        "h": 8
+      },
+      "config": {
+        "title": "Log Level",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.kinesis* | STATS count = COUNT() BY lvl = log.level | SORT ``count DESC"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "lvl"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "kin-table-recent",
+      "grid": {
+        "x": 0,
+        "y": 29,
         "w": 48,
-        "h": 12
+        "h": 10
       },
       "config": {
         "title": "Recent Events",
@@ -484,7 +437,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | KEEP `@timestamp``@timestamp`, `aws.dimensions.StreamName`, `aws.kinesis.metrics.IncomingRecords.avg`, `aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg`, `aws.kinesis.metrics.PutRecords_FailedRecords.sum`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.kinesis* | KEEP `@timestamp``@timestamp`, `aws.kinesis.stream_name`, `aws.kinesis.shard_id`, `aws.kinesis.operation`, `aws.kinesis.metrics.IncomingRecords.sum`, `aws.kinesis.metrics.ReadProvisionedThroughputExceeded.sum`, `aws.kinesis.metrics.WriteProvisionedThroughputExceeded.sum`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -494,28 +447,33 @@
             },
             {
               "operation": "value",
-              "column": "aws.dimensions.StreamName",
-              "label": "Stream Name"
+              "column": "aws.kinesis.stream_name",
+              "label": "Stream"
             },
             {
               "operation": "value",
-              "column": "aws.kinesis.metrics.IncomingRecords.avg",
-              "label": "Incoming Records (avg)"
+              "column": "aws.kinesis.shard_id",
+              "label": "Shard"
             },
             {
               "operation": "value",
-              "column": "aws.kinesis.metrics.GetRecords_IteratorAgeMilliseconds.avg",
-              "label": "Iterator Age (ms)"
+              "column": "aws.kinesis.operation",
+              "label": "Operation"
             },
             {
               "operation": "value",
-              "column": "aws.kinesis.metrics.PutRecords_FailedRecords.sum",
-              "label": "Failed Put Records"
+              "column": "aws.kinesis.metrics.IncomingRecords.sum",
+              "label": "Records"
             },
             {
               "operation": "value",
               "column": "log.level",
               "label": "Log level"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
             }
           ],
           "rows": []

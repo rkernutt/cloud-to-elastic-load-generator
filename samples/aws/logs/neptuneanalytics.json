@@ -1,53 +1,59 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ca-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "neptune-graph" }
   },
   "aws": {
-    "dimensions": { "GraphId": "g-hckc3ap31" },
+    "dimensions": { "GraphId": "g-ysp4h4zmz" },
     "neptuneanalytics": {
-      "graph_id": "g-hckc3ap31",
-      "query_id": "query-vj08qrct",
-      "algorithm": "BetweennessCentrality",
-      "metrics": { "nodes_processed": 2408924, "edges_processed": 11975634, "duration_ms": 50400 }
+      "graph_id": "g-ysp4h4zmz",
+      "query_id": "query-bljd1u1v",
+      "algorithm": "ShortestPath",
+      "metrics": { "nodes_processed": 1424043, "edges_processed": 43422948, "duration_ms": 216761 },
+      "error_code": "GraphAlgorithmTimeout"
     },
     "s3": {
       "bucket": {
-        "name": "aws-neptuneanalytics-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-neptuneanalytics-logs-814726593401"
+        "name": "aws-neptuneanalytics-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-neptuneanalytics-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/neptuneanalytics/me-south-1/2026/05/28/neptuneanalytics_JE1QAQ3BJ778LZMM9ZSR.log.gz"
+        "key": "AWSLogs/293847561023/neptuneanalytics/ca-west-1/2026/06/01/neptuneanalytics_H4OMTR0B0RI0M8P86UKG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/neptuneanalytics/logs",
-      "log_stream": "me-south-1/64rbtgm0",
-      "ingestion_time": "2026-05-28T16:58:16.093Z"
+      "log_stream": "ca-west-1/cv32pl2g",
+      "ingestion_time": "2026-06-01T18:12:00.381Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["database"],
     "type": ["access"],
     "dataset": "aws.neptuneanalytics",
     "provider": "neptune-graph.amazonaws.com",
-    "duration": 50400000000,
+    "duration": 216761000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.neptuneanalytics", "namespace": "default" },
-  "message": "Neptune Analytics graph g-hckc3ap31: BetweennessCentrality processed 2408924 nodes, 11975634 edges in 50400ms",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"neptune_analytics_query\",\"graphId\":\"g-ysp4h4zmz\",\"queryId\":\"query-bljd1u1v\",\"algorithm\":\"ShortestPath\",\"query\":\"ShortestPath(graph='g-ysp4h4zmz')\",\"latency_ms\":216761,\"nodesProcessed\":1424043,\"edgesProcessed\":43422948,\"status\":\"failed\",\"errorCode\":\"GraphAlgorithmTimeout\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "GraphAlgorithmTimeout",
+    "message": "Neptune Analytics ShortestPath failed on graph g-ysp4h4zmz",
+    "type": "database"
+  },
   "service": { "name": "neptuneanalytics", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "jmewc8f773z83u41xzvs8ezh0k2vj3e5u95g"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "0o6r7xo7gzw189baqupu938ca3cnjab8teql"
   },
   "input": { "type": "aws-cloudwatch" }
 }

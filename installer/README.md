@@ -34,6 +34,8 @@ The **recommended** approach is to install assets **per service** as **Cloud Loa
 
 All assets are tagged **`cloudloadgen`** — filter in Kibana **Saved Objects → Tags → cloudloadgen** to view, bulk-edit, or bulk-delete load-generator assets without affecting production objects. ML jobs and pipelines include `cloudloadgen` in their metadata for the same easy filtering.
 
+**Catalog size (AWS + GCP + Azure):** **496** dashboards, **778** ML anomaly jobs, **243** alerting rules (per-cloud breakdown in the [project README](../README.md)).
+
 ### Web UI Setup step
 
 The **Setup** wizard in the web UI installs/uninstalls the same Cloud Loadgen Integrations. Integrations are grouped by **service category** (Compute, Networking, Databases, Analytics, AI & ML, etc.) and each service shows what it includes (pipeline, dashboard, N ML jobs, alerting rules). You can filter, select individual services, or use **Align with Services** to match your generator selection. See **[docs/SETUP-WIZARD-AND-UNINSTALL.md](../docs/SETUP-WIZARD-AND-UNINSTALL.md)**.
@@ -204,7 +206,7 @@ When **CSPM or KSPM services** are selected in the Setup wizard and the Fleet in
 
 ## AWS custom pipelines — compatibility with official integration
 
-Custom pipelines cover services **not** in the official Elastic AWS integration, so they are purely additive in most cases.
+Custom pipelines cover services **not** in the official Elastic AWS integration, so they are purely additive in most cases. Sunset/discontinued AWS services (Artifact, Trusted Advisor, CloudShell, FreeRTOS, Panorama, SimSpace Weaver, QLDB, RoboMaker, Forecast, Lookout for Metrics, Kendra, CloudSearch, MediaStore) are no longer in the catalog. Three **reroute** pipelines (`logs-aws.cloudwatch_logs@custom`, `logs-aws_logs.generic@custom`, `logs-awsfirehose@custom`) route generic ingestion paths to the correct service data stream — see [INGEST-PIPELINE-REFERENCE.md](../docs/INGEST-PIPELINE-REFERENCE.md).
 
 **Services excluded from custom pipelines** (already covered by the official integration): CloudTrail, VPC Flow, ALB/NLB, GuardDuty, S3 Access, API Gateway, CloudFront, Network Firewall, Security Hub, WAF, Route 53, EC2 (metrics), ECS, Config, Inspector, DynamoDB, Redshift, EBS, Kinesis, MSK/Kafka, SNS, SQS, Transit Gateway, VPN, AWS Health, Billing, NAT Gateway.
 

@@ -2,8 +2,8 @@
  * Dimensional metric generators for AWS analytics, ML, and AI services:
  * Glue, EMR, Athena, SageMaker, Bedrock, BedrockAgent, LakeFormation, MWAA,
  * QuickSight, DataBrew, AppFlow, Rekognition, Transcribe, Translate,
- * Comprehend, Polly, Forecast, Personalize, Lex, LookoutMetrics, Textract,
- * plus Kendra, Clean Rooms, HealthLake, HealthOmics, Comprehend Medical,
+ * Comprehend, Polly, Personalize, Lex, Textract,
+ * plus Clean Rooms, HealthLake, HealthOmics, Comprehend Medical,
  * Fraud Detector, MediaConvert, MediaLive, Managed Blockchain, Data Exchange,
  * DataZone, A2I, AppFabric, AppConfig, Chatbot, Q Business, B2BI,
  * Supply Chain, Deadline Cloud, and Managed Grafana.
@@ -788,30 +788,6 @@ export function generateLexMetrics(ts: string, er: number) {
   });
 }
 
-// ─── Forecast ─────────────────────────────────────────────────────────────────
-
-export function generateForecastMetrics(ts: string, er: number) {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  return [
-    metricDoc(
-      ts,
-      "forecast",
-      "aws.forecast",
-      region,
-      account,
-      { DatasetGroupName: rand(["sales-forecast", "demand-planning", "inventory-forecast"]) },
-      {
-        CreateForecastJobCount: counter(randInt(0, 10)),
-        ForecastJobsSucceeded: counter(randInt(0, 10)),
-        ForecastJobsFailed: counter(Math.random() < er ? randInt(0, 3) : 0),
-        TrainingJobCount: counter(randInt(0, 5)),
-        TrainingJobsSucceeded: counter(randInt(0, 5)),
-        TrainingJobsFailed: counter(Math.random() < er ? randInt(0, 2) : 0),
-      }
-    ),
-  ];
-}
-
 // ─── Personalize ──────────────────────────────────────────────────────────────
 
 export function generatePersonalizeMetrics(ts: string, er: number) {
@@ -829,33 +805,6 @@ export function generatePersonalizeMetrics(ts: string, er: number) {
         GetRecommendationLatency: stat(dp(jitter(50, 40, 5, 1_000))),
         GetRecommendationError: counter(Math.random() < er ? randInt(1, 500) : 0),
         PutEventsRequestCount: counter(randInt(0, 1_000_000)),
-      }
-    ),
-  ];
-}
-
-// ─── LookoutMetrics ───────────────────────────────────────────────────────────
-
-export function generateLookoutmetricsMetrics(ts: string, er: number) {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  return [
-    metricDoc(
-      ts,
-      "lookoutmetrics",
-      "aws.lookoutmetrics",
-      region,
-      account,
-      {
-        AnomalyDetectorName: rand([
-          "sales-anomaly-detector",
-          "traffic-anomalies",
-          "fraud-detector",
-        ]),
-      },
-      {
-        ExecutionCount: counter(randInt(0, 288)),
-        ExecutionError: counter(Math.random() < er ? randInt(0, 10) : 0),
-        AnomaliesFound: counter(randInt(0, 50)),
       }
     ),
   ];
@@ -1146,32 +1095,6 @@ export function generateSesMetrics(ts: string, er: number) {
         Complaint: counter(Math.round(sent * jitter(0.001, 0.0008, 0, 0.005))),
         Reject: counter(Math.random() < er ? randInt(1, 100) : 0),
         RenderingFailure: counter(Math.random() < er ? randInt(0, 20) : 0),
-      }
-    ),
-  ];
-}
-
-// ─── Kendra (AWS/Kendra) ──────────────────────────────────────────────────────
-
-export function generateKendraMetrics(ts: string, er: number) {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const isErr = Math.random() < er;
-  const queries = randInt(50, 500_000);
-  const failed = isErr ? randInt(1, Math.max(1, Math.floor(queries * 0.08))) : randInt(0, 20);
-  const succeeded = Math.max(0, queries - failed);
-  return [
-    metricDoc(
-      ts,
-      "kendra",
-      "aws.kendra",
-      region,
-      account,
-      { IndexId: `${randId(10).toLowerCase()}-${randId(8).toLowerCase()}` },
-      {
-        QueryCount: counter(queries),
-        IndexQuerySucceeded: counter(succeeded),
-        IndexQueryFailed: counter(failed),
-        DocumentCount: counter(randInt(1_000, 50_000_000)),
       }
     ),
   ];

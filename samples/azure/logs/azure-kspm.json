@@ -7,47 +7,57 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "northcentralus",
-    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" }
+    "region": "ukwest",
+    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" }
   },
   "orchestrator": {
     "cluster": {
-      "name": "aks-prod-O49E",
-      "id": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-data-rc7bil/providers/Microsoft.ContainerService/managedClusters/aks-prod-O49E",
-      "resource_id": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-data-rc7bil/providers/Microsoft.ContainerService/managedClusters/aks-prod-O49E"
+      "name": "aks-shared-WDQJ",
+      "id": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-app-hw6pmg/providers/Microsoft.ContainerService/managedClusters/aks-shared-WDQJ",
+      "resource_id": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-app-hw6pmg/providers/Microsoft.ContainerService/managedClusters/aks-shared-WDQJ"
     }
   },
   "resource": {
-    "id": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-data-rc7bil/providers/Microsoft.ContainerService/managedClusters/aks-prod-O49E/namespaces/kube-system/etcd/2-1-b006",
-    "name": "2-1-b006",
+    "id": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-app-hw6pmg/providers/Microsoft.ContainerService/managedClusters/aks-shared-WDQJ/nodes/aks-node-b16e",
+    "name": "aks-node-b16e",
     "type": "k8s_object",
-    "sub_type": "etcd"
+    "sub_type": "kubelet"
   },
   "rule": {
-    "id": "067385c5-d3a0-536a-bd4f-ed7c1f4033ce",
-    "name": "Ensure that the --cert-file and --key-file arguments are set as appropriate",
-    "section": "2.1",
-    "description": "Configure TLS encryption for the etcd service.",
-    "tags": ["CIS", "Kubernetes", "CIS 2.1", "etcd"],
+    "id": "f6d0110b-51c5-54db-a531-29b0cb58d0f2",
+    "name": "Ensure that the --hostname-override argument is not set",
+    "section": "4.2.8",
+    "description": "Do not override node hostnames.",
+    "tags": ["CIS", "Kubernetes", "CIS 4.2.8", "Kubelet"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "2.1",
+      "rule_number": "4.2.8",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 1"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Kubernetes V1.23 4.2.8 — Ensure that the --hostname-override argument is not set",
+    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 4.2.8."
   },
-  "result": { "evaluation": "passed" },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "kubeletConfig": {
+        "authentication": { "anonymous": { "enabled": true } },
+        "authorization": { "mode": "AlwaysAllow" }
+      }
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/2.1] passed: Ensure that the --cert-file and --key-file arguments are set as appropriate",
-  "log": { "level": "info" }
+  "message": "[cis_k8s/4.2.8] failed: Ensure that the --hostname-override argument is not set",
+  "log": { "level": "warn" }
 }

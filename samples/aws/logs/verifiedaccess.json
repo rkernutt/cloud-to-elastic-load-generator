@@ -1,70 +1,67 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "sa-east-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "verified-access" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "va-app-db3e0tbf" },
+    "dimensions": { "ApplicationId": "va-app-ake7sscl" },
     "verifiedaccess": {
-      "endpoint_id": "vae-cuarh9vbtta883e36",
-      "group_id": "vag-vnga7mgejd9b89rp4",
-      "instance_id": "vai-70e358079ac2d70a0",
-      "policy_name": "require-mfa-and-device",
-      "trust_provider_type": "iam-identity-center",
-      "device_posture": "UNKNOWN",
+      "endpoint_id": "vae-y4kntf6f2unxx1e1t",
+      "group_id": "vag-qgyvcioirl2v0nv1r",
+      "instance_id": "vai-705ff4861e8885e39",
+      "policy_name": "corporate-device",
+      "trust_provider_type": "oidc-okta",
+      "device_posture": "COMPLIANT",
       "verdict": "allow",
       "http_method": "GET",
-      "http_path": "/api/v1/products",
-      "http_status": 200,
-      "request_id": "9d92ea03-978e-4bd2-b5e7-976b0b0f3341",
-      "connection_id": "DN10QF2YY6H3PDANB3LG",
-      "session_id": "FD2K33BRUL8RHB5KC79IU5AXBWF0ZH8P",
-      "sni_hostname": "dev-tools.internal.meridiantech.io",
-      "application_name": "dev-tools"
+      "http_path": "/graphql",
+      "http_status": 201,
+      "request_id": "4737e251-2fa7-4394-9744-348858fc0dac",
+      "connection_id": "2QLSFANZ3GMFR32BECXU",
+      "session_id": "083662V71W7OSLWLET5B6U9DOIZA7BW6",
+      "sni_hostname": "admin-portal.internal.meridiantech.io",
+      "application_name": "admin-portal"
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedaccess-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-814726593401"
+        "name": "aws-verifiedaccess-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/814726593401/verifiedaccess/ap-northeast-3/2026/05/28/verifiedaccess_WCNMN8KQ0YVHCIM71F96.log.gz"
+        "key": "AWSLogs/293847561023/verifiedaccess/sa-east-1/2026/06/01/verifiedaccess_A6OHJNCRHDD37RC943V8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedaccess/logs",
-      "log_stream": "ap-northeast-3/ek1zy4j7",
-      "ingestion_time": "2026-05-28T16:58:16.013Z"
+      "log_stream": "sa-east-1/5phvoynq",
+      "ingestion_time": "2026-06-01T18:12:00.343Z"
     }
   },
-  "user": { "email": "svc-deploy-prod@cascadeops.com", "name": "svc-deploy-prod" },
-  "source": { "ip": "202.244.26.200" },
+  "user": { "email": "svc-deploy-prod@globex.io", "name": "svc-deploy-prod" },
+  "source": { "ip": "101.153.220.162" },
   "event": {
     "outcome": "success",
     "category": ["authentication", "network"],
     "type": ["allowed"],
     "dataset": "aws.verifiedaccess",
     "provider": "verified-access.amazonaws.com",
-    "duration": 36000000,
+    "duration": 82000000,
     "module": "aws"
   },
-  "message": "Verified Access allowed: svc-deploy-prod@cascadeops.com -> dev-tools (UNKNOWN)",
+  "message": "{\"endpointId\":\"vae-ln8x3uaucz8f2r36m\",\"applicationName\":\"admin-portal\",\"userIdentity\":{\"type\":\"IAMIdentityCenter\",\"userName\":\"svc-deploy-prod@globex.io\",\"userEmail\":\"svc-deploy-prod@globex.io\"},\"trustProviderType\":\"oidc-okta\",\"devicePosture\":\"COMPLIANT\",\"verdict\":\"allow\",\"denyReason\":null,\"httpMethod\":\"GET\",\"httpPath\":\"/graphql\",\"httpStatus\":201,\"requestId\":\"2466d9d3-b5d0-454b-98b8-b4f4a9aae45f\",\"connectionId\":\"Q7CWWPSB8TW278HBH3RQ\",\"sessionId\":\"3JPWJZ7Z77H6X9CJ9A95EOL06HQ99MVI\",\"sniHostname\":\"admin-portal.internal.cascadeops.com\",\"policyName\":\"require-mfa-and-device\"}",
   "log": { "level": "info" },
   "service": { "name": "verifiedaccess", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.verifiedaccess", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-3",
-    "ephemeral_id": "ix3aav21ta0xxjw2gpx9sdrlhil7wr9uhs8y"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "demwhwiglkja8xeegmifsnd4hs4wm72x2001"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": {
-    "ip": ["202.244.26.200"],
-    "user": ["svc-deploy-prod", "svc-deploy-prod@cascadeops.com"]
-  }
+  "related": { "ip": ["101.153.220.162"], "user": ["svc-deploy-prod", "svc-deploy-prod@globex.io"] }
 }

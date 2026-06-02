@@ -90,9 +90,12 @@ export function naturalAzureIngestionResolved(
   );
 }
 
+const AWS_BROAD_LOG_OVERRIDES = new Set(["cloudwatch", "s3", "firehose"]);
+
 function isValidAwsOverride(serviceId: string, override: string, natural: string): boolean {
   if (override === natural) return true;
   if (isOtelPipelineSource(override) || override === "agent") return true;
+  if (AWS_BROAD_LOG_OVERRIDES.has(override) && natural !== "api") return true;
   const bucket = AWS_SERVICES_BY_NATURAL.get(override);
   return !!bucket?.has(serviceId);
 }

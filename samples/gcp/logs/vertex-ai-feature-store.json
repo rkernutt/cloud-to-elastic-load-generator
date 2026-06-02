@@ -1,64 +1,67 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "DEBUG",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "NOT_FOUND" },
+  "error": { "code": "NOT_FOUND", "message": "NOT_FOUND: operation failed", "type": "gcp" },
+  "severity": "ERROR",
   "labels": {
     "resource.type": "aiplatform.googleapis.com/Featurestore",
-    "featurestore": "fs-fraud-6otr"
+    "featurestore": "fs-prod-2qhv",
+    "gcp.rpc.status_code": "NOT_FOUND"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west1",
-    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
-    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "region": "europe-west9",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
     "service": { "name": "aiplatform.googleapis.com" }
   },
   "gcp": {
     "vertex_ai_feature_store": {
-      "featurestore_name": "fs-fraud-6otr",
-      "entity_type": "merchant",
-      "feature_name": "avg_order_value",
-      "operation": "SERVE",
-      "online_serving_latency_ms": 17,
-      "feature_values_ingested": 8540449
+      "featurestore_name": "fs-prod-2qhv",
+      "entity_type": "product",
+      "feature_name": "embedding_v2",
+      "operation": "INGEST",
+      "online_serving_latency_ms": 136,
+      "feature_values_ingested": 368
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["info"],
+    "type": ["error"],
     "action": "ml-operation",
-    "outcome": "success",
-    "duration": 17,
+    "outcome": "failure",
+    "duration": 136,
     "module": "gcp",
     "dataset": "gcp.featurestore"
   },
-  "message": "Online serving OK featurestore=fs-fraud-6otr entity_type=merchant feature=avg_order_value op=SERVE latency_ms=17.00 values_ingested=8540449",
+  "message": "featurestores/fs-prod-2qhv/entityTypes/product:batchReadFeatureValues FAILED: deadline exceeded after 136.0ms",
   "service": { "name": "vertex-ai-feature-store", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.featurestore", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west1",
-    "id": "egn5qf593oj4j35axqnfha4u64qdhmv8n1r2"
+    "name": "elastic-agent-gcp-europe-west9",
+    "id": "4cmac4rnoqhhtclzjulkpcop4sdzf49b392s"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-stg-739158/logs/vertex-ai-feature-store",
+  "logName": "projects/globex-sec-847293/logs/vertex-ai-feature-store",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-stg-739158", "region": "us-west1" }
+    "labels": { "project_id": "globex-sec-847293", "region": "europe-west9" }
   },
-  "insertId": "CTGE8APCPTG0",
+  "insertId": "S53F4Y3N3D8W",
   "jsonPayload": {
     "vertex_ai_feature_store": {
-      "featurestore_name": "fs-fraud-6otr",
-      "entity_type": "merchant",
-      "feature_name": "avg_order_value",
-      "operation": "SERVE",
-      "online_serving_latency_ms": 17,
-      "feature_values_ingested": 8540449
+      "featurestore_name": "fs-prod-2qhv",
+      "entity_type": "product",
+      "feature_name": "embedding_v2",
+      "operation": "INGEST",
+      "online_serving_latency_ms": 136,
+      "feature_values_ingested": 368
     },
-    "message": "Online serving OK featurestore=fs-fraud-6otr entity_type=merchant feature=avg_order_value op=SERVE latency_ms=17.00 values_ingested=8540449"
+    "message": "featurestores/fs-prod-2qhv/entityTypes/product:batchReadFeatureValues FAILED: deadline exceeded after 136.0ms"
   }
 }

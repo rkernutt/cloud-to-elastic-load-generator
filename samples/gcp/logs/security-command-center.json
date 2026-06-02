@@ -1,62 +1,98 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "labels": {},
-  "severity": "WARNING",
-  "logName": "projects/globex-prod-482910/logs/cloudaudit.googleapis.com%2Fpolicy",
-  "insertId": "xpsyz1en1ufmcom2",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "NOT_FOUND" },
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Caller lacks securitycenter.findings.update permission",
+    "type": "PermissionDenied"
+  },
+  "labels": { "gcp.rpc.status_code": "NOT_FOUND" },
+  "severity": "ERROR",
+  "logName": "projects/globex-prod-482910/logs/cloudaudit.googleapis.com%2Factivity",
+  "insertId": "tjhnm0qp1ylemr4q",
   "resource": { "type": "project", "labels": { "project_id": "globex-prod-482910" } },
   "jsonPayload": {
-    "servicePerimeter": "accessPolicies/709697/servicePerimeters/prod_default",
-    "violation": {
-      "type": "ACCESS_NOT_ALLOWED",
-      "resource": "projects/globex-prod-482910",
-      "apiMethod": "storage.objects.get",
-      "accessLevel": "vpn_only",
-      "dryRun": false
-    },
-    "ingressPolicy": "INGRESS_FROM_ORGANIZATION",
-    "vpc_network": "projects/globex-prod-482910/global/networks/prod-vpc"
+    "notificationConfigName": "organizations/460741/notificationConfigs/C49V94UD",
+    "finding": {
+      "name": "organizations/460741/sources/EHR1DJ3Y/findings/z5v4vb42-lmlh-qnrf-73pb-txhq9fq8hvbk",
+      "parent": "organizations/460741/sources/UAWH8VU9",
+      "resourceName": "//cloudsql.googleapis.com/projects/globex-prod-482910/instances/db-8JL6",
+      "resourceType": "storage.googleapis.com/Bucket",
+      "category": "OPEN_FIREWALL",
+      "state": "INACTIVE",
+      "severity": "HIGH",
+      "sourceProperties": {
+        "ScannerName": "EVENT_THREAT_DETECTION",
+        "ComplianceFramework": "CIS",
+        "ReactivationCount": 1,
+        "ExceptionInstructions": "Review IAM and firewall rules"
+      },
+      "externalUri": "https://console.cloud.google.com/security/command-center/findings?organizationId=460741&findingId=organizations%2F460741%2Fsources%2FEHR1DJ3Y%2Ffindings%2Fz5v4vb42-lmlh-qnrf-73pb-txhq9fq8hvbk",
+      "parentDisplayName": "Globex Org 460741",
+      "findingClass": "THREAT"
+    }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
+    "region": "us-west4",
     "project": { "id": "globex-prod-482910", "name": "Globex Production" },
     "account": { "id": "482910375621", "name": "Globex Production" },
-    "service": { "name": "vpc-service-controls" }
+    "service": { "name": "security-command-center" }
   },
   "gcp": {
-    "vpc_service_controls": {
+    "security_command_center": {
       "json_payload": {
-        "servicePerimeter": "accessPolicies/709697/servicePerimeters/prod_default",
-        "violation": {
-          "type": "ACCESS_NOT_ALLOWED",
-          "resource": "projects/globex-prod-482910",
-          "apiMethod": "storage.objects.get",
-          "accessLevel": "vpn_only",
-          "dryRun": false
-        },
-        "ingressPolicy": "INGRESS_FROM_ORGANIZATION",
-        "vpc_network": "projects/globex-prod-482910/global/networks/prod-vpc"
+        "notificationConfigName": "organizations/460741/notificationConfigs/C49V94UD",
+        "finding": {
+          "name": "organizations/460741/sources/EHR1DJ3Y/findings/z5v4vb42-lmlh-qnrf-73pb-txhq9fq8hvbk",
+          "parent": "organizations/460741/sources/UAWH8VU9",
+          "resourceName": "//cloudsql.googleapis.com/projects/globex-prod-482910/instances/db-8JL6",
+          "resourceType": "storage.googleapis.com/Bucket",
+          "category": "OPEN_FIREWALL",
+          "state": "INACTIVE",
+          "severity": "HIGH",
+          "sourceProperties": {
+            "ScannerName": "EVENT_THREAT_DETECTION",
+            "ComplianceFramework": "CIS",
+            "ReactivationCount": 1,
+            "ExceptionInstructions": "Review IAM and firewall rules"
+          },
+          "externalUri": "https://console.cloud.google.com/security/command-center/findings?organizationId=460741&findingId=organizations%2F460741%2Fsources%2FEHR1DJ3Y%2Ffindings%2Fz5v4vb42-lmlh-qnrf-73pb-txhq9fq8hvbk",
+          "parentDisplayName": "Globex Org 460741",
+          "findingClass": "THREAT"
+        }
       },
-      "perimeter_name": "prod_default",
-      "access_level": "vpn_only",
-      "resource": "projects/globex-prod-482910",
-      "api_method": "storage.objects.get",
-      "violation_type": "ACCESS_NOT_ALLOWED",
-      "dry_run_mode": false
+      "finding_id": "organizations/460741/sources/EHR1DJ3Y/findings/z5v4vb42-lmlh-qnrf-73pb-txhq9fq8hvbk",
+      "category": "OPEN_FIREWALL",
+      "severity": "HIGH",
+      "resource_name": "//cloudsql.googleapis.com/projects/globex-prod-482910/instances/db-8JL6",
+      "resource_type": "storage.googleapis.com/Bucket",
+      "state": "INACTIVE",
+      "source": "EVENT_THREAT_DETECTION",
+      "parent_display_name": "Globex Org 460741",
+      "organization_id": "organizations/460741"
     }
   },
-  "event": { "outcome": "failure", "duration": 11000000, "module": "gcp", "dataset": "gcp.vpcsc" },
-  "message": "accesscontextmanager.googleapis.com/VpcServiceControls BLOCK storage.objects.get",
-  "service": { "name": "vpc-service-controls", "type": "gcp" },
+  "event": {
+    "kind": "event",
+    "category": ["intrusion_detection"],
+    "type": ["denied"],
+    "action": "security-event",
+    "outcome": "failure",
+    "duration": 1058000000,
+    "module": "gcp",
+    "dataset": "gcp.scc"
+  },
+  "message": "securitycenter.googleapis.com/Findings.Update finding=organizations/460741/sources/EHR1DJ3Y/findings/z5v4vb42-lmlh-qnrf-73pb-txhq9fq8hvbk status=PERMISSION_DENIED",
+  "service": { "name": "security-command-center", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.vpcsc", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.scc", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central1",
-    "id": "jy0agj5bjo6jduul5i66hdn5ill6addzf5tp"
+    "name": "elastic-agent-gcp-us-west4",
+    "id": "5zqw3fgw6q7abbln4wryv59obhxk7bq3zvdo"
   },
   "input": { "type": "http_endpoint" }
 }

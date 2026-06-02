@@ -40,7 +40,7 @@ describe("ingestionCompatibility", () => {
     expect(source).toBe("entra");
   });
 
-  it("clamps AWS S3 override away from Lambda", () => {
+  it("allows AWS S3 override for Lambda (logs can route via CW→S3 export)", () => {
     const { source, clampedFrom } = clampGlobalIngestionOverride(
       "aws",
       "lambda",
@@ -48,8 +48,8 @@ describe("ingestionCompatibility", () => {
       "s3",
       null
     );
-    expect(clampedFrom).toBe("s3");
-    expect(source).toBe("cloudwatch");
+    expect(clampedFrom).toBeNull();
+    expect(source).toBe("s3");
   });
 
   it("keeps S3 override for CloudTrail", () => {

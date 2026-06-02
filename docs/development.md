@@ -128,7 +128,7 @@ npm run typecheck
 | `src/helpers/identity.ts`        | Shared user identity pool and audit trail event builders                          |
 | `src/hooks/useMLTrainingLoop.ts` | React hook for automated ML reset → baseline → wait → inject → stabilise workflow |
 | `src/pages/`                     | React page components (Landing, Connection, Services, Setup, Ship)                |
-| `installer/`                     | CLI installers and asset JSON (503 dashboards, 789 ML jobs, 243 rules, pipelines) |
+| `installer/`                     | CLI installers and asset JSON (496 dashboards, 778 ML jobs, 243 rules, pipelines) |
 | `workflows/`                     | Elastic Workflow YAML definitions (alert enrichment automation)                   |
 
 ## Documentation index

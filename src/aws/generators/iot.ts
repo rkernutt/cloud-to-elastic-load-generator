@@ -69,11 +69,8 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
     clientIp: randIp(),
     reason: isErr ? rand(["AUTHORIZATION_FAILURE", "THROTTLE", "CERTIFICATE_REVOKED"]) : undefined,
   };
-  const plainMessage = isErr
-    ? `IoT Core ${eventType} FAILED for ${device}: ${rand(["Unauthorized", "Certificate revoked", "Rate limited"])}`
-    : `IoT Core ${eventType}: ${device} on ${topic}`;
-  const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging ? JSON.stringify(logPayload) : plainMessage;
+  const useStructuredLogging = true;
+  const message = JSON.stringify(logPayload);
   return {
     "@timestamp": ts,
     cloud: {
@@ -250,8 +247,7 @@ function generateIotGreengrassLog(ts: string, er: number): EcsDocument {
       : {}),
     timestamp: new Date(ts).toISOString(),
   };
-  const useJson = Math.random() < 0.5;
-  const message = useJson ? JSON.stringify(structured) : rand(MSGS[level]);
+  const message = JSON.stringify(structured);
   return {
     "@timestamp": ts,
     cloud: {
@@ -344,9 +340,19 @@ function generateIotAnalyticsLog(ts: string, er: number): EcsDocument {
       provider: "iotanalytics.amazonaws.com",
       duration: randInt(500, isErr ? 120000 : 30000) * 1e6,
     },
-    message: isErr
-      ? `IoT Analytics FAILED in ${pipeline}: ${rand(["Activity error", "Lambda timeout"])}`
-      : `IoT Analytics: ${msgs.toLocaleString()} messages via ${pipeline}`,
+    message: JSON.stringify({
+      channelName: channel,
+      pipelineName: pipeline,
+      datasetName: rand(["daily-aggregates", "anomaly-detection-output", "fleet-summary"]),
+      activityName: rand(["lambda-enrich", "filter", "math", "selectAttributes"]),
+      pipelineActivityStatus: isErr ? "FAILED" : "SUCCEEDED",
+      messagesProcessed: msgs,
+      bytesProcessed: msgs * randInt(50, 500),
+      errorMessage: isErr
+        ? rand(["Pipeline activity failed", "Lambda timeout", "Query error"])
+        : null,
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? { error: { code: "PipelineError", message: "IoT Analytics pipeline failed", type: "aws" } }
@@ -421,9 +427,28 @@ function generateIotDefenderLog(ts: string, er: number): EcsDocument {
       provider: "iot.amazonaws.com",
       duration: randInt(30, isErr ? 600 : 300) * 1e9,
     },
-    message: isErr
-      ? `IoT Defender audit ERROR [${thingName}]: ${rand(["Internal failure", "Resource not found"])}`
-      : `IoT Defender ${severity} [${thingName}]: ${auditFinding}`,
+    message: JSON.stringify({
+      thingName,
+      securityProfileName: rand([
+        "baseline-security-profile",
+        "factory-floor-profile",
+        "critical-devices",
+      ]),
+      behaviorName: rand(["authorized-ip-range", "msg-size", "data-bytes-out"]),
+      violationType,
+      severity,
+      auditCheckName: auditFinding,
+      findingId: randId(36).toLowerCase(),
+      violationId: randId(36).toLowerCase(),
+      metricValue: { count: randInt(1, 1000) },
+      metricThreshold: { count: randInt(1, 100) },
+      consecutiveDatapointsToAlarm: randInt(2, 5),
+      status: isErr ? "ERROR" : "VIOLATION_DETECTED",
+      errorCode: isErr
+        ? rand(["ResourceNotFoundException", "ThrottlingException", "InternalFailureException"])
+        : null,
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : ["CRITICAL", "HIGH"].includes(severity) ? "warn" : "info" },
     ...(isErr
       ? {
@@ -501,9 +526,21 @@ function generateIotEventsLog(ts: string, er: number): EcsDocument {
       provider: "iotevents.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 500) * 1e6,
     },
-    message: isErr
-      ? `IoT Events ${model}/${detector} ERROR: ${rand(["State machine error", "Action failed", "Input validation error"])}`
-      : `IoT Events ${model}/${detector}: ${fromState} \u2192 ${toState} [${event}]`,
+    message: JSON.stringify({
+      detectorModelName: model,
+      detectorName: detector,
+      keyValue: detector,
+      eventName: event,
+      fromStateName: fromState,
+      toStateName: toState,
+      inputName: rand(["SensorInput", "CommandInput", "HealthCheck"]),
+      actionType: rand(["SetVariable", "SetTimer", "SNS", "Lambda", "SQS"]),
+      status: isErr ? "ERROR" : "SUCCESS",
+      errorCode: isErr
+        ? rand(["ResourceNotFound", "ThrottlingException", "InvalidRequestException"])
+        : null,
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : toState === "Alarm" ? "warn" : "info" },
     ...(isErr
       ? {
@@ -580,9 +617,32 @@ function generateIotSiteWiseLog(ts: string, er: number): EcsDocument {
       provider: "iotsitewise.amazonaws.com",
       duration: randInt(1, isErr ? 2000 : 200) * 1e6,
     },
-    message: isErr
-      ? `IoT SiteWise ${asset}/${property} BAD quality: ${rand(["Sensor offline", "Out of range", "Connection lost"])}`
-      : `IoT SiteWise ${asset}/${property}: ${value} [${quality}]`,
+    message: JSON.stringify({
+      assetId,
+      assetName: asset,
+      propertyId: randId(36).toLowerCase(),
+      propertyName: property,
+      propertyAlias: `/company/plant/${asset}/${property.toLowerCase()}`,
+      entry: {
+        assetId,
+        propertyId: randId(36).toLowerCase(),
+        propertyValues: [
+          {
+            value: { doubleValue: value },
+            timestamp: {
+              timeInSeconds: Math.floor(new Date(ts).getTime() / 1000),
+              offsetInNanos: randInt(0, 999999999),
+            },
+            quality,
+          },
+        ],
+      },
+      gatewayId: rand([`gateway-${randId(8).toLowerCase()}`, null]),
+      status: isErr ? "FAILURE" : "SUCCESS",
+      errorMessage: isErr
+        ? rand(["BatchPutAssetPropertyValue failed", "Property not found", "Quota exceeded"])
+        : null,
+    }),
     log: { level: isErr ? "error" : quality === "UNCERTAIN" ? "warn" : "info" },
     ...(isErr
       ? { error: { code: "SiteWiseError", message: "IoT SiteWise quality/error", type: "aws" } }
@@ -669,9 +729,24 @@ function generateIotTwinMakerLog(ts: string, er: number): EcsDocument {
       dataset: "aws.iottwinmaker",
       provider: "iottwinmaker.amazonaws.com",
     },
-    message: isErr
-      ? `IoT TwinMaker ${action} FAILED [${workspaceId}/${entityName}]: ${rand(["Entity not found", "Workspace limit exceeded", "Property sync failed"])}`
-      : `IoT TwinMaker ${action}: workspace=${workspaceId}, entity=${entityName}, ${propertyName}=${propertyValue}`,
+    message: JSON.stringify({
+      eventType: action,
+      workspaceId,
+      entityId,
+      entityName,
+      componentTypeId: componentType,
+      propertyName,
+      propertyValue: propertyValue !== null ? { doubleValue: propertyValue } : null,
+      syncSource: rand(["SITEWISE", "IOT_DEVICE_DATA", "CUSTOM"]),
+      updateReason: rand([
+        "ASSET_CREATED",
+        "ASSET_UPDATED",
+        "VALUE_CHANGED",
+        "CONNECTIVITY_CHANGE",
+      ]),
+      status: isErr ? "FAILED" : "SUCCESS",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -758,9 +833,20 @@ function generateIotFleetWiseLog(ts: string, er: number): EcsDocument {
       dataset: "aws.iotfleetwise",
       provider: "iotfleetwise.amazonaws.com",
     },
-    message: isErr
-      ? `IoT FleetWise ${action} FAILED [${fleetId}/${vehicleId}]: ${rand(["Vehicle not found", "Campaign suspended", "Signal not in catalog", "Data collection paused"])}`
-      : `IoT FleetWise ${action}: fleet=${fleetId}, vehicle=${vehicleId}, campaign=${campaignName} ${campaignStatus}`,
+    message: JSON.stringify({
+      eventType: action,
+      fleetId,
+      vehicleId,
+      campaignName,
+      campaignArn: `arn:aws:iotfleetwise:${region}:${acct.id}:campaign/${campaignName}`,
+      campaignStatus,
+      signalName,
+      signalValue: signalValue !== null ? { doubleValue: signalValue } : null,
+      collectionScheme: rand(["TIME_BASED", "CONDITION_BASED", "EVENT_BASED"]),
+      dataDestination: rand(["S3", "TIMESTREAM", "IOT_SITERISE"]),
+      vehicleState: isErr ? "SUSPENDED" : "ACTIVE",
+      timestamp: new Date(ts).toISOString(),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -824,9 +910,19 @@ function generateGroundStationLog(ts: string, er: number): EcsDocument {
       duration: contactDurationSec * 1e9,
     },
     data_stream: { type: "logs", dataset: "aws.groundstation", namespace: "default" },
-    message: isErr
-      ? `Ground Station ${groundStationId}: ${errorCode} for contact ${contactId}`
-      : `Ground Station ${groundStationId}: contact ${contactId} ${contactStatus}, received=${dataReceivedMb.toFixed(1)}MB, elevation=${elevationDegrees.toFixed(1)}°`,
+    message: JSON.stringify({
+      contactId,
+      groundStationId,
+      satelliteArn,
+      missionProfileArn: `arn:aws:groundstation:${region}:${acct.id}:mission-profile/${missionProfileId}`,
+      contactStatus,
+      startTime: new Date(new Date(ts).getTime() - contactDurationSec * 1000).toISOString(),
+      endTime: new Date(ts).toISOString(),
+      elevation: { startDegrees: elevationDegrees - 5, endDegrees: elevationDegrees },
+      dataReceivedMb,
+      contactDurationSeconds: contactDurationSec,
+      errorCode: isErr ? errorCode : null,
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -891,147 +987,25 @@ function generateKinesisVideoLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(1e4, 6e6) },
-    message: isErr
-      ? `Kinesis Video ${stream}: ${ev} failed — ${rand(errMsgs)}`
-      : `Kinesis Video ${stream}: ${ev} (${randFloat(0.5, 10).toFixed(1)} Mbps)`,
+    message: JSON.stringify({
+      streamName: stream,
+      streamArn: `arn:aws:kinesisvideo:${region}:${acct.id}:stream/${stream}`,
+      eventType: ev,
+      fragmentNumber: randId(20),
+      producerTimestamp: Date.now(),
+      serverTimestamp: Date.now() + randInt(0, 500),
+      fragmentDurationMs: randInt(2000, 6000),
+      ingestionRateMbps: randFloat(0.5, 10),
+      codec: rand(["H.264", "H.265"]),
+      resolution: rand(["1920x1080", "1280x720", "3840x2160", "640x480"]),
+      status: isErr ? "FAILED" : "SUCCESS",
+      errorCode: isErr ? rand(errMsgs) : null,
+    }),
     ...(isErr
       ? {
           error: {
             code: rand(errMsgs),
             message: `Amazon Kinesis Video Streams ${ev} refused connection or quota exceeded`,
-            type: "aws",
-          },
-        }
-      : {}),
-  };
-}
-
-// ─── AWS Panorama ─────────────────────────────────────────────────────────
-function generatePanoramaLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const devices = ["panorama-appliance-01", "factory-edge-01", "retail-cam-hub"];
-  const device = rand(devices);
-  const events = [
-    "DeployApplication",
-    "RemoveApplication",
-    "DescribeDevice",
-    "CreateNodeFromTemplateJob",
-    "ListApplicationInstances",
-  ];
-  const ev = rand(events);
-  const models = ["people-counter", "defect-detector", "ppe-compliance", "vehicle-tracker"];
-  const statuses = isErr ? ["DEPLOYMENT_FAILED", "ERROR"] : ["DEPLOYMENT_SUCCEEDED", "RUNNING"];
-  const errMsgs = [
-    "Model compilation failed",
-    "Camera stream unreachable",
-    "GPU memory exceeded",
-    "Application container crash loop",
-  ];
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "panorama" },
-    },
-    aws: {
-      panorama: {
-        device_id: `device-${randId(12).toLowerCase()}`,
-        device_name: device,
-        event_type: ev,
-        application_name: rand(models),
-        status: rand(statuses),
-        inference_fps: randFloat(1, isErr ? 0 : 30),
-        camera_streams: randInt(1, 8),
-        gpu_utilization_pct: randFloat(10, isErr ? 100 : 85),
-        uptime_hours: randFloat(0, 720),
-      },
-    },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e5, 6e8) },
-    message: isErr
-      ? `Panorama ${device}: ${ev} failed — ${rand(errMsgs)}`
-      : `Panorama ${device}: ${ev} (${rand(models)}, ${randFloat(10, 30).toFixed(1)} FPS)`,
-    ...(isErr
-      ? {
-          error: {
-            code: rand([
-              "ValidationException",
-              "AccessDeniedException",
-              "ConflictException",
-              "InternalServerException",
-            ]),
-            message: rand(errMsgs),
-            type: "aws",
-          },
-        }
-      : {}),
-  };
-}
-
-// ─── FreeRTOS ─────────────────────────────────────────────────────────────
-function generateFreeRtosLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const things = [
-    "sensor-node-01",
-    "actuator-03",
-    "gateway-edge",
-    "wearable-device",
-    "industrial-plc",
-  ];
-  const thing = rand(things);
-  const events = [
-    "OTA_UPDATE",
-    "MQTT_CONNECT",
-    "MQTT_DISCONNECT",
-    "SHADOW_UPDATE",
-    "DEFENDER_REPORT",
-    "FLEET_PROVISIONING",
-  ];
-  const ev = rand(events);
-  const boards = ["ESP32", "STM32L4", "NXP-LPC55S69", "Infineon-PSoC6", "Renesas-RX65N"];
-  const errMsgs = [
-    "OTA firmware validation failed",
-    "TLS handshake timeout",
-    "MQTT keepalive expired",
-    "Flash write error",
-    "Certificate rotation failed",
-  ];
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "freertos" },
-    },
-    aws: {
-      freertos: {
-        thing_name: thing,
-        event_type: ev,
-        board: rand(boards),
-        firmware_version: `${randInt(1, 5)}.${randInt(0, 9)}.${randInt(0, 20)}`,
-        heap_free_bytes: randInt(1024, isErr ? 512 : 65536),
-        stack_high_water_mark: randInt(128, 4096),
-        uptime_seconds: randInt(0, 86400 * 30),
-        mqtt_messages_sent: randInt(0, 10000),
-        mqtt_messages_received: randInt(0, 5000),
-        ota_status: ev === "OTA_UPDATE" ? (isErr ? "FAILED" : "SUCCEEDED") : null,
-      },
-    },
-    event: { outcome: isErr ? "failure" : "success", duration: randInt(1e3, 3e6) },
-    message: isErr
-      ? `FreeRTOS ${thing}: ${ev} failed — ${rand(errMsgs)}`
-      : `FreeRTOS ${thing}: ${ev} OK (${rand(boards)})`,
-    ...(isErr
-      ? {
-          error: {
-            code: rand(["OTAJobFailedException", "NetworkError", "ProvisioningFailed"]),
-            message: rand(errMsgs),
             type: "aws",
           },
         }
@@ -1050,6 +1024,4 @@ export {
   generateIotFleetWiseLog,
   generateGroundStationLog,
   generateKinesisVideoLog,
-  generatePanoramaLog,
-  generateFreeRtosLog,
 };

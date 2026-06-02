@@ -3,64 +3,93 @@
   "log": { "level": "info" },
   "labels": {},
   "severity": "INFO",
-  "logName": "projects/globex-sec-847293/logs/compute.googleapis.com%2Fserverless_neg",
-  "insertId": "lzvfaj19fcfots2m",
+  "logName": "projects/globex-sec-847293/logs/requests",
+  "insertId": "tkti8680mm18wowh",
   "resource": {
-    "type": "network_endpoint_group",
-    "labels": { "project_id": "globex-sec-847293", "neg": "neg-gx1do019", "region": "europe-west2" }
+    "type": "http_load_balancer",
+    "labels": {
+      "project_id": "globex-sec-847293",
+      "zone": "global",
+      "url_map_name": "um-9yj28e",
+      "target_proxy_name": "tp-https-pcn3",
+      "forwarding_rule_name": "fr-asia-south2-0ipx",
+      "backend_service_name": "bes-web-016o"
+    }
+  },
+  "httpRequest": {
+    "requestMethod": "PATCH",
+    "requestUrl": "https://api.globex-sec-847293.net/api/v2/analytics",
+    "status": 200,
+    "userAgent": "aws-sdk-java/2.25.12 ua/2.0 os/Linux lang/java/21.0.2 md/OpenJDK_64-Bit_Server_VM cfg/retry-mode/standard",
+    "remoteIp": "131.55.148.79",
+    "latency": "0.010000s",
+    "protocol": "HTTP/2"
   },
   "jsonPayload": {
-    "serverless_neg": "projects/globex-sec-847293/regions/europe-west2/networkEndpointGroups/neg-gx1do019",
-    "backend_service": "projects/globex-sec-847293/regions/europe-west2/backendServices/bes-run-w9hd",
-    "target_type": "cloud-run",
-    "cloud_run_revision": "projects/globex-sec-847293/locations/europe-west2/services/api-NRWK/revisions/api-LDYT-00001-abc",
-    "health_check": { "state": "HEALTHY", "consecutive_success": 1, "consecutive_failure": 0 },
-    "stats": { "requests": 497230, "error_rate": 0.0235 }
+    "cacheDecision": "USE_ORIGIN",
+    "backendTargetProjectNumber": "847293615048",
+    "backend_name": "bes-web-016o",
+    "forwarding_rule_name": "fr-asia-south2-0ipx",
+    "url_map_name": "um-9yj28e",
+    "target_proxy_name": "tp-https-pcn3"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
+    "region": "asia-south2",
     "project": { "id": "globex-sec-847293", "name": "Globex Security" },
     "account": { "id": "847293615048", "name": "Globex Security" },
-    "service": { "name": "serverless-neg" }
+    "service": { "name": "cloud-lb" }
   },
   "gcp": {
-    "serverless_neg": {
-      "json_payload": {
-        "serverless_neg": "projects/globex-sec-847293/regions/europe-west2/networkEndpointGroups/neg-gx1do019",
-        "backend_service": "projects/globex-sec-847293/regions/europe-west2/backendServices/bes-run-w9hd",
-        "target_type": "cloud-run",
-        "cloud_run_revision": "projects/globex-sec-847293/locations/europe-west2/services/api-NRWK/revisions/api-LDYT-00001-abc",
-        "health_check": { "state": "HEALTHY", "consecutive_success": 1, "consecutive_failure": 0 },
-        "stats": { "requests": 497230, "error_rate": 0.0235 }
+    "cloud_lb": {
+      "http_request": {
+        "requestMethod": "PATCH",
+        "requestUrl": "https://api.globex-sec-847293.net/api/v2/analytics",
+        "status": 200,
+        "userAgent": "aws-sdk-java/2.25.12 ua/2.0 os/Linux lang/java/21.0.2 md/OpenJDK_64-Bit_Server_VM cfg/retry-mode/standard",
+        "remoteIp": "131.55.148.79",
+        "latency": "0.010000s",
+        "protocol": "HTTP/2"
       },
-      "neg_name": "neg-gx1do019",
-      "backend_service": "bes-run-w9hd",
-      "target_type": "cloud-run",
-      "health_status": "HEALTHY",
-      "request_count": 497230,
-      "error_rate": 0.0235
+      "json_payload": {
+        "cacheDecision": "USE_ORIGIN",
+        "backendTargetProjectNumber": "847293615048",
+        "backend_name": "bes-web-016o",
+        "forwarding_rule_name": "fr-asia-south2-0ipx",
+        "url_map_name": "um-9yj28e",
+        "target_proxy_name": "tp-https-pcn3"
+      },
+      "backend_service": "bes-web-016o",
+      "url_map": "um-9yj28e",
+      "forwarding_rule": "fr-asia-south2-0ipx",
+      "request_method": "PATCH",
+      "url_path": "/api/v2/analytics",
+      "response_code": 200,
+      "latency_ms": 10,
+      "client_ip": "131.55.148.79",
+      "backend_ip": "140.76.114.70",
+      "protocol": "HTTP/2"
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
     "type": ["connection"],
-    "action": "serverless-neg",
+    "action": "http-request",
     "outcome": "success",
-    "duration": 189000000,
+    "duration": 10000000,
     "module": "gcp",
-    "dataset": "gcp.serverless_neg"
+    "dataset": "gcp.loadbalancing"
   },
-  "message": "compute.googleapis.com/serverless_negs neg-gx1do019 health=HEALTHY",
-  "service": { "name": "serverless-neg", "type": "gcp" },
+  "message": "loadbalancing.googleapis.com/requests PATCH 200 0.010000s https://api.globex-sec-847293.net/api/v2/analytics",
+  "service": { "name": "cloud-lb", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west2",
-    "id": "58rfqubl5r71vbjai50hzs5o9n3ambtazu7u"
+    "name": "elastic-agent-gcp-asia-south2",
+    "id": "chjhnx6rrhprzslahcdllyxjg9pv6ht7eyw6"
   },
   "input": { "type": "gcp-pubsub" }
 }

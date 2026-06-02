@@ -1,6 +1,6 @@
 /**
  * CloudWatch dimensional metrics for additional AWS integrations (Bedrock Guardrails,
- * EMR Serverless, GWLB & classic ELB, Elemental media & IVS, CloudSearch, Directory Service,
+ * EMR Serverless, GWLB & classic ELB, Elemental media & IVS, Directory Service,
  * ACM PCA, MGN, CloudWatch Synthetics, Amazon Managed Prometheus).
  */
 
@@ -498,77 +498,6 @@ export function generateMediapackageMetrics(ts: string, er: number): EcsDocument
   ];
 }
 
-// ─── MediaStore — AWS/MediaStore ───────────────────────────────────────────────
-
-export function generateMediastoreMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const container = `live-${randId(6)}`;
-  const doc1 = metricDoc(
-    ts,
-    "mediastore",
-    dataset("mediastore"),
-    region,
-    account,
-    { ContainerName: container },
-    {
-      "4xxError": counter(Math.random() < er ? randInt(50, 8000) : randInt(0, 400)),
-      "5xxError": counter(Math.random() < er ? randInt(10, 1200) : randInt(0, 60)),
-      BytesUploaded: counter(randInt(100_000_000, 25_000_000_000)),
-      BytesDownloaded: counter(randInt(200_000_000, 60_000_000_000)),
-      TotalTime: stat(dp(Math.random() < er ? randFloat(800, 9000) : jitter(180, 120, 20, 9000))),
-      TurnaroundTime: stat(
-        dp(Math.random() < er ? randFloat(450, 6200) : jitter(95, 70, 10, 6000))
-      ),
-      ConnectionErrors: counter(Math.random() < er ? randInt(5, 100) : randInt(0, 2)),
-      ThrottleRequests: counter(Math.random() < er ? randInt(10, 500) : 0),
-    }
-  );
-  const doc2 = metricDoc(
-    ts,
-    "mediastore",
-    dataset("mediastore"),
-    region,
-    account,
-    { ContainerName: container, AccessPoint: `ap-${randId(6)}` },
-    {
-      PendingUploads: stat(dp(Math.random() < er ? randFloat(30, 9000) : randFloat(0, 120))),
-      StaleObjectRequeue: counter(Math.random() < er ? randInt(500, 50_000) : randInt(0, 900)),
-    }
-  );
-  const doc3 = metricDoc(
-    ts,
-    "mediastore",
-    dataset("mediastore"),
-    region,
-    account,
-    { ContainerName: container, ObjectGroup: "live-segments" },
-    {
-      LifecyclePolicyFailures: counter(Math.random() < er ? randInt(5, 100) : randInt(0, 2)),
-      ServerSideEncryptionErrors: counter(Math.random() < er ? randInt(5, 80) : 0),
-    }
-  );
-  const doc4 = metricDoc(
-    ts,
-    "mediastore",
-    dataset("mediastore"),
-    region,
-    account,
-    { ContainerName: container, RequestType: rand(["PUT", "GET", "DELETE"]) },
-    {
-      "4xxError": counter(Math.random() < er ? randInt(500, 120_000) : randInt(0, 9000)),
-      DurationP99Milliseconds: stat(
-        dp(Math.random() < er ? randFloat(1200, 25_000) : randFloat(40, 800))
-      ),
-    }
-  );
-  return [
-    withCwNs(doc1, "AWS/MediaStore"),
-    withCwNs(doc2, "AWS/MediaStore"),
-    withCwNs(doc3, "AWS/MediaStore"),
-    withCwNs(doc4, "AWS/MediaStore"),
-  ];
-}
-
 // ─── MediaTailor — AWS/MediaTailor ────────────────────────────────────────────
 
 export function generateMediatailorMetrics(ts: string, er: number): EcsDocument[] {
@@ -760,62 +689,6 @@ export function generateIvschatMetrics(ts: string, er: number): EcsDocument[] {
     withCwNs(doc1, "AWS/IVSChat"),
     withCwNs(doc2, "AWS/IVSChat"),
     withCwNs(doc3, "AWS/IVSChat"),
-  ];
-}
-
-// ─── CloudSearch — AWS/CloudSearch ────────────────────────────────────────────
-
-export function generateCloudsearchMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const domain = `search-${randId(8)}`;
-  const doc1 = metricDoc(
-    ts,
-    "cloudsearch",
-    dataset("cloudsearch"),
-    region,
-    account,
-    { DomainName: domain },
-    {
-      SuccessfulRequests: counter(randInt(50_000, 90_000_000)),
-      SearchLatency: stat(dp(Math.random() < er ? randFloat(120, 2400) : jitter(42, 35, 5, 900))),
-      SearchLatencyP99: stat(dp(Math.random() < er ? randFloat(400, 9800) : randFloat(85, 980))),
-      IndexUtilization: stat(dp(jitter(0.35, 0.22, 0.05, 0.92))),
-      DocumentsBlockedForIndexingUserErrors: counter(
-        Math.random() < er ? randInt(10, 8000) : randInt(0, 400)
-      ),
-      DocumentsBlockedForIndexingSystemErrors: counter(
-        Math.random() < er ? randInt(1, 900) : randInt(0, 80)
-      ),
-    }
-  );
-  const doc2 = metricDoc(
-    ts,
-    "cloudsearch",
-    dataset("cloudsearch"),
-    region,
-    account,
-    { DomainName: domain, IndexField: rand(["title", "desc", "sku"]) },
-    {
-      IndexThrottles: counter(Math.random() < er ? randInt(10, 500) : 0),
-      PartitionQueueDepth: stat(dp(Math.random() < er ? randFloat(50, 9500) : randFloat(1, 280))),
-    }
-  );
-  const doc3 = metricDoc(
-    ts,
-    "cloudsearch",
-    dataset("cloudsearch"),
-    region,
-    account,
-    { DomainName: domain, ClientRequestType: rand(["search2013", "suggest2013"]) },
-    {
-      "5xx": counter(Math.random() < er ? randInt(500, 220_000) : randInt(0, 8500)),
-      "4xx": counter(Math.random() < er ? randInt(900, 380_000) : randInt(0, 42_000)),
-    }
-  );
-  return [
-    withCwNs(doc1, "AWS/CloudSearch"),
-    withCwNs(doc2, "AWS/CloudSearch"),
-    withCwNs(doc3, "AWS/CloudSearch"),
   ];
 }
 

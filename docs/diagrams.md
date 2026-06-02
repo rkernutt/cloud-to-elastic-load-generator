@@ -1,8 +1,8 @@
 # Cloud Loadgen for Elastic — Architecture Diagrams
 
-> **Catalog sizes (log · metric · trace services):** AWS **212 · 206 · 54**; GCP **130 · 123 · 48**; Azure **131 · 120 · 40**.
+> **Catalog sizes (services · trace generators):** AWS **233 · 54**; GCP **137 · 56**; Azure **141 · 44** (see [README](../README.md)).
 
-> **Installer assets (custom Kibana dashboards · ML anomaly jobs · Elasticsearch-query alert rules):** AWS **220 · 384 · 17**; GCP **127 · 152 · 17**; Azure **120 · 154 · 17**. Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
+> **Installer assets (custom Kibana dashboards · ML anomaly jobs · Elasticsearch-query alert rules):** AWS **223 · 401 · 17**; GCP **135 · 182 · 17**; Azure **138 · 195 · 17** (**496** dashboards, **778** ML jobs, **243** rules total). Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
 
 ---
 
@@ -15,17 +15,17 @@ flowchart LR
     end
 
     subgraph Engine["Load Generator Engine"]
-        SEL["Service Selector\n213 AWS services / 15 groups"]
+        SEL["Service Selector\n233 AWS services / 15 groups"]
         MODE["Mode Switch\nLogs · Metrics · Traces"]
         GEN["Generator Functions\nECS-shaped documents"]
         BUF["Batch Buffer\n50–1,000 docs / request"]
     end
 
     subgraph Elastic["Elastic Stack"]
-        PIPE["Ingest Pipelines\n100 AWS pipeline definitions (registry)\n188 objects installed"]
+        PIPE["Ingest Pipelines\nAWS pipeline registry\n193 objects installed"]
         DS[("Data Streams\nlogs-aws.*\nmetrics-aws.*\ntraces-apm.*")]
-        KB["Kibana\n220 custom dashboards"]
-        ML["ML Anomaly Detection\n384 jobs / 32 groups"]
+        KB["Kibana\n223 custom dashboards"]
+        ML["ML Anomaly Detection\n401 jobs / 33 groups"]
     end
 
     UI -->|"select services\nset volume + error rate"| SEL
@@ -92,7 +92,7 @@ flowchart TD
 
 ```mermaid
 mindmap
-  root((213 AWS Services))
+  root((233 AWS Services))
     Serverless and Core
       Lambda
       API Gateway
@@ -150,7 +150,6 @@ mindmap
       Audit Manager
       Verified Permissions
       Payment Cryptography
-      Artifact
     Security Findings
       GD to SecHub to Lake Chain
       CSPM (55 real CIS AWS rules)
@@ -175,7 +174,6 @@ mindmap
       DocumentDB
       Neptune
       Timestream
-      QLDB
       DynamoDB DAX
       Keyspaces
     Streaming and Messaging
@@ -226,11 +224,9 @@ mindmap
       Translate
       Transcribe
       Polly
-      Forecast
       Personalize
       Lex
       Q Business
-      Kendra
       Augmented AI A2I
       HealthLake
       Amazon Nova
@@ -249,7 +245,6 @@ mindmap
       Systems Manager
       CloudWatch Alarms
       AWS Health
-      Trusted Advisor
       Control Tower
       Organizations
       Service Catalog
@@ -308,19 +303,19 @@ flowchart TD
     subgraph I2["setup:aws-pipelines"]
         direction TB
         B1["Elasticsearch Ingest API"]
-        B2["100 AWS pipeline registry defs\n188 total objects (enrichment + routing)\n15 groups\nlogs-aws.service-default"]
+        B2["AWS pipeline registry\n193 total objects (enrichment + routing + reroute)\n15 groups\nlogs-aws.service-default"]
     end
 
     subgraph I3["setup:aws-dashboards"]
         direction TB
         C1["Kibana Saved Objects API\nor legacy NDJSON import"]
-        C2["220 Kibana dashboards\nLens + ES|QL panels\nper-service visualisations"]
+        C2["223 Kibana dashboards\nLens + ES|QL panels\nper-service visualisations"]
     end
 
     subgraph I4["setup:aws-ml-jobs"]
         direction TB
         D1["Elasticsearch ML API"]
-        D2["384 anomaly detection jobs\n32 groups\noptional auto-start"]
+        D2["401 anomaly detection jobs\n33 groups\noptional auto-start"]
     end
 
     I1 --> DONE
@@ -681,7 +676,7 @@ flowchart TD
 
     DS --> FEED
 
-    subgraph FEED["Datafeeds — 384 jobs"]
+    subgraph FEED["Datafeeds — 778 jobs (401 AWS)"]
         direction TB
         F1["Query: event.dataset filter\ne.g. aws.lambda_logs"]
         F2["Indices: logs-aws.* or metrics-aws.*"]
@@ -758,7 +753,7 @@ flowchart LR
 
     subgraph API_SRC["API Source"]
         direction TB
-        API_SVCS["GuardDuty · Security Hub\nInspector · Config\nAccess Analyzer · Macie\nDetective · Trusted Advisor\nBudgets · Billing\nCloudWatch RUM"]
+        API_SVCS["GuardDuty · Security Hub\nInspector · Config\nAccess Analyzer · Macie\nDetective · Budgets · Billing\nCloudWatch RUM"]
         API_META["input.type: http_endpoint\nagent.type: filebeat"]
     end
 

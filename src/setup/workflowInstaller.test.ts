@@ -24,7 +24,7 @@ describe("applyWorkflowOverrides", () => {
     });
     expect(out).toMatch(/- name: emailConnector[\s\S]*?default:\s+"internal-smtp"/);
     expect(out).toMatch(/connector-id:\s+"internal-smtp"/);
-    expect(out).not.toMatch(/connector-id:\s+"Elastic-Cloud-SMTP"/);
+    expect(out).not.toMatch(/connector-id:\s+"\{\{ inputs\.emailConnector \}\}"/);
   });
 
   it("escapes quotes inside override values to keep the YAML valid", () => {

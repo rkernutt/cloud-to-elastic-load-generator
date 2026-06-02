@@ -68,7 +68,6 @@ import {
   generateAdvisorLog,
   generateCostManagementLog,
   generateResourceGraphLog,
-  generateBlueprintsLog,
 } from "./aiSecurityExtended.js";
 import {
   generateVirtualNetworkLog,
@@ -126,7 +125,6 @@ import {
   generateRelayLog,
   generateIotCentralLog,
   generateDeviceProvisioningLog,
-  generateTimeSeriesInsightsLog,
   generateMediaServicesLog,
   generateCommunicationServicesLog,
   generateSignalRLog,
@@ -266,7 +264,6 @@ const DEDICATED: Record<string, Gen> = {
   advisor: generateAdvisorLog,
   "cost-management": generateCostManagementLog,
   "resource-graph": generateResourceGraphLog,
-  blueprints: generateBlueprintsLog,
   "sql-database": generateSqlDatabaseLog,
   "cosmos-db": generateCosmosDbLog,
   "app-service": generateAppServiceLog,
@@ -285,7 +282,6 @@ const DEDICATED: Record<string, Gen> = {
   relay: generateRelayLog,
   "iot-central": generateIotCentralLog,
   "device-provisioning": generateDeviceProvisioningLog,
-  "time-series-insights": generateTimeSeriesInsightsLog,
   "media-services": generateMediaServicesLog,
   "communication-services": generateCommunicationServicesLog,
   signalr: generateSignalRLog,

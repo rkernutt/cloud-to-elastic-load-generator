@@ -61,9 +61,15 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
         },
       },
       event: { outcome: e ? "failure" : "success", duration: randInt(1e4, e ? 5e6 : 2e5) },
-      message: e
-        ? `SageMaker Feature Store ${fg}: ${op} failed — ${rand(errCodes)}`
-        : `SageMaker Feature Store ${fg}: ${op} OK (${randInt(1, 100)} records)`,
+      message: JSON.stringify({
+        eventType: op,
+        featureGroupName: fg,
+        recordIdentifier: randId(12).toLowerCase(),
+        recordCount: randInt(1, 100),
+        onlineStoreLatencyMs: randFloat(1, e ? 500 : 20),
+        timestamp: new Date(ts).toISOString(),
+        ...(e ? { status: "Failed", errorCode: rand(errCodes) } : { status: "Succeeded" }),
+      }),
       ...(e
         ? {
             error: {
@@ -131,9 +137,18 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
         },
       },
       event: { outcome: e ? "failure" : "success", duration: randInt(1e7, 7.2e9) },
-      message: e
-        ? `SageMaker Pipeline ${pipeline}: step ${step} ${status} — ${rand(errMsgs)}`
-        : `SageMaker Pipeline ${pipeline}: step ${step} ${status}`,
+      message: JSON.stringify({
+        eventType: "PipelineStepStateChange",
+        pipelineName: pipeline,
+        pipelineExecutionId: `exec-${randId(12).toLowerCase()}`,
+        stepName: `${step}-${randInt(1, 5)}`,
+        stepType: step,
+        status,
+        executionDurationSeconds: randInt(10, e ? 3600 : 7200),
+        cacheHit: !e && Math.random() < 0.3,
+        timestamp: new Date(ts).toISOString(),
+        ...(e ? { outcome: "Failed", errorMessage: rand(errMsgs) } : { outcome: "Succeeded" }),
+      }),
       ...(e
         ? {
             error: {
@@ -192,9 +207,16 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
         },
       },
       event: { outcome: e ? "failure" : "success", duration: randInt(6e7, 9e8) },
-      message: e
-        ? `Model Monitor ${endpoint}: ${monType} completed with ${randInt(1, 15)} violations`
-        : `Model Monitor ${endpoint}: ${monType} passed (${randInt(100, 10000)} samples)`,
+      message: JSON.stringify({
+        eventType: "ModelMonitorExecution",
+        endpointName: endpoint,
+        monitoringType: monType,
+        executionStatus: e ? "CompletedWithViolations" : "Completed",
+        violationCount: e ? randInt(1, 15) : 0,
+        dataCapturedCount: randInt(100, 10000),
+        timestamp: new Date(ts).toISOString(),
+        ...(e ? { status: "Failed" } : { status: "Succeeded" }),
+      }),
       ...(e
         ? {
             error: {
@@ -403,22 +425,23 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
     ],
     error: [...life.fail, ...ERROR_MSGS],
   };
-  const plainMessage = rand(MSGS[level]);
+  const logText = rand(MSGS[level]);
   const spaceName = rand(STUDIO_SPACES);
   const appType = rand(STUDIO_APP_TYPES);
-  const useStudioLogging = isStudio && Math.random() < 0.55;
-  const message = useStudioLogging
-    ? JSON.stringify({
-        domainId,
-        space: spaceName,
-        appType,
-        user,
-        level: level.toUpperCase(),
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-        event: action,
-      })
-    : plainMessage;
+  const message = JSON.stringify({
+    eventType: action,
+    domainId,
+    domainName: domain,
+    jobName,
+    jobType,
+    modelName: model,
+    instanceType,
+    level: level.toUpperCase(),
+    log: logText,
+    timestamp: new Date(ts).toISOString(),
+    ...(isStudio ? { space: spaceName, appType, user } : {}),
+    ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+  });
   const isTrainingJob = jobType === "Training" || jobType === "HyperparameterTuning";
   const epoch = randInt(1, 100);
   const trainingMetrics = isTrainingJob
@@ -480,7 +503,7 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
               app_type: appType,
               app_name: rand(["default", `instance-${randId(8).toLowerCase()}`]),
               lifecycle_config: lifecycleConfig,
-              continuous_logging: useStudioLogging,
+              continuous_logging: true,
             }
           : {
               space_name: null,
@@ -790,21 +813,23 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
       provider: "bedrock.amazonaws.com",
       duration: lat * 1e9,
     },
-    message: isErr
-      ? Math.random() < 0.4
-        ? JSON.stringify({
-            scenario,
-            operation,
-            model,
-            awsException: errCode,
-            message: rand([
-              "Too many concurrent streaming connections",
-              "Model returned empty inference stream chunk",
-              "Guardrail ARN not authorized for this KMS key",
-            ]),
-          })
-        : `Bedrock ${operation} scenario=${scenario} model=${model.split(".")[1].split("-")[0]} FAILED: ${errCode}`
-      : `Bedrock ${operation} (${scenario}) ${inputTokens}->${outputTokens} tokens ${lat.toFixed(2)}s`,
+    message: JSON.stringify({
+      schemaType,
+      schemaVersion,
+      timestamp: ts,
+      accountId: acct.id,
+      region,
+      requestId: randId(32).toLowerCase(),
+      operation,
+      modelId: model,
+      input: { inputContentType: "application/json", inputBodyJson, inputTokenCount: inputTokens },
+      output: {
+        outputContentType: "application/json",
+        outputBodyJson,
+        outputTokenCount: outputTokens,
+      },
+      ...(isErr ? { errorCode: errCode } : {}),
+    }),
     log: { level: isErr ? "error" : lat > 10 ? "warn" : "info" },
     ...(isErr && errCode
       ? {
@@ -882,9 +907,19 @@ function generateBedrockAgentLog(ts: string, er: number): EcsDocument {
       provider: "bedrock-agent-runtime.amazonaws.com",
       duration: dur * 1e9,
     },
-    message: isErr
-      ? `Bedrock Agent ${agentId} ${action} FAILED`
-      : `Bedrock Agent ${agentId}: ${action} ${inputTokens}\u2192${outputTokens} tokens ${dur.toFixed(2)}s`,
+    message: JSON.stringify({
+      eventType: action,
+      agentId,
+      agentAliasId: aliasId,
+      sessionId,
+      inputTokenCount: inputTokens,
+      outputTokenCount: outputTokens,
+      invocationLatencyMs: latencyMs,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr
+        ? { status: "Failed", errorCode: rand(["ValidationException", "ThrottlingException"]) }
+        : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? { error: { code: "BedrockAgentError", message: "Agent invocation failed", type: "ml" } }
@@ -1043,9 +1078,16 @@ function generateRekognitionLog(ts: string, er: number): EcsDocument {
       dataset: "aws.rekognition",
       provider: "rekognition.amazonaws.com",
     },
-    message: isErr
-      ? `Rekognition ${op} FAILED: ${rand(["Image too large", "Access denied", "Throttled"])}`
-      : `Rekognition ${op}: ${randInt(1, 50)} results, ${confidence.toFixed(1)}% confidence`,
+    message: JSON.stringify({
+      eventType: op,
+      operation: op,
+      durationMs: Math.round(dur),
+      labelsDetected: isErr ? 0 : randInt(1, 50),
+      facesDetected: isErr ? 0 : randInt(0, 20),
+      maxConfidence: isErr ? 0 : confidence,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level },
     ...(isErr
       ? { error: { code: "RekognitionError", message: "Rekognition operation failed", type: "ml" } }
@@ -1112,9 +1154,15 @@ function generateTextractLog(ts: string, er: number): EcsDocument {
       dataset: "aws.textract",
       provider: "textract.amazonaws.com",
     },
-    message: isErr
-      ? `Textract ${op} FAILED on ${docType}: ${rand(["Unsupported format", "Document too large"])}`
-      : `Textract ${op}: ${docType}, ${pages} pages, ${pages * randInt(50, 500)} words`,
+    message: JSON.stringify({
+      eventType: op,
+      documentType: docType,
+      pagesProcessed: pages,
+      wordsDetected: pages * randInt(50, 500),
+      confidenceMean: Number(randFloat(85, 99)),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level },
     ...(isErr
       ? { error: { code: "TextractError", message: "Textract operation failed", type: "ml" } }
@@ -1244,9 +1292,15 @@ function generateComprehendLog(ts: string, er: number): EcsDocument {
       dataset: "aws.comprehend",
       provider: "comprehend.amazonaws.com",
     },
-    message: isErr
-      ? `Comprehend ${op} FAILED: ${rand(["Text too large", "Unsupported language"])}`
-      : `Comprehend ${op}: lang=${lang}${op === "DetectSentiment" ? `, sentiment=${sentiment}` : ""}`,
+    message: JSON.stringify({
+      eventType: op,
+      languageCode: lang,
+      textBytes: randInt(100, 100000),
+      sentiment: op === "DetectSentiment" ? sentiment : null,
+      entitiesDetected: op === "DetectEntities" ? randInt(0, 20) : 0,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level },
     ...(isErr
       ? { error: { code: "ComprehendError", message: "Comprehend operation failed", type: "ml" } }
@@ -1305,9 +1359,14 @@ function generateComprehendMedicalLog(ts: string, er: number): EcsDocument {
       dataset: "aws.comprehendmedical",
       provider: "comprehendmedical.amazonaws.com",
     },
-    message: isErr
-      ? `Comprehend Medical ${action} FAILED: ${rand(["Text too long", "Invalid request", "Rate limit exceeded"])}`
-      : `Comprehend Medical ${action}: ${entityCount} entities, ${phiCount} PHI`,
+    message: JSON.stringify({
+      eventType: action,
+      entitiesDetected: entityCount,
+      phiEntities: phiCount,
+      textCharacters: randInt(100, 10000),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level },
     ...(isErr
       ? {
@@ -1371,9 +1430,15 @@ function generateTranslateLog(ts: string, er: number): EcsDocument {
       dataset: "aws.translate",
       provider: "translate.amazonaws.com",
     },
-    message: isErr
-      ? `Translate FAILED (${srcLang}->${tgtLang}): ${rand(["Unsupported pair", "Low confidence"])}`
-      : `Translate ${srcLang}->${tgtLang}: ${chars.toLocaleString()} chars in ${dur.toFixed(0)}ms`,
+    message: JSON.stringify({
+      eventType: "TranslateText",
+      sourceLanguageCode: srcLang,
+      targetLanguageCode: tgtLang,
+      charactersTranslated: chars,
+      durationMs: Math.round(dur),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? { error: { code: "TranslateError", message: "Translate failed", type: "ml" } }
@@ -1438,9 +1503,17 @@ function generateTranscribeLog(ts: string, er: number): EcsDocument {
       dataset: "aws.transcribe",
       provider: "transcribe.amazonaws.com",
     },
-    message: isErr
-      ? `Transcribe job ${jobName} FAILED (${lang}): ${rand(["Audio too noisy", "Unsupported codec", "Access denied"])}`
-      : `Transcribe job ${jobName}: ${audioMins.toFixed(1)} min audio (${lang})`,
+    message: JSON.stringify({
+      eventType: "TranscriptionJobStateChange",
+      transcriptionJobName: jobName,
+      transcriptionJobStatus: jobStatus,
+      languageCode: lang,
+      mediaFormat,
+      audioDurationMinutes: audioMins,
+      wordCount: isErr ? 0 : Math.round(audioMins * 150),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? { error: { code: "TranscribeError", message: "Transcribe job failed", type: "ml" } }
@@ -1502,71 +1575,18 @@ function generatePollyLog(ts: string, er: number): EcsDocument {
       dataset: "aws.polly",
       provider: "polly.amazonaws.com",
     },
-    message: isErr
-      ? `Polly SynthesizeSpeech FAILED (${voice}): ${rand(["Text too long", "Invalid SSML", "Language not supported"])}`
-      : `Polly SynthesizeSpeech: ${voice} (${engine}), ${chars} chars`,
+    message: JSON.stringify({
+      eventType: pollyOp,
+      voiceId: voice,
+      engine,
+      charactersSynthesized: chars,
+      outputFormat: rand(["mp3", "ogg_vorbis", "pcm"]),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? { error: { code: "PollyError", message: "Polly synthesis failed", type: "ml" } }
-      : {}),
-  };
-}
-
-function generateForecastLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const dataset = rand([
-    "demand-forecast",
-    "sales-prediction",
-    "energy-consumption",
-    "web-traffic",
-  ]);
-  const action = rand([
-    "CreatePredictor",
-    "CreateForecast",
-    "CreateDatasetImportJob",
-    "GetAccuracyMetrics",
-  ]);
-  const dur = randInt(300, isErr ? 86400 : 7200);
-  const wql = Number(randFloat(0.05, 0.25));
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "forecast" },
-    },
-    aws: {
-      dimensions: { DatasetGroup: dataset, Operation: action },
-      forecast: {
-        dataset_group: dataset,
-        predictor_name: isErr ? null : `${dataset}-predictor-v${randInt(1, 20)}`,
-        action,
-        algorithm: rand(["AutoML", "CNN-QR", "DeepAR+", "NPTS", "Prophet", "ETS"]),
-        forecast_horizon: rand([7, 14, 30, 60, 90]),
-        weighted_quantile_loss: isErr ? null : wql,
-        duration_seconds: dur,
-        status: isErr ? "FAILED" : "ACTIVE",
-        error_message: isErr
-          ? rand(["Insufficient training data", "AutoML timed out", "Invalid target field"])
-          : null,
-      },
-    },
-    event: {
-      duration: dur * 1e9,
-      outcome: isErr ? "failure" : "success",
-      category: ["process"],
-      dataset: "aws.forecast",
-      provider: "forecast.amazonaws.com",
-    },
-    message: isErr
-      ? `Forecast ${action} FAILED for ${dataset}: ${rand(["Insufficient data", "Training timeout"])}`
-      : `Forecast ${action}: ${dataset}, WQL=${wql.toFixed(3)}`,
-    log: { level: isErr ? "error" : "info" },
-    ...(isErr
-      ? { error: { code: "ForecastError", message: "Forecast operation failed", type: "ml" } }
       : {}),
   };
 }
@@ -1620,9 +1640,15 @@ function generatePersonalizeLog(ts: string, er: number): EcsDocument {
       dataset: "aws.personalize",
       provider: "personalize.amazonaws.com",
     },
-    message: isErr
-      ? `Personalize ${action} FAILED for ${campaign}`
-      : `Personalize ${action}: ${numResults} recs for ${userId} in ${dur.toFixed(0)}ms`,
+    message: JSON.stringify({
+      eventType: action,
+      campaignName: campaign,
+      userId,
+      numResultsReturned: numResults,
+      durationMs: Math.round(dur),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? { error: { code: "PersonalizeError", message: "Personalize operation failed", type: "ml" } }
@@ -1679,83 +1705,23 @@ function generateLexLog(ts: string, er: number): EcsDocument {
       dataset: "aws.lex",
       provider: "lex.amazonaws.com",
     },
-    message: isErr
-      ? `Lex ${bot} FAILED: intent ${intent} - ${rand(["NLU confidence too low", "Slot validation failed"])}`
-      : `Lex ${bot}: intent=${intent} (${(nluScore * 100).toFixed(0)}%)`,
+    message: JSON.stringify({
+      eventType: "IntentRecognition",
+      botName: bot,
+      botId,
+      intentName: intent,
+      intentNluConfidenceScore: nluScore,
+      dialogState: isErr ? "Failed" : "Fulfilled",
+      inputTranscript: rand([
+        "I want to order a product",
+        "What is my order status",
+        "Cancel my order",
+      ]),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : nluScore < 0.7 ? "warn" : "info" },
     ...(isErr ? { error: { code: "LexError", message: "Lex intent failed", type: "ml" } } : {}),
-  };
-}
-
-function generateLookoutMetricsLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const detector = rand([
-    "revenue-anomaly",
-    "traffic-spike-detector",
-    "error-rate-monitor",
-    "latency-outlier",
-    "conversion-drop",
-  ]);
-  const metric = rand([
-    "revenue",
-    "page_views",
-    "error_rate",
-    "p99_latency",
-    "conversion_rate",
-    "api_calls",
-  ]);
-  const severity = isErr ? rand(["HIGH", "MEDIUM"]) : rand(["LOW", "MEDIUM"]);
-  const anomalyScore = isErr ? Number(randFloat(70, 99)) : Number(randFloat(0, 40));
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "lookoutmetrics" },
-    },
-    aws: {
-      dimensions: { AnomalyDetector: detector, Metric: metric },
-      lookoutmetrics: {
-        anomaly_detector_arn: `arn:aws:lookoutmetrics:${region}:${acct.id}:AnomalyDetector:${detector}`,
-        anomaly_group_id: randId(36).toLowerCase(),
-        metric_name: metric,
-        severity,
-        anomaly_score: anomalyScore,
-        relevant_dates: rand([3, 7, 14, 30]),
-        impact_value: Number(randFloat(-50, 200)),
-        expected_value: Number(randFloat(100, 10000)),
-        actual_value: Number(randFloat(50, 15000)),
-        dimension: rand([
-          { region: "us-east-1" },
-          { service: "checkout" },
-          { environment: "prod" },
-        ]),
-        sensitivity: rand(["LOW", "MEDIUM", "HIGH"]),
-        action_taken: isErr ? rand(["SNS_ALERT", "LAMBDA_TRIGGER"]) : null,
-      },
-    },
-    event: {
-      outcome: isErr ? "failure" : "success",
-      category: ["process"],
-      dataset: "aws.lookoutmetrics",
-      provider: "lookoutmetrics.amazonaws.com",
-    },
-    message: isErr
-      ? `Lookout for Metrics ANOMALY [${detector}]: ${metric} score=${anomalyScore.toFixed(0)} [${severity}]`
-      : `Lookout for Metrics [${detector}]: ${metric} anomaly_score=${anomalyScore.toFixed(0)}`,
-    log: { level: isErr ? "warn" : "info" },
-    ...(isErr
-      ? {
-          error: {
-            code: "AnomalyDetected",
-            message: "Lookout for Metrics anomaly",
-            type: "process",
-          },
-        }
-      : {}),
   };
 }
 
@@ -1846,9 +1812,20 @@ function generateQBusinessLog(ts: string, er: number): EcsDocument {
       provider: "qbusiness.amazonaws.com",
       duration: latencyMs * 1e6,
     },
-    message: isErr
-      ? `Q Business ${appName}: ${eventType} FAILED for ${user}`
-      : `Q Business ${appName}: ${user} ${eventType.toLowerCase()} (${retrievedDocs} docs retrieved)`,
+    message: JSON.stringify({
+      eventType,
+      applicationName: appName,
+      applicationId: appId,
+      conversationId,
+      userId: user,
+      inputTokenCount: inputTokens,
+      outputTokenCount: outputTokens,
+      retrievedDocuments: retrievedDocs,
+      responseLatencyMs: latencyMs,
+      guardrailAction: guardrailBlocked ? "BLOCKED" : "NONE",
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : guardrailBlocked ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1861,92 +1838,6 @@ function generateQBusinessLog(ts: string, er: number): EcsDocument {
             ]),
             message: "Q Business operation failed",
             type: "ai",
-          },
-        }
-      : {}),
-  };
-}
-
-function generateKendraLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const isErr = Math.random() < er;
-  const indexName = rand([
-    "hr-docs",
-    "legal-kb",
-    "product-catalog",
-    "support-articles",
-    "company-wiki",
-  ]);
-  const indexId = `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`.toLowerCase();
-  const action = rand([
-    "QueryIndex",
-    "BatchPutDocument",
-    "CreateDataSource",
-    "StartDataSourceSyncJob",
-    "SyncJobSucceeded",
-    "SyncJobFailed",
-  ]);
-  const queryId = randUUID
-    ? randUUID()
-    : `${randId(8)}-${randId(4)}-${randId(4)}-${randId(4)}-${randId(12)}`;
-  const queryText = rand([
-    "how to reset password",
-    "onboarding policy",
-    "product return policy",
-    "escalation process",
-    "configure SSO",
-  ]);
-  const resultCount = isErr ? 0 : randInt(0, 20);
-  const responseTimeMs = randInt(50, isErr ? 10000 : 1500);
-  const relevanceScore = isErr ? 0 : Number(randFloat(0.3, 0.99));
-  const dsType = rand(["S3", "Confluence", "SharePoint", "Salesforce", "ServiceNow"]);
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "kendra" },
-    },
-    aws: {
-      dimensions: { IndexId: indexId, Operation: action },
-      kendra: {
-        index_id: indexId,
-        index_name: indexName,
-        query_id: action === "QueryIndex" ? queryId : null,
-        query_text: action === "QueryIndex" ? queryText : null,
-        result_count: resultCount,
-        response_time_ms: responseTimeMs,
-        relevance_score: action === "QueryIndex" ? relevanceScore : null,
-        document_count: randInt(100, 500000),
-        data_source_id: `ds-${randId(10).toLowerCase()}`,
-        data_source_type: dsType,
-      },
-    },
-    log: { level: isErr ? "error" : "info" },
-    event: {
-      action,
-      outcome: isErr ? "failure" : "success",
-      category: ["process"],
-      dataset: "aws.kendra",
-      provider: "kendra.amazonaws.com",
-      duration: responseTimeMs * 1e6,
-    },
-    message: isErr
-      ? `Kendra ${action} FAILED [${indexName}]: ${rand(["Index not found", "Access denied", "Throttled", "Service unavailable"])}`
-      : `Kendra ${action}: index=${indexName}${action === "QueryIndex" ? `, results=${resultCount}, score=${relevanceScore.toFixed(2)}` : ""}`,
-    ...(isErr
-      ? {
-          error: {
-            code: rand([
-              "ResourceNotFoundException",
-              "AccessDeniedException",
-              "ThrottlingException",
-              "InternalServerException",
-            ]),
-            message: "Kendra operation failed",
-            type: "search",
           },
         }
       : {}),
@@ -2018,9 +1909,18 @@ function generateA2iLog(ts: string, er: number) {
       dataset: "aws.a2i",
       provider: "sagemaker.amazonaws.com",
     },
-    message: isErr
-      ? `A2I ${action} FAILED [${loopName}]: ${rand(["Loop not found", "Task timed out", "Access denied"])}`
-      : `A2I ${action}: loop=${loopName}, status=${loopStatus}${thresholdBreach ? `, confidence=${confidence.toFixed(2)}<${threshold} REVIEW REQUIRED` : ""}`,
+    message: JSON.stringify({
+      eventType: action,
+      humanLoopName: loopName,
+      humanLoopStatus: loopStatus,
+      confidenceThreshold: threshold,
+      confidence,
+      humanReviewRequired: thresholdBreach || action === "ConditionThresholdBreached",
+      reviewerCount,
+      taskCount,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     ...(isErr
       ? {
           error: {
@@ -2097,9 +1997,16 @@ function generateHealthLakeLog(ts: string, er: number): EcsDocument {
       provider: "healthlake.amazonaws.com",
       duration: latencyMs * 1e6,
     },
-    message: isErr
-      ? `HealthLake ${action} FAILED [${datastoreName}/${resourceType}]: HTTP ${responseCode} - ${rand(["Resource not found", "Access denied", "Invalid FHIR resource", "Service unavailable"])}`
-      : `HealthLake ${action}: datastore=${datastoreName}, resource=${resourceType}, ${latencyMs}ms`,
+    message: JSON.stringify({
+      eventType: action,
+      datastoreName,
+      resourceType,
+      responseCode,
+      latencyMs,
+      fhirVersion: "R4",
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     ...(isErr
       ? {
           error: {
@@ -2200,9 +2107,19 @@ function generateNovaLog(ts: string, er: number): EcsDocument {
       provider: "bedrock.amazonaws.com",
       duration: latMs * 1e6,
     },
-    message: isErr
-      ? `Nova ${model.tier} [${model.id}] FAILED: ${errorCode}`
-      : `Nova ${model.tier} ${inputTokens}->${outputTokens} tokens ${(latMs / 1000).toFixed(2)}s${cacheReadTokens ? ` (${cacheReadTokens} cache hits)` : ""}`,
+    message: JSON.stringify({
+      eventType: "ModelInvocation",
+      modelId: model.id,
+      modelTier: model.tier,
+      modality,
+      inputTokenCount: inputTokens,
+      outputTokenCount: outputTokens,
+      cacheReadInputTokenCount: cacheReadTokens,
+      invocationLatencyMs: latMs,
+      streaming: isStreaming,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed", errorCode } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : latMs > 5000 ? "warn" : "info" },
     ...(isErr
       ? { error: { code: errorCode, message: `Nova model invocation failed`, type: "ml" } }
@@ -2304,11 +2221,17 @@ function generateLookoutVisionLog(ts: string, er: number): EcsDocument {
       provider: "lookoutvision.amazonaws.com",
       duration: inferenceMs * 1e6,
     },
-    message: isErr
-      ? `Lookout for Vision [${projectName} v${modelVersion}] ${eventType} FAILED: ${rand(["Model not running", "Quota exceeded", "Invalid image format"])}`
-      : isAnomaly
-        ? `Lookout for Vision [${projectName}] ANOMALY DETECTED: ${anomalyLabel} confidence=${confidence.toFixed(3)}`
-        : `Lookout for Vision [${projectName}] OK confidence=${confidence.toFixed(3)} ${inferenceMs}ms`,
+    message: JSON.stringify({
+      eventType,
+      projectName,
+      modelVersion,
+      isAnomalous: isAnomaly,
+      confidence,
+      anomalyLabel,
+      inferenceLatencyMs: eventType === "DetectAnomalies" ? inferenceMs : null,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : isAnomaly ? "warn" : "info" },
     ...(isErr
       ? {
@@ -2367,9 +2290,18 @@ function generateHealthOmicsLog(ts: string, er: number): EcsDocument {
       duration: randInt(60, isErr ? 7200 : 86400) * 1e9,
     },
     data_stream: { type: "logs", dataset: "aws.healthomics", namespace: "default" },
-    message: isErr
-      ? `HealthOmics workflow ${workflowId} run ${runId}: ${errorCode} (${engine})`
-      : `HealthOmics workflow ${workflowId}: status=${runStatus}, tasks=${tasksCompleted}, storage=${storageGbUsed.toFixed(1)}GB`,
+    message: JSON.stringify({
+      eventType: "WorkflowRunStateChange",
+      workflowId,
+      runId,
+      engine,
+      runStatus,
+      tasksCompleted,
+      tasksFailed,
+      storageGbUsed,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed", errorCode } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -2428,9 +2360,19 @@ function generateBedrockDataAutomationLog(ts: string, er: number): EcsDocument {
       duration: randInt(100, isErr ? 30000 : 5000) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.bedrockdataautomation", namespace: "default" },
-    message: isErr
-      ? `Bedrock Data Automation project ${projectId}: ${errorCode} for ${inputType} input`
-      : `Bedrock Data Automation project ${projectId}: ${status}, pages=${pagesProcessed}, tokens=${tokensUsed}, confidence=${confidenceScore.toFixed(3)}`,
+    message: JSON.stringify({
+      eventType: "DataAutomationInvocation",
+      projectId,
+      invocationId,
+      inputType,
+      blueprintId,
+      invocationStatus: status,
+      pagesProcessed,
+      tokensUsed,
+      confidenceScore,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { outcome: "Failed", errorCode } : { outcome: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -2487,9 +2429,16 @@ function generateLookoutEquipmentLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(5e4, 5e6) },
-    message: isErr
-      ? `Lookout Equipment ${model}: anomaly detected in ${rand(sensors)}`
-      : `Lookout Equipment ${model}: ${ev} completed normally`,
+    message: JSON.stringify({
+      eventType: ev,
+      modelName: model,
+      anomalyDetected: isErr,
+      diagnosticsScore: randFloat(0, 1),
+      dataPointsIngested: randInt(100, 50000),
+      inferenceLatencyMs: randInt(50, isErr ? 5000 : 500),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
   };
 }
 
@@ -2528,9 +2477,17 @@ function generateMonitronLog(ts: string, er: number): EcsDocument {
       },
     },
     event: { outcome: isErr ? "failure" : "success", duration: randInt(1e4, 1e5) },
-    message: isErr
-      ? `Monitron ${project}/${sensor}: ${condition} — vibration/temperature anomaly`
-      : `Monitron ${project}/${sensor}: ${condition} (temp ${randFloat(20, 50).toFixed(1)}°C)`,
+    message: JSON.stringify({
+      eventType: "SensorReading",
+      projectName: project,
+      sensorId: sensor,
+      machineCondition: condition,
+      vibrationIsoRms: randFloat(0.1, isErr ? 25 : 4),
+      temperatureCelsius: randFloat(20, isErr ? 95 : 60),
+      batteryLevelPct: randInt(10, 100),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
+    }),
   };
 }
 
@@ -2545,12 +2502,9 @@ export {
   generateTranslateLog,
   generateTranscribeLog,
   generatePollyLog,
-  generateForecastLog,
   generatePersonalizeLog,
   generateLexLog,
-  generateLookoutMetricsLog,
   generateQBusinessLog,
-  generateKendraLog,
   generateA2iLog,
   generateHealthLakeLog,
   generateNovaLog,

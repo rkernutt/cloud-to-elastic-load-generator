@@ -187,19 +187,19 @@ describe("setupAssetMatch", () => {
 
   it("infers AWS ML job slugs from event.dataset and matches services", () => {
     const j = {
-      id: "aws-kendra-query-failure-spike",
-      description: "Kendra failures",
+      id: "aws-bedrock-invocation-failure-spike",
+      description: "Bedrock failures",
       job: {},
       datafeed: {
         query: {
           bool: {
-            filter: [{ term: { "event.dataset": "aws.kendra" } }],
+            filter: [{ term: { "event.dataset": "aws.bedrock" } }],
           },
         },
       },
     };
-    expect(mlJobInferredMatchKeys(j, "aws")).toContain("kendra");
-    expect(mlJobEntryMatchesSelectedServices(j, "aws", new Set(["kendra"]))).toBe(true);
+    expect(mlJobInferredMatchKeys(j, "aws")).toContain("bedrock");
+    expect(mlJobEntryMatchesSelectedServices(j, "aws", new Set(["bedrock"]))).toBe(true);
   });
 
   it("maps aws-nlb ML jobs to nlb despite shared aws.elb metrics dataset", () => {

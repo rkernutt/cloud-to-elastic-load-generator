@@ -26,7 +26,6 @@ const SERVICE_INGESTION_DEFAULTS = {
   accessanalyzer: "api", // Access Analyzer findings API
   macie: "api", // Macie findings API
   detective: "api", // Detective graph API
-  trustedadvisor: "api", // Trusted Advisor check results API
   computeoptimizer: "api", // Compute Optimizer recommendations API
   budgets: "api", // Cost Explorer / Budgets API
   billing: "api", // Cost and Usage Report / Cost Explorer API
@@ -75,7 +74,6 @@ const SERVICE_INGESTION_DEFAULTS = {
   storagegateway: "cloudwatch",
   memorydb: "cloudwatch",
   timestream: "cloudwatch",
-  qldb: "cloudwatch",
   keyspaces: "cloudwatch",
   neptune: "cloudwatch",
   kinesis: "cloudwatch",
@@ -103,7 +101,6 @@ const SERVICE_INGESTION_DEFAULTS = {
   translate: "cloudwatch",
   transcribe: "cloudwatch",
   polly: "cloudwatch",
-  forecast: "cloudwatch",
   personalize: "cloudwatch",
   lex: "cloudwatch",
   iotcore: "cloudwatch",
@@ -145,11 +142,9 @@ const SERVICE_INGESTION_DEFAULTS = {
   comprehendmedical: "cloudwatch",
   locationservice: "cloudwatch",
   managedblockchain: "cloudwatch",
-  lookoutmetrics: "cloudwatch",
   natgateway: "cloudwatch",
   vpclattice: "cloudwatch",
   mskconnect: "cloudwatch",
-  kendra: "cloudwatch",
   a2i: "cloudwatch",
   healthlake: "cloudwatch",
   mwaa: "cloudwatch",
@@ -180,7 +175,6 @@ const SERVICE_INGESTION_DEFAULTS = {
   auditmanager: "api",
   verifiedpermissions: "cloudwatch",
   paymentcryptography: "cloudwatch",
-  artifact: "api",
   dax: "cloudwatch",
   proton: "cloudwatch",
   appfabric: "api",
@@ -198,7 +192,6 @@ const SERVICE_INGESTION_DEFAULTS = {
   mainframemodernization: "cloudwatch",
   parallelcomputing: "cloudwatch",
   evs: "cloudwatch",
-  simspaceweaver: "cloudwatch",
   healthomics: "cloudwatch",
   bedrockdataautomation: "cloudwatch",
   groundstation: "cloudwatch",
@@ -222,25 +215,19 @@ const SERVICE_INGESTION_DEFAULTS = {
   // v11.5 new services
   networkaccessanalyzer: "api",
   incidentmanager: "api",
-  cloudshell: "cloudwatch",
   cloud9: "cloudwatch",
-  robomaker: "cloudwatch",
   lookoutequipment: "cloudwatch",
   monitron: "cloudwatch",
   kinesisvideo: "cloudwatch",
-  panorama: "cloudwatch",
-  freertos: "cloudwatch",
   cloudwatchrum: "api",
   bedrockguardrails: "cloudwatch",
   gwlb: "cloudwatch",
   elb: "s3",
   mediaconnect: "cloudwatch",
   mediapackage: "cloudwatch",
-  mediastore: "cloudwatch",
   mediatailor: "cloudwatch",
   ivs: "cloudwatch",
   ivschat: "cloudwatch",
-  cloudsearch: "cloudwatch",
   directoryservice: "cloudwatch",
   acmpca: "cloudwatch",
   mgn: "cloudwatch",

@@ -1,53 +1,54 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-south-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-east-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "mediaconnect" }
   },
   "aws": {
     "mediaconnect": {
-      "flow_arn": "arn:aws:mediaconnect:eu-south-1:164820739518:flow:58SAITH9:live-feed-backup",
-      "flow_name": "live-feed-backup",
-      "source_arn": "arn:aws:mediaconnect:eu-south-1:164820739518:source:RXX7WRX0:src-live-feed-backup",
-      "entitlements": 1,
-      "output_health": "HEALTHY",
-      "bitrate_mbps": 21.798392405110643
+      "flow_arn": "arn:aws:mediaconnect:ap-east-1:738291046572:flow:EW2CCY8X:contribution-ingest",
+      "flow_name": "contribution-ingest",
+      "source_arn": "arn:aws:mediaconnect:ap-east-1:738291046572:source:K9PV9ARK:src-contribution-ingest",
+      "entitlements": 2,
+      "output_health": "STALE",
+      "bitrate_mbps": 18.84469062184895
     },
     "s3": {
       "bucket": {
-        "name": "aws-mediaconnect-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-mediaconnect-logs-164820739518"
+        "name": "aws-mediaconnect-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-mediaconnect-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/164820739518/mediaconnect/eu-south-1/2026/05/28/mediaconnect_7RI6JM6OCNPEPCPJA0OA.log.gz"
+        "key": "AWSLogs/738291046572/mediaconnect/ap-east-1/2026/06/01/mediaconnect_NCBT7PSFNSUW2EG3QLCC.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/mediaconnect/logs",
-      "log_stream": "eu-south-1/uqmygwu4",
-      "ingestion_time": "2026-05-28T16:58:16.287Z"
+      "log_stream": "ap-east-1/jrn97orj",
+      "ingestion_time": "2026-06-01T18:12:00.498Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.mediaconnect",
     "category": ["network"],
-    "type": ["connection"],
-    "duration": 127130266,
+    "type": ["error"],
+    "duration": 282035163,
     "module": "aws"
   },
-  "message": "MediaConnect flow live-feed-backup: source health OK — 21.8 Mbps, 1 dropped frames in last 60s",
+  "message": "{\"scenario\":\"network_congestion\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"region\":\"ap-east-1\",\"accountId\":\"738291046572\",\"status\":\"Failed\",\"error\":{\"code\":\"NetworkCongestion\",\"message\":\"Packet loss 6.1%\",\"type\":\"network\"}}",
+  "error": { "code": "NetworkCongestion", "message": "Packet loss 6.1%", "type": "network" },
   "service": { "name": "mediaconnect", "type": "aws" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.mediaconnect", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-south-1",
-    "ephemeral_id": "pt8iw6atvfu1b5d3yn1jck8bpaghnxw0x3ot"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "g2uy47p0e2g2y9o6pshy6ffg2bah0jj70kwy"
   },
   "input": { "type": "aws-cloudwatch" }
 }

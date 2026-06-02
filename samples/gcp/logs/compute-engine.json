@@ -1,65 +1,90 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "log": { "level": "info" },
-  "severity": "INFO",
+  "severity": "NOTICE",
   "labels": {
-    "instance_name": "node-bsg5",
-    "instance_id": "6334259022422",
-    "zone": "europe-west4-c"
+    "instance_id": "9013361985144",
+    "zone": "europe-west4-b",
+    "machine_type": "m3-megamem-128"
   },
-  "insertId": "ZEZHWM8OB1BZ",
+  "logName": "projects/globex-dev-615094/logs/cloudaudit.googleapis.com%2Factivity",
+  "insertId": "ADTFWVG6B6SV",
   "resource": {
     "type": "gce_instance",
     "labels": {
-      "project_id": "globex-stg-739158",
-      "instance_id": "6334259022422",
-      "zone": "europe-west4-c"
+      "project_id": "globex-dev-615094",
+      "instance_id": "9013361985144",
+      "zone": "europe-west4-b"
     }
   },
   "cloud": {
     "provider": "gcp",
     "region": "europe-west4",
-    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
-    "account": { "id": "739158264830", "name": "Globex Staging" },
-    "service": { "name": "shielded-vms" }
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
+    "service": { "name": "compute.googleapis.com" }
   },
   "gcp": {
-    "shielded_vms": {
-      "instance_name": "node-bsg5",
-      "event_type": "VTPM_ATTESTATION",
-      "integrity_status": "VERIFIED",
-      "policy_update": "NONE"
+    "compute_engine": {
+      "instance_id": "9013361985144",
+      "instance_name": "worker-v9px",
+      "machine_type": "m3-megamem-128",
+      "zone": "europe-west4-b",
+      "status": "OK",
+      "preemptible": false,
+      "network_tags": ["allow-http", "allow-https", "allow-http", "bastion"],
+      "event_type": "compute.instances.setMetadata",
+      "disk_size_gb": 1832
     }
   },
   "event": {
     "kind": "event",
     "category": ["host"],
     "type": ["info"],
-    "action": "compute-engine",
+    "action": "compute.instances.setMetadata",
     "outcome": "success",
-    "duration": 3584,
+    "duration": 19514,
     "module": "gcp",
-    "dataset": "gcp.shielded_vms"
+    "dataset": "gcp.compute"
   },
-  "message": "compute.googleapis.com/shieldedvm: instance node-bsg5 (europe-west4-c) VTPM_ATTESTATION OK (VERIFIED, policy NONE)",
-  "service": { "name": "shielded-vms", "type": "gcp" },
+  "message": "gke-node-pool-sa@globex-dev-615094.iam.gserviceaccount.com invoked compute.instances.setMetadata on projects/globex-dev-615094/zones/europe-west4-b/instances/worker-v9px",
+  "protoPayload": {
+    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+    "methodName": "compute.instances.setMetadata",
+    "resourceName": "projects/globex-dev-615094/zones/europe-west4-b/instances/worker-v9px",
+    "authenticationInfo": {
+      "principalEmail": "gke-node-pool-sa@globex-dev-615094.iam.gserviceaccount.com"
+    },
+    "requestMetadata": {
+      "callerIp": "34.102.136.77",
+      "callerSuppliedUserAgent": "Terraform/1.7.5",
+      "requestAttributes": { "time": "2026-04-04T12:00:00.000Z" }
+    },
+    "serviceName": "compute.googleapis.com",
+    "status": {}
+  },
+  "service": { "name": "compute-engine", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.shielded_vms", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.compute", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
     "name": "elastic-agent-gcp-europe-west4",
-    "id": "4xwrpsbsz2qzlowu4k0x8ex8aepxqeejkbwu"
+    "id": "jm7kz5vcluy5kfyo66g1481up3b9w5caz81g"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-stg-739158/logs/shielded-vms",
   "jsonPayload": {
-    "shielded_vms": {
-      "instance_name": "node-bsg5",
-      "event_type": "VTPM_ATTESTATION",
-      "integrity_status": "VERIFIED",
-      "policy_update": "NONE"
+    "compute_engine": {
+      "instance_id": "9013361985144",
+      "instance_name": "worker-v9px",
+      "machine_type": "m3-megamem-128",
+      "zone": "europe-west4-b",
+      "status": "OK",
+      "preemptible": false,
+      "network_tags": ["allow-http", "allow-https", "allow-http", "bastion"],
+      "event_type": "compute.instances.setMetadata",
+      "disk_size_gb": 1832
     },
-    "message": "compute.googleapis.com/shieldedvm: instance node-bsg5 (europe-west4-c) VTPM_ATTESTATION OK (VERIFIED, policy NONE)"
+    "message": "gke-node-pool-sa@globex-dev-615094.iam.gserviceaccount.com invoked compute.instances.setMetadata on projects/globex-dev-615094/zones/europe-west4-b/instances/worker-v9px"
   }
 }

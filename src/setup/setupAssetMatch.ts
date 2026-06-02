@@ -198,7 +198,7 @@ function addKeysFromAwsMlSegment(seg: string, keys: Set<string>): void {
 
 /**
  * Candidate slugs from an ML job (id, description, datafeed query, job config) for service alignment.
- * AWS: `aws.<service>` segments in serialized config (e.g. event.dataset aws.kendra → kendra).
+ * AWS: `aws.<service>` segments in serialized config (e.g. event.dataset aws.comprehend → comprehend).
  */
 export function mlJobInferredMatchKeys(j: MlJobEntry, cloudId: CloudId): string[] {
   const keys = new Set<string>();

@@ -1,36 +1,36 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "c646bce69f6dd304dc700c06cfc4f659" },
+  "trace": { "id": "a35d261226a6f9abe725b4314149092c" },
   "transaction": {
-    "id": "e35051e2fdd534d9",
-    "name": "POST /checkout",
+    "id": "9779b01679f3816d",
+    "name": "POST /notify/batch",
     "type": "request",
-    "duration": { "us": 822000 },
-    "result": "HTTP 2xx",
+    "duration": { "us": 260000 },
+    "result": "HTTP 5xx",
     "sampled": true,
     "span_count": { "started": 3, "dropped": 0 }
   },
-  "http": { "request": { "method": "POST" }, "response": { "status_code": 200 } },
-  "url": { "path": "/checkout" },
+  "http": { "request": { "method": "POST" }, "response": { "status_code": 502 } },
+  "url": { "path": "/notify/batch" },
   "labels": {
-    "container_id": "56ac0f3b260d",
-    "task_id": "arn:aws:ecs:eu-central-2:571938264710:task/prod-backend-cluster/b8d9e91fdc6ee69e39cac1b4afc85d6a",
-    "cluster_name": "prod-backend-cluster",
-    "task_definition": "checkout-service:33"
+    "container_id": "f23b99c1c55b",
+    "task_id": "arn:aws:ecs:ap-northeast-1:293847561023:task/staging-services-cluster/0e0ec5d15f11faeacda3723fdb643647",
+    "cluster_name": "staging-services-cluster",
+    "task_definition": "notification-service:22"
   },
   "service": {
-    "name": "checkout-service",
+    "name": "notification-service",
     "environment": "production",
-    "version": "2.14.3",
-    "language": { "name": "nodejs" },
-    "runtime": { "name": "nodejs20.x", "version": "20.15.1" },
+    "version": "2.13.8",
+    "language": { "name": "python" },
+    "runtime": { "name": "python3.12", "version": "3.12.3" },
     "framework": { "name": "ECS" }
   },
-  "agent": { "name": "otlp", "version": "1.4.0" },
+  "agent": { "name": "otlp", "version": "0.6.0" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "nodejs", "version": "1.30.1" },
-    "distro": { "name": "elastic", "version": "1.4.0" },
+    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
+    "distro": { "name": "elastic", "version": "0.6.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
       "export_protocol": "otlp",
@@ -39,11 +39,11 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "571938264710", "name": "dev-aws" },
+    "region": "ap-northeast-1",
+    "account": { "id": "293847561023", "name": "staging-aws" },
     "service": { "name": "ecs" }
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.ecs" },
+  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.cloudwatch_logs" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

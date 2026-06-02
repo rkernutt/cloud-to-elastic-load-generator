@@ -1,56 +1,56 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTNQNXKE9W" },
+    "dimensions": { "ExperimentTemplateId": "EXTYV1186MJ" },
     "fis": {
-      "experiment_id": "EXPR3KZZD9R",
-      "experiment_template_id": "EXTNQNXKE9W",
-      "experiment_name": "spot-interrupt-test",
-      "experiment_state": "pending",
+      "experiment_id": "EXPNWF300G2",
+      "experiment_template_id": "EXTYV1186MJ",
+      "experiment_name": "cpu-stress-test",
+      "experiment_state": "completed",
       "target_resource_type": "ECS tasks",
-      "action_type": "aws:ec2:stop-instances",
+      "action_type": "aws:ec2:terminate-instances",
       "stop_condition": "none",
-      "role_arn": "arn:aws:iam::293847561023:role/FISRole-spot-interrupt-test"
+      "role_arn": "arn:aws:iam::164820739518:role/FISRole-cpu-stress-test"
     },
     "s3": {
       "bucket": {
-        "name": "aws-fis-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-fis-logs-293847561023"
+        "name": "aws-fis-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-fis-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/293847561023/fis/ap-southeast-3/2026/05/28/fis_DEQ1Y61IWZSEDK3XQCY7.log.gz"
+        "key": "AWSLogs/164820739518/fis/eu-south-2/2026/06/01/fis_BETPZC73C19A3WPXFP5R.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "ap-southeast-3/radikmzb",
-      "ingestion_time": "2026-05-28T16:58:16.231Z"
+      "log_stream": "eu-south-2/k5f6bnax",
+      "ingestion_time": "2026-06-01T18:12:00.467Z"
     }
   },
   "event": {
-    "action": "TagResource",
+    "action": "StartExperiment",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.fis",
     "provider": "fis.amazonaws.com",
     "module": "aws"
   },
-  "message": "FIS TagResource: exp=EXPR3KZZD9R (spot-interrupt-test) state=pending, target=ECS tasks",
+  "message": "{\"eventType\":\"StartExperiment\",\"experimentId\":\"EXPNWF300G2\",\"experimentTemplateId\":\"EXTYV1186MJ\",\"experimentName\":\"cpu-stress-test\",\"state\":{\"status\":\"completed\"},\"targetResourceType\":\"ECS tasks\",\"actionId\":\"action-wu23oiac\",\"actionType\":\"aws:ec2:terminate-instances\",\"stopCondition\":\"aws:cloudwatch:alarm\",\"roleArn\":\"arn:aws:iam::164820739518:role/FISRole-cpu-stress-test\",\"status\":\"SUCCESS\",\"timestamp\":\"2026-06-01T18:11:59.613Z\"}",
   "log": { "level": "info" },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.fis", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "no8998okf1fb54p6vasodc307kh5dcqmxwx8"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "u6berir81qa1pp1ro5q7ybh4p55yzseplsc3"
   },
   "input": { "type": "aws-cloudwatch" }
 }

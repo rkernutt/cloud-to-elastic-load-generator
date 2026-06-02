@@ -1,46 +1,46 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "eu-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "cloudformation" }
   },
   "aws": {
     "cloudformation": {
-      "stack_name": "prod-web-stack",
-      "stack_id": "arn:aws:cloudformation:ap-south-2:164820739518:stack/prod-web-stack/0a2rop53",
-      "scenario": "changeset_execute",
-      "aws_api_operation": "DescribeChangeSet",
-      "change_set_id": "arn:aws:cloudformation:ap-south-2:164820739518:changeSet/cs-UIC41RRZ64",
-      "stack_status": "UPDATE_COMPLETE",
-      "resource_type": "AWS::IAM::Role",
+      "stack_name": "rds-cluster",
+      "stack_id": "arn:aws:cloudformation:eu-west-1:293847561023:stack/rds-cluster/ad6tu4ki",
+      "scenario": "stack_drift_detection",
+      "aws_api_operation": "DetectStackDrift",
+      "stack_status": "UPDATE_IN_PROGRESS",
+      "resource_type": "AWS::EC2::VPC",
       "logical_resource_id": "DatabaseCluster",
-      "physical_resource_id": "arn:aws:iam::164820739518:role/TaskRole",
-      "resource_status": "UPDATE_COMPLETE",
-      "drift_status": "NOT_CHECKED",
+      "physical_resource_id": "arn:aws:iam::293847561023:role/TaskRole",
+      "resource_status": "CREATE_IN_PROGRESS",
+      "resource_status_reason": "Resource creation failed",
+      "drift_status": "DRIFTED",
       "structured_logging": true,
       "metrics": {
-        "TotalStack": { "avg": 388 },
+        "TotalStack": { "avg": 257 },
         "ErroredStack": { "avg": 0 },
         "RollbackStack": { "avg": 0 },
-        "DeletedStack": { "avg": 9 },
-        "StackInstancesDeployed": { "avg": 4537 }
+        "DeletedStack": { "avg": 11 },
+        "StackInstancesDeployed": { "avg": 7714 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudformation-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-cloudformation-logs-164820739518"
+        "name": "aws-cloudformation-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-cloudformation-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/164820739518/cloudformation/ap-south-2/2026/05/28/cloudformation_0NNQD22NNGGV6DWYQ70Z.log.gz"
+        "key": "AWSLogs/293847561023/cloudformation/eu-west-1/2026/06/01/cloudformation_9TT61XNV8DR9XJO9B4AR.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/cloudformation/logs",
-      "log_stream": "ap-south-2/nnwjs9jy",
-      "ingestion_time": "2026-05-28T16:58:16.214Z"
+      "log_group": "/aws/cloudformation/cloudformation-stack-rum8ug",
+      "log_stream": "eu-west-1/vgdc40xd",
+      "ingestion_time": "2026-06-01T18:12:00.455Z"
     }
   },
   "event": {
@@ -48,19 +48,19 @@
     "category": ["configuration", "process"],
     "dataset": "aws.cloudformation",
     "provider": "cloudformation.amazonaws.com",
-    "duration": 404000000000,
+    "duration": 516000000000,
     "module": "aws"
   },
-  "message": "{\"StackId\":\"arn:aws:cloudformation:ap-south-2:164820739518:stack/prod-web-stack/0a2rop53\",\"StackName\":\"prod-web-stack\",\"ResourceType\":\"AWS::IAM::Role\",\"LogicalResourceId\":\"DatabaseCluster\",\"PhysicalResourceId\":\"arn:aws:iam::164820739518:role/TaskRole\",\"ResourceStatus\":\"UPDATE_COMPLETE\",\"ResourceStatusReason\":null,\"Timestamp\":\"2026-05-28T16:58:15.156Z\"}",
+  "message": "{\"StackId\":\"arn:aws:cloudformation:eu-west-1:293847561023:stack/rds-cluster/ad6tu4ki\",\"StackName\":\"rds-cluster\",\"ResourceType\":\"AWS::EC2::VPC\",\"LogicalResourceId\":\"DatabaseCluster\",\"PhysicalResourceId\":\"arn:aws:iam::293847561023:role/TaskRole\",\"ResourceStatus\":\"CREATE_IN_PROGRESS\",\"ResourceStatusReason\":\"Resource creation failed\",\"Timestamp\":\"2026-06-01T18:11:59.613Z\"}",
   "log": { "level": "info" },
   "service": { "name": "cloudformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.cloudformation", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "au5xn8ufe2qyhg3diuib4epekvfl35k9hyuj"
+    "name": "filebeat-aws-eu-west-1",
+    "ephemeral_id": "ktutksbcp9uzyjw3dogzcby5snejpyaaehsl"
   },
   "input": { "type": "aws-cloudwatch" }
 }

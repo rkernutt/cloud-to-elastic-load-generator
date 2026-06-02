@@ -2,9 +2,32 @@
 
 This document lists pipeline IDs, target fields, index patterns, and example parsed JSON keys for every AWS service in the load generator that can emit **structured (JSON) log lines** in the `message` field.
 
-The pattern is simple: one `json` processor on `message` → target field, with `ignore_failure: true` so plain-text messages are left unchanged.
+Service pipelines are generated from `installer/shared/pipeline-processors.mjs` and registered in `installer/aws-custom-pipelines/pipelines/registry.mjs`. Each pipeline typically:
+
+1. Parses JSON from `event.original` (or `message`) into `{ns}.parsed`
+2. Extracts named fields into `{ns}.*`
+3. Runs shared enrichment (ECS normalisation, GeoIP, duration conversion, and the processors below)
 
 > **Easy install:** `npm run setup:aws-pipelines` installs all pipelines interactively — no manual JSON needed. This document is a reference for understanding what each pipeline does and which fields are available after parsing.
+
+### Shared processors (all service pipelines)
+
+| Processor | Tag / type | Purpose |
+| --------- | ---------- | ------- |
+| **`vendorFieldPromotion`** | Painless (`promote_to_vendor_ns`) | After JSON extraction, copies parsed `{ns}.*` fields into `aws.{ns}.*` (fill-don't-overwrite) so dashboards, ML jobs, and rules that query `aws.<service>.*` work whether data arrived via ingest pipeline or was pre-populated by the generator. |
+| **`nonJsonFallback`** | Grok (`grok_log4j_fallback`) | When JSON parse did not produce `{ns}.parsed`, applies log4j-style grok patterns on `event.original` for analytics, compute, ML, AI/ML, and serverless groups — extracts `log.level` and message fragments from plain-text lines. |
+
+### Reroute pipelines (dynamic dataset routing)
+
+Three **reroute** pipelines (`group: "reroute"`) sit at generic ingestion entry points. They detect the target AWS service from ingestion metadata and `reroute` documents to the correct `logs-aws.{service}-default` data stream (and its service pipeline):
+
+| Pipeline ID | Ingestion path | Routing signal |
+| ----------- | -------------- | -------------- |
+| `logs-aws.cloudwatch_logs@custom` | CloudWatch Logs subscription / agent | `aws.cloudwatch.log_group` (e.g. `/aws/lambda/…`, `/ecs/…` → Fargate) |
+| `logs-aws_logs.generic@custom` | S3 / generic `aws_logs` path | `aws.s3.object.key` (`AWSLogs/<account>/<service>/…`) |
+| `logs-awsfirehose@custom` | Kinesis Data Firehose delivery | CloudWatch log group and/or S3 key (same matchers as above) |
+
+Attach the reroute pipeline matching your ingestion method at the generic data stream; service-specific pipelines run after reroute.
 
 ---
 

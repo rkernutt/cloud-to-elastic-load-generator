@@ -1,78 +1,68 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ca-west-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "firehose" }
   },
   "aws": {
-    "dimensions": { "DeliveryStreamName": "security-lake-feed" },
+    "dimensions": { "DeliveryStreamName": "clickstream-backup" },
     "firehose": {
-      "delivery_stream_name": "security-lake-feed",
-      "destination": "OpenSearch",
-      "operation": "CreateDeliveryStream",
-      "scenario": "delivery_ok",
-      "incoming_records": 6415,
-      "incoming_bytes": 10167775,
+      "delivery_stream_name": "clickstream-backup",
+      "destination": "Splunk",
+      "operation": "PutRecord",
+      "scenario": "buffer_flush",
+      "incoming_records": 33782,
+      "incoming_bytes": 49389284,
       "delivery_success": true,
-      "delivery_records": 5848,
-      "data_freshness_seconds": 59,
-      "transformation": { "buffer_size_mb": 15, "interval_seconds": 220, "compression": "SNAPPY" },
-      "s3_delivery": { "prefix_template": "!{timestamp:yyyy/MM/dd}/", "encryption": "SSE_KMS" },
+      "delivery_records": 26726,
+      "data_freshness_seconds": 82,
+      "transformation": {
+        "buffer_size_mb": 3,
+        "interval_seconds": 171,
+        "compression": "UNCOMPRESSED"
+      },
+      "s3_delivery": { "prefix_template": "!{timestamp:yyyy/MM/dd}/", "encryption": "SSE_S3" },
       "metrics": {
-        "IncomingBytes": { "sum": 10167775 },
-        "IncomingRecords": { "sum": 6415 },
+        "IncomingBytes": { "sum": 49389284 },
+        "IncomingRecords": { "sum": 33782 },
         "DeliveryToS3.Success": { "avg": 1 },
-        "DeliveryToS3.Bytes": { "sum": 6675314 },
-        "DeliveryToS3.DataFreshness": { "avg": 105 },
-        "DeliveryToS3.Records": { "sum": 6415 },
-        "ExecuteProcessing.Duration": { "avg": 503, "max": 737 },
+        "DeliveryToS3.Bytes": { "sum": 21625942 },
+        "DeliveryToS3.DataFreshness": { "avg": 136 },
+        "DeliveryToS3.Records": { "sum": 33782 },
+        "ExecuteProcessing.Duration": { "avg": 642, "max": 817 },
         "ExecuteProcessing.Success": { "avg": 1 },
-        "BackupToS3.Bytes": { "sum": 55915 },
-        "BackupToS3.Records": { "sum": 21 },
+        "BackupToS3.Bytes": { "sum": 50059 },
+        "BackupToS3.Records": { "sum": 22 },
         "BackupToS3.Success": { "avg": 1 },
-        "DataReadFromKinesisStream.Bytes": { "sum": 2071629 },
-        "DataReadFromKinesisStream.Records": { "sum": 634 },
+        "DataReadFromKinesisStream.Bytes": { "sum": 87374652 },
+        "DataReadFromKinesisStream.Records": { "sum": 408 },
         "ThrottledGetRecords": { "sum": 0 },
         "ThrottledGetShardIterator": { "sum": 0 }
       }
-    },
-    "s3": {
-      "bucket": {
-        "name": "aws-firehose-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-firehose-logs-738291046572"
-      },
-      "object": {
-        "key": "AWSLogs/738291046572/firehose/us-west-2/2026/05/28/firehose_VQ4ID01GTNFFF5N08VQO.log.gz"
-      }
-    },
-    "cloudwatch": {
-      "log_group": "/aws/firehose/logs",
-      "log_stream": "us-west-2/cvtu2vww",
-      "ingestion_time": "2026-05-28T16:58:16.097Z"
     }
   },
   "event": {
-    "action": "delivery_ok",
+    "action": "buffer_flush",
     "outcome": "success",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.firehose",
     "provider": "firehose.amazonaws.com",
-    "duration": 9000000000,
+    "duration": 51000000000,
     "module": "aws"
   },
-  "message": "CreateDeliveryStream: ACTIVE security-lake-feed destination=OpenSearch",
+  "message": "{\"deliveryStreamName\":\"clickstream-backup\",\"destination\":\"Splunk\",\"scenario\":\"buffer_flush\",\"operation\":\"PutRecord\",\"incomingRecords\":33782,\"incomingBytes\":49389284,\"deliverySuccess\":true,\"deliveryStatus\":\"SUCCESS\",\"bufferingHints\":{\"sizeInMB\":3,\"intervalInSeconds\":654}}",
   "log": { "level": "info" },
   "service": { "name": "firehose", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.firehose", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "awsfirehose", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-2",
-    "ephemeral_id": "hvx0zomlf20fgy0kzx3s9rhdik2lhwh55k9n"
+    "name": "filebeat-aws-ca-west-1",
+    "ephemeral_id": "52f0lkio5ltbh6d6llbt074fw8xthdzclssv"
   },
   "input": { "type": "aws-firehose" }
 }

@@ -1,56 +1,57 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "us-west-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "drs" }
   },
   "aws": {
-    "dimensions": { "SourceServerId": "s-bdrnahpucq2z6cbjl" },
+    "dimensions": { "SourceServerId": "s-18v8pfuvf7rpmqduw" },
     "drs": {
-      "source_server_id": "s-bdrnahpucq2z6cbjl",
-      "source_hostname": "db-primary",
+      "source_server_id": "s-18v8pfuvf7rpmqduw",
+      "source_hostname": "api-gateway-02",
       "replication_status": "Continuous",
-      "lag_duration_seconds": 12,
-      "data_replication_state": "Disconnected",
-      "ebs_volume_count": 3,
-      "staging_area": "us-east-1",
-      "recovery_point_objective_seconds": 41
+      "lag_duration_seconds": 7,
+      "recovery_instance_id": "i-57aa7a19ae4183134",
+      "data_replication_state": "Continuous",
+      "ebs_volume_count": 4,
+      "staging_area": "eu-west-1",
+      "recovery_point_objective_seconds": 50
     },
     "s3": {
       "bucket": {
-        "name": "aws-drs-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-drs-logs-738291046572"
+        "name": "aws-drs-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-drs-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/738291046572/drs/eu-west-2/2026/05/28/drs_PDLDZNW6M6JNCAVD3YBY.log.gz"
+        "key": "AWSLogs/293847561023/drs/us-west-1/2026/06/01/drs_6UUJ4A9IOR1LDJY4JB7C.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/drs/logs",
-      "log_stream": "eu-west-2/yd9rif39",
-      "ingestion_time": "2026-05-28T16:58:16.238Z"
+      "log_stream": "us-west-1/ppeb73it",
+      "ingestion_time": "2026-06-01T18:12:00.470Z"
     }
   },
   "event": {
-    "action": "TerminateRecoveryInstance",
+    "action": "FailbackComplete",
     "outcome": "success",
     "category": ["host"],
     "dataset": "aws.drs",
     "provider": "drs.amazonaws.com",
     "module": "aws"
   },
-  "message": "DRS db-primary: replication Continuous, RPO 41s",
+  "message": "{\"eventType\":\"FailbackComplete\",\"sourceServerId\":\"s-18v8pfuvf7rpmqduw\",\"sourceServerArn\":\"arn:aws:drs:us-west-1:293847561023:source-server/s-18v8pfuvf7rpmqduw\",\"sourceHostname\":\"api-gateway-02\",\"replicationStatus\":\"Continuous\",\"lagDurationSeconds\":7,\"recoveryPointObjectiveSeconds\":50,\"dataReplicationState\":\"InProgress\",\"recoveryInstanceId\":null,\"stagingAreaSubnet\":\"us-east-1\",\"status\":\"SUCCESS\",\"timestamp\":\"2026-06-01T18:11:59.613Z\"}",
   "log": { "level": "info" },
   "service": { "name": "drs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.drs", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "g3ptsj9z121dm2i8a8r6lt2a7bq4m239xjyk"
+    "name": "filebeat-aws-us-west-1",
+    "ephemeral_id": "e39h97jnhidqmbrm7vmm055lnm5mfe5n38id"
   },
   "input": { "type": "aws-cloudwatch" }
 }

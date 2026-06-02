@@ -1,50 +1,67 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-shared-7fi601/providers/Microsoft.Cache/Redis/redis-3zey2",
-  "operationName": "Microsoft.Cache/Redis/write",
-  "category": "Administrative",
-  "resultType": "Success",
-  "resultSignature": "Succeeded",
-  "callerIpAddress": "200.94.2.151",
-  "correlationId": "eeabd1f7-ad8c-428a-962f-c9833373156b",
-  "level": "Information",
-  "properties": { "skuTier": "Premium", "targetShardCount": 1, "state": "Succeeded" },
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-shared-lxt30j/providers/Microsoft.Cache/Redis/redis-rjbaa",
+  "operationName": "RedisEviction",
+  "category": "MemoryPressure",
+  "resultType": "Failure",
+  "resultSignature": "allkeys-lru",
+  "callerIpAddress": "58.10.62.207",
+  "correlationId": "d49eda4e-a0a7-46b7-a588-fd4fba1c5b85",
+  "level": "Warning",
+  "properties": {
+    "policy": "allkeys-lru",
+    "evictedKeys": 0,
+    "maxmemoryPolicyViolation": true,
+    "usedMemoryMB": 8333,
+    "detail": "Eviction stalled: replica sync backlog high"
+  },
   "cloud": {
     "provider": "azure",
-    "region": "westeurope",
-    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
+    "region": "northcentralus",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Cache/Redis" }
   },
   "azure": {
     "cache_for_redis": {
-      "cache_name": "redis-3zey2",
-      "resource_group": "rg-shared-7fi601",
-      "category": "Administrative",
-      "correlation_id": "eeabd1f7-ad8c-428a-962f-c9833373156b",
-      "properties": { "skuTier": "Premium", "targetShardCount": 1, "state": "Succeeded" }
+      "cache_name": "redis-rjbaa",
+      "resource_group": "rg-shared-lxt30j",
+      "category": "MemoryPressure",
+      "correlation_id": "d49eda4e-a0a7-46b7-a588-fd4fba1c5b85",
+      "properties": {
+        "policy": "allkeys-lru",
+        "evictedKeys": 0,
+        "maxmemoryPolicyViolation": true,
+        "usedMemoryMB": 8333,
+        "detail": "Eviction stalled: replica sync backlog high"
+      }
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["access"],
-    "action": "Microsoft.Cache/Redis/write",
-    "outcome": "success",
-    "duration": 3202615753,
+    "type": ["error"],
+    "action": "RedisEviction",
+    "outcome": "failure",
+    "duration": 169777638,
     "module": "azure",
     "dataset": "azure.redis_cache"
   },
-  "message": "Redis redis-3zey2: configuration patch completed",
+  "message": "Redis redis-rjbaa: eviction issue — Eviction stalled: replica sync backlog high",
+  "error": {
+    "code": "InternalServerError",
+    "message": "The storage backend returned an unexpected error.",
+    "type": "azure"
+  },
   "service": { "name": "cache-for-redis", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.redis_cache", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westeurope",
-    "id": "r7t2we2gi6tp9j6owdyl7zbsemgorw4cagu4"
+    "name": "elastic-agent-azure-northcentralus",
+    "id": "cgy94u13n9qpyaf8bfn89a3ix9ql30wt3i75"
   },
   "input": { "type": "azure-eventhub" }
 }

@@ -1,53 +1,53 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-central-1",
+    "region": "ap-south-1",
     "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-primary",
-      "DatabaseClass": "db.r5.large",
+      "DBInstanceIdentifier": "prod-db-replica",
+      "DatabaseClass": "db.t3.large",
       "EngineName": "mysql",
-      "SourceRegion": "ca-central-1"
+      "SourceRegion": "ap-south-1"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/instance/prod-db-primary/error",
-      "log_stream": "prod-db-primary",
-      "ingestion_time": "2026-05-28T16:58:15.914Z"
+      "log_group": "/aws/rds/instance/prod-db-replica/audit",
+      "log_stream": "prod-db-replica",
+      "ingestion_time": "2026-06-01T18:12:00.280Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-primary",
-        "class": "db.r5.large",
+        "identifier": "prod-db-replica",
+        "class": "db.t3.large",
         "engine_name": "mysql",
         "engine_version": "8.0.40",
-        "arn": "arn:aws:rds:ca-central-1:814726593401:db:prod-db-primary",
+        "arn": "arn:aws:rds:ap-south-1:814726593401:db:prod-db-replica",
         "status": "available",
         "role": "read-replica",
         "multi_az": false,
-        "storage_type": "io1",
-        "allocated_storage_gb": 100
+        "storage_type": "gp3",
+        "allocated_storage_gb": 500
       },
-      "log_type": "error",
-      "cpu": { "total": { "pct": 0.5844 } },
-      "freeable_memory": { "bytes": 1104166696 },
-      "free_storage": { "bytes": 284545095471 },
-      "database_connections": 235,
-      "read_io": { "ops_per_sec": 2446.562365986969 },
-      "write_io": { "ops_per_sec": 1685.0027418680918 },
-      "latency": { "read": 0.009276317430034903, "write": 0.001005023780768498 },
+      "log_type": "audit",
+      "cpu": { "total": { "pct": 0.5673 } },
+      "freeable_memory": { "bytes": 2630107215 },
+      "free_storage": { "bytes": 90028523248 },
+      "database_connections": 466,
+      "read_io": { "ops_per_sec": 1722.1807186469198 },
+      "write_io": { "ops_per_sec": 579.1473281124416 },
+      "latency": { "read": 0.004732120850585162, "write": 0.004551832031134866 },
       "throughput": {
-        "read": 75601439,
-        "write": 82945936,
-        "network_receive": 33910843,
-        "network_transmit": 15135620
+        "read": 21117181,
+        "write": 23991325,
+        "network_receive": 10491921,
+        "network_transmit": 53605790
       },
-      "replica_lag": { "sec": 30.34479906184907 },
-      "swap_usage": { "bytes": 95015057 },
-      "disk_usage": { "bin_log": { "bytes": 378934607 } }
+      "replica_lag": { "sec": 20.581992311323827 },
+      "swap_usage": { "bytes": 72015548 },
+      "disk_usage": { "bin_log": { "bytes": 955122885 } }
     },
     "s3": {
       "bucket": {
@@ -55,19 +55,19 @@
         "arn": "arn:aws:s3:::aws-rds-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/814726593401/rds/ca-central-1/2026/05/28/rds_6S5GGAKFWUKD028DYNLF.log.gz"
+        "key": "AWSLogs/814726593401/rds/ap-south-1/2026/06/01/rds_G0L8BEFBLAJMG7DF0RB4.log.gz"
       }
     }
   },
   "db": {
-    "user": { "name": "admin" },
+    "user": { "name": "dba" },
     "name": "analytics",
-    "statement": "SELECT * FROM orders WHERE id = 887756",
+    "statement": "INSERT INTO orders (name, email) VALUES ('mwilliams', 'alex.zhang@meridiantech.io')",
     "type": "sql"
   },
-  "source": { "ip": "195.83.235.186" },
+  "source": { "ip": "231.122.93.35" },
   "event": {
-    "duration": 212523914.8681338,
+    "duration": 863331058.5736418,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -75,19 +75,17 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-05-28 16:58:15.156 98793 [Note] [MY-20348] [Server] /rdsdbbin/mysql/bin/mysqld: ready for connections. Version: '8.0.32'  socket: '/tmp/mysql.sock'  port: 3306",
+  "message": "2026-06-01 18:11:59.613,231.122.93.35,dba,analytics,24624,56266,QUERY,INSERT INTO orders (name, email) VALUES ('mwilliams', 'alex.zhang@meridiantech.io'),0",
   "log": { "level": "info" },
-  "trace": { "id": "0DO0LY98CKVXJ180SL815P0AH51ICIB5" },
-  "transaction": { "id": "S73Q72PIRI2SE34I" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.rds", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-central-1",
-    "ephemeral_id": "3nur5b350ivnm199ykebwuayusl2blknreav"
+    "name": "filebeat-aws-ap-south-1",
+    "ephemeral_id": "bj0e5fguzuoe1fjkk055tlqmo64dq19t6kgk"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "ip": ["195.83.235.186"] }
+  "related": { "ip": ["231.122.93.35"] }
 }

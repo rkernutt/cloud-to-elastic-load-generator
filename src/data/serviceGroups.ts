@@ -66,12 +66,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "▣",
         desc: "ESXi host & vSAN operation logs",
       },
-      {
-        id: "simspaceweaver",
-        label: "SimSpace Weaver",
-        icon: "⊙",
-        desc: "Spatial simulation partition logs",
-      },
       { id: "lightsail", label: "Lightsail", icon: "⊙", desc: "Simple compute & container logs" },
     ],
   },
@@ -224,7 +218,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⊕",
         desc: "PIN/MAC/CVV cryptographic operation logs",
       },
-      { id: "artifact", label: "Artifact", icon: "⊙", desc: "Compliance report access audit logs" },
       {
         id: "networkaccessanalyzer",
         label: "Network Access Analyzer",
@@ -325,7 +318,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       { id: "docdb", label: "DocumentDB", icon: "⊙", desc: "MongoDB-compat query logs" },
       { id: "neptune", label: "Neptune", icon: "⬡", desc: "Graph DB query logs" },
       { id: "timestream", label: "Timestream", icon: "⌚", desc: "Time-series write & query" },
-      { id: "qldb", label: "QLDB", icon: "◈", desc: "Ledger transaction logs" },
       {
         id: "dax",
         label: "DynamoDB DAX",
@@ -409,9 +401,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⊙",
         desc: "Code suggestion & transform events",
       },
-      { id: "cloudshell", label: "CloudShell", icon: "⊙", desc: "Managed shell session logs" },
       { id: "cloud9", label: "Cloud9", icon: "⊟", desc: "IDE environment usage logs" },
-      { id: "robomaker", label: "RoboMaker", icon: "⊛", desc: "Robotics simulation & fleet logs" },
       { id: "codeguru", label: "CodeGuru", icon: "◎", desc: "Code quality findings" },
     ],
   },
@@ -465,12 +455,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⇆",
         desc: "EDI X12/EDIFACT transformation logs",
       },
-      {
-        id: "cloudsearch",
-        label: "CloudSearch",
-        icon: "◇",
-        desc: "Managed search domain indexing & query logs",
-      },
     ],
   },
   {
@@ -499,11 +483,9 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       { id: "translate", label: "Translate", icon: "⇌", desc: "Language translation logs" },
       { id: "transcribe", label: "Transcribe", icon: "⊙", desc: "Speech-to-text jobs" },
       { id: "polly", label: "Polly", icon: "◉", desc: "Text-to-speech synthesis" },
-      { id: "forecast", label: "Forecast", icon: "⌚", desc: "Time-series prediction logs" },
       { id: "personalize", label: "Personalize", icon: "⊕", desc: "Recommendation engine logs" },
       { id: "lex", label: "Lex", icon: "◯", desc: "Chatbot intent & session" },
       { id: "qbusiness", label: "Q Business", icon: "✦", desc: "Enterprise AI query & retrieval" },
-      { id: "kendra", label: "Kendra", icon: "◎", desc: "Enterprise search query logs" },
       { id: "a2i", label: "Augmented AI (A2I)", icon: "⊙", desc: "Human review loop logs" },
       { id: "healthlake", label: "HealthLake", icon: "⊛", desc: "FHIR health data store logs" },
       {
@@ -532,12 +514,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         desc: "Industrial equipment anomaly detection",
       },
       { id: "monitron", label: "Monitron", icon: "◉", desc: "Equipment health sensor monitoring" },
-      {
-        id: "lookoutmetrics",
-        label: "Lookout for Metrics",
-        icon: "◎",
-        desc: "Anomaly detection alerts",
-      },
       {
         id: "comprehendmedical",
         label: "Comprehend Medical",
@@ -574,8 +550,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "▷",
         desc: "Video stream ingestion & playback",
       },
-      { id: "panorama", label: "Panorama", icon: "◎", desc: "Edge computer vision appliance logs" },
-      { id: "freertos", label: "FreeRTOS", icon: "⊛", desc: "Embedded OS device telemetry" },
       { id: "iotevents", label: "IoT Events", icon: "⬡", desc: "Device state machine logs" },
       { id: "iotsitewise", label: "IoT SiteWise", icon: "⌚", desc: "Industrial asset telemetry" },
       { id: "iotdefender", label: "IoT Defender", icon: "⚠", desc: "Device security audit logs" },
@@ -608,7 +582,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         desc: "Canary runs, screenshots & availability checks",
       },
       { id: "health", label: "AWS Health", icon: "⊕", desc: "Service health events" },
-      { id: "trustedadvisor", label: "Trusted Advisor", icon: "◎", desc: "Cost & security checks" },
       { id: "controltower", label: "Control Tower", icon: "⊛", desc: "Guardrail & account mgmt" },
       { id: "organizations", label: "Organizations", icon: "⟺", desc: "Account & policy events" },
       {
@@ -735,12 +708,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         label: "MediaPackage",
         icon: "◉",
         desc: "Packaging & origination endpoints",
-      },
-      {
-        id: "mediastore",
-        label: "MediaStore",
-        icon: "○",
-        desc: "Live container object storage ops",
       },
       {
         id: "mediatailor",

@@ -1,24 +1,24 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
+  "severity": "WARNING",
   "log": { "level": "info" },
-  "labels": { "database_id": "auth", "instance_id": "sql-stg-kc7a" },
+  "labels": { "database_id": "reporting", "instance_id": "sql-prod-adou" },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-south1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "europe-west3",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
     "service": { "name": "cloud-sql" }
   },
   "gcp": {
     "cloud_sql": {
-      "instance_name": "sql-stg-kc7a",
-      "database_id": "auth",
-      "database_type": "MYSQL",
-      "tier": "db-n1-standard-4",
-      "connection_count": 95,
-      "cpu_utilization": 0.379,
-      "disk_utilization": 0.655
+      "instance_name": "sql-prod-adou",
+      "database_id": "reporting",
+      "database_type": "POSTGRES",
+      "tier": "db-custom-8-32768",
+      "connection_count": 58,
+      "cpu_utilization": 0.092,
+      "disk_utilization": 0.443
     }
   },
   "event": {
@@ -27,41 +27,41 @@
     "type": ["access"],
     "action": "database",
     "outcome": "success",
-    "duration": 483000000,
+    "duration": 1108000000,
     "module": "gcp",
     "dataset": "gcp.cloudsql"
   },
-  "message": "LOG: statement: SELECT * FROM orders WHERE status = ? AND created_at > ?\nLOG: duration: 39.465 ms",
+  "message": "Slow query: duration=5536.5ms rows_sent=363 rows_examined=283178 plan_rows=161311 database=reporting",
   "service": { "name": "cloud-sql", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.cloudsql", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-south1",
-    "id": "xoxukinx4hro3ag88dtkc2c2lijno6okvylo"
+    "name": "elastic-agent-gcp-europe-west3",
+    "id": "05fxnazeh893a447ywn5hr6yklkn3st5babm"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/cloud-sql",
+  "logName": "projects/globex-shared-529384/logs/cloud-sql",
   "resource": {
     "type": "cloudsql_database",
     "labels": {
-      "project_id": "globex-sec-847293",
-      "database_id": "globex-sec-847293:asia-south1:db",
-      "region": "asia-south1"
+      "project_id": "globex-shared-529384",
+      "database_id": "globex-shared-529384:europe-west3:db",
+      "region": "europe-west3"
     }
   },
-  "insertId": "DD0UNDX4GUSO",
+  "insertId": "HTTQU69NR6ZI",
   "jsonPayload": {
     "cloud_sql": {
-      "instance_name": "sql-stg-kc7a",
-      "database_id": "auth",
-      "database_type": "MYSQL",
-      "tier": "db-n1-standard-4",
-      "connection_count": 95,
-      "cpu_utilization": 0.379,
-      "disk_utilization": 0.655
+      "instance_name": "sql-prod-adou",
+      "database_id": "reporting",
+      "database_type": "POSTGRES",
+      "tier": "db-custom-8-32768",
+      "connection_count": 58,
+      "cpu_utilization": 0.092,
+      "disk_utilization": 0.443
     },
-    "message": "LOG: statement: SELECT * FROM orders WHERE status = ? AND created_at > ?\nLOG: duration: 39.465 ms"
+    "message": "Slow query: duration=5536.5ms rows_sent=363 rows_examined=283178 plan_rows=161311 database=reporting"
   }
 }

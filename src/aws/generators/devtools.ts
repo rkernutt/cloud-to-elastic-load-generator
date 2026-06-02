@@ -254,78 +254,42 @@ function generateCodePipelineLog(ts: string, er: number): EcsDocument {
   const buildProvider = rand(["CodeBuild", "CodeBuild", "JenkinsProvider"]);
   const deployProvider = rand(["CodeDeploy", "CloudFormation", "ECS"]);
   const approvalName = rand(["ManualApproval", "ChangeApproval", "SecuritySignOff"]);
-  const lines: string[] = [];
-  lines.push(
-    `[CodePipeline] executionId=${executionId} pipeline=${pipeline} state=${isErr ? "FAILED" : "SUCCEEDED"} region=${region}`
-  );
-  lines.push(
-    `[CodePipeline] Execution started for pipeline ${pipeline} (pipelineVersion=${randInt(1, 42)})`
-  );
-  lines.push(
-    `[Stage:Source] Transitioning: STARTED action=${srcAction} provider=${rand(["GitHub", "CodeCommit", "S3"])} revision=${revision.slice(0, 7)}`
-  );
-  lines.push(`[Stage:Source] Output artifact location: ${sourceZip}`);
-  lines.push(`[Stage:Source] Transitioning: SUCCEEDED durationMs=${randInt(1200, 45_000)}`);
-  lines.push(
-    `[Stage:Build] Transitioning: STARTED action=${buildProvider} project=${rand(["api-service-build", "web-build", "infra-validate"])}`
-  );
-  lines.push(`[Stage:Build] Input artifact: ${sourceZip}`);
-  lines.push(`[Stage:Build] Output artifact: ${buildOut}`);
-  if (isErr && stage === "Build") {
-    lines.push(
-      `[Stage:Build] Transitioning: FAILED error=BuildActionFailed details=CustomerBuildError`
-    );
-  } else {
-    lines.push(`[Stage:Build] Transitioning: SUCCEEDED durationMs=${randInt(45_000, 520_000)}`);
-    lines.push(
-      `[Stage:Deploy] Transitioning: STARTED action=${deployProvider} deploymentGroup=${rand(["prod", "staging", "canary"])}`
-    );
-    lines.push(`[Stage:Deploy] Output artifact: ${deployOut}`);
-    if (isErr && stage === "Deploy") {
-      lines.push(`[Stage:Deploy] Transitioning: FAILED error=DeploymentFailure`);
-    } else {
-      lines.push(`[Stage:Deploy] Transitioning: SUCCEEDED durationMs=${randInt(30_000, 900_000)}`);
-      lines.push(
-        `[Stage:Test] Transitioning: STARTED action=${rand(["CodeBuild", "LambdaInvoke", "StepFunctions"])}`
-      );
-      if (isErr && stage === "Test") {
-        lines.push(`[Stage:Test] Transitioning: FAILED error=TestActionFailed`);
-      } else {
-        lines.push(`[Stage:Test] Transitioning: SUCCEEDED durationMs=${randInt(20_000, 400_000)}`);
-        if (Math.random() < 0.35) {
-          lines.push(
-            `[Stage:Approval] Transitioning: STARTED action=${approvalName} token=${randId(24)}`
-          );
-          lines.push(
-            `[Stage:Approval] Waiting for manual approval (notificationArn=arn:aws:sns:${region}:${acct.id}:pipeline-approvals)`
-          );
-          lines.push(`[Stage:Approval] Transitioning: SUCCEEDED approvedBy=${randIamUser()}`);
-        }
-      }
-    }
-  }
-  if (isErr && !lines.some((l) => l.includes("FAILED"))) {
-    lines.push(`[Stage:${stage}] Transitioning: FAILED error=StageExecutionFailed`);
-  }
-  if (!isErr) {
-    lines.push(
-      `[CodePipeline] Execution succeeded for pipeline ${pipeline} executionId=${executionId}`
-    );
-  }
-  const plainMessage = lines.join("\n");
-  const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        pipeline,
-        executionId,
-        stage,
-        state: isErr ? "Failed" : "Succeeded",
-        timestamp: new Date(ts).toISOString(),
-        revision,
-        artifacts: { source: sourceZip, build: buildOut, deploy: deployOut },
-        stages: flow,
-      })
-    : plainMessage;
+  const pipelineState = isErr ? "Failed" : "Succeeded";
+  const message = JSON.stringify({
+    eventType: "PipelineExecutionStateChange",
+    pipeline,
+    executionId,
+    stage,
+    state: pipelineState,
+    timestamp: new Date(ts).toISOString(),
+    revision,
+    region,
+    artifacts: { source: sourceZip, build: buildOut, deploy: deployOut },
+    stages: flow,
+    currentStage: {
+      name: stage,
+      status: isErr ? "Failed" : "Succeeded",
+      actions: [
+        { name: srcAction, provider: rand(["GitHub", "CodeCommit", "S3"]), status: "Succeeded" },
+        {
+          name: buildProvider,
+          provider: buildProvider,
+          status: isErr && stage === "Build" ? "Failed" : "Succeeded",
+        },
+        {
+          name: deployProvider,
+          provider: deployProvider,
+          status: isErr && stage === "Deploy" ? "Failed" : "Succeeded",
+        },
+      ],
+    },
+    ...(Math.random() < 0.35 && !isErr
+      ? { approval: { action: approvalName, approvedBy: randIamUser() } }
+      : {}),
+    ...(isErr
+      ? { errorCode: "StageExecutionFailed", errorMessage: `Pipeline stage ${stage} failed` }
+      : {}),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -344,7 +308,7 @@ function generateCodePipelineLog(ts: string, er: number): EcsDocument {
         action_name: rand(["Source", "CodeBuild", "Deploy", "Manual", "Lambda"]),
         state: isErr ? "Failed" : "Succeeded",
         revision_id: revision,
-        structured_logging: useStructuredLogging,
+        structured_logging: true,
         metrics: {
           PipelineExecutionAttempts: { sum: 1 },
           PipelineSuccessCount: { sum: isErr ? 0 : 1 },
@@ -400,23 +364,38 @@ function generateCodeDeployLog(ts: string, er: number): EcsDocument {
     "ValidateService",
   ] as const;
   const instId = `i-${randHexId(8)}`;
-  const hookLines = hookOrder
-    .map((h) => {
+  const deploymentStyle = rand(["IN_PLACE", "BLUE_GREEN"]);
+  const eventStatus = isErr ? "Failed" : "Succeeded";
+  const message = JSON.stringify({
+    eventType:
+      isErr && Math.random() < 0.55 ? "DeploymentRollbackStarted" : "DeploymentStateChange",
+    deploymentId,
+    applicationName: app,
+    deploymentGroup: depGroup,
+    deploymentStyle,
+    lifecycleEvent: ev,
+    status: eventStatus,
+    durationSeconds: dur,
+    instanceCount: randInt(2, 24),
+    instancesSucceeded: isErr ? randInt(0, 5) : randInt(1, 10),
+    instancesFailed: isErr ? randInt(1, 3) : 0,
+    lifecycleHooks: hookOrder.map((h) => {
       const failedHere = isErr && ev === h;
-      const script = `${rand(["scripts/", "appspec/"])}${h.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase()}.sh`;
-      return `[Lifecycle:${h}] instanceId=${instId} script=${script} status=${failedHere ? "FAILED" : "SUCCEEDED"} durationSec=${randInt(2, 180)}`;
-    })
-    .slice(0, randInt(3, hookOrder.length));
-  const summaryLine =
-    isErr && Math.random() < 0.55
-      ? `[CodeDeploy] ROLLBACK_STARTED deploymentId=${deploymentId} reason=${rand(["Health checks failed", "Script failed", "Alarm breached"])} previousRevision=${randId(7)}`
-      : `[CodeDeploy] deploymentId=${deploymentId} status=${isErr ? "FAILED" : "SUCCEEDED"} overallDurationSec=${dur}`;
-  const narrative = [
-    `[CodeDeploy] deploymentId=${deploymentId} application=${app} deploymentGroup=${depGroup} deploymentStyle=${rand(["IN_PLACE", "BLUE_GREEN"])}`,
-    `[CodeDeploy] Targeting instances: count=${randInt(2, 24)} tagSet=Environment:${depGroup}`,
-    ...hookLines,
-    summaryLine,
-  ].join("\n");
+      return {
+        event: h,
+        instanceId: instId,
+        status: failedHere ? "Failed" : "Succeeded",
+        durationSeconds: randInt(2, 180),
+      };
+    }),
+    timestamp: new Date(ts).toISOString(),
+    ...(isErr
+      ? {
+          errorCode: rand(["SCRIPT_FAILED", "AGENT_ISSUE", "HEALTH_CONSTRAINTS_INVALID"]),
+          rollbackReason: rand(["Health checks failed", "Script failed", "Alarm breached"]),
+        }
+      : {}),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -458,7 +437,7 @@ function generateCodeDeployLog(ts: string, er: number): EcsDocument {
       dataset: "aws.codedeploy",
       provider: "codedeploy.amazonaws.com",
     },
-    message: narrative,
+    message,
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -527,9 +506,24 @@ function generateCodeCommitLog(ts: string, er: number): EcsDocument {
       dataset: "aws.codecommit",
       provider: "codecommit.amazonaws.com",
     },
-    message: isErr
-      ? `CodeCommit ${ev} FAILED on ${repo}: ${rand(["Encryption key unavailable", "Repository size limit"])}`
-      : `CodeCommit ${ev}: ${repo}/${branch}`,
+    message: JSON.stringify({
+      eventType: ev,
+      repositoryName: repo,
+      repositoryArn: `arn:aws:codecommit:${region}:${acct.id}:${repo}`,
+      referenceName: branch,
+      commitId: randId(40).toLowerCase(),
+      author: rand([randIamUser(), "github-actions", "codebuild", "svc-cicd-runner"]),
+      filesChanged: randInt(1, 50),
+      linesAdded: randInt(0, 500),
+      linesDeleted: randInt(0, 200),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr
+        ? {
+            status: "Failed",
+            errorCode: rand(["EncryptionKeyUnavailableException", "InvalidBranchNameException"]),
+          }
+        : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -593,9 +587,26 @@ function generateCodeArtifactLog(ts: string, er: number): EcsDocument {
       dataset: "aws.codeartifact",
       provider: "codeartifact.amazonaws.com",
     },
-    message: isErr
-      ? `CodeArtifact ${action} FAILED: ${pkg}@${ver} in ${domain}/${repo}`
-      : `CodeArtifact ${action}: ${pkg}@${ver} [${format}] in ${domain}/${repo}`,
+    message: JSON.stringify({
+      eventType: action,
+      domainName: domain,
+      repositoryName: repo,
+      packageFormat: format,
+      packageName: pkg,
+      packageVersion: ver,
+      downloadSizeBytes: randInt(10000, 50000000),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr
+        ? {
+            status: "Failed",
+            errorCode: rand([
+              "ResourceNotFoundException",
+              "AccessDeniedException",
+              "ResourceAlreadyExistsException",
+            ]),
+          }
+        : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -653,9 +664,23 @@ function generateAmplifyLog(ts: string, er: number): EcsDocument {
       dataset: "aws.amplify",
       provider: "amplify.amazonaws.com",
     },
-    message: isErr
-      ? `Amplify build FAILED: ${app}/${branch} - ${rand(["Build script failed", "npm error", "Timeout"])}`
-      : `Amplify build ${buildStatus}: ${app}/${branch} in ${dur}s`,
+    message: JSON.stringify({
+      eventType: "BuildEvent",
+      appName: app,
+      branchName: branch,
+      jobId: `${randInt(1, 1000)}`,
+      buildStatus,
+      durationSeconds: dur,
+      commitId: randId(40).toLowerCase(),
+      framework: rand(["React", "Next.js", "Vue", "Gatsby", "Angular"]),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr
+        ? {
+            errorMessage: rand(["Build script failed", "npm install error", "Timeout"]),
+            status: "Failed",
+          }
+        : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? { error: { code: "BuildFailed", message: "Amplify build failed", type: "build" } }
@@ -1121,9 +1146,26 @@ function generateCodeGuruLog(ts: string, er: number): EcsDocument {
       dataset: "aws.codeguru",
       provider: "codeguru.amazonaws.com",
     },
-    message: isErr
-      ? `CodeGuru ${product} FAILED [${repo}]: ${rand(["Internal error", "Repository not found", "Throttled"])}:`
-      : `CodeGuru ${product} [${repo}] ${severity}: ${finding.split(":")[0]}`,
+    message: JSON.stringify({
+      product,
+      repositoryName: repo,
+      findingId: randId(36).toLowerCase(),
+      category: finding.split(":")[0],
+      severity,
+      findingDescription: finding,
+      lineNumber: randInt(1, 500),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr
+        ? {
+            status: "Failed",
+            errorCode: rand([
+              "InternalServerException",
+              "ThrottlingException",
+              "ResourceNotFoundException",
+            ]),
+          }
+        : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : ["Critical", "High"].includes(severity) ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1190,36 +1232,58 @@ function generateCodeCatalystLog(ts: string, er: number): EcsDocument {
     "PublishArtifacts",
   ] as const;
   const stepIdx = isErr ? randInt(1, wfSteps.length - 1) : wfSteps.length;
-  const stepLine = wfSteps
-    .slice(0, stepIdx)
-    .map(
-      (s, i) =>
-        `[WorkflowRun:${workflowRunId}] step=${s} status=SUCCEEDED durationMs=${randInt(900, 180_000)} order=${i + 1}`
-    )
-    .join("\n");
   const failStep = isErr ? (wfSteps[stepIdx] ?? "BuildImage") : null;
   const prTrigger = Math.random() < 0.5;
-  const devLifecycle =
-    action === "CreateDevEnvironment" || action === "DeleteDevEnvironment"
-      ? `${action} devEnvId=${devEnvId} statusTransition=${rand(["REQUESTED", "PROVISIONING", "READY", "STOPPING", "DELETED"])} machineType=${rand(["STANDARD", "PERFORMANCE"])}`
-      : null;
-  const msgLines = [
-    `[CodeCatalyst] space=${spaceName} project=${projectName} workflow=${workflowName} run=${workflowRunId} status=${runStatus}`,
-    prTrigger
-      ? `[WorkflowRun] trigger=pull_request pr=#${prNumber} head=${prBranch} base=main sha=${randId(40).toLowerCase()}`
-      : `[WorkflowRun] trigger=${rand(["push", "schedule", "manual"])} ref=${rand(["refs/heads/main", "refs/heads/develop"])}`,
-    stepLine,
-    isErr && failStep
-      ? `[WorkflowRun:${workflowRunId}] step=${failStep} status=FAILED exitCode=${randInt(1, 127)}`
-      : null,
-    devLifecycle,
-    !isErr && runStatus === "SUCCEEDED"
-      ? `[WorkflowRun:${workflowRunId}] completed artifacts=${rand(["codecatalyst://artifacts/pkg", "s3://codecatalyst-artifacts/"])}${workflowRunId}`
-      : null,
-  ].filter((l): l is string => Boolean(l));
-  const message = isErr
-    ? `${msgLines.join("\n")}\nCodeCatalyst ${action} FAILED: ${rand(["Workflow run failed", "Dev environment error", "Branch conflict", "Quota exceeded"])}`
-    : msgLines.join("\n");
+  const message = JSON.stringify({
+    eventType: action,
+    spaceName,
+    projectName,
+    workflowName,
+    workflowRunId,
+    workflowRunStatus: runStatus,
+    timestamp: new Date(ts).toISOString(),
+    trigger: prTrigger
+      ? {
+          type: "pull_request",
+          pullRequestNumber: prNumber,
+          headBranch: prBranch,
+          baseBranch: "main",
+          commitSha: randId(40).toLowerCase(),
+        }
+      : {
+          type: rand(["push", "schedule", "manual"]),
+          ref: rand(["refs/heads/main", "refs/heads/develop"]),
+        },
+    steps: wfSteps.slice(0, stepIdx).map((s, i) => ({
+      name: s,
+      status: "Succeeded",
+      durationMs: randInt(900, 180_000),
+      order: i + 1,
+    })),
+    ...(failStep
+      ? { failedStep: { name: failStep, status: "Failed", exitCode: randInt(1, 127) } }
+      : {}),
+    ...(action === "CreateDevEnvironment" || action === "DeleteDevEnvironment"
+      ? {
+          devEnvironment: {
+            id: devEnvId,
+            status: rand(["REQUESTED", "PROVISIONING", "READY", "STOPPING", "DELETED"]),
+            machineType: rand(["STANDARD", "PERFORMANCE"]),
+          },
+        }
+      : {}),
+    ...(isErr
+      ? {
+          status: "Failed",
+          errorMessage: rand([
+            "Workflow run failed",
+            "Dev environment error",
+            "Branch conflict",
+            "Quota exceeded",
+          ]),
+        }
+      : { status: "Succeeded" }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1359,9 +1423,30 @@ function generateDeviceFarmLog(ts: string, er: number): EcsDocument {
       dataset: "aws.devicefarm",
       provider: "devicefarm.amazonaws.com",
     },
-    message: isErr
-      ? `Device Farm ${action} FAILED [${projectName}]: ${rand(["Run failed", "Device unavailable", "Upload invalid", "Timeout exceeded"])}`
-      : `Device Farm ${action}: project=${projectName}, run=${runName} ${runStatus} (${passedTests}/${totalTests} passed)`,
+    message: JSON.stringify({
+      eventType: action,
+      projectName,
+      projectArn,
+      runName,
+      runStatus,
+      devicePlatform,
+      deviceModel,
+      totalTests,
+      passedTests,
+      failedTests,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr
+        ? {
+            status: "Failed",
+            errorMessage: rand([
+              "Run failed",
+              "Device unavailable",
+              "Upload invalid",
+              "Timeout exceeded",
+            ]),
+          }
+        : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : failedTests > 0 ? "warn" : "info" },
     ...(isErr
       ? {
@@ -1435,9 +1520,18 @@ function generateProtonLog(ts: string, er: number): EcsDocument {
       provider: "proton.amazonaws.com",
       duration: randInt(10, isErr ? 600 : 120) * 1e9,
     },
-    message: isErr
-      ? `Proton ${component} ${serviceName} deployment FAILED on ${templateName}`
-      : `Proton ${component} ${serviceName} ${action} ${deploymentStatus}`,
+    message: JSON.stringify({
+      eventType: action,
+      component,
+      environmentName,
+      serviceName,
+      serviceInstanceName,
+      templateName,
+      templateMajorVersion,
+      deploymentStatus,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed", errorCode: deploymentStatus } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1494,9 +1588,18 @@ function generateQDeveloperLog(ts: string, er: number): EcsDocument {
       duration: randInt(10, isErr ? 30000 : 2000) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.qdeveloper", namespace: "default" },
-    message: isErr
-      ? `Q Developer ${feature} ${errorCode} for ${language} in ${ide}`
-      : `Q Developer ${feature}: ${suggestionsAccepted} accepted, ${suggestionsRejected} rejected (${language}/${ide})`,
+    message: JSON.stringify({
+      eventType: feature,
+      subscriptionId,
+      ide,
+      language,
+      acceptedSuggestions: suggestionsAccepted,
+      rejectedSuggestions: suggestionsRejected,
+      activeUsers,
+      latency_ms: randInt(80, isErr ? 30000 : 1200),
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { status: "Failed", errorCode } : { status: "Succeeded" }),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1504,108 +1607,6 @@ function generateQDeveloperLog(ts: string, er: number): EcsDocument {
             code: errorCode,
             message: `Q Developer ${feature} failed for ${language}`,
             type: "process",
-          },
-        }
-      : {}),
-  };
-}
-
-// ─── CloudShell ───────────────────────────────────────────────────────────
-function generateCloudShellLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const environmentId = `cs-${randId(10).toLowerCase()}`;
-  const mounts = rand([
-    [{ name: "home", source: `fs-${randId(6)}`, size_gb: randInt(1, 64) }],
-    [
-      { name: "home", source: `fs-home`, size_gb: 40 },
-      { name: "work", source: `fs-${randId(6)}`, size_gb: 10 },
-    ],
-  ]);
-  const r = randFloat(0, 1);
-  const scenario =
-    r < 0.28
-      ? "session_start"
-      : r < 0.45
-        ? "command_execute"
-        : r < 0.58
-          ? "env_provision"
-          : r < 0.7
-            ? "storage_mount"
-            : r < 0.82
-              ? "session_timeout"
-              : "credential_refresh";
-  const isErr = Math.random() < er;
-  const shells = ["bash", "zsh", "powershell"] as const;
-  const shell = rand(shells);
-  const errCode: "EnvironmentNotReady" | "SessionExpired" | undefined = isErr
-    ? scenario === "env_provision" || scenario === "session_start" || scenario === "storage_mount"
-      ? Math.random() < 0.62
-        ? "EnvironmentNotReady"
-        : "SessionExpired"
-      : scenario === "session_timeout" || scenario === "credential_refresh"
-        ? "SessionExpired"
-        : rand(["EnvironmentNotReady", "SessionExpired"] as const)
-    : undefined;
-
-  const cmd =
-    scenario === "command_execute"
-      ? rand([
-          "aws sts get-caller-identity",
-          "kubectl get pods",
-          "terraform plan",
-          "git pull --rebase",
-        ])
-      : null;
-  const messages: Record<string, string> = {
-    session_start: `Session started id=${randUUID().slice(0, 8)} env=${environmentId} shell=${shell}`,
-    command_execute: `[${shell}] $ ${cmd}  exit=${isErr ? randInt(1, 127) : 0} duration_ms=${randInt(12, 8000)}`,
-    env_provision: `Provisioning CloudShell environment ${environmentId} in ${region} (AMI ${rand(["2023.2", "2024.1"])})`,
-    storage_mount: `Attached EFS mount targets: ${mounts.map((m) => m.name).join(",")} total=${mounts.reduce((a, m) => a + m.size_gb, 0)}GiB`,
-    session_timeout: `Idle session policy: disconnect after ${randInt(20, 120)}m inactivity`,
-    credential_refresh: `Assumed role credentials refreshed via STS for ${acct.id}`,
-  };
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "cloudshell" },
-    },
-    aws: {
-      cloudshell: {
-        environment_id: environmentId,
-        scenario,
-        shell_type: shell,
-        session_duration_seconds: randInt(10, 7200),
-        storage_used_mb: randInt(1, 1024),
-        user_arn: `arn:aws:iam::${acct.id}:user/${rand(["developer", "admin", "readonly"])}`,
-        network_mode: rand(["public", "vpc"]),
-        mounts,
-        command: cmd,
-        api_request_id: randUUID(),
-        quota: { environments_per_region: randInt(1, 10), storage_limit_mb: 1024 },
-      },
-    },
-    event: {
-      action: scenario,
-      outcome: isErr ? "failure" : "success",
-      category: ["process", "session"],
-      dataset: "aws.cloudshell",
-      provider: "cloudshell.amazonaws.com",
-      duration: randInt(1e4, 5e6),
-    },
-    message: isErr
-      ? `${messages[scenario]} — ${errCode!}: ${rand(["token rotation failed", "volume not attached", "environment still initializing", "session TTL exceeded"])}`
-      : messages[scenario],
-    log: { level: isErr ? "error" : "info" },
-    ...(errCode
-      ? {
-          error: {
-            code: errCode,
-            message: `CloudShell ${scenario} failed for ${environmentId}`,
-            type: "aws",
           },
         }
       : {}),
@@ -1643,14 +1644,45 @@ function generateCloud9Log(ts: string, er: number): EcsDocument {
   const errCode: "EnvironmentNotFound" | "InsufficientPermissions" | undefined = isErr
     ? rand(["EnvironmentNotFound", "InsufficientPermissions"] as const)
     : undefined;
-  const messages: Record<string, string> = {
-    ide_open: `Cloud9 IDE session opened for ${env} (${environmentId}) via ${rand(["SSM", "SSH"])}`,
-    environment_create: `CreateEnvironmentEC2: ${env} instanceType=${rand(instanceTypes)} subnet=${`subnet-${randHexId(8)}`}`,
-    collaboration_join: `Member ${collaboration.member_user_arn.split("/").pop()} joined with ${collaboration.permission}`,
-    terminal_exec: `[terminal-1] ${rand(["npm test", "docker ps", "pytest -q", "cdk synth"])} completed rc=${isErr ? 1 : 0}`,
-    ssh_connect: `SSH_CONNECT host=${`ip-${randId(8)}.${region}.compute.internal`} fingerprint=${randId(16)}`,
-    auto_save: `Workspace auto-save: ${randInt(3, 40)} files written to EBS ${randInt(1, 500)}ms`,
-  };
+  const message = JSON.stringify({
+    eventType: scenario,
+    environmentId,
+    environmentName: env,
+    region,
+    timestamp: new Date(ts).toISOString(),
+    ...(scenario === "ide_open"
+      ? { connectionType: rand(["SSM", "SSH"]), status: isErr ? "Failed" : "Opened" }
+      : {}),
+    ...(scenario === "environment_create"
+      ? {
+          instanceType: rand(instanceTypes),
+          subnetId: `subnet-${randHexId(8)}`,
+          status: isErr ? "Failed" : "Created",
+        }
+      : {}),
+    ...(scenario === "collaboration_join"
+      ? {
+          memberUserArn: collaboration.member_user_arn,
+          permission: collaboration.permission,
+        }
+      : {}),
+    ...(scenario === "terminal_exec"
+      ? {
+          command: rand(["npm test", "docker ps", "pytest -q", "cdk synth"]),
+          exitCode: isErr ? 1 : 0,
+        }
+      : {}),
+    ...(scenario === "ssh_connect"
+      ? {
+          host: `ip-${randId(8)}.${region}.compute.internal`,
+          fingerprint: randId(16),
+        }
+      : {}),
+    ...(scenario === "auto_save"
+      ? { filesWritten: randInt(3, 40), durationMs: randInt(1, 500) }
+      : {}),
+    ...(isErr && errCode ? { errorCode: errCode } : {}),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1688,121 +1720,13 @@ function generateCloud9Log(ts: string, er: number): EcsDocument {
       provider: "cloud9.amazonaws.com",
       duration: randInt(1e5, 3e7),
     },
-    message: isErr ? `${messages[scenario]} — ${errCode}` : messages[scenario],
+    message,
     log: { level: isErr ? "error" : "info" },
     ...(errCode
       ? {
           error: {
             code: errCode,
             message: `Cloud9 ${scenario} failed for ${env}`,
-            type: "aws",
-          },
-        }
-      : {}),
-  };
-}
-
-// ─── RoboMaker ────────────────────────────────────────────────────────────
-function generateRoboMakerLog(ts: string, er: number): EcsDocument {
-  const region = rand(REGIONS);
-  const acct = randAccount();
-  const apps = ["warehouse-nav", "delivery-robot", "inspection-drone", "pick-and-place"];
-  const app = rand(apps);
-  const simulationJobId = `sim-${randId(12).toLowerCase()}`;
-  const rosDistro = rand(["ROS2 Humble", "ROS Melodic", "ROS Noetic"]);
-  const r = randFloat(0, 1);
-  const scenario =
-    r < 0.24
-      ? "simulation_launch"
-      : r < 0.4
-        ? "world_generate"
-        : r < 0.55
-          ? "robot_deploy"
-          : r < 0.7
-            ? "ros_node_start"
-            : r < 0.85
-              ? "physics_step"
-              : "log_upload";
-  const scenarioIsFailure =
-    scenario === "simulation_launch" ||
-    scenario === "world_generate" ||
-    scenario === "robot_deploy";
-  const isErr =
-    (scenarioIsFailure && Math.random() < 0.26) || (!scenarioIsFailure && Math.random() < er);
-  const errCode:
-    | "SimulationJobFailed"
-    | "WorldGenerationFailed"
-    | "RobotDeploymentFailed"
-    | undefined = isErr
-    ? scenario === "world_generate"
-      ? "WorldGenerationFailed"
-      : scenario === "robot_deploy"
-        ? "RobotDeploymentFailed"
-        : scenario === "simulation_launch"
-          ? "SimulationJobFailed"
-          : rand(["SimulationJobFailed", "WorldGenerationFailed", "RobotDeploymentFailed"])
-    : undefined;
-  const physics = {
-    engine: rand(["Gazebo", "Ignition Fortress"]),
-    step_size_ms: randFloat(0.5, 4),
-    realtime_factor: Number(randFloat(0.7, isErr ? 0.4 : 1.0)),
-  };
-  const rosGraph = {
-    nodes: randInt(3, 40),
-    topics: [`/scan`, `/cmd_vel`, `/odom`, `/${rand(["map", "tf"])}`],
-  };
-  const messages: Record<string, string> = {
-    simulation_launch: `CreateSimulationJob ${simulationJobId} app_bundle=${app} iamRole=arn:aws:iam::${acct.id}:role/RoboMakerSSM`,
-    world_generate: `WorldExportJob s3://${rand(["rm-worlds", "sim-assets"])}/${app}/world-${randInt(1, 9)}.world`,
-    robot_deploy: `CreateDeploymentJob fleet=${rand(["amr-east", "drone-west"])} version=${randInt(1, 22)} rollout=${rand(["LINEAR", "CANARY"])}`,
-    ros_node_start: `roslaunch ${rand(["bringup", "navigation", "perception"])}.launch — ${rosGraph.nodes} nodes`,
-    physics_step: `Physics tick hz=${(1000 / physics.step_size_ms).toFixed(0)} RTF=${physics.realtime_factor.toFixed(2)}`,
-    log_upload: `UploadSimulationJobArtifacts s3://${rand(["robomaker-logs"])}/${simulationJobId}/stderr.gz (${randInt(10, 500)} KiB)`,
-  };
-  return {
-    "@timestamp": ts,
-    cloud: {
-      provider: "aws",
-      region,
-      account: { id: acct.id, name: acct.name },
-      service: { name: "robomaker" },
-    },
-    aws: {
-      robomaker: {
-        simulation_job_id: simulationJobId,
-        robot_application: app,
-        scenario,
-        status: isErr ? rand(["Failed", "Canceled"]) : rand(["Running", "Completed", "Running"]),
-        simulation_time_seconds: randInt(60, 36000),
-        world_count: randInt(1, 10),
-        compute_type: rand(["CPU", "GPU_AND_CPU"]),
-        max_job_duration_seconds: 86400,
-        failure_behavior: rand(["Fail", "Continue"]),
-        ros: { distro: rosDistro, graph: rosGraph },
-        physics,
-        vpc_config: {
-          subnets: [`subnet-${randHexId(8)}`, `subnet-${randHexId(8)}`],
-          security_groups: [`sg-${randHexId(8)}`],
-        },
-      },
-    },
-    event: {
-      action: scenario,
-      outcome: isErr ? "failure" : "success",
-      category: ["process"],
-      dataset: "aws.robomaker",
-      provider: "robomaker.amazonaws.com",
-      duration: randInt(6e7, 3.6e10),
-    },
-    message: isErr
-      ? `${messages[scenario]} — ${errCode!}: ${rand(["exit code 1", "resource limit", "S3 artifact missing"])}`
-      : messages[scenario],
-    log: { level: isErr ? "error" : "info" },
-    ...(errCode
-      ? {
-          error: {
-            code: errCode,
-            message: `RoboMaker ${scenario} failed for ${app}`,
             type: "aws",
           },
         }
@@ -1823,7 +1747,5 @@ export {
   generateDeviceFarmLog,
   generateProtonLog,
   generateQDeveloperLog,
-  generateCloudShellLog,
   generateCloud9Log,
-  generateRoboMakerLog,
 };

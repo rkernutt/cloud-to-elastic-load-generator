@@ -347,7 +347,7 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
       category: "FunctionAppLogs",
       resultType: isErr ? "Failure" : "Success",
       resultSignature: isErr ? "500" : "200",
-      callerIpAddress: trigger === "httpTrigger" ? callerIp : "0.0.0.0",
+      callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Error" : "Information",
       properties: props,

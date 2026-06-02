@@ -206,7 +206,7 @@ function generateEmrLog(ts: string, er: number): EcsDocument[] {
       outcome: level === "error" ? "failure" : "success",
       category: ["process"],
       type: ["info"],
-      dataset: "aws.emr",
+      dataset: "aws.emr_logs",
       provider: "elasticmapreduce.amazonaws.com",
       duration: durationSec * 1e9,
     },

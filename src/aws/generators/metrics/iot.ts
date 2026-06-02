@@ -193,29 +193,6 @@ export function generateGreengrassMetrics(ts: string, er: number): EcsDocument[]
   ];
 }
 
-// ─── FreeRTOS (AWS/FreeRTOS) ──────────────────────────────────────────────────
-
-export function generateFreertosMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const isErr = Math.random() < er;
-  const otaOk = randInt(100, 50_000);
-  return [
-    metricDoc(
-      ts,
-      "freertos",
-      "aws.freertos",
-      region,
-      account,
-      { ThingName: `device-${randId(10).toLowerCase()}` },
-      {
-        OTAUpdateSuccess: counter(otaOk),
-        OTAUpdateFailure: counter(isErr ? randInt(1, 2_000) : randInt(0, 40)),
-        ConnectedDevices: counter(randInt(500, 500_000)),
-      }
-    ),
-  ];
-}
-
 // ─── Kinesis Video Streams (AWS/KinesisVideo) ──────────────────────────────────
 
 export function generateKinesisvideoMetrics(ts: string, er: number): EcsDocument[] {
@@ -257,57 +234,6 @@ export function generateMonitronMetrics(ts: string, er: number): EcsDocument[] {
         SensorCount: counter(randInt(200, 80_000)),
         AbnormalConditions: counter(isErr ? randInt(1, 500) : randInt(0, 25)),
         WarningConditions: counter(randInt(0, 300)),
-      }
-    ),
-  ];
-}
-
-// ─── AWS Panorama (AWS/Panorama) ───────────────────────────────────────────────
-
-export function generatePanoramaMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const isErr = Math.random() < er;
-  return [
-    metricDoc(
-      ts,
-      "panorama",
-      "aws.panorama",
-      region,
-      account,
-      {
-        DeviceId: `device-${randId(8).toLowerCase()}`,
-      },
-      {
-        DeviceRunning: counter(randInt(1, 500)),
-        ModelInferenceLatency: stat(dp(jitter(35, 28, 8, 800))),
-        ApplicationErrors: counter(isErr ? randInt(1, 2_000) : randInt(0, 50)),
-      }
-    ),
-  ];
-}
-
-// ─── AWS RoboMaker (AWS/RoboMaker) ────────────────────────────────────────────
-
-export function generateRobomakerMetrics(ts: string, er: number): EcsDocument[] {
-  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const isErr = Math.random() < er;
-  const succeeded = randInt(20, 5_000);
-  const failed = isErr ? randInt(1, 400) : randInt(0, 15);
-  return [
-    metricDoc(
-      ts,
-      "robomaker",
-      "aws.robomaker",
-      region,
-      account,
-      { SimulationJobId: `simjob-${randId(16).toLowerCase()}` },
-      {
-        SimulationJobDuration: stat(dp(jitter(420, 380, 30, 7200)), {
-          max: dp(jitter(9000, 2000, 120, 14_400)),
-          min: dp(jitter(30, 20, 5, 600)),
-        }),
-        SimulationJobSucceeded: counter(succeeded),
-        SimulationJobFailed: counter(failed),
       }
     ),
   ];

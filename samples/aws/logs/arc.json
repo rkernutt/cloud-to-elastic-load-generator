@@ -1,66 +1,61 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "af-south-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "arc" },
-    "availability_zone": "eu-west-1b"
+    "availability_zone": "af-south-1a"
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:elasticloadbalancing:eu-west-1:738291046572:loadbalancer/app/prod-alb/0num19c14po3zws6",
-      "AwsAccountId": "738291046572"
+      "ResourceArn": "arn:aws:elasticloadbalancing:af-south-1:164820739518:loadbalancer/app/prod-alb/mmggqvbfttfalge1",
+      "AwsAccountId": "164820739518"
     },
     "arc": {
-      "shift_id": "czhs2pcn-l1k1-0vfa-6cgc-fsnr4m6j3dv3",
-      "resource_arn": "arn:aws:elasticloadbalancing:eu-west-1:738291046572:loadbalancer/app/prod-alb/0num19c14po3zws6",
-      "away_from": "eu-west-1b",
-      "zonal_shift_status": "FAILED",
-      "az_status": "IMPAIRED",
-      "comment": "Incident response",
-      "expiry_time": "2026-05-29T08:58:02.156Z",
-      "routing_control_arn": "arn:aws:route53-recovery-control::738291046572:controlpanel/9qpdph5jxrtzaq8fqxzq9aqtsglh1fxo/routingcontrol/manmxvu1x53xnmjmyhgkpj6g46mk323i",
+      "shift_id": "76yset2i-z50x-baec-gl1p-7ys7pppyrmpm",
+      "resource_arn": "arn:aws:elasticloadbalancing:af-south-1:164820739518:loadbalancer/app/prod-alb/mmggqvbfttfalge1",
+      "away_from": "af-south-1a",
+      "zonal_shift_status": "ACTIVE",
+      "az_status": "UNAVAILABLE",
+      "comment": "Failover test",
+      "expiry_time": "2026-06-02T10:11:05.613Z",
+      "routing_control_arn": "arn:aws:route53-recovery-control::164820739518:controlpanel/dx9to8nawznkz414wb78gxm390wqeoff/routingcontrol/ywdrjeuxpg36l9b85g9mjpw98a4fybbd",
       "routing_control_state": "Off"
     },
     "s3": {
       "bucket": {
-        "name": "aws-arc-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-arc-logs-738291046572"
+        "name": "aws-arc-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-arc-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/738291046572/arc/eu-west-1/2026/05/28/arc_WT8DNYRYGUJTQD3OTT8H.log.gz"
+        "key": "AWSLogs/164820739518/arc/af-south-1/2026/06/01/arc_9ZBDOUQ83UQ3IVCFBO2J.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/arc/logs",
-      "log_stream": "eu-west-1/g29qk8dc",
-      "ingestion_time": "2026-05-28T16:58:16.235Z"
+      "log_stream": "af-south-1/gw9pzcwu",
+      "ingestion_time": "2026-06-01T18:12:00.469Z"
     }
   },
   "event": {
-    "action": "StartZonalShift",
-    "outcome": "failure",
+    "action": "UpdateRoutingControlState",
+    "outcome": "success",
     "category": ["network", "process"],
     "dataset": "aws.arc",
     "provider": "arc-zonal-shift.amazonaws.com",
     "module": "aws"
   },
-  "message": "ARC StartZonalShift FAILED [czhs2pcn-l1k1-0vfa-6cgc-fsnr4m6j3dv3]: Access denied",
-  "log": { "level": "error" },
-  "error": {
-    "code": "ValidationException",
-    "message": "ARC zonal shift operation failed",
-    "type": "network"
-  },
+  "message": "{\"eventType\":\"UpdateRoutingControlState\",\"zonalShiftId\":\"76yset2i-z50x-baec-gl1p-7ys7pppyrmpm\",\"resourceIdentifier\":\"arn:aws:elasticloadbalancing:af-south-1:164820739518:loadbalancer/app/prod-alb/mmggqvbfttfalge1\",\"awayFrom\":\"af-south-1a\",\"status\":\"ACTIVE\",\"availabilityZoneStatus\":\"UNAVAILABLE\",\"comment\":\"Failover test\",\"expiryTime\":\"2026-06-01T20:38:17.613Z\",\"routingControlArn\":\"arn:aws:route53-recovery-control::164820739518:controlpanel/d4zw58mt76nd0oulmkjftump5045rhuq/routingcontrol/d35purqs5og7se6mlmo688v7io69qfx1\",\"routingControlState\":\"Off\",\"statusCode\":\"SUCCESS\",\"timestamp\":\"2026-06-01T18:11:59.613Z\"}",
+  "log": { "level": "warn" },
   "service": { "name": "arc", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.arc", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "k3x30xjpqplu6x7rop1ikmx03vv1dflkmfzh"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "nteti2zpjwrex6zqsgp030v3wfh0h9sogp6j"
   },
   "input": { "type": "aws-cloudwatch" }
 }

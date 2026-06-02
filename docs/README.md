@@ -24,7 +24,7 @@ Reference material for **Cloud Loadgen for Elastic**. Quick start, Docker, and a
 
 ## Cloud Loadgen Integrations (TL;DR)
 
-Every Elastic asset the app installs — ingest pipelines, data stream templates, Kibana dashboards, ML anomaly detection jobs, and alerting rules — is bundled **per service** as a Cloud Loadgen Integration and tagged **`cloudloadgen`**. The catalog ships **503 dashboards**, **789 ML jobs**, and **243 alerting rules** across AWS, GCP, and Azure. That tag makes it easy to view, bulk-edit, or bulk-delete load-generator assets in Kibana without touching production objects. The full behaviour (categories, post-install options, Serverless limits, dashboard fallback, alerting rule compatibility) is in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
+Every Elastic asset the app installs — ingest pipelines, data stream templates, Kibana dashboards, ML anomaly detection jobs, and alerting rules — is bundled **per service** as a Cloud Loadgen Integration and tagged **`cloudloadgen`**. The catalog ships **496 dashboards**, **778 ML jobs**, and **243 alerting rules** across AWS, GCP, and Azure. That tag makes it easy to view, bulk-edit, or bulk-delete load-generator assets in Kibana without touching production objects. The full behaviour (categories, post-install options, Serverless limits, dashboard fallback, alerting rule compatibility) is in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
 
 ## Chained event scenarios
 

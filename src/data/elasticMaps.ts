@@ -42,7 +42,6 @@ const ELASTIC_DATASET_MAP = {
   // Elastic Security posture (non-AWS dataset path)
   cspm: "cloud_security_posture.findings",
   kspm: "cloud_security_posture.findings",
-  kendra: "aws.kendra",
   vpclattice: "aws.vpclattice",
   mwaa: "aws.mwaa",
   fis: "aws.fis",
@@ -75,7 +74,6 @@ const ELASTIC_DATASET_MAP = {
   auditmanager: "aws.auditmanager",
   verifiedpermissions: "aws.verifiedpermissions",
   paymentcryptography: "aws.paymentcryptography",
-  artifact: "aws.artifact",
   dax: "aws.dax",
   proton: "aws.proton",
   appfabric: "aws.appfabric",
@@ -93,7 +91,6 @@ const ELASTIC_DATASET_MAP = {
   mainframemodernization: "aws.m2",
   parallelcomputing: "aws.pcs",
   evs: "aws.evs",
-  simspaceweaver: "aws.simspaceweaver",
   healthomics: "aws.healthomics",
   bedrockdataautomation: "aws.bedrockdataautomation",
   groundstation: "aws.groundstation",
@@ -104,14 +101,10 @@ const ELASTIC_DATASET_MAP = {
   // v11.5 new services
   networkaccessanalyzer: "aws.networkaccessanalyzer",
   incidentmanager: "aws.incidentmanager",
-  cloudshell: "aws.cloudshell",
   cloud9: "aws.cloud9",
-  robomaker: "aws.robomaker",
   lookoutequipment: "aws.lookoutequipment",
   monitron: "aws.monitron",
   kinesisvideo: "aws.kinesisvideo",
-  panorama: "aws.panorama",
-  freertos: "aws.freertos",
   cloudwatchrum: "aws.cloudwatch_rum",
   // Extended AWS integrations pack
   bedrockguardrails: "aws.bedrockguardrails",
@@ -119,11 +112,9 @@ const ELASTIC_DATASET_MAP = {
   elb: "aws.elb_logs",
   mediaconnect: "aws.mediaconnect",
   mediapackage: "aws.mediapackage",
-  mediastore: "aws.mediastore",
   mediatailor: "aws.mediatailor",
   ivs: "aws.ivs",
   ivschat: "aws.ivschat",
-  cloudsearch: "aws.cloudsearch",
   directoryservice: "aws.directoryservice",
   acmpca: "aws.acmpca",
   mgn: "aws.mgn",
@@ -131,6 +122,117 @@ const ELASTIC_DATASET_MAP = {
   managedprometheus: "aws.managedprometheus",
   // Cross-cloud ITSM
   servicenow_cmdb: "servicenow.event",
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DEDICATED ELASTIC INTEGRATION LOG DATASETS
+// Services with built-in parsers in the Elastic AWS or Firehose integration.
+// These get their real dataset regardless of ingestion method because Elastic
+// has content-based detection / dedicated input streams for them.
+// Source: elastic/integrations aws package + awsfirehose package
+// ═══════════════════════════════════════════════════════════════════════════
+
+const DEDICATED_LOG_DATASETS: Record<string, string> = {
+  cloudtrail: "aws.cloudtrail",
+  vpc: "aws.vpcflow",
+  alb: "aws.elb_logs",
+  nlb: "aws.elb_logs",
+  elb: "aws.elb_logs",
+  cloudfront: "aws.cloudfront_logs",
+  waf: "aws.waf",
+  wafv2: "aws.waf",
+  networkfirewall: "aws.firewall_logs",
+  route53: "aws.route53_public_logs",
+  route53resolver: "aws.route53_resolver_logs",
+  s3: "aws.s3access",
+  ec2: "aws.ec2_logs",
+  lambda: "aws.lambda_logs",
+  apigateway: "aws.apigateway_logs",
+  emr: "aws.emr_logs",
+  guardduty: "aws.guardduty",
+  securityhub: "aws.securityhub_findings",
+  inspector: "aws.inspector",
+  config: "aws.config",
+  health: "aws.awshealth",
+  storagelens: "aws.s3_storage_lens",
+  billing: "aws.billing",
+};
+
+// ─── Fallback datasets when no dedicated parser exists ──────────────────────
+const GENERIC_DATASET_BY_SOURCE: Record<string, string> = {
+  cloudwatch: "aws.cloudwatch_logs",
+  s3: "aws_logs.generic",
+  firehose: "awsfirehose",
+  api: "aws.cloudwatch_logs",
+  agent: "aws.cloudwatch_logs",
+  otel: "aws.cloudwatch_logs",
+  "otel-edot-collector": "aws.cloudwatch_logs",
+  "otel-csp-edot-gateway": "aws.cloudwatch_logs",
+};
+
+/**
+ * Resolve the correct log dataset for a service + ingestion source combination.
+ * - Services with a dedicated Elastic integration parser always get their
+ *   real dataset (Firehose auto-routes them, S3/CW inputs parse them).
+ * - Everything else gets the generic dataset for the ingestion method.
+ */
+function resolveLogDatasetForSource(serviceId: string, source: string): string {
+  const dedicated = DEDICATED_LOG_DATASETS[serviceId];
+  if (dedicated) return dedicated;
+  return GENERIC_DATASET_BY_SOURCE[source] || "aws.cloudwatch_logs";
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// REAL-WORLD CLOUDWATCH LOG GROUP PATTERNS
+// When ingesting via CloudWatch, the log_group identifies the service.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CLOUDWATCH_LOG_GROUPS: Record<
+  string,
+  string | ((ctx: { region?: string; clusterId?: string; envName?: string }) => string)
+> = {
+  lambda: "/aws/lambda/${functionName}",
+  ecs: "/ecs/${clusterName}",
+  eks: "/aws/eks/${clusterName}/cluster",
+  rds: "/aws/rds/instance/${dbInstanceId}/error",
+  aurora: "/aws/rds/cluster/${clusterId}/error",
+  apigateway: "/aws/apigateway/${apiId}",
+  appsync: "/aws/appsync/apis/${apiId}",
+  emr: "/aws/emr/${clusterId}",
+  glue: "/aws/glue/jobs/output",
+  athena: "/aws/athena/query-logs",
+  stepfunctions: "/aws/vendedlogs/states/${stateMachineId}",
+  eventbridge: "/aws/events/${ruleName}",
+  mwaa: "/aws/mwaa/environment/${envName}/DAGProcessing",
+  sagemaker: "/aws/sagemaker/TrainingJobs",
+  bedrock: "/aws/bedrock/modelinvocations",
+  bedrockagent: "/aws/bedrock/agents",
+  codebuild: "/aws/codebuild/${projectName}",
+  batch: "/aws/batch/job",
+  opensearch: "/aws/OpenSearchService/domains/${domainName}/search-logs",
+  elasticache: "/aws/elasticache/${cacheClusterId}",
+  redshift: "/aws/redshift/${clusterName}",
+  docdb: "/aws/docdb/${clusterName}/profiler",
+  neptune: "/aws/neptune/${clusterId}/audit",
+  msk: "/aws/msk/${clusterName}/broker-logs",
+  kinesis: "/aws/kinesis/${streamName}",
+  cognito: "/aws/cognito/userpools/${userPoolId}",
+  cloudformation: "/aws/cloudformation/${stackName}",
+  transitgateway: "/aws/transitgateway/flowlogs",
+  vpn: "/aws/vpn/${vpnConnectionId}",
+  connect: "/aws/connect/${instanceId}",
+  route53: "/aws/route53/${hostedZoneId}",
+  route53resolver: "/aws/route53resolver/query-logs",
+  networkfirewall: "/aws/networkfirewall/flow",
+  cloudtrail: "aws-cloudtrail-logs-${accountId}",
+  waf: "aws-waf-logs-${webAclName}",
+  cloudfront: "/aws/cloudfront/${distributionId}",
+  ec2: "/aws/ec2/${instanceId}/syslog",
+  kms: "/aws/kms/${keyId}",
+  secretsmanager: "/aws/secretsmanager",
+  dms: "/aws/dms/tasks/${taskId}",
+  apprunner: "/aws/apprunner/${serviceName}/application",
+  ssm: "/aws/ssm/session-logs",
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -191,7 +293,6 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "neptune",
   "keyspaces",
   "memorydb",
-  "qldb",
   "timestream",
   "efs",
   "fsx",
@@ -248,10 +349,8 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "translate",
   "transcribe",
   "polly",
-  "forecast",
   "personalize",
   "lex",
-  "lookoutmetrics",
   "qbusiness",
   "nova",
   "lookoutvision",
@@ -273,7 +372,6 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   // Management (extended)
   "cloudformation",
   "ssm",
-  "trustedadvisor",
   "controltower",
   "organizations",
   "servicecatalog",
@@ -321,17 +419,12 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "monitron",
   "networkaccessanalyzer",
   "incidentmanager",
-  "cloudshell",
   "cloud9",
-  "robomaker",
   "kinesisvideo",
-  "panorama",
-  "freertos",
   "cloudwatchrum",
   "a2i",
   "appfabric",
   "arc",
-  "artifact",
   "auditmanager",
   "b2bi",
   "chatbot",
@@ -351,11 +444,9 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "elb",
   "mediaconnect",
   "mediapackage",
-  "mediastore",
   "mediatailor",
   "ivs",
   "ivschat",
-  "cloudsearch",
   "directoryservice",
   "acmpca",
   "mgn",
@@ -399,7 +490,6 @@ const ELASTIC_METRICS_DATASET_MAP = {
   a2i: "aws.a2i",
   appfabric: "aws.appfabric",
   arc: "aws.arc",
-  artifact: "aws.artifact",
   auditmanager: "aws.auditmanager",
   b2bi: "aws.b2bi",
   chatbot: "aws.chatbot",
@@ -416,4 +506,12 @@ const ELASTIC_METRICS_DATASET_MAP = {
   elb: "aws.elb",
 };
 
-export { ELASTIC_DATASET_MAP, METRICS_SUPPORTED_SERVICE_IDS, ELASTIC_METRICS_DATASET_MAP };
+export {
+  ELASTIC_DATASET_MAP,
+  METRICS_SUPPORTED_SERVICE_IDS,
+  ELASTIC_METRICS_DATASET_MAP,
+  DEDICATED_LOG_DATASETS,
+  GENERIC_DATASET_BY_SOURCE,
+  CLOUDWATCH_LOG_GROUPS,
+  resolveLogDatasetForSource,
+};

@@ -119,7 +119,6 @@ import {
   generateDataplexLog,
   generateDataCatalogLog,
   generateAnalyticsHubLog,
-  generateDataprepLog,
   generateDatastreamLog,
 } from "./datawarehouse.js";
 import { generatePubSubLog, generateDataflowLog, generatePubSubLiteLog } from "./streaming.js";
@@ -163,7 +162,6 @@ import {
   generateFirebaseLog,
   generateCloudEndpointsLog,
   generateApigeeLog,
-  generateCloudShellLog,
   generateGeminiCodeAssistLog,
   generateApiGatewayLog,
 } from "./devtools.js";
@@ -316,7 +314,6 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   dataplex: generateDataplexLog,
   "data-catalog": generateDataCatalogLog,
   "analytics-hub": generateAnalyticsHubLog,
-  dataprep: generateDataprepLog,
   dataform: generateDataformLog,
   datastream: generateDatastreamLog,
 
@@ -353,7 +350,6 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   firebase: mergeGcpLogVariants([generateFirebaseLog, generateFirebaseRtdbLog]),
   "cloud-endpoints": generateCloudEndpointsLog,
   apigee: generateApigeeLog,
-  "cloud-shell": generateCloudShellLog,
   "colab-enterprise": generateColabEnterpriseLog,
   "api-gateway": mergeGcpLogVariants([generateApiGatewayLog, generateApiHubLog]),
 

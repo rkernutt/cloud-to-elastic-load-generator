@@ -1,63 +1,73 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "log": { "level": "info" },
-  "labels": { "zone": "northamerica-northeast1-f", "topic_id": "lite-audit-2LA" },
+  "severity": "ERROR",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "RESOURCE_EXHAUSTED" },
+  "labels": {
+    "zone": "europe-west12-a",
+    "topic_id": "lite-events-29W",
+    "gcp.rpc.status_code": "RESOURCE_EXHAUSTED"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "northamerica-northeast1",
-    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
-    "account": { "id": "482910375621", "name": "Globex Production" },
+    "region": "europe-west12",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
     "service": { "name": "pubsub-lite" }
   },
   "gcp": {
     "pubsub_lite": {
-      "topic_name": "projects/globex-prod-482910/locations/northamerica-northeast1-f/topics/lite-audit-2LA",
-      "subscription_name": "projects/globex-prod-482910/locations/northamerica-northeast1-f/subscriptions/sub-a-353",
-      "partition_count": 25,
-      "zone": "northamerica-northeast1-f",
-      "message_throughput_bytes_per_sec": 10179573,
-      "subscriber_count": 38,
-      "backlog_message_count": 5003
+      "topic_name": "projects/globex-stg-739158/locations/europe-west12-a/topics/lite-events-29W",
+      "subscription_name": "projects/globex-stg-739158/locations/europe-west12-a/subscriptions/sub-b-2I3",
+      "partition_count": 16,
+      "zone": "europe-west12-a",
+      "message_throughput_bytes_per_sec": 8001,
+      "subscriber_count": 0,
+      "backlog_message_count": 9381668
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["connection"],
+    "type": ["error"],
     "action": "pubsub-lite.throughput",
-    "outcome": "success",
-    "duration": 28000000,
+    "outcome": "failure",
+    "duration": 221000000,
     "module": "gcp",
     "dataset": "gcp.pubsublite"
   },
-  "message": "pubsublite.googleapis.com/projects/globex-prod-482910/locations/northamerica-northeast1-f/topics/lite-audit-2LA: throughput_bytes_per_sec=10179573 zone=northamerica-northeast1-f partitions=25",
+  "message": "pubsublite.googleapis.com/projects/globex-stg-739158/locations/europe-west12-a/subscriptions/sub-b-2I3: backlog_message_count=9381668 partition_throughput_insufficient subscribers=0",
+  "error": {
+    "code": "RESOURCE_EXHAUSTED",
+    "message": "Partition throughput insufficient; 0 subscribers active",
+    "type": "BacklogPressure"
+  },
   "service": { "name": "pubsub-lite", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.pubsublite", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-northamerica-northeast1",
-    "id": "6bopw6it3f83qrnlh1fd898u24x3yvwddl0k"
+    "name": "elastic-agent-gcp-europe-west12",
+    "id": "dpm7dg9hp7y24lbgzwe7jhas2vk5bajet8xn"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-482910/logs/pubsub-lite",
+  "logName": "projects/globex-stg-739158/logs/pubsub-lite",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-prod-482910", "region": "northamerica-northeast1" }
+    "labels": { "project_id": "globex-stg-739158", "region": "europe-west12" }
   },
-  "insertId": "59D1MRXWDP1S",
+  "insertId": "RW2RI6WDQMM4",
   "jsonPayload": {
     "pubsub_lite": {
-      "topic_name": "projects/globex-prod-482910/locations/northamerica-northeast1-f/topics/lite-audit-2LA",
-      "subscription_name": "projects/globex-prod-482910/locations/northamerica-northeast1-f/subscriptions/sub-a-353",
-      "partition_count": 25,
-      "zone": "northamerica-northeast1-f",
-      "message_throughput_bytes_per_sec": 10179573,
-      "subscriber_count": 38,
-      "backlog_message_count": 5003
+      "topic_name": "projects/globex-stg-739158/locations/europe-west12-a/topics/lite-events-29W",
+      "subscription_name": "projects/globex-stg-739158/locations/europe-west12-a/subscriptions/sub-b-2I3",
+      "partition_count": 16,
+      "zone": "europe-west12-a",
+      "message_throughput_bytes_per_sec": 8001,
+      "subscriber_count": 0,
+      "backlog_message_count": 9381668
     },
-    "message": "pubsublite.googleapis.com/projects/globex-prod-482910/locations/northamerica-northeast1-f/topics/lite-audit-2LA: throughput_bytes_per_sec=10179573 zone=northamerica-northeast1-f partitions=25"
+    "message": "pubsublite.googleapis.com/projects/globex-stg-739158/locations/europe-west12-a/subscriptions/sub-b-2I3: backlog_message_count=9381668 partition_throughput_insufficient subscribers=0"
   }
 }

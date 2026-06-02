@@ -1,64 +1,70 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "DEBUG",
-  "log": { "level": "debug" },
+  "severity": "ERROR",
+  "log": { "level": "error" },
   "labels": {
     "resource.type": "edgecontainer.googleapis.com/EdgeCluster",
-    "cluster_name": "gdce-prod-b2wb",
-    "edge_zone": "europe-west2-zone-b",
+    "cluster_name": "gdce-prod-q7bb",
+    "edge_zone": "us-west2-zone-a",
     "api_method": "edgecontainer.googleapis.com/v1/projects/{project}/locations/{location}/edgeClusters.reconcileConfig"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "region": "us-west2",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
     "service": { "name": "edgecontainer.googleapis.com" }
   },
   "gcp": {
     "distributed_cloud": {
-      "cluster_name": "gdce-prod-b2wb",
-      "edge_zone": "europe-west2-zone-b",
-      "machine_id": "machine-kjpmmw",
+      "cluster_name": "gdce-prod-q7bb",
+      "edge_zone": "us-west2-zone-a",
+      "machine_id": "machine-d8j377",
       "api_method": "edgecontainer.googleapis.com/v1/projects/{project}/locations/{location}/edgeClusters.reconcileConfig",
-      "scenario": "sync_ok"
+      "scenario": "policy_bundle_reject"
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["info"],
+    "type": ["error"],
     "action": "extended-service",
     "dataset": "gcp.distributed_cloud",
     "module": "gcp",
-    "outcome": "success",
-    "duration": 12868
+    "outcome": "failure",
+    "duration": 455560
   },
-  "message": "Fleet config reconciled cluster=gdce-prod-b2wb revision=9IZDRWEX latency_ms=5207",
+  "message": "Fleet bundle rejected cluster=gdce-prod-q7bb reason=CRD_VERSION_CONFLICT revision=5TPJQBXC",
+  "gcp.rpc": { "status_code": "FAILED_PRECONDITION" },
+  "error": {
+    "code": "FAILED_PRECONDITION",
+    "message": "Request cannot be executed in the current resource state",
+    "type": "gcp"
+  },
   "service": { "name": "distributed-cloud", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.distributed_cloud", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west2",
-    "id": "2ve0jsmp0281ejocme0dbabnzuhhg42t0jh5"
+    "name": "elastic-agent-gcp-us-west2",
+    "id": "b1uljxsi5i48apimdc9gm9m0g2iimgnu4rkh"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-529384/logs/distributed-cloud",
+  "logName": "projects/globex-stg-739158/logs/distributed-cloud",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-529384", "region": "europe-west2" }
+    "labels": { "project_id": "globex-stg-739158", "region": "us-west2" }
   },
-  "insertId": "JCIT8NV3SGLT",
+  "insertId": "OLD04YG5MD64",
   "jsonPayload": {
     "distributed_cloud": {
-      "cluster_name": "gdce-prod-b2wb",
-      "edge_zone": "europe-west2-zone-b",
-      "machine_id": "machine-kjpmmw",
+      "cluster_name": "gdce-prod-q7bb",
+      "edge_zone": "us-west2-zone-a",
+      "machine_id": "machine-d8j377",
       "api_method": "edgecontainer.googleapis.com/v1/projects/{project}/locations/{location}/edgeClusters.reconcileConfig",
-      "scenario": "sync_ok"
+      "scenario": "policy_bundle_reject"
     },
-    "message": "Fleet config reconciled cluster=gdce-prod-b2wb revision=9IZDRWEX latency_ms=5207"
+    "message": "Fleet bundle rejected cluster=gdce-prod-q7bb reason=CRD_VERSION_CONFLICT revision=5TPJQBXC"
   }
 }

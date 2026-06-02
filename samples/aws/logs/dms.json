@@ -1,73 +1,78 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "sa-east-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "dms" }
   },
   "aws": {
-    "dimensions": { "ReplicationInstanceIdentifier": "dms-prod-v26qsrx3" },
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-staging-ag1eblzr" },
     "dms": {
-      "replication_task_id": "oracle-to-rds",
-      "migration_type": "full-load",
-      "replication_instance_identifier": "dms-prod-v26qsrx3",
-      "source_engine": "sqlserver",
-      "target_engine": "redshift",
+      "replication_task_id": "on-prem-to-rds",
+      "migration_type": "cdc",
+      "replication_instance_identifier": "dms-staging-ag1eblzr",
+      "source_engine": "mysql",
+      "target_engine": "aurora-postgresql",
       "replication_instance_class": "dms.r5.xlarge",
-      "task_status": "Failed",
-      "full_load_rows_transferred": 0,
-      "cdc_incoming_changes": 0,
-      "latency_ms": 0,
-      "tables_loaded": 44,
-      "tables_errored": 14,
-      "error_message": "Column mapping failure",
+      "task_status": "Load complete",
+      "full_load_rows_transferred": 6529114,
+      "cdc_incoming_changes": 44558,
+      "latency_ms": 1661,
+      "tables_loaded": 97,
+      "tables_errored": 0,
       "metrics": {
-        "FullLoadThroughputRowsSource": { "avg": 70125 },
-        "FullLoadThroughputRowsTarget": { "avg": 85674 },
-        "CPUUtilization": { "avg": 47.75484888063785 },
-        "FreeableMemory": { "avg": 4469938041 },
-        "FreeStorageSpace": { "avg": 13262967147 },
-        "NetworkReceiveThroughput": { "avg": 96952510 },
-        "NetworkTransmitThroughput": { "avg": 78973291 },
-        "ReadIOPS": { "avg": 1669 },
-        "WriteIOPS": { "avg": 1496 }
+        "FullLoadThroughputRowsSource": { "avg": 3644 },
+        "FullLoadThroughputRowsTarget": { "avg": 34178 },
+        "CDCIncomingChanges": { "avg": 986 },
+        "CDCChangesMemorySource": { "avg": 336 },
+        "CDCChangesMemoryTarget": { "avg": 275 },
+        "CDCChangesDiskSource": { "avg": 31 },
+        "CDCChangesDiskTarget": { "avg": 44 },
+        "CDCLatencySource": { "avg": 2 },
+        "CDCLatencyTarget": { "avg": 2 },
+        "CPUUtilization": { "avg": 25.075622844257406 },
+        "FreeableMemory": { "avg": 7650039525 },
+        "FreeStorageSpace": { "avg": 66783200529 },
+        "NetworkReceiveThroughput": { "avg": 75405148 },
+        "NetworkTransmitThroughput": { "avg": 61243242 },
+        "ReadIOPS": { "avg": 622 },
+        "WriteIOPS": { "avg": 1465 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-dms-logs-814726593401"
+        "name": "aws-dms-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-dms-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/814726593401/dms/ap-south-2/2026/05/28/dms_KFDMWT3NVW1PZ8MWXBQH.log.gz"
+        "key": "AWSLogs/164820739518/dms/sa-east-1/2026/06/01/dms_4U0PZYSR90A86IF57MDB.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/dms/logs",
-      "log_stream": "ap-south-2/gulmqkcy",
-      "ingestion_time": "2026-05-28T16:58:16.223Z"
+      "log_group": "/aws/dms/tasks/ml1ncm6zbdqptgkfwh4n76yd6re8qb68no7n",
+      "log_stream": "sa-east-1/vu9cb2wn",
+      "ingestion_time": "2026-06-01T18:12:00.460Z"
     }
   },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["database", "process"],
     "dataset": "aws.dms",
     "provider": "dms.amazonaws.com",
-    "duration": 21767000000000,
+    "duration": 21446000000000,
     "module": "aws"
   },
-  "message": "DMS oracle-to-rds FAILED (sqlserver->redshift): Table mapping error",
-  "error": { "code": "DMSError", "message": "DMS task failed", "type": "migration" },
-  "log": { "level": "error" },
+  "message": "{\"replicationTaskArn\":\"arn:aws:dms:sa-east-1:164820739518:task:on-prem-to-rds\",\"replicationTaskIdentifier\":\"on-prem-to-rds\",\"migrationType\":\"cdc\",\"sourceEngine\":\"mysql\",\"targetEngine\":\"aurora-postgresql\",\"replicationInstanceIdentifier\":\"dms-staging-ag1eblzr\",\"status\":\"running\",\"fullLoadProgressPercent\":100,\"fullLoadRowsTransferred\":6529114,\"cdcIncomingChanges\":13885,\"cdcLatencySeconds\":2,\"tablesLoaded\":128,\"tablesErrored\":0,\"errorMessage\":null,\"timestamp\":\"2026-06-01T18:11:59.613Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.dms", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "n7ujiyl62dgnhn95v6z6p7mrdp7qwrymp2wb"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "seckrcwyhaek6fpmq5tcuqqdo2906uo8p9um"
   },
   "input": { "type": "aws-cloudwatch" }
 }

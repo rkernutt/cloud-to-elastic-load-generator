@@ -80,7 +80,6 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
             : `GetRecords returned ${randInt(1, 2000)} records from ${stream}/${shardId}`;
   }
 
-  const useStructuredFailure = isErr && Math.random() < 0.42;
   const errCodeRand = rand([
     "ExpiredIteratorException",
     "ProvisionedThroughputExceededException",
@@ -90,22 +89,40 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
     "LimitExceededException",
   ]);
 
-  const message =
-    useStructuredFailure && isErr
-      ? JSON.stringify({
-          __type: errCodeRand,
-          message:
-            scenario === "iterator_expired"
-              ? "Iterator expired — call GetShardIterator"
-              : throughputLine,
-          streamName: stream,
-          shardId,
-          operation: op,
-          scenario,
-        })
-      : isErr
-        ? `${controlPlaneMsg} [${errCodeRand}]`
-        : controlPlaneMsg;
+  const message = JSON.stringify({
+    streamName: stream,
+    shardId,
+    operation: op,
+    scenario,
+    monitoring: {
+      IncomingRecords: randInt(1, 10000),
+      IncomingBytes: randInt(1000, 1e7),
+      GetRecords_IteratorAgeMilliseconds:
+        scenario === "iterator_expired" || scenario === "throughput_exceeded"
+          ? iteratorAgeMs
+          : isErr
+            ? randInt(10000, 3600000)
+            : randInt(0, 1000),
+      GetRecords_Records: randInt(1, 1000),
+      PutRecords_SuccessfulRecords: randInt(1, 1000),
+      PutRecords_FailedRecords: isErr ? randInt(1, 100) : 0,
+      PutRecords_ThrottledRecords: isErr ? randInt(1, 10) : 0,
+      ReadProvisionedThroughputExceeded: isErr ? randInt(1, 10) : 0,
+      WriteProvisionedThroughputExceeded: isErr ? randInt(1, 10) : 0,
+      enhancedFanOutSubscribers: efoConsumers,
+    },
+    ...(isErr
+      ? {
+          error: {
+            __type: errCodeRand,
+            message:
+              scenario === "iterator_expired"
+                ? "Iterator expired — call GetShardIterator"
+                : throughputLine,
+          },
+        }
+      : { statusMessage: controlPlaneMsg }),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -226,12 +243,35 @@ function generateFirehoseLog(ts: string, er: number): EcsDocument {
     delivery_failure: `Destination delivery failed for ${stream}: DeliveryStreamBufferingHintSizeInMB=${bufferingHintMb} exceeded before ack; ${dest} PutObject throttled`,
     format_conversion_error: `Format conversion ${rand(["ORC", "Parquet", "JSON"])} failed for ${stream}: schema mismatch on ${rand(["ts", "event_id", "dimensions"])}`,
   };
-  const message = isErr
-    ? scenarioIsFailure
-      ? `${scenarioMessages[scenario]} [${errCode}]`
-      : `${scenarioMessages[scenario]} — throttled: ${errCode}`
-    : scenarioMessages[scenario];
+  const s3Bucket = rand(["corp-logs", "fh-archive"]);
   const execProcMs = randInt(50, scenario === "transformation_lambda_invoke" ? 8000 : 1200);
+  const message = JSON.stringify({
+    deliveryStreamName: stream,
+    destination: dest,
+    scenario,
+    operation: op,
+    incomingRecords: recs,
+    incomingBytes,
+    deliverySuccess: !isErr,
+    deliveryStatus: isErr ? "FAILED" : "SUCCESS",
+    bufferingHints: { sizeInMB: bufferingHintMb, intervalInSeconds: randInt(60, 900) },
+    ...(dest === "S3" || scenario === "s3_backup"
+      ? {
+          s3Destination: {
+            bucket: s3Bucket,
+            prefix: `${acct.id}/${stream}/year=${randInt(2024, 2026)}/`,
+            errorPrefix: scenario === "s3_backup" && isErr ? `errors/${stream}/` : null,
+            compression: rand(["SNAPPY", "GZIP", "UNCOMPRESSED"]),
+            recordsDelivered: isErr && scenario === "delivery_failure" ? 0 : recs,
+            dataFreshnessSeconds: randInt(30, isErr ? 7200 : 240),
+          },
+        }
+      : {}),
+    ...(scenario === "transformation_lambda_invoke"
+      ? { transformation: { lambdaArn, recordsProcessed: recs, durationMs: execProcMs } }
+      : {}),
+    ...(isErr ? { errorCode: errCode, statusMessage: scenarioMessages[scenario] } : {}),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -354,16 +394,21 @@ function generateKinesisAnalyticsLog(ts: string, er: number): EcsDocument {
       ];
   const plainMessage = rand(kinesisAnalyticsMsgs);
   const useStructuredLogging = Math.random() < 0.6;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        applicationName: app,
-        recordsPerSecond: rps,
-        inputWatermarkLagMs: lagMs,
-        level: isErr ? "error" : "info",
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const message = JSON.stringify({
+    applicationName: app,
+    applicationArn: `arn:aws:kinesisanalytics:${region}:${acct.id}:application/${app}`,
+    applicationStatus: isErr ? "RUNNING" : rand(["RUNNING", "READY"]),
+    runtime: rand(["FLINK-1_18", "FLINK-1_15", "SQL-1_0"]),
+    recordsPerSecond: rps,
+    inputWatermarkLagMs: lagMs,
+    kpuCount: randInt(1, 64),
+    checkpointingEnabled: true,
+    lastCheckpointDurationMs: randInt(100, isErr ? 30000 : 2000),
+    level: isErr ? "ERROR" : "INFO",
+    statusMessage: plainMessage,
+    timestamp: new Date(ts).toISOString(),
+    ...(isErr ? { error: rand(["CheckpointFailure", "OutOfMemory", "KPU_LIMIT_EXCEEDED"]) } : {}),
+  });
   const metrics = {
     records_in_per_second: rps,
     input_watermark_lag_ms: lagMs,
@@ -429,7 +474,6 @@ function generateMskLog(ts: string, er: number): EcsDocument {
   const partition = randInt(0, 23);
   const clusterName = `prod-kafka-${region}`;
   const brokerId = randInt(1, 6);
-  const tsBracket = ts.replace("T", " ").replace("Z", "");
   const level = isErr ? "ERROR" : Math.random() < 0.12 ? "WARN" : "INFO";
   const component = rand([
     "ReplicaFetcherManager",
@@ -448,16 +492,30 @@ function generateMskLog(ts: string, er: number): EcsDocument {
     "kafka.log.LogManager",
   ]);
   const cg = rand(["analytics-consumer", "etl-pipeline", "alerting-service"]);
-  const brokerLine =
+  const offset = randInt(0, 100000000);
+  const brokerLogText =
     level === "ERROR" && Math.random() < 0.5
-      ? `[${tsBracket}] ${level} [${component} broker=${brokerId}] Error processing fetch for partition ${topic}-${partition} (kafka.server.ReplicaManager)`
+      ? `Error processing fetch for partition ${topic}-${partition}`
       : level === "WARN" || (isErr && Math.random() < 0.4)
-        ? `[${tsBracket}] WARN [${component} broker=${brokerId}] ISR shrink: partition ${topic}-${partition} isr=[${brokerId},${(brokerId % 3) + 1}] -> [${brokerId}] (${kafkaClass})`
+        ? `ISR shrink: partition ${topic}-${partition} isr=[${brokerId},${(brokerId % 3) + 1}] -> [${brokerId}]`
         : Math.random() < 0.25
-          ? `[${tsBracket}] INFO [${component} broker=${brokerId}] Created topic "${topic}" with ${randInt(3, 24)} partitions, replication factor 3 (${kafkaClass})`
+          ? `Created topic "${topic}" with ${randInt(3, 24)} partitions, replication factor 3`
           : Math.random() < 0.35
-            ? `[${tsBracket}] INFO [${component}] [GroupCoordinator ${brokerId}]: Preparing to rebalance group ${cg} with old generation ${randInt(1, 40)} (${kafkaClass})`
-            : `[${tsBracket}] INFO [${component} broker=${brokerId}] Completed fetch of ${randInt(1, 5000)} messages for partition ${topic}-${partition} at offset ${randInt(0, 1e9)} (${kafkaClass})`;
+            ? `Preparing to rebalance group ${cg} with old generation ${randInt(1, 40)}`
+            : `Completed fetch of ${randInt(1, 5000)} messages for partition ${topic}-${partition}`;
+  const message = JSON.stringify({
+    broker_id: brokerId,
+    topic,
+    partition,
+    offset,
+    level,
+    component,
+    logger: kafkaClass,
+    cluster: clusterName,
+    consumer_group: cg,
+    message: brokerLogText,
+    timestamp: new Date(ts).toISOString(),
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -507,7 +565,7 @@ function generateMskLog(ts: string, er: number): EcsDocument {
       provider: "kafka.amazonaws.com",
       duration: randInt(1, isErr ? 5000 : 100) * 1e6,
     },
-    message: brokerLine,
+    message,
     log: { level: level === "ERROR" ? "error" : level === "WARN" ? "warn" : "info" },
     ...(isErr
       ? {
@@ -575,24 +633,6 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
   const visibilityTimeout = operation === "ChangeMessageVisibility" ? randInt(0, 900) : null;
   const waitSeconds = scenario === "long_polling" ? 20 : 0;
   const dedupeId = scenario === "fifo_deduplication" ? `dedup-${randId(32).toLowerCase()}` : null;
-  const opLine =
-    operation === "SendMessage"
-      ? scenario === "fifo_deduplication"
-        ? `SQS SendMessage FIFO queue=${queueUrl} MessageDeduplicationId=${dedupeId} MessageGroupId=${rand(["a", "b", "checkout"])} bodyBytes=${randInt(120, 240_000)}`
-        : `SQS SendMessage queue=${queueUrl} sent=${sent} approximate_total=${approxVisible + approxNotVisible + approxDelayed} bodyBytes=${randInt(120, 240_000)}`
-      : operation === "SendMessageBatch"
-        ? `SQS SendMessageBatch queue=${queueUrl} entries=${batch} failed=${isErr ? randInt(1, batch) : 0}`
-        : operation === "ReceiveMessage"
-          ? `SQS ReceiveMessage queue=${queueUrl} WaitTimeSeconds=${waitSeconds} messages_returned=${batch} long_poll=${waitSeconds > 0}`
-          : operation === "DeleteMessage"
-            ? `SQS DeleteMessage queue=${queueUrl} deleted=${batch} remaining_visible≈${Math.max(0, approxVisible - batch)}`
-            : operation === "DeleteMessageBatch"
-              ? `SQS DeleteMessageBatch queue=${queueUrl} successful=${isErr ? 0 : batch} failed=${isErr ? randInt(1, batch) : 0}`
-              : operation === "ChangeMessageVisibility"
-                ? `SQS ChangeMessageVisibility queue=${queueUrl} receipt_batches=${batch} new_timeout_sec=${visibilityTimeout} visible≈${approxVisible}`
-                : operation === "StartMessageMoveTask"
-                  ? `SQS StartMessageMoveTask source=${queueUrl} destination=https://sqs.${region}.amazonaws.com/${acct.id}/${rand(["main-queue", "replay-queue"])} maxMessages=${randInt(100, 10000)}`
-                  : `SQS PurgeQueue queue=${queueUrl} purged_inflight_hint visible≈${approxVisible} notVisible≈${approxNotVisible}`;
   return {
     "@timestamp": ts,
     cloud: {
@@ -631,20 +671,82 @@ function generateSqsLog(ts: string, er: number): EcsDocument {
       provider: "sqs.amazonaws.com",
       duration: randInt(1, isErr ? 30000 : 500) * 1e6,
     },
-    message:
-      isErr && Math.random() < 0.38
-        ? JSON.stringify({
-            __type: rand([
+    message: JSON.stringify({
+      eventVersion: "1.11",
+      eventSource: "sqs.amazonaws.com",
+      eventName: operation,
+      eventTime: new Date(ts).toISOString(),
+      awsRegion: region,
+      recipientAccountId: acct.id,
+      eventType: "AwsApiCall",
+      requestParameters: {
+        queueUrl,
+        ...(operation === "ChangeMessageVisibility" && visibilityTimeout != null
+          ? { visibilityTimeout }
+          : {}),
+        ...(scenario === "long_polling" ? { waitTimeSeconds: waitSeconds } : {}),
+        ...(scenario === "fifo_deduplication"
+          ? {
+              messageDeduplicationId: dedupeId,
+              messageGroupId: rand(["a", "b", "checkout"]),
+            }
+          : {}),
+        ...(operation === "ReceiveMessage" || operation === "DeleteMessage"
+          ? { maxNumberOfMessages: batch }
+          : {}),
+        ...(operation === "SendMessageBatch" ? { entries: batch } : {}),
+        ...(operation === "StartMessageMoveTask"
+          ? {
+              sourceArn: queueUrl,
+              destinationArn: `https://sqs.${region}.amazonaws.com/${acct.id}/${rand(["main-queue", "replay-queue"])}`,
+              maxNumberOfMessagesPerSecond: randInt(100, 10000),
+            }
+          : {}),
+      },
+      responseElements: isErr
+        ? {}
+        : {
+            ...(operation.includes("Send") ? { MD5OfMessageBody: randId(32).toLowerCase() } : {}),
+            ...(operation === "ReceiveMessage"
+              ? {
+                  messages: Array.from({ length: batch }, () => ({
+                    messageId: randUUID(),
+                    receiptHandle: randId(64),
+                  })),
+                }
+              : {}),
+            approximateNumberOfMessages: approxVisible,
+            approximateNumberOfMessagesNotVisible: approxNotVisible,
+            approximateNumberOfMessagesDelayed: approxDelayed,
+          },
+      userIdentity: {
+        type: "IAMUser",
+        principalId: `AID${randId(16).toUpperCase()}`,
+        arn: `arn:aws:iam::${acct.id}:role/${rand(["lambda-exec", "ecs-task", "ec2-app"])}`,
+        accountId: acct.id,
+      },
+      requestID: randUUID(),
+      eventID: randUUID(),
+      scenario,
+      ...(isErr || isDlq
+        ? {
+            errorCode: rand([
+              "AWS.SimpleQueueService.NonExistentQueue",
+              "InvalidMessageContents",
+              "MessageNotInflight",
               "ReceiptHandleIsInvalid",
               "AWS.SimpleQueueService.TooManyEntriesInBatchRequest",
               "UnsupportedOperation",
             ]),
-            messagePlain: opLine,
-            scenario,
-          })
-        : isErr || isDlq
-          ? `${opLine} | error: ${randInt(1, 1000)} messages dead-lettered after max retries`
-          : opLine,
+            errorMessage:
+              scenario === "dead_letter_redrive"
+                ? "Message move task failed: destination policy denies sqs:SendMessage"
+                : scenario === "fifo_deduplication"
+                  ? "Duplicate MessageDeduplicationId within deduplication interval"
+                  : `${randInt(1, 1000)} messages dead-lettered after max retries`,
+          }
+        : {}),
+    }),
     log: { level: isErr || isDlq ? "warn" : "info" },
     ...(isErr || isDlq
       ? {
@@ -722,35 +824,61 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
       ? `arn:aws:sns:${region}:${acct.id}:${topic}:${randId(8)}-sub`
       : `arn:aws:sns:${region}:${acct.id}:${topic}:${randUUID().slice(0, 12)}`;
 
-  let message: string;
-  if (scenario === "platform_endpoint_create") {
-    message = isErr
-      ? `SNS CreatePlatformEndpoint FAILED Token=*** PlatformApplicationArn=${platformAppArn} InvalidParameter`
-      : `SNS CreatePlatformEndpoint OK EndpointArn=${endpointArn}`;
-  } else if (scenario === "topic_subscription") {
-    message = isErr
-      ? `SNS Subscribe topic=${topicArn} Protocol=${protocol} FAILED (InvalidParameter)`
-      : `SNS Subscribe confirmed SubscriptionArn=${subscriptionArn} Owner=${acct.id}`;
-  } else if (scenario === "delivery_failure_logging") {
-    message =
-      JSON.stringify({
-        notification: { messageId: randUUID(), topicArn },
-        delivery: {
-          statusCode: isErr ? rand([502, 503]) : 200,
-          providerResponse: isErr ? "Endpoint disabled or unreachable" : "OK",
-          destination: rand([`mailto:${randPersonEmail()}`, "lambda arn"]),
-        },
-        status: isErr ? "FAILURE" : "SUCCESS",
-      }) + ` [DeliveryStatusLogging]`;
-  } else if (scenario === "filter_policy_match") {
-    message = isErr
-      ? `Publish to ${topic} filtered out — no subscriber filter policy matched attributes tier=premium`
-      : `Delivered Publish messageId=${randUUID()} matched filter policy subscriber=${subscriptionArn}`;
-  } else {
-    message = isErr
-      ? `SNS Publish delivery FAILED: ${topic} -> ${protocol}: ${rand(["EndpointDisabledException", "Throttled"])}`
-      : `SNS Publish delivered to ${protocol} (${randInt(100, 50000)}B)`;
-  }
+  const snsMessageId = randUUID();
+  const deliveryAttempts = randInt(1, isErr ? 5 : 2);
+  const message = JSON.stringify(
+    scenario === "platform_endpoint_create"
+      ? {
+          operation: "CreatePlatformEndpoint",
+          platformApplicationArn: platformAppArn,
+          endpointArn: isErr ? null : endpointArn,
+          token: "***",
+          status: isErr ? "FAILURE" : "SUCCESS",
+          ...(isErr ? { errorCode: "InvalidParameter" } : {}),
+        }
+      : scenario === "topic_subscription"
+        ? {
+            operation: "Subscribe",
+            topicArn,
+            protocol,
+            subscriptionArn: isErr ? null : subscriptionArn,
+            owner: acct.id,
+            status: isErr ? "FAILURE" : "SUCCESS",
+            ...(isErr ? { errorCode: "InvalidParameter" } : {}),
+          }
+        : {
+            notification: {
+              messageId: snsMessageId,
+              topicArn,
+              timestamp: new Date(ts).toISOString(),
+            },
+            delivery: {
+              statusCode: isErr ? rand([502, 503, 429]) : 200,
+              providerResponse: isErr ? "Endpoint disabled or unreachable" : "OK",
+              destination:
+                protocol === "email"
+                  ? `mailto:${randPersonEmail()}`
+                  : protocol === "lambda"
+                    ? `arn:aws:lambda:${region}:${acct.id}:function:${rand(["notify", "fanout"])}`
+                    : protocol === "sqs"
+                      ? `arn:aws:sqs:${region}:${acct.id}:${rand(["notifications", "events"])}`
+                      : `${protocol}://${randId(8)}`,
+              deliveryAttempts,
+              subscriptionArn,
+              protocol,
+            },
+            status: isErr ? "FAILURE" : "SUCCESS",
+            ...(scenario === "filter_policy_match"
+              ? {
+                  filterPolicyMatch: !isErr,
+                  messageAttributes: { tier: { Type: "String", Value: "premium" } },
+                }
+              : {}),
+            ...(isErr && scenario === "publish_delivery"
+              ? { errorCode: rand(["EndpointDisabledException", "ThrottledException"]) }
+              : {}),
+          }
+  );
 
   return {
     "@timestamp": ts,
@@ -911,7 +1039,21 @@ function generateAmazonMqLog(ts: string, er: number): EcsDocument {
       provider: "mq.amazonaws.com",
       duration: durSec * 1e9,
     },
-    message: rand(MSGS[level]),
+    message: JSON.stringify({
+      broker: broker,
+      broker_id: `b-${randId(8)}-${randId(4)}`.toLowerCase(),
+      engine: brokerType,
+      engine_version: brokerType === "ActiveMQ" ? "5.17.6" : "3.12.1",
+      queue,
+      level: level.toUpperCase(),
+      message: rand(MSGS[level]),
+      messages_in: messagesIn,
+      messages_out: messagesOut,
+      queue_depth: queueDepth,
+      broker_memory_percent: brokerMemPct,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { error: rand(MSGS.error) } : {}),
+    }),
     log: { level },
     ...(isErr
       ? { error: { code: "BrokerError", message: rand(MSGS.error), type: "messaging" } }
@@ -947,40 +1089,65 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
   const registryName = rand(["partner-events", "internal-schemas"]);
   const archiveArn = `arn:aws:events:${region}:${acct.id}:archive/${rand(["audit", "security"])}-${randId(6)}`;
   const enrichmentArn = `arn:aws:lambda:${region}:${acct.id}:function:${rand(["enrichOrder", "maskPii", "addGeo"])}`;
-  const plainMessage =
-    logKind === "rule_match"
-      ? `EventBridge RuleMatch rule=${rule} bus=${eventBus} matched_events=${randInt(1, 500)} pattern_matched=true eventId=${eventId}`
-      : logKind === "target_delivery"
-        ? `EventBridge TargetDelivery rule=${rule} target=${targetArn} status=${isErr ? "FAILED" : "SUCCESS"} httpStatus=${isErr ? rand([502, 503, 504, 429]) : 200} attempt=${randInt(1, 4)}`
-        : logKind === "archive_replay"
-          ? `EventBridge StartReplay replay_name=${randId(8).toLowerCase()} archive_arn=${archiveArn} event_count=${randInt(100, 50000)} destination_bus=${eventBus} state=${isErr ? "FAILED" : "COMPLETED"}`
-          : logKind === "schema_discovery"
-            ? `EventBridge SchemaDiscovery registry=${registryName} discovered_type=${rand(["OrderPlaced@v2", "InvoicePaid@v1"])} revision=${randInt(1, 12)}`
-            : `EventBridge Pipe enrichment pipe=${pipeName} stage=Enrichment enrichment=${enrichmentArn} records_transformed=${randInt(0, 5000)} transform=${isErr ? "ERROR" : "OK"}`;
+  const detailType = rand([
+    "EC2 Instance State-change Notification",
+    "Object Created",
+    "Order Placed",
+    "Health Event",
+  ]);
   const useStructuredLogging = Math.random() < 0.6;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        id: eventId,
-        source,
-        detailType: rand([
-          "EC2 Instance State-change Notification",
-          "Object Created",
-          "Order Placed",
-          "Health Event",
-        ]),
-        rule,
-        eventBus,
-        log_kind: logKind,
-        target_arn: logKind === "target_delivery" ? targetArn : undefined,
-        archive_arn: logKind === "archive_replay" ? archiveArn : undefined,
-        pipe: logKind === "pipe_enrichment" ? pipeName : undefined,
-        enrichment_arn: logKind === "pipe_enrichment" ? enrichmentArn : undefined,
-        schema_registry: logKind === "schema_discovery" ? registryName : undefined,
-        dlq_arn: dlqArn,
-        message: plainMessage,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const message = JSON.stringify({
+    version: "0",
+    id: eventId,
+    "detail-type": detailType,
+    source,
+    account: acct.id,
+    time: new Date(ts).toISOString(),
+    region,
+    resources:
+      logKind === "target_delivery"
+        ? [targetArn]
+        : [`arn:aws:events:${region}:${acct.id}:rule/${rule}`],
+    detail: {
+      eventBus,
+      rule,
+      logKind,
+      ...(logKind === "rule_match" ? { matchedEvents: randInt(1, 500), patternMatched: true } : {}),
+      ...(logKind === "target_delivery"
+        ? {
+            targetArn,
+            status: isErr ? "FAILED" : "SUCCESS",
+            httpStatusCode: isErr ? rand([502, 503, 504, 429]) : 200,
+            attempt: randInt(1, 4),
+            deadLetterQueueArn: dlqArn,
+          }
+        : {}),
+      ...(logKind === "archive_replay"
+        ? {
+            replayName: randId(8).toLowerCase(),
+            archiveArn,
+            eventCount: randInt(100, 50000),
+            destinationEventBus: eventBus,
+            state: isErr ? "FAILED" : "COMPLETED",
+          }
+        : {}),
+      ...(logKind === "schema_discovery"
+        ? {
+            registryName,
+            discoveredType: rand(["OrderPlaced@v2", "InvoicePaid@v1"]),
+            revision: randInt(1, 12),
+          }
+        : {}),
+      ...(logKind === "pipe_enrichment"
+        ? {
+            pipeName,
+            enrichmentArn,
+            recordsTransformed: randInt(0, 5000),
+            transformStatus: isErr ? "ERROR" : "OK",
+          }
+        : {}),
+    },
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1133,21 +1300,57 @@ function generateStepFunctionsLog(ts: string, er: number): EcsDocument {
     input: entered ? inputPayload : undefined,
     output: outputResolved,
   };
-  const plainMessage = JSON.stringify(executionHistoryEvent);
   const useStructuredLogging = Math.random() < 0.55;
-  const message = useStructuredLogging
-    ? JSON.stringify({
-        executionArn,
-        stateMachineArn,
-        name: machine,
-        workflowType,
-        state,
-        status: isErr ? "FAILED" : "SUCCEEDED",
-        durationSeconds: dur,
-        executionHistoryEvent,
-        timestamp: new Date(ts).toISOString(),
-      })
-    : plainMessage;
+  const historyDetailsKey =
+    histType === "ExecutionStarted"
+      ? "executionStartedEventDetails"
+      : histType === "ExecutionSucceeded"
+        ? "executionSucceededEventDetails"
+        : histType === "ExecutionFailed"
+          ? "executionFailedEventDetails"
+          : histType === "LambdaFunctionScheduled"
+            ? "lambdaFunctionScheduledEventDetails"
+            : histType === "LambdaFunctionSucceeded"
+              ? "lambdaFunctionSucceededEventDetails"
+              : histType === "LambdaFunctionFailed"
+                ? "lambdaFunctionFailedEventDetails"
+                : entered
+                  ? "stateEnteredEventDetails"
+                  : "stateExitedEventDetails";
+  const historyDetailsValue =
+    histType === "ExecutionStarted"
+      ? {
+          input: inputPayload,
+          roleArn: `arn:aws:iam::${acct.id}:role/StepFunctionsExecutionRole`,
+          inputDetails: { truncated: false },
+        }
+      : histType === "ExecutionSucceeded"
+        ? { output: outputPayload, outputDetails: { truncated: false } }
+        : histType === "ExecutionFailed"
+          ? { error: "States.TaskFailed", cause: failureOutput }
+          : histType === "LambdaFunctionScheduled"
+            ? {
+                resource: `arn:aws:lambda:${region}:${acct.id}:function:${rand(["processOrder", "validate"])}`,
+                input: inputPayload,
+              }
+            : histType === "LambdaFunctionSucceeded"
+              ? { output: outputPayload }
+              : histType === "LambdaFunctionFailed"
+                ? { error: "States.TaskFailed", cause: failureOutput }
+                : entered
+                  ? { name: state, input: inputPayload, inputDetails: { truncated: false } }
+                  : {
+                      name: state,
+                      output: outputResolved,
+                      outputDetails: { truncated: false },
+                    };
+  const message = JSON.stringify({
+    id: eventId,
+    ...(histType !== "ExecutionStarted" ? { previousEventId: prevEventId } : {}),
+    timestamp: new Date(ts).toISOString(),
+    type: histType,
+    [historyDetailsKey]: historyDetailsValue,
+  });
   return {
     "@timestamp": ts,
     cloud: {
@@ -1285,9 +1488,28 @@ function generateMskConnectLog(ts: string, er: number): EcsDocument {
       provider: "kafkaconnect.amazonaws.com",
       duration: randInt(1, isErr ? 60000 : 5000) * 1e6,
     },
-    message: isErr
-      ? `MSK Connect ${connectorName}: ${connectorState} - ${rand(["Task failed", "Worker crashed", "Connector config error", "Offset commit failed"])}`
-      : `MSK Connect ${connectorName}: ${taskStatuses}, lag=${randInt(0, 500)}`,
+    message: JSON.stringify({
+      connectorName,
+      connectorArn,
+      connectorState,
+      tasksStatus: taskStatuses,
+      workerCount,
+      capacityType,
+      bootstrapServers,
+      offsetLag: isErr ? randInt(10000, 5000000) : randInt(0, 500),
+      recordCount: randInt(0, isErr ? 1000 : 100000),
+      connectorClass: rand(connectorClasses),
+      ...(isErr
+        ? {
+            error: rand([
+              "Task failed",
+              "Worker crashed",
+              "Connector config error",
+              "Offset commit failed",
+            ]),
+          }
+        : {}),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {
@@ -1347,9 +1569,19 @@ function generateEndUserMessagingLog(ts: string, er: number): EcsDocument {
       duration: randInt(10, isErr ? 10000 : 1000) * 1e6,
     },
     data_stream: { type: "logs", dataset: "aws.endusermessaging", namespace: "default" },
-    message: isErr
-      ? `End User Messaging ${channel}: ${errorCode} for ${destinationCountry} (${originationIdentity})`
-      : `End User Messaging ${channel}: ${messagesSent} sent to ${destinationCountry}, delivery_rate=${(deliveryRate * 100).toFixed(1)}%`,
+    message: JSON.stringify({
+      messageId,
+      originationIdentity,
+      channel,
+      destinationCountry,
+      destinationNumber: `+${randInt(1, 99)}${randInt(100000000, 999999999)}`,
+      status: messageStatus,
+      deliveryRate,
+      messagesSent,
+      optOutRate,
+      timestamp: new Date(ts).toISOString(),
+      ...(isErr ? { errorCode, failureReason: `Delivery failed for ${destinationCountry}` } : {}),
+    }),
     log: { level: isErr ? "error" : "info" },
     ...(isErr
       ? {

@@ -1,58 +1,65 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-data-10wkha/providers/Microsoft.AnalysisServices/servers/as-xjrdm",
-  "operationName": "TraceEvent",
-  "category": "Engine",
-  "resultType": "Success",
-  "resultSignature": "Medium",
-  "callerIpAddress": "214.142.234.137",
-  "correlationId": "801b46bf-b288-4313-b7e1-c345032b84c4",
-  "level": "Information",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-app-6d037w/providers/Microsoft.AnalysisServices/servers/as-bkuyk",
+  "operationName": "TABULAR_PARTITION_PROCESS",
+  "category": "Model",
+  "resultType": "Failure",
+  "resultSignature": "Error",
+  "callerIpAddress": "40.169.180.110",
+  "correlationId": "fe28e66b-f049-4f3e-a966-60186a0c2855",
+  "level": "Error",
   "properties": {
-    "severity": "Medium",
-    "subsystem": "Connectivity",
-    "text": "Profiler trace started"
+    "tablePartition": "[Sales].[FactOrders].[6EWM]",
+    "mode": "Incremental",
+    "rowsProcessed": 0,
+    "status": "Error"
   },
   "cloud": {
     "provider": "azure",
-    "region": "westus2",
-    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
+    "region": "eastus",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.AnalysisServices/servers" }
   },
   "azure": {
     "analysis_services": {
-      "server": "as-xjrdm",
-      "resource_group": "rg-data-10wkha",
-      "category": "Trace",
-      "correlation_id": "801b46bf-b288-4313-b7e1-c345032b84c4",
+      "server": "as-bkuyk",
+      "resource_group": "rg-app-6d037w",
+      "category": "PartitionProcessing",
+      "correlation_id": "fe28e66b-f049-4f3e-a966-60186a0c2855",
       "properties": {
-        "severity": "Medium",
-        "subsystem": "Connectivity",
-        "text": "Profiler trace started"
+        "tablePartition": "[Sales].[FactOrders].[6EWM]",
+        "mode": "Incremental",
+        "rowsProcessed": 0,
+        "status": "Error"
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["access"],
-    "action": "TraceEvent",
-    "outcome": "success",
-    "duration": 4400090828,
+    "type": ["error"],
+    "action": "TABULAR_PARTITION_PROCESS",
+    "outcome": "failure",
+    "duration": 6048013646690,
     "module": "azure",
     "dataset": "azure.analysis_services"
   },
-  "message": "AAS as-xjrdm: Profiler trace started",
+  "message": "AAS as-bkuyk: partition process failed ([Sales].[FactOrders].[6EWM])",
+  "error": {
+    "code": "AuthorizationFailed",
+    "message": "Caller lacks permission on the targeted resource.",
+    "type": "azure"
+  },
   "service": { "name": "analysis-services", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.analysis_services", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-westus2",
-    "id": "4pw712ugnpyc3669fnr8ltcbw9wtcgg6wi1k"
+    "name": "elastic-agent-azure-eastus",
+    "id": "l29d2fx1ktbvs49d0p7sb5pi77cbt4albj70"
   },
   "input": { "type": "azure-eventhub" }
 }

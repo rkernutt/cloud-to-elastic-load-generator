@@ -156,7 +156,6 @@ const ARM_PROVIDERS: Record<string, string> = {
   "iot-hub": "Microsoft.Devices/IotHubs",
   "iot-central": "Microsoft.IoTCentral/iotApps",
   "device-provisioning": "Microsoft.Devices/provisioningServices",
-  "time-series-insights": "Microsoft.TimeSeriesInsights/environments",
   "media-services": "Microsoft.Media/mediaservices",
   "communication-services": "Microsoft.Communication/communicationServices",
   signalr: "Microsoft.SignalRService/SignalR",
@@ -167,7 +166,6 @@ const ARM_PROVIDERS: Record<string, string> = {
   advisor: "Microsoft.Advisor/recommendations",
   "cost-management": "Microsoft.CostManagement/exports",
   "resource-graph": "Microsoft.ResourceGraph/queries",
-  blueprints: "Microsoft.Blueprint/blueprintAssignments",
   "automation-account": "Microsoft.Automation/automationAccounts",
   "app-configuration": "Microsoft.AppConfiguration/configurationStores",
   "deployment-environments": "Microsoft.DevCenter/devcenters",
@@ -496,11 +494,6 @@ const SERVICE_OPS: Record<string, readonly string[]> = {
     "Microsoft.Devices/provisioningServices/delete",
     "Microsoft.Devices/provisioningServices/enrollments/write",
   ],
-  "time-series-insights": [
-    "Microsoft.TimeSeriesInsights/environments/write",
-    "Microsoft.TimeSeriesInsights/environments/delete",
-    "Microsoft.TimeSeriesInsights/environments/eventSources/write",
-  ],
   "media-services": [
     "Microsoft.Media/mediaservices/write",
     "Microsoft.Media/mediaservices/delete",
@@ -542,10 +535,6 @@ const SERVICE_OPS: Record<string, readonly string[]> = {
     "Microsoft.CostManagement/exports/run/action",
   ],
   "resource-graph": ["Microsoft.ResourceGraph/queries/read"],
-  blueprints: [
-    "Microsoft.Blueprint/blueprintAssignments/write",
-    "Microsoft.Blueprint/blueprintAssignments/delete",
-  ],
   "automation-account": [
     "Microsoft.Automation/automationAccounts/write",
     "Microsoft.Automation/automationAccounts/runbooks/write",

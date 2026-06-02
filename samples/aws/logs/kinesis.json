@@ -1,33 +1,33 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "sa-east-1",
-    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "region": "ap-northeast-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "kinesis" }
   },
   "aws": {
     "dimensions": { "StreamName": "user-events" },
     "kinesis": {
-      "operation": "SplitShard",
-      "scenario": "shard_split",
+      "operation": "SubscribeToShard",
+      "scenario": "data_plane_put_get",
       "shard_id": "shardId-00000000007",
-      "enhanced_fan_out_subscribers": 11,
+      "enhanced_fan_out_subscribers": 19,
       "metrics": {
-        "GetRecords_Bytes": { "avg": 696037 },
-        "GetRecords_IteratorAgeMilliseconds": { "avg": 892 },
-        "GetRecords_Latency": { "avg": 41 },
-        "GetRecords_Records": { "avg": 321, "sum": 50 },
+        "GetRecords_Bytes": { "avg": 921503 },
+        "GetRecords_IteratorAgeMilliseconds": { "avg": 821 },
+        "GetRecords_Latency": { "avg": 50 },
+        "GetRecords_Records": { "avg": 379, "sum": 454 },
         "GetRecords_Success": { "sum": 1 },
-        "IncomingBytes": { "avg": 4122625 },
-        "IncomingRecords": { "avg": 4439 },
-        "PutRecord_Bytes": { "avg": 970691 },
-        "PutRecord_Latency": { "avg": 91 },
-        "PutRecords_Latency": { "avg": 136 },
+        "IncomingBytes": { "avg": 6478594 },
+        "IncomingRecords": { "avg": 7084 },
+        "PutRecord_Bytes": { "avg": 636476 },
+        "PutRecord_Latency": { "avg": 43 },
+        "PutRecords_Latency": { "avg": 99 },
         "PutRecord_Success": { "avg": 1 },
-        "PutRecords_Bytes": { "avg": 6610193 },
+        "PutRecords_Bytes": { "avg": 8044807 },
         "PutRecords_FailedRecords": { "sum": 0 },
-        "PutRecords_SuccessfulRecords": { "sum": 374 },
+        "PutRecords_SuccessfulRecords": { "sum": 293 },
         "PutRecords_ThrottledRecords": { "sum": 0 },
         "ReadProvisionedThroughputExceeded": { "avg": 0 },
         "WriteProvisionedThroughputExceeded": { "avg": 0 }
@@ -35,17 +35,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-kinesis-logs-164820739518",
-        "arn": "arn:aws:s3:::aws-kinesis-logs-164820739518"
+        "name": "aws-kinesis-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-kinesis-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/164820739518/kinesis/sa-east-1/2026/05/28/kinesis_7SKT9W0LJRC7KH6K6RWP.log.gz"
+        "key": "AWSLogs/501938274650/kinesis/ap-northeast-2/2026/06/01/kinesis_8BJ12G3ZCPZV1UT32LZT.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/kinesis/logs",
-      "log_stream": "sa-east-1/idl1q8li",
-      "ingestion_time": "2026-05-28T16:58:16.095Z"
+      "log_group": "/aws/kinesis/kinesis-stream-dgwngl",
+      "log_stream": "ap-northeast-2/lez1sk1x",
+      "ingestion_time": "2026-06-01T18:12:00.382Z"
     }
   },
   "event": {
@@ -54,19 +54,19 @@
     "type": ["connection"],
     "dataset": "aws.kinesis",
     "provider": "kinesis.amazonaws.com",
-    "duration": 1395000000,
+    "duration": 4132000000,
     "module": "aws"
   },
-  "message": "SplitShard parent=shardId-00000000007 -> child shards shardId-00000000003,shardId-00000000002 on user-events",
+  "message": "{\"streamName\":\"user-events\",\"shardId\":\"shardId-00000000007\",\"operation\":\"SubscribeToShard\",\"scenario\":\"data_plane_put_get\",\"monitoring\":{\"IncomingRecords\":3279,\"IncomingBytes\":5040580,\"GetRecords_IteratorAgeMilliseconds\":252,\"GetRecords_Records\":956,\"PutRecords_SuccessfulRecords\":467,\"PutRecords_FailedRecords\":0,\"PutRecords_ThrottledRecords\":0,\"ReadProvisionedThroughputExceeded\":0,\"WriteProvisionedThroughputExceeded\":0,\"enhancedFanOutSubscribers\":19},\"statusMessage\":\"SubscribeToShard: consumer lf0y9edy connected (19 concurrent)\"}",
   "log": { "level": "info" },
   "service": { "name": "kinesis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.kinesis", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-sa-east-1",
-    "ephemeral_id": "0bhz6uq3lchkj08cfl2hjlrd3i0zgwfknrjl"
+    "name": "filebeat-aws-ap-northeast-2",
+    "ephemeral_id": "05dhldblcmiaubmmyk9lt7hm174ebqlyidtp"
   },
   "input": { "type": "aws-cloudwatch" }
 }

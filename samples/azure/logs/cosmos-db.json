@@ -1,40 +1,42 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.000Z",
-  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-shared-a0u4nx/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-mmnjlb",
+  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-prod-hw5t0j/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-h7hyx1",
   "cloud": {
     "provider": "azure",
-    "region": "northeurope",
+    "region": "eastus",
     "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
     "service": { "name": "Microsoft.DocumentDB/databaseAccounts" }
   },
-  "category": "DataPlaneRequests",
-  "operationName": "Patch",
+  "category": "QueryRuntimeStatistics",
+  "operationName": "Query",
   "resultType": "Succeeded",
   "level": "Informational",
-  "correlationId": "zwae95u8gp1oj659oicbmnfy053repxi",
-  "callerIpAddress": "128.126.66.208",
+  "correlationId": "15wph5e9pqvw8cosytkrsqvaviy6i3h1",
+  "callerIpAddress": "118.239.115.188",
   "properties": {
-    "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-shared-a0u4nx/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-mmnjlb",
+    "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-prod-hw5t0j/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-h7hyx1",
     "databaseName": "main",
-    "collectionName": "orders",
-    "activityId": "4922b3ca-62ce-4053-bca2-1d7041606ac6",
-    "statusCode": 200,
-    "requestCharge": 4.731318043642029,
-    "duration": 31.582479594652543,
-    "partitionKey": "/partition12",
-    "requestResourceType": "StoredProcedure",
-    "requestResourceId": "wb4tz9s991ml",
-    "region": "northeurope"
+    "collectionName": "sessions",
+    "activityId": "6eacb5e9-3b70-4e61-a6e0-7d8cd1849042",
+    "queryText": "SELECT * FROM c WHERE c.region = @region ORDER BY c._ts DESC",
+    "indexUtilizationRatio": 0.8834363684478563,
+    "retrievedDocumentCount": 12669,
+    "retrievedDocumentSize": 12569381,
+    "outputDocumentCount": 4509,
+    "vmExecutionTimeMs": 336.04182704015517,
+    "totalQueryExecutionTimeMs": 336.04182704015517,
+    "crossPartition": true,
+    "statusCode": 200
   },
   "azure": {
     "cosmos_db": {
-      "account": "cosmos-mmnjlb",
-      "resource_group": "rg-shared-a0u4nx",
+      "account": "cosmos-h7hyx1",
+      "resource_group": "rg-prod-hw5t0j",
       "database": "main",
-      "container": "orders",
-      "partition_key": "/partition12",
-      "ru_consumed": 4.731318043642029,
+      "container": "sessions",
+      "partition_key": "/partition8",
+      "ru_consumed": 236,
       "status_code": 200
     }
   },
@@ -42,13 +44,13 @@
     "kind": "event",
     "category": ["database"],
     "type": ["access"],
-    "action": "Patch",
+    "action": "Query",
     "outcome": "success",
-    "duration": 66606539,
+    "duration": 157786229,
     "module": "azure",
     "dataset": "azure.cosmos_db"
   },
-  "message": "Cosmos DB cosmos-mmnjlb: Patch completed status=200 RU=4.73 in 31.6ms",
+  "message": "Cosmos DB cosmos-h7hyx1: query completed retrieved=12669 indexUtil=0.88",
   "service": { "name": "cosmos-db", "type": "azure" },
   "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
@@ -56,8 +58,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-northeurope",
-    "id": "5jy0dywdpqunyrwrjug3hh2thmur4pyzao5m"
+    "name": "elastic-agent-azure-eastus",
+    "id": "t1qbht0p1fvba11ehzrosiyikgt8yihjvkqi"
   },
   "input": { "type": "azure-eventhub" }
 }

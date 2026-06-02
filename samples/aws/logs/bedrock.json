@@ -1,56 +1,55 @@
 {
-  "@timestamp": "2026-05-28T16:58:15.156Z",
+  "@timestamp": "2026-06-01T18:11:59.613Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-west-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "bedrock" }
   },
   "aws": {
-    "dimensions": { "ModelId": "anthropic.claude-3-haiku-20240307-v1:0" },
+    "dimensions": { "ModelId": "amazon.titan-text-express-v1" },
     "bedrock": {
-      "modelId": "anthropic.claude-3-haiku-20240307-v1:0",
-      "inputTokenCount": 5922,
-      "outputTokenCount": 634,
-      "inputBodyJson": "{\"agentId\":\"TY7AWVUAOGME\",\"sessionId\":\"f4jopfw4f6sifgtml3lhq5eb1m0ftnzs\",\"inputText\":\"Open ticket INC-123\",\"enableTrace\":true}",
-      "outputBodyJson": "{\"completion\":\"Agent completed tool calls and returned final answer.\",\"trace\":{\"orchestration\":{\"modelInvocation\":{\"modelId\":\"anthropic.claude-3-haiku-20240307-v1:0\"}}}}",
-      "invocationLatency": 13478,
-      "operation": "InvokeAgent",
-      "scenario": "agent_orchestration",
-      "agent_id": "TY7AWVUAOGME",
+      "modelId": "amazon.titan-text-express-v1",
+      "inputTokenCount": 5165,
+      "outputTokenCount": 855,
+      "inputBodyJson": "{\"guardrailIdentifier\":\"gr-kebetjvtfu\",\"source\":\"OUTPUT\",\"content\":[{\"text\":\"Generated SQL…\"}]}",
+      "outputBodyJson": "{\"action\":\"INTERVENED\",\"assessments\":[]}",
+      "invocationLatency": 7690,
+      "operation": "ApplyGuardrail",
+      "scenario": "guardrail_check",
       "schemaType": "ModelInvocationLog",
       "schemaVersion": "1.0",
-      "model_id": "anthropic.claude-3-haiku-20240307-v1:0",
-      "invocation_latency_ms": 13478,
-      "input_token_count": 5922,
-      "output_token_count": 634,
-      "total_token_count": 6556,
-      "stop_reason": "max_tokens",
-      "use_case": "qa",
-      "guardrail_action": "NONE",
+      "model_id": "amazon.titan-text-express-v1",
+      "invocation_latency_ms": 7690,
+      "input_token_count": 5165,
+      "output_token_count": 855,
+      "total_token_count": 6020,
+      "stop_reason": "end_turn",
+      "use_case": "content-safety",
+      "guardrail_action": "INTERVENED",
       "streaming": false,
-      "model_family": "anthropic",
+      "model_family": "amazon",
       "metrics": {
-        "Invocations": { "sum": 256 },
-        "InvocationLatency": { "avg": 13478, "p99": 26956 },
-        "InputTokenCount": { "sum": 5922 },
-        "OutputTokenCount": { "sum": 634 },
+        "Invocations": { "sum": 383 },
+        "InvocationLatency": { "avg": 7690, "p99": 15380 },
+        "InputTokenCount": { "sum": 5165 },
+        "OutputTokenCount": { "sum": 855 },
         "Throttles": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-bedrock-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-bedrock-logs-814726593401"
+        "name": "aws-bedrock-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-bedrock-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/bedrock/me-central-1/2026/05/28/bedrock_8EEDPYKQBXYF9HLFW9SB.log.gz"
+        "key": "AWSLogs/501938274650/bedrock/us-west-2/2026/06/01/bedrock_VZC5XMLO2OHLVS7TI5ZC.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/bedrock/logs",
-      "log_stream": "me-central-1/zhaxi432",
-      "ingestion_time": "2026-05-28T16:58:16.174Z"
+      "log_group": "/aws/bedrock/modelinvocations",
+      "log_stream": "us-west-2/edyeq0nm",
+      "ingestion_time": "2026-06-01T18:12:00.429Z"
     }
   },
   "event": {
@@ -58,19 +57,19 @@
     "category": ["process"],
     "dataset": "aws.bedrock",
     "provider": "bedrock.amazonaws.com",
-    "duration": 13477581338.521374,
+    "duration": 7690212171.226591,
     "module": "aws"
   },
-  "message": "Bedrock InvokeAgent (agent_orchestration) 5922->634 tokens 13.48s",
-  "log": { "level": "warn" },
+  "message": "{\"schemaType\":\"ModelInvocationLog\",\"schemaVersion\":\"1.0\",\"timestamp\":\"2026-06-01T18:11:59.613Z\",\"accountId\":\"501938274650\",\"region\":\"us-west-2\",\"requestId\":\"13r5wa92nsod04963e56fsj4i3l9xjda\",\"operation\":\"ApplyGuardrail\",\"modelId\":\"amazon.titan-text-express-v1\",\"input\":{\"inputContentType\":\"application/json\",\"inputBodyJson\":\"{\\\"guardrailIdentifier\\\":\\\"gr-kebetjvtfu\\\",\\\"source\\\":\\\"OUTPUT\\\",\\\"content\\\":[{\\\"text\\\":\\\"Generated SQL…\\\"}]}\",\"inputTokenCount\":5165},\"output\":{\"outputContentType\":\"application/json\",\"outputBodyJson\":\"{\\\"action\\\":\\\"INTERVENED\\\",\\\"assessments\\\":[]}\",\"outputTokenCount\":855}}",
+  "log": { "level": "info" },
   "service": { "name": "bedrock", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.bedrock", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-central-1",
-    "ephemeral_id": "flgaduyxybwu67vmkw4qztkndg9a5oimwyjm"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "4b0srpogg462fgsihvk94nkewk8bzsr9q7pn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

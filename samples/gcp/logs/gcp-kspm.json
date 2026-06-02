@@ -7,27 +7,27 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
-    "account": { "id": "globex-prod-482910", "name": "Globex Production" }
+    "region": "europe-west9",
+    "account": { "id": "globex-dev-615094", "name": "Globex Development" }
   },
   "orchestrator": { "cluster": { "name": "gke-edge-europe-west4" } },
   "resource": {
-    "id": "kube-system/pod/etcd-1",
-    "name": "etcd-1",
+    "id": "node/gke-gke-edge-europe-west4-np-3e99/file/kubelet-config",
+    "name": "/var/lib/kubelet/config.yaml",
     "type": "k8s_object",
-    "sub_type": "etcd"
+    "sub_type": "kubelet-config"
   },
   "rule": {
-    "id": "fe219241-4b9c-585f-b982-bb248852baa1",
-    "name": "Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate",
-    "section": "2.4",
-    "description": "etcd should be configured to make use of TLS encryption for peer connections.",
-    "tags": ["CIS", "Kubernetes", "CIS 2.4", "etcd"],
+    "id": "ee5ea7e5-dcb4-5abc-ab8c-58b3223669ce",
+    "name": "Ensure that the --kubeconfig kubelet.conf file permissions are set to 644 or more restrictive",
+    "section": "4.1.5",
+    "description": "Ensure that the `kubelet.conf` file has permissions of `644` or more restrictive.",
+    "tags": ["CIS", "Kubernetes", "CIS 4.1.5", "Worker Node Configuration Files"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "2.4",
+      "rule_number": "4.1.5",
       "posture_type": "kspm"
     },
     "profile_applicability": "* Level 1"
@@ -42,6 +42,6 @@
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/2.4] passed: Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate",
+  "message": "[cis_k8s/4.1.5] passed: Ensure that the --kubeconfig kubelet.conf file permissions are set to 644 or more restrictive",
   "log": { "level": "info" }
 }
