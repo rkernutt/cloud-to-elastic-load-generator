@@ -1,45 +1,45 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "ap-southeast-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "neptune" }
   },
   "aws": {
     "neptune": {
-      "cluster_id": "recommendation-engine",
-      "query_language": "Gremlin",
-      "query": "g.V().hasLabel('user').out('follows').count()",
-      "duration_ms": 4716,
+      "cluster_id": "fraud-graph",
+      "query_language": "openCypher",
+      "query": "MATCH (u:User)-[:FOLLOWS]->(f:User) RETURN count(f)",
+      "duration_ms": 35,
       "http_status": 200,
-      "db_connections": 171,
+      "db_connections": 105,
       "metrics": {
-        "CPUUtilization": { "avg": 58.48311392618935 },
-        "FreeableMemory": { "avg": 2704325258 },
-        "DatabaseConnections": { "avg": 14 },
-        "GremlinRequestsPerSec": { "avg": 893.2745010770489 },
+        "CPUUtilization": { "avg": 54.88735583589781 },
+        "FreeableMemory": { "avg": 5208094659 },
+        "DatabaseConnections": { "avg": 146 },
+        "GremlinRequestsPerSec": { "avg": 0 },
         "SparqlRequestsPerSec": { "avg": 0 },
-        "ServerlessDBCapacity": { "avg": 58.27989182067864 }
+        "ServerlessDBCapacity": { "avg": 44.68608236402352 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-neptune-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-neptune-logs-501938274650"
+        "name": "aws-neptune-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-neptune-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/neptune/af-south-1/2026/06/02/neptune_J3V9XNP4CKRKOR4SWXUP.log.gz"
+        "key": "AWSLogs/293847561023/neptune/ap-southeast-1/2026/06/03/neptune_HISAB3KPQOWP18BPN9JW.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/neptune/j-5K822BERCT35T/audit",
-      "log_stream": "af-south-1/n5tv11yi",
-      "ingestion_time": "2026-06-02T15:33:03.966Z"
+      "log_group": "/aws/neptune/j-4ZAQSTCXXMDOK/audit",
+      "log_stream": "ap-southeast-1/k8e0obyp",
+      "ingestion_time": "2026-06-03T09:39:25.602Z"
     }
   },
   "event": {
-    "duration": 4716485964.796985,
+    "duration": 34866230.556867905,
     "outcome": "success",
     "category": ["database"],
     "type": ["access"],
@@ -47,7 +47,7 @@
     "provider": "neptune.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"neptune_audit\",\"clusterId\":\"recommendation-engine\",\"queryLanguage\":\"Gremlin\",\"query\":\"g.V().hasLabel('user').out('follows').count()\",\"latency_ms\":4716,\"status\":\"success\"}",
+  "message": "{\"eventType\":\"neptune_audit\",\"clusterId\":\"fraud-graph\",\"queryLanguage\":\"openCypher\",\"query\":\"MATCH (u:User)-[:FOLLOWS]->(f:User) RETURN count(f)\",\"latency_ms\":35,\"status\":\"success\"}",
   "log": { "level": "info" },
   "service": { "name": "neptune", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -55,8 +55,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "d80vvisbdnx6rm23naq1wnbyl0v8tdbjkdyf"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "y0uyg3u3ir1yl47mciq6d1b8xbh2549cg8ai"
   },
   "input": { "type": "aws-cloudwatch" }
 }

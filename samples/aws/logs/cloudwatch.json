@@ -1,35 +1,35 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
     "region": "eu-west-2",
-    "account": { "id": "391827465039", "name": "globex-payments-prod" },
+    "account": { "id": "631827495103", "name": "globex-networking" },
     "service": { "name": "cloudwatchalarms" }
   },
   "aws": {
     "cloudwatch": {
       "log_group": "/aws/cloudwatch/logs",
-      "log_stream": "eu-west-2/sm3nbtr8",
-      "ingestion_time": "2026-06-02T15:33:04.045Z",
-      "alarm_name": "ecs-memory",
+      "log_stream": "eu-west-2/h0bp4qpi",
+      "ingestion_time": "2026-06-03T09:39:25.678Z",
+      "alarm_name": "high-cpu-alarm",
       "alarm_state": "OK",
       "previous_state": "OK",
-      "namespace": "AWS/ECS",
+      "namespace": "Custom/Application",
       "metric_name": "CPUUtilization",
-      "threshold": 95,
+      "threshold": 85,
       "evaluation_periods": 3,
-      "metric_value": 17.35440947065316,
-      "statistic": "Average",
+      "metric_value": 0.03059326657132333,
+      "statistic": "Maximum",
       "period_seconds": 60,
-      "treat_missing_data": "notBreaching"
+      "treat_missing_data": "missing"
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudwatch-logs-391827465039",
-        "arn": "arn:aws:s3:::aws-cloudwatch-logs-391827465039"
+        "name": "aws-cloudwatch-logs-631827495103",
+        "arn": "arn:aws:s3:::aws-cloudwatch-logs-631827495103"
       },
       "object": {
-        "key": "AWSLogs/391827465039/cloudwatch/eu-west-2/2026/06/02/cloudwatch_K01TCD2ANO8818HTXBEG.log.gz"
+        "key": "AWSLogs/631827495103/cloudwatch/eu-west-2/2026/06/03/cloudwatch_EKOAASGF1Q3YX9ZJGUPN.log.gz"
       }
     }
   },
@@ -39,10 +39,10 @@
     "category": ["configuration", "process"],
     "dataset": "aws.cloudwatch",
     "provider": "monitoring.amazonaws.com",
-    "duration": 3600000000000,
+    "duration": 60000000000,
     "module": "aws"
   },
-  "message": "{\"AlarmName\":\"ecs-memory\",\"AlarmArn\":\"arn:aws:cloudwatch:eu-west-2:391827465039:alarm:ecs-memory\",\"NewStateValue\":\"OK\",\"OldStateValue\":\"OK\",\"NewStateReason\":\"Threshold Crossed: 1 datapoint [17.35] was not greater than the threshold (95).\",\"StateChangeTime\":\"2026-06-02T15:33:03.184Z\",\"Trigger\":{\"MetricName\":\"CPUUtilization\",\"Namespace\":\"AWS/ECS\",\"Statistic\":\"p99\",\"Period\":60,\"EvaluationPeriods\":1,\"ComparisonOperator\":\"GreaterThanThreshold\",\"Threshold\":95,\"TreatMissingData\":\"breaching\"}}",
+  "message": "{\"AlarmName\":\"high-cpu-alarm\",\"AlarmArn\":\"arn:aws:cloudwatch:eu-west-2:631827495103:alarm:high-cpu-alarm\",\"NewStateValue\":\"OK\",\"OldStateValue\":\"ALARM\",\"NewStateReason\":\"Threshold Crossed: 1 datapoint [0.03] was not greater than the threshold (85).\",\"StateChangeTime\":\"2026-06-03T09:39:24.765Z\",\"Trigger\":{\"MetricName\":\"CPUUtilization\",\"Namespace\":\"Custom/Application\",\"Statistic\":\"p99\",\"Period\":300,\"EvaluationPeriods\":2,\"ComparisonOperator\":\"GreaterThanThreshold\",\"Threshold\":85,\"TreatMissingData\":\"notBreaching\"}}",
   "log": { "level": "info" },
   "service": { "name": "cloudwatch", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -51,7 +51,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-eu-west-2",
-    "ephemeral_id": "f4il58yqzm12ho7l899bpvkwsq84utx7ztsm"
+    "ephemeral_id": "bn2poe4rufght86weiwa689bt4j9amgbf8m9"
   },
   "input": { "type": "aws-cloudwatch" }
 }

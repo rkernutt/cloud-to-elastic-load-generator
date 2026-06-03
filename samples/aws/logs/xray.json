@@ -1,54 +1,71 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
-  "trace": { "id": "1-6a1ef7af-71811bf4699379d0e43c8950" },
-  "span": { "id": "3b1f8668a9d38bf1" },
+  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "trace": { "id": "1-6a1ff64c-db8d09d49716468dcf55bb26" },
+  "span": { "id": "822bda88cdb90577" },
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "af-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "xray" }
   },
   "aws": {
-    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::S3::Bucket" },
+    "dimensions": { "GroupName": "Default", "ServiceType": "AWS::Lambda::Function" },
     "xray": {
-      "trace_id": "1-6a1ef7af-71811bf4699379d0e43c8950",
-      "segment_id": "3b1f8668a9d38bf1",
-      "start_time": 1780414383.184,
-      "end_time": 1780414383.981963,
-      "origin": "AWS::S3::Bucket",
-      "service": { "name": "data-bucket", "type": "AWS::S3::Bucket" },
-      "duration": 0.7979630161460867,
+      "trace_id": "1-6a1ff64c-db8d09d49716468dcf55bb26",
+      "segment_id": "822bda88cdb90577",
+      "parent_id": "62753bae2e06e438",
+      "start_time": 1780479564.765,
+      "end_time": 1780479566.2439036,
+      "origin": "AWS::Lambda::Function",
+      "service": { "name": "user-auth-function", "type": "AWS::Lambda::Function" },
+      "duration": 1.4789034353280963,
       "fault": false,
       "error": false,
       "throttle": false,
       "http": {
         "request": {
-          "method": "POST",
-          "url": "https://www.cascadeops.com/.git/config",
-          "client_ip": "78.205.7.180",
+          "method": "PUT",
+          "url": "https://api.meridiantech.io/static/css/app.css",
+          "client_ip": "29.121.34.183",
           "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
         },
-        "response": { "status": 200, "content_length": 2536 }
+        "response": { "status": 200, "content_length": 10725 }
       },
       "aws": {
-        "account_id": "738291046572",
-        "region": "eu-central-1",
-        "resource_names": ["data-bucket"]
+        "account_id": "501938274650",
+        "region": "af-south-1",
+        "resource_names": ["user-auth-function"]
       },
-      "annotations": { "environment": "production", "version": "v5.7.90", "team": "frontend" },
+      "annotations": { "environment": "production", "version": "v19.2.0", "team": "platform" },
+      "subsegments": [
+        {
+          "id": "dfam3urjgf49nblg",
+          "name": "payment-service.internal:8080",
+          "start_time": 1780479565.174789,
+          "end_time": 1780479565.7583013,
+          "namespace": "remote",
+          "http": {
+            "request": { "method": "POST", "url": "http://payment-service.internal:8080/healthz" },
+            "response": { "status": 200, "content_length": 4334 }
+          },
+          "fault": false,
+          "error": false,
+          "throttle": false
+        }
+      ],
       "metrics": {
-        "ErrorRate": { "avg": 0.8125308267142072 },
-        "FaultRate": { "avg": 0.480791838719155 },
-        "ThrottleRate": { "avg": 0.05732436372074362 },
-        "TotalCount": { "sum": 8262 },
+        "ErrorRate": { "avg": 0.10353732271728022 },
+        "FaultRate": { "avg": 0.1341598181688647 },
+        "ThrottleRate": { "avg": 0.4525008448387702 },
+        "TotalCount": { "sum": 3329 },
         "Latency": {
-          "avg": 797.9630161460867,
-          "p50": 638.3704129168693,
-          "p90": 1196.94452421913,
-          "p95": 1595.9260322921734,
-          "p99": 2393.88904843826
+          "avg": 1478.9034353280963,
+          "p50": 1183.122748262477,
+          "p90": 2218.3551529921447,
+          "p95": 2957.8068706561926,
+          "p99": 4436.710305984289
         },
-        "OkCount": { "sum": 6596 },
+        "OkCount": { "sum": 5056 },
         "ErrorCount": { "sum": 0 },
         "FaultCount": { "sum": 0 },
         "ThrottleCount": { "sum": 0 }
@@ -56,30 +73,33 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-xray-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-xray-logs-738291046572"
+        "name": "aws-xray-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-xray-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/xray/eu-central-1/2026/06/02/xray_UBCUW6BUC8I5J590PFJQ.log.gz"
+        "key": "AWSLogs/501938274650/xray/af-south-1/2026/06/03/xray_RIAHXSI9K0GWTMMJHALR.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/xray/logs",
-      "log_stream": "eu-central-1/2eb8mhj7",
-      "ingestion_time": "2026-06-02T15:33:03.986Z"
+      "log_stream": "af-south-1/43gv71uv",
+      "ingestion_time": "2026-06-03T09:39:25.623Z"
     }
   },
   "http": {
-    "request": { "method": "POST", "body": { "bytes": 9824 } },
-    "response": { "status_code": 200, "body": { "bytes": 26089 } }
+    "request": { "method": "PUT", "body": { "bytes": 6395 } },
+    "response": { "status_code": 200, "body": { "bytes": 15540 } }
   },
-  "url": { "path": "/.git/config", "full": "https://www.cascadeops.com/.git/config" },
+  "url": {
+    "path": "/static/css/app.css",
+    "full": "https://api.meridiantech.io/static/css/app.css"
+  },
   "user_agent": {
     "original": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
   },
-  "source": { "ip": "78.205.7.180" },
+  "source": { "ip": "29.121.34.183" },
   "event": {
-    "duration": 797963016,
+    "duration": 1478903435,
     "outcome": "success",
     "category": ["network"],
     "type": ["connection"],
@@ -87,7 +107,7 @@
     "provider": "xray.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-06-02T15:33:03.904Z [Info] PublishSlices segments=469 faults=4 throttles=1\n2026-06-02T15:33:03.784Z [Info] Sampling decision trace_id=1-6a1ef7af-71811bf4699379d0e43c8950 rule=errors-only reservoir=0 outcome=NotSampled\n2026-06-02T15:33:03.904Z [Info] PublishSlices segments=469 faults=4 throttles=1\n{\"trace_id\":\"1-6a1ef7af-71811bf4699379d0e43c8950\",\"id\":\"3b1f8668a9d38bf1\",\"name\":\"data-bucket\",\"start_time\":1780414383.184,\"end_time\":1780414383.981963,\"http\":{\"request\":{\"method\":\"POST\",\"url\":\"https://www.cascadeops.com/.git/config\",\"client_ip\":\"78.205.7.180\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\"},\"response\":{\"status\":200,\"content_length\":7592}},\"aws\":{\"account_id\":\"738291046572\",\"region\":\"eu-central-1\",\"operation\":\"Bucket\",\"resource_names\":[\"data-bucket\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v16.2.32\",\"team\":\"frontend\"},\"metadata\":{\"default\":{\"response_size\":25673}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::S3::Bucket\",\"resource_arn\":\"arn:aws:s3:eu-central-1:738291046572:data-bucket\"}",
+  "message": "{\"trace_id\":\"1-6a1ff64c-db8d09d49716468dcf55bb26\",\"id\":\"822bda88cdb90577\",\"name\":\"user-auth-function\",\"start_time\":1780479564.765,\"end_time\":1780479566.2439036,\"parent_id\":\"62753bae2e06e438\",\"http\":{\"request\":{\"method\":\"PUT\",\"url\":\"https://api.meridiantech.io/static/css/app.css\",\"client_ip\":\"29.121.34.183\",\"user_agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\"},\"response\":{\"status\":200,\"content_length\":46568}},\"aws\":{\"account_id\":\"501938274650\",\"region\":\"af-south-1\",\"operation\":\"Function\",\"resource_names\":[\"user-auth-function\"]},\"annotations\":{\"environment\":\"production\",\"version\":\"v20.2.52\",\"team\":\"data\"},\"metadata\":{\"default\":{\"response_size\":13514}},\"fault\":false,\"error\":false,\"throttle\":false,\"origin\":\"AWS::Lambda::Function\",\"resource_arn\":\"arn:aws:lambda:af-south-1:501938274650:user-auth-function\"}",
   "log": { "level": "info" },
   "service": { "name": "xray", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -95,9 +115,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-1",
-    "ephemeral_id": "cqlynmx5hq8jxwqsn4c03fbx4876b6d40265"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "bn7yhnrt7mbzzehlvdyd37p3v4mjvmm8xnb7"
   },
   "input": { "type": "http_endpoint" },
-  "related": { "ip": ["78.205.7.180"] }
+  "related": { "ip": ["29.121.34.183"] }
 }

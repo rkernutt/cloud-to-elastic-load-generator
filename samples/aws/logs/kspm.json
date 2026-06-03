@@ -1,5 +1,5 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "data_stream": {
     "dataset": "cloud_security_posture.findings",
     "namespace": "default",
@@ -7,45 +7,48 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "391827465039", "name": "globex-payments-prod" }
+    "region": "ap-northeast-2",
+    "account": { "id": "746392018574", "name": "globex-identity" }
   },
   "orchestrator": {
-    "cluster": { "id": "staging-eks", "name": "staging-eks" },
+    "cluster": { "id": "dev-eks", "name": "dev-eks" },
     "type": "kubernetes",
-    "namespace": "kube-system"
+    "namespace": "ingress-nginx"
   },
   "resource": {
-    "id": "arn:aws:eks:ca-west-1:391827465039:cluster/staging-eks",
-    "name": "staging-eks",
-    "type": "eks-cluster",
-    "sub_type": "cluster"
+    "id": "k8s-node/ip-10-91-124-79.ap-northeast-2.compute.internal",
+    "name": "ip-10-91-124-79.ap-northeast-2.compute.internal",
+    "type": "k8s_object",
+    "sub_type": "Node",
+    "raw": { "node": "ip-10-91-124-79.ap-northeast-2.compute.internal" }
   },
   "rule": {
-    "id": "4cfe4df4-4157-53bb-820f-278fe02ec960",
-    "name": "Encrypt traffic to HTTPS load balancers with TLS certificates",
-    "section": "5.4.5",
-    "description": "Encrypt traffic to HTTPS load balancers using TLS certificates.",
-    "tags": ["CIS", "EKS", "CIS 5.4.5", "Cluster Networking"],
+    "id": "e1c469c1-89d2-5cbd-a1f1-fe8f636b151f",
+    "name": "Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
+    "section": "3.2.5",
+    "description": "Do not disable timeouts on streaming connections.",
+    "tags": ["CIS", "EKS", "CIS 3.2.5", "Kubelet"],
     "benchmark": {
       "id": "cis_eks",
       "name": "CIS Amazon Elastic Kubernetes Service (EKS)",
       "version": "v1.0.1",
-      "rule_number": "5.4.5",
+      "rule_number": "3.2.5",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 2"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Amazon Elastic Kubernetes Service (EKS) 3.2.5 — Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
+    "remediation": "Remediate per CIS Amazon Elastic Kubernetes Service (EKS) v1.0.1 section 3.2.5."
   },
-  "result": { "evaluation": "passed" },
+  "result": { "evaluation": "failed", "evidence": { "streamingConnectionIdleTimeout": "0" } },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_eks/5.4.5] passed: Encrypt traffic to HTTPS load balancers with TLS certificates",
-  "log": { "level": "info" }
+  "message": "[cis_eks/3.2.5] failed: Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
+  "log": { "level": "warn" }
 }

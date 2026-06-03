@@ -1,56 +1,78 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "391827465039", "name": "globex-payments-prod" },
-    "service": { "name": "dms-serverless" }
+    "region": "eu-west-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
+    "service": { "name": "dms" }
   },
   "aws": {
-    "dmsserverless": {
-      "replication_config": "mongo-to-dynamodb",
-      "replication_type": "cdc",
-      "provisioned_capacity": 4,
-      "min_capacity": 1,
-      "max_capacity": 64,
-      "tables_loaded": 43,
-      "tables_loading": 20,
+    "dimensions": { "ReplicationInstanceIdentifier": "dms-staging-pfy834qe" },
+    "dms": {
+      "replication_task_id": "on-prem-to-rds",
+      "migration_type": "cdc",
+      "replication_instance_identifier": "dms-staging-pfy834qe",
+      "source_engine": "sqlserver",
+      "target_engine": "aurora-mysql",
+      "replication_instance_class": "dms.r5.xlarge",
+      "task_status": "Load complete",
+      "full_load_rows_transferred": 9426882,
+      "cdc_incoming_changes": 5877,
+      "latency_ms": 1836,
+      "tables_loaded": 42,
       "tables_errored": 0,
-      "cdc_latency_seconds": 1.256288072174117,
-      "rows_applied": 290119,
-      "bytes_transferred": 564506638
+      "metrics": {
+        "FullLoadThroughputRowsSource": { "avg": 22449 },
+        "FullLoadThroughputRowsTarget": { "avg": 3610 },
+        "CDCIncomingChanges": { "avg": 6711 },
+        "CDCChangesMemorySource": { "avg": 38 },
+        "CDCChangesMemoryTarget": { "avg": 421 },
+        "CDCChangesDiskSource": { "avg": 81 },
+        "CDCChangesDiskTarget": { "avg": 37 },
+        "CDCLatencySource": { "avg": 1 },
+        "CDCLatencyTarget": { "avg": 1 },
+        "CPUUtilization": { "avg": 26.18078772684117 },
+        "FreeableMemory": { "avg": 879346424 },
+        "FreeStorageSpace": { "avg": 8387799160 },
+        "NetworkReceiveThroughput": { "avg": 38476813 },
+        "NetworkTransmitThroughput": { "avg": 39118816 },
+        "ReadIOPS": { "avg": 1736 },
+        "WriteIOPS": { "avg": 136 }
+      }
     },
     "s3": {
       "bucket": {
-        "name": "aws-dms-logs-391827465039",
-        "arn": "arn:aws:s3:::aws-dms-logs-391827465039"
+        "name": "aws-dms-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-dms-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/391827465039/dms/ca-west-1/2026/06/02/dms_1GBH8T180OA92VBA6747.log.gz"
+        "key": "AWSLogs/164820739518/dms/eu-west-2/2026/06/03/dms_6DZII23G31Q7ULGJFVLB.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/dms/tasks/fi9r8ew3vdhgqad5r55hbokbx9qc35mhhi0v",
-      "log_stream": "ca-west-1/t7ogmbz3",
-      "ingestion_time": "2026-06-02T15:33:04.049Z"
+      "log_group": "/aws/dms/tasks/onb8scqleffxrpbs7il9w4vmnm6poc1keqh4",
+      "log_stream": "eu-west-2/awrzf304",
+      "ingestion_time": "2026-06-03T09:39:25.681Z"
     }
   },
   "event": {
     "outcome": "success",
-    "duration": 219032302,
-    "module": "aws",
-    "dataset": "aws.dmsserverless"
+    "category": ["database", "process"],
+    "dataset": "aws.dms",
+    "provider": "dms.amazonaws.com",
+    "duration": 18218000000000,
+    "module": "aws"
   },
-  "message": "{\"replicationConfigArn\":\"arn:aws:dms:ca-west-1:391827465039:replication-config:mongo-to-dynamodb\",\"replicationType\":\"cdc\",\"provisionedCapacity\":4,\"status\":\"RUNNING\",\"tablesLoaded\":454,\"tablesLoading\":1,\"tablesErrored\":0,\"cdcLatencySeconds\":1.2412508620869265,\"rowsApplied\":942262,\"errorMessage\":null,\"timestamp\":\"2026-06-02T15:33:03.184Z\"}",
-  "service": { "name": "dms", "type": "aws" },
+  "message": "{\"replicationTaskArn\":\"arn:aws:dms:eu-west-2:164820739518:task:on-prem-to-rds\",\"replicationTaskIdentifier\":\"on-prem-to-rds\",\"migrationType\":\"cdc\",\"sourceEngine\":\"sqlserver\",\"targetEngine\":\"aurora-mysql\",\"replicationInstanceIdentifier\":\"dms-staging-pfy834qe\",\"status\":\"running\",\"fullLoadProgressPercent\":100,\"fullLoadRowsTransferred\":9426882,\"cdcIncomingChanges\":29372,\"cdcLatencySeconds\":3,\"tablesLoaded\":165,\"tablesErrored\":0,\"errorMessage\":null,\"timestamp\":\"2026-06-03T09:39:24.765Z\"}",
   "log": { "level": "info" },
+  "service": { "name": "dms", "type": "aws" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.dmsserverless", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "8nz5j1fb38w20gxiaag2d0ev40stp2987yog"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "oyogc17l6w0sfxs5159fmgq5f35okjofx3u7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

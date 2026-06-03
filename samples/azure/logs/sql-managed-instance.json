@@ -1,53 +1,60 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-shared-h6ty9n/providers/Microsoft.Sql/managedInstances/mi-wjne6",
-  "operationName": "Microsoft.Sql/managedInstances/maintenanceConfiguration/write",
-  "category": "SqlMiPatching",
-  "resultType": "Success",
-  "resultSignature": "Applied",
-  "callerIpAddress": "160.207.33.135",
-  "correlationId": "3ffc048a-9d4c-4998-955d-e52d0bb4a901",
-  "level": "Information",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-analytics-4ismmi/providers/Microsoft.Sql/managedInstances/mi-0h9be",
+  "operationName": "ManagedInstanceBackupCompleted",
+  "category": "ManagedBackup",
+  "resultType": "Failure",
+  "resultSignature": "Failed",
+  "callerIpAddress": "169.254.169.254",
+  "correlationId": "71298c69-1bf5-45b0-ba55-c9b880bb914b",
+  "level": "Error",
   "properties": {
-    "kbArticle": "KB5069306",
-    "patchingWindow": "SUN-02",
-    "state": "Applied",
-    "durationMin": 68
+    "backupType": "DIFF",
+    "status": "Failed",
+    "sizeMB": 0,
+    "retentionDays": 22,
+    "backupErrorDetail": "Backup service could not write to storage account (403)"
   },
   "cloud": {
     "provider": "azure",
-    "region": "centralindia",
-    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
+    "region": "westeurope",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Sql/managedInstances" }
   },
   "azure": {
     "sql_managed_instance": {
-      "instance": "mi-wjne6",
-      "resource_group": "rg-shared-h6ty9n",
-      "category": "SqlMiPatching",
-      "correlation_id": "3ffc048a-9d4c-4998-955d-e52d0bb4a901",
+      "instance": "mi-0h9be",
+      "resource_group": "rg-analytics-4ismmi",
+      "category": "ManagedBackup",
+      "correlation_id": "71298c69-1bf5-45b0-ba55-c9b880bb914b",
       "properties": {
-        "kbArticle": "KB5069306",
-        "patchingWindow": "SUN-02",
-        "state": "Applied",
-        "durationMin": 68
+        "backupType": "DIFF",
+        "status": "Failed",
+        "sizeMB": 0,
+        "retentionDays": 22,
+        "backupErrorDetail": "Backup service could not write to storage account (403)"
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["access"],
-    "action": "Microsoft.Sql/managedInstances/maintenanceConfiguration/write",
-    "outcome": "success",
-    "duration": 10858154870,
+    "type": ["error"],
+    "action": "ManagedInstanceBackupCompleted",
+    "outcome": "failure",
+    "duration": 19781808273,
     "module": "azure",
     "dataset": "azure.sql_managed_instance"
   },
-  "message": "MI mi-wjne6: patch applied KB5069306 (68m)",
+  "message": "MI mi-0h9be: DIFF backup failed: Backup service could not write to storage account (403)",
+  "error": {
+    "code": "AuthorizationFailed",
+    "message": "Caller lacks permission on the targeted resource.",
+    "type": "azure"
+  },
   "service": { "name": "sql-managed-instance", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": {
     "type": "logs",
@@ -57,8 +64,8 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-centralindia",
-    "id": "r3rfem5rfhujp47k7s7r7ol4tb6rup1e0qpo"
+    "name": "elastic-agent-azure-westeurope",
+    "id": "e37wqlfo04z3c3w3rbtxbs4dr57wjf53ztz3"
   },
   "input": { "type": "azure-eventhub" }
 }

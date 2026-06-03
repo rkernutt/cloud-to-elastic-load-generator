@@ -2,19 +2,19 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "severity": "WARNING",
   "labels": {
-    "environment_name": "composer-dev",
+    "environment_name": "composer-prod",
     "dag_id": "ml_feature_refresh"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-east4",
+    "region": "europe-west4",
     "project": {
-      "id": "globex-prod-482910",
-      "name": "Globex Production"
+      "id": "globex-sec-847293",
+      "name": "Globex Security"
     },
     "account": {
-      "id": "482910375621",
-      "name": "Globex Production"
+      "id": "847293615048",
+      "name": "Globex Security"
     },
     "service": {
       "name": "composer"
@@ -22,14 +22,14 @@
   },
   "gcp": {
     "composer": {
-      "environment_name": "composer-dev",
+      "environment_name": "composer-prod",
       "dag_id": "ml_feature_refresh",
-      "task_id": "transform_load",
-      "execution_date": "2026-06-02 11:59:56",
+      "task_id": "validate",
+      "execution_date": "2026-06-02 12:59:04",
       "state": "up_for_retry",
-      "try_number": 1,
-      "operator": "BashOperator",
-      "duration_seconds": 1115
+      "try_number": 2,
+      "operator": "KubernetesPodOperator",
+      "duration_seconds": 2530
     }
   },
   "event": {
@@ -40,13 +40,13 @@
     "type": [
       "end"
     ],
-    "action": "ml_feature_refresh.transform_load",
+    "action": "ml_feature_refresh.validate",
     "outcome": "success",
-    "duration": 1115000000000,
+    "duration": 2530000000000,
     "module": "gcp",
     "dataset": "gcp.composer"
   },
-  "message": "[2026-04-04T12:00:00.000Z] {composer-dev} INFO - Marking task as up_for_retry: ml_feature_refresh.transform_load duration=1115s",
+  "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as up_for_retry: ml_feature_refresh.validate duration=2530s",
   "service": {
     "name": "composer",
     "type": "gcp"
@@ -65,32 +65,32 @@
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-east4",
-    "id": "3gk0fkfcd1qazxqq9a52388ef7mxxlfvmt8q"
+    "name": "elastic-agent-gcp-europe-west4",
+    "id": "gffepcq8rrq6n187xi8opc1g4g8f3ppnifl4"
   },
   "input": {
     "type": "gcp-pubsub"
   },
-  "logName": "projects/globex-prod-482910/logs/composer",
+  "logName": "projects/globex-sec-847293/logs/composer",
   "resource": {
     "type": "cloud_composer_environment",
     "labels": {
-      "project_id": "globex-prod-482910",
-      "region": "us-east4"
+      "project_id": "globex-sec-847293",
+      "region": "europe-west4"
     }
   },
-  "insertId": "905Z6UO37G9K",
+  "insertId": "RPRUFA0E6F9D",
   "jsonPayload": {
     "composer": {
-      "environment_name": "composer-dev",
+      "environment_name": "composer-prod",
       "dag_id": "ml_feature_refresh",
-      "task_id": "transform_load",
-      "execution_date": "2026-06-02 11:59:56",
+      "task_id": "validate",
+      "execution_date": "2026-06-02 12:59:04",
       "state": "up_for_retry",
-      "try_number": 1,
-      "operator": "BashOperator",
-      "duration_seconds": 1115
+      "try_number": 2,
+      "operator": "KubernetesPodOperator",
+      "duration_seconds": 2530
     },
-    "message": "[2026-04-04T12:00:00.000Z] {composer-dev} INFO - Marking task as up_for_retry: ml_feature_refresh.transform_load duration=1115s"
+    "message": "[2026-04-04T12:00:00.000Z] {composer-prod} INFO - Marking task as up_for_retry: ml_feature_refresh.validate duration=2530s"
   }
 }

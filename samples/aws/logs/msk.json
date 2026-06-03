@@ -1,86 +1,81 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "746392018574", "name": "globex-identity" },
+    "region": "sa-east-1",
+    "account": { "id": "957483012647", "name": "globex-sandbox" },
     "service": { "name": "msk" }
   },
   "aws": {
     "dimensions": {
-      "Cluster Name": "prod-kafka-eu-north-1",
-      "Broker ID": "3",
+      "Cluster Name": "prod-kafka-sa-east-1",
+      "Broker ID": "6",
       "Topic": "user-events"
     },
     "msk": {
-      "cluster_name": "prod-kafka-eu-north-1",
-      "broker_id": 3,
+      "cluster_name": "prod-kafka-sa-east-1",
+      "broker_id": 6,
       "kafka_version": "3.5.1",
       "topic": "user-events",
-      "partition": 4,
-      "offset": 56069199,
-      "consumer_group": "etl-pipeline",
-      "lag": 428718,
-      "under_replicated_partitions": 1,
+      "partition": 5,
+      "offset": 50978815,
+      "consumer_group": "alerting-service",
+      "lag": 94,
+      "under_replicated_partitions": 0,
       "metrics": {
-        "BytesInPerSec": { "avg": 898556 },
-        "BytesOutPerSec": { "avg": 6783367 },
-        "MessagesInPerSec": { "avg": 4471 },
-        "FetchConsumerTotalTimeMsMean": { "avg": 45 },
-        "ProduceTotalTimeMsMean": { "avg": 45 },
-        "UnderReplicatedPartitions": { "avg": 3 },
-        "UnderMinIsrPartitionCount": { "avg": 3 },
+        "BytesInPerSec": { "avg": 3851049 },
+        "BytesOutPerSec": { "avg": 1412200 },
+        "MessagesInPerSec": { "avg": 4192 },
+        "FetchConsumerTotalTimeMsMean": { "avg": 62 },
+        "ProduceTotalTimeMsMean": { "avg": 33 },
+        "UnderReplicatedPartitions": { "avg": 0 },
+        "UnderMinIsrPartitionCount": { "avg": 0 },
         "OfflinePartitionsCount": { "avg": 0 },
         "ActiveControllerCount": { "avg": 1 },
-        "GlobalPartitionCount": { "avg": 591 },
-        "GlobalTopicCount": { "avg": 20 },
-        "KafkaDataLogsDiskUsed": { "avg": 78.08374877541071 },
-        "CPUUser": { "avg": 60.444793754441825 },
-        "CPUSystem": { "avg": 7.7418617036215105 },
+        "GlobalPartitionCount": { "avg": 623 },
+        "GlobalTopicCount": { "avg": 93 },
+        "KafkaDataLogsDiskUsed": { "avg": 16.73499487466291 },
+        "CPUUser": { "avg": 28.709187611538486 },
+        "CPUSystem": { "avg": 3.2714324176364404 },
         "NetworkRxDropped": { "sum": 0 },
         "NetworkTxDropped": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-msk-logs-746392018574",
-        "arn": "arn:aws:s3:::aws-msk-logs-746392018574"
+        "name": "aws-msk-logs-957483012647",
+        "arn": "arn:aws:s3:::aws-msk-logs-957483012647"
       },
       "object": {
-        "key": "AWSLogs/746392018574/msk/eu-north-1/2026/06/02/msk_JH0GKDXYKZ72N3SLPA30.log.gz"
+        "key": "AWSLogs/957483012647/msk/sa-east-1/2026/06/03/msk_KFYLYPGT03IKS9IK2XAV.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/msk/msk-cluster-u767vh/broker-logs",
-      "log_stream": "eu-north-1/lkm3ortq",
-      "ingestion_time": "2026-06-02T15:33:03.974Z"
+      "log_group": "/aws/msk/msk-cluster-kknsjj/broker-logs",
+      "log_stream": "sa-east-1/2jyct6t6",
+      "ingestion_time": "2026-06-03T09:39:25.610Z"
     }
   },
-  "kafka": { "topic": "user-events", "partition": 4 },
+  "kafka": { "topic": "user-events", "partition": 5 },
   "event": {
-    "outcome": "failure",
+    "outcome": "success",
     "category": ["process", "network"],
     "type": ["connection"],
     "dataset": "aws.msk",
     "provider": "kafka.amazonaws.com",
-    "duration": 4408000000,
+    "duration": 52000000,
     "module": "aws"
   },
-  "message": "{\"broker_id\":3,\"topic\":\"user-events\",\"partition\":4,\"offset\":78137823,\"level\":\"ERROR\",\"component\":\"LogManager\",\"logger\":\"kafka.server.ReplicaFetcherManager\",\"cluster\":\"prod-kafka-eu-north-1\",\"consumer_group\":\"etl-pipeline\",\"message\":\"Error processing fetch for partition user-events-4\",\"timestamp\":\"2026-06-02T15:33:03.184Z\"}",
-  "log": { "level": "error" },
-  "error": {
-    "code": "UnderReplicatedPartitions",
-    "message": "MSK partition replication lag",
-    "type": "stream"
-  },
+  "message": "{\"broker_id\":6,\"topic\":\"user-events\",\"partition\":5,\"offset\":64449818,\"level\":\"INFO\",\"component\":\"ReplicaFetcherManager\",\"logger\":\"kafka.log.LogManager\",\"cluster\":\"prod-kafka-sa-east-1\",\"consumer_group\":\"alerting-service\",\"message\":\"Completed fetch of 2649 messages for partition user-events-5\",\"timestamp\":\"2026-06-03T09:39:24.765Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "msk", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "2w7ae55smjxgj399gyisf7fa4yps2t0m89fh"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "qzvyzhoxmn8e3bvfw5a1glwawfrwh410yjhf"
   },
   "input": { "type": "aws-cloudwatch" }
 }

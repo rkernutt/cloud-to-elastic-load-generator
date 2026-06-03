@@ -1,90 +1,57 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
-    "region": "me-south-1",
-    "account": { "id": "283746150928", "name": "globex-log-archive" },
-    "service": { "name": "sagemaker" }
+    "region": "ap-east-1",
+    "account": { "id": "957483012647", "name": "globex-sandbox" },
+    "service": { "name": "sagemaker-featurestore" }
   },
   "aws": {
-    "dimensions": {
-      "TrainingJobName": "llama-finetuned-hyperparametertuning-20260602-3jezju",
-      "JobType": "HyperparameterTuning"
-    },
-    "cloudwatch": {
-      "log_group": "/aws/sagemaker/TrainingJobs",
-      "log_stream": "llama-finetuned-hyperparametertuning-20260602-3jezju/algo-2",
-      "ingestion_time": "2026-06-02T15:33:04.018Z"
-    },
-    "sagemaker": {
-      "domain_id": "d-v9fkmcr8fh",
-      "domain_name": "ds-platform",
-      "user_profile": "svc-monitoring",
-      "job": {
-        "name": "llama-finetuned-hyperparametertuning-20260602-3jezju",
-        "type": "HyperparameterTuning",
-        "arn": "arn:aws:sagemaker:me-south-1:283746150928:processing-job/llama-finetuned-hyperparametertuning-20260602-3jezju",
-        "status": "Completed",
-        "secondary_status": "Uploading"
-      },
-      "model": { "name": "llama-finetuned", "version": 21 },
-      "pipeline": { "name": "batch-inference-pipeline", "execution_id": "pipe-k91jkiwg9lpg" },
-      "instance": { "type": "ml.p3.8xlarge", "count": 2 },
-      "metrics": {
-        "train:loss": 0.4446,
-        "train:accuracy": 0.7885,
-        "validation:loss": 0.4018,
-        "validation:accuracy": 0.8132,
-        "epoch": 34,
-        "gpu_utilization_pct": 53,
-        "cpu_utilization_pct": 52
-      },
-      "studio": { "lifecycle_config": false, "continuous_logging": false },
-      "cloudwatch_metrics": {
-        "Invocations": { "sum": 408 },
-        "ModelLatency": { "avg": 94000 },
-        "OverheadLatency": { "avg": 3000 },
-        "GPUUtilization": { "avg": 64 },
-        "GPUMemoryUtilization": { "avg": 46 },
-        "CPUUtilization": { "avg": 54 },
-        "DiskUtilization": { "avg": 49 },
-        "MemoryUtilization": { "avg": 56 },
-        "Invocations4XXError": { "sum": 0 },
-        "Invocations5XXError": { "sum": 0 },
-        "ModelSetupTime": { "avg": 780 }
-      }
+    "sagemaker_featurestore": {
+      "feature_group_name": "session-features",
+      "operation": "DeleteRecord",
+      "record_identifier": "o9guxsux2fq6",
+      "online_store_latency_ms": 7.621549621845908,
+      "offline_store_status": "Creating",
+      "feature_count": 9,
+      "record_count": 32,
+      "ttl_duration_seconds": 249314
     },
     "s3": {
       "bucket": {
-        "name": "aws-sagemaker-logs-283746150928",
-        "arn": "arn:aws:s3:::aws-sagemaker-logs-283746150928"
+        "name": "aws-sagemaker-logs-957483012647",
+        "arn": "arn:aws:s3:::aws-sagemaker-logs-957483012647"
       },
       "object": {
-        "key": "AWSLogs/283746150928/sagemaker/me-south-1/2026/06/02/sagemaker_ME397EIT68SHZ6PV4BKX.log.gz"
+        "key": "AWSLogs/957483012647/sagemaker/ap-east-1/2026/06/03/sagemaker_0S545ZTRM31CTNBLKY8F.log.gz"
       }
+    },
+    "cloudwatch": {
+      "log_group": "/aws/sagemaker/TrainingJobs",
+      "log_stream": "ap-east-1/fjoillp3",
+      "ingestion_time": "2026-06-03T09:39:25.651Z"
     }
   },
-  "log": { "level": "info" },
-  "user": { "name": "svc-monitoring" },
   "event": {
-    "action": "TrainingJobStarted",
-    "duration": 4392518067017.897,
     "outcome": "success",
-    "category": ["process"],
-    "dataset": "aws.sagemaker",
-    "provider": "sagemaker.amazonaws.com",
-    "module": "aws"
+    "duration": 187516,
+    "module": "aws",
+    "dataset": "aws.sagemaker_featurestore"
   },
-  "message": "{\"eventType\":\"TrainingJobStarted\",\"domainId\":\"d-v9fkmcr8fh\",\"domainName\":\"ds-platform\",\"jobName\":\"llama-finetuned-hyperparametertuning-20260602-3jezju\",\"jobType\":\"HyperparameterTuning\",\"modelName\":\"llama-finetuned\",\"instanceType\":\"ml.p3.8xlarge\",\"level\":\"INFO\",\"log\":\"Starting hyperparameter tuning job with 44 total trials\",\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"status\":\"Succeeded\"}",
+  "message": "{\"eventType\":\"DeleteRecord\",\"featureGroupName\":\"session-features\",\"recordIdentifier\":\"1y8pvyu6sx9u\",\"recordCount\":67,\"onlineStoreLatencyMs\":19.19666611156016,\"timestamp\":\"2026-06-03T09:39:24.765Z\",\"status\":\"Succeeded\"}",
   "service": { "name": "sagemaker", "type": "aws" },
+  "log": { "level": "info" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
+  "data_stream": {
+    "type": "logs",
+    "dataset": "aws.sagemaker_featurestore",
+    "namespace": "default"
+  },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-me-south-1",
-    "ephemeral_id": "xpkdv65lb4l26zvb7jqx1n8byyq5ql2c640i"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "l5jf0xnpqwaag0py75x8k0w401movek2raak"
   },
-  "input": { "type": "aws-cloudwatch" },
-  "related": { "user": ["svc-monitoring"] }
+  "input": { "type": "aws-cloudwatch" }
 }

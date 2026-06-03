@@ -1,20 +1,20 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "85946bee49217cca6f160725637612c3" },
+  "trace": { "id": "497667c6437439a6166c491b8cde8c58" },
   "transaction": {
-    "id": "78c27dd1e72130dc",
+    "id": "3d2f53ff7ede0db2",
     "name": "POST /orders",
     "type": "request",
-    "duration": { "us": 564000 },
-    "result": "success",
+    "duration": { "us": 512000 },
+    "result": "failure",
     "sampled": true,
     "span_count": { "started": 1, "dropped": 0 }
   },
   "service": {
     "name": "api-orders",
     "environment": "production",
-    "version": "3.0.1",
+    "version": "2026.04.1",
     "language": { "name": "nodejs" },
     "runtime": { "name": "nodejs20.x", "version": "20.15.1" },
     "framework": { "name": "AWS API Gateway" }
@@ -31,11 +31,16 @@
   },
   "cloud": {
     "provider": "aws",
-    "region": "me-central-1",
+    "region": "ap-south-2",
     "account": { "id": "293847561023", "name": "staging-aws" },
     "service": { "name": "apigateway" }
   },
-  "event": { "outcome": "success", "module": "aws", "dataset": "aws.cloudwatch_logs" },
+  "labels": {
+    "error.type": "aws",
+    "error.code": "ThrottlingException",
+    "error.message": "Rate exceeded for operation; retry after backoff"
+  },
+  "event": { "outcome": "failure", "module": "aws", "dataset": "aws.cloudwatch_logs" },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" }

@@ -7,40 +7,62 @@
   },
   "cloud": {
     "provider": "azure",
-    "region": "uksouth",
-    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" }
+    "region": "centralindia",
+    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" }
   },
   "resource": {
-    "id": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-app-j92m44/providers/Microsoft.Web/sites/app-shared23f0f6",
-    "name": "app-shared23f0f6",
-    "type": "web-app",
-    "sub_type": "app-service"
+    "id": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/providers/Microsoft.Authorization/roleDefinitions/890e9be7-3925-4b99-a293-013f9b0d20b6",
+    "name": "CustomAdmin-7cff99",
+    "type": "cloud-identity-management",
+    "sub_type": "role-definition",
+    "raw": {
+      "properties": {
+        "roleName": "CustomSubscriptionAdmin",
+        "permissions": [{ "actions": ["*"], "notActions": [] }],
+        "assignableScopes": ["/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d"]
+      }
+    }
   },
   "rule": {
-    "id": "43d5538c-17a3-5e04-9c06-ad4323bfd188",
-    "name": "Ensure FTP deployments are Disabled",
-    "section": "9.10",
-    "description": "By default, Azure Functions, Web, and API Services \ncan be deployed over FTP.",
-    "tags": ["CIS", "AZURE", "CIS 9.10", "AppService"],
+    "id": "05676b4e-3274-5984-9981-6aa1623c24ec",
+    "name": "Ensure That No Custom Subscription Administrator Roles Exist",
+    "section": "1.23",
+    "description": "The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.",
+    "tags": ["CIS", "AZURE", "CIS 1.23", "Identity and Access Management"],
     "benchmark": {
       "id": "cis_azure",
       "name": "CIS Microsoft Azure Foundations",
       "version": "v2.0.0",
-      "rule_number": "9.10",
+      "rule_number": "1.23",
       "posture_type": "cspm"
     },
-    "profile_applicability": "* Level 1"
+    "profile_applicability": "* Level 1",
+    "impact": "Non-compliance with CIS Microsoft Azure Foundations 1.23 — Ensure That No Custom Subscription Administrator Roles Exist",
+    "remediation": "Remediate per CIS Microsoft Azure Foundations v2.0.0 section 1.23."
   },
-  "result": { "evaluation": "passed" },
+  "result": {
+    "evaluation": "failed",
+    "evidence": {
+      "customAdministratorRoles": [
+        {
+          "id": "890e9be7-3925-4b99-a293-013f9b0d20b6",
+          "properties": {
+            "permissions": [{ "actions": ["*"], "notActions": [] }],
+            "roleName": "CustomSubscriptionAdmin"
+          }
+        }
+      ]
+    }
+  },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_cspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_azure/9.10] passed: Ensure FTP deployments are Disabled",
-  "log": { "level": "info" }
+  "message": "[cis_azure/1.23] failed: Ensure That No Custom Subscription Administrator Roles Exist",
+  "log": { "level": "warn" }
 }

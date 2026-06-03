@@ -1,30 +1,28 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "log": { "level": "info" },
+  "severity": "NOTICE",
+  "log": { "level": "notice" },
   "labels": {
-    "resource.type": "cloudbilling.googleapis.com/BillingAccount",
-    "billing_account": "011ZL2RB-PQM0-9QXO",
-    "api_method": "cloudbilling.googleapis.com/v1/billingAccounts/011ZL2RB-PQM0-9QXO/projects:list"
+    "resource.type": "carbonfootprint.googleapis.com/Project",
+    "project_id": "globex-prod-482910",
+    "api_method": "carbonfootprint.googleapis.com/v1/projects/globex-prod-482910/carbonFootprint:retrieve"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "southamerica-west1",
+    "region": "asia-southeast2",
     "project": { "id": "globex-prod-482910", "name": "Globex Production" },
     "account": { "id": "482910375621", "name": "Globex Production" },
-    "service": { "name": "cloudbilling.googleapis.com" }
+    "service": { "name": "carbon-footprint" }
   },
   "gcp": {
-    "billing": {
-      "billing_account_id": "011ZL2RB-PQM0-9QXO",
-      "service_description": "BigQuery",
-      "sku_description": "N1 Preemptible Instance Core",
-      "cost_amount": 5203.69,
-      "currency": "USD",
-      "usage_amount": 100800.4,
-      "usage_unit": "GiBy.mo",
-      "credits_amount": 1458.42,
-      "project_id": "globex-stg-739158"
+    "carbon_footprint": {
+      "project_id": "globex-prod-482910",
+      "service": "BigQuery",
+      "region": "asia-southeast2",
+      "carbon_kg_co2e": 966.563,
+      "electricity_kwh": 11468.2,
+      "scope": "SCOPE_3",
+      "period_month": "2026-04"
     }
   },
   "event": {
@@ -33,39 +31,37 @@
     "type": ["info"],
     "action": "management-operation",
     "outcome": "success",
-    "duration": 1649,
+    "duration": 1858,
     "module": "gcp",
-    "dataset": "gcp.billing"
+    "dataset": "gcp.carbon"
   },
-  "message": "Billing cost row: service=\"BigQuery\" sku=\"N1 Preemptible Instance Core\" cost=5203.69 USD usage=100800.40 GiBy.mo credits=-1458.42 project=globex-stg-739158",
-  "service": { "name": "billing", "type": "gcp" },
+  "message": "Carbon footprint row: month=2026-04 service=\"BigQuery\" region=asia-southeast2 kgCO2e=966.563 kWh=11468.2 scope=SCOPE_3",
+  "service": { "name": "carbon-footprint", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.billing", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.carbon", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-southamerica-west1",
-    "id": "j5z6p6ze2l93ol0i01iyeaork9var941zy93"
+    "name": "elastic-agent-gcp-asia-southeast2",
+    "id": "2bp2ort932bc5y54qlghvwrvm0fuzwqi4656"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-prod-482910/logs/billing",
+  "input": { "type": "http_endpoint" },
+  "logName": "projects/globex-prod-482910/logs/carbon-footprint",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-prod-482910", "region": "southamerica-west1" }
+    "labels": { "project_id": "globex-prod-482910", "region": "asia-southeast2" }
   },
-  "insertId": "4CHFG62XRXD1",
+  "insertId": "REZFOZQ6O8SG",
   "jsonPayload": {
-    "billing": {
-      "billing_account_id": "011ZL2RB-PQM0-9QXO",
-      "service_description": "BigQuery",
-      "sku_description": "N1 Preemptible Instance Core",
-      "cost_amount": 5203.69,
-      "currency": "USD",
-      "usage_amount": 100800.4,
-      "usage_unit": "GiBy.mo",
-      "credits_amount": 1458.42,
-      "project_id": "globex-stg-739158"
+    "carbon_footprint": {
+      "project_id": "globex-prod-482910",
+      "service": "BigQuery",
+      "region": "asia-southeast2",
+      "carbon_kg_co2e": 966.563,
+      "electricity_kwh": 11468.2,
+      "scope": "SCOPE_3",
+      "period_month": "2026-04"
     },
-    "message": "Billing cost row: service=\"BigQuery\" sku=\"N1 Preemptible Instance Core\" cost=5203.69 USD usage=100800.40 GiBy.mo credits=-1458.42 project=globex-stg-739158"
+    "message": "Carbon footprint row: month=2026-04 service=\"BigQuery\" region=asia-southeast2 kgCO2e=966.563 kWh=11468.2 scope=SCOPE_3"
   }
 }

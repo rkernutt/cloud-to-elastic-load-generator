@@ -1,61 +1,68 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "log": { "level": "info" },
+  "severity": "CRITICAL",
+  "log": { "level": "critical" },
   "labels": {
     "resource.type": "essentialcontacts.googleapis.com/Contact",
-    "category": "PRODUCT_UPDATES",
-    "api_method": "essentialcontacts.googleapis.com/v1/projects/globex-sec-847293/contacts:list"
+    "category": "SECURITY",
+    "api_method": "essentialcontacts.googleapis.com/v1/projects/globex-shared-529384/contacts:list",
+    "gcp.rpc.status_code": "DEADLINE_EXCEEDED"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "africa-south1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "europe-north1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
     "service": { "name": "essential-contacts" }
   },
   "gcp": {
     "essential_contacts": {
-      "contact_email": "security@globex.io",
-      "notification_category": "PRODUCT_UPDATES",
-      "resource": "projects/globex-sec-847293",
+      "contact_email": "security@meridiantech.io",
+      "notification_category": "SECURITY",
+      "resource": "projects/globex-shared-529384",
       "action": "SEND"
     }
   },
   "event": {
     "kind": "event",
     "category": ["configuration"],
-    "type": ["info"],
+    "type": ["change"],
     "action": "management-operation",
-    "outcome": "success",
-    "duration": 5809,
+    "outcome": "failure",
+    "duration": 5147,
     "module": "gcp",
     "dataset": "gcp.essentialcontacts"
   },
-  "message": "Essential Contacts: SEND category=PRODUCT_UPDATES recipient=security@globex.io resource=projects/globex-sec-847293",
+  "message": "essentialcontacts.googleapis.com: Notification SEND FAILED category=SECURITY to=security@meridiantech.io: SMTP 550 mailbox unavailable",
+  "gcp.rpc": { "status_code": "DEADLINE_EXCEEDED" },
+  "error": {
+    "code": "DEADLINE_EXCEEDED",
+    "message": "Resource Manager or long-running operation deadline exceeded",
+    "type": "gcp"
+  },
   "service": { "name": "essential-contacts", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.essentialcontacts", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-africa-south1",
-    "id": "qwsx3poot2635d17xzkytbl15zx5ezgmiups"
+    "name": "elastic-agent-gcp-europe-north1",
+    "id": "pqdci13o2j8m3bvygo31nx16vj75frrcd7vs"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/essential-contacts",
+  "logName": "projects/globex-shared-529384/logs/essential-contacts",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-sec-847293", "region": "africa-south1" }
+    "labels": { "project_id": "globex-shared-529384", "region": "europe-north1" }
   },
-  "insertId": "1NWY3FLAI4VJ",
+  "insertId": "VY070YRHUX6V",
   "jsonPayload": {
     "essential_contacts": {
-      "contact_email": "security@globex.io",
-      "notification_category": "PRODUCT_UPDATES",
-      "resource": "projects/globex-sec-847293",
+      "contact_email": "security@meridiantech.io",
+      "notification_category": "SECURITY",
+      "resource": "projects/globex-shared-529384",
       "action": "SEND"
     },
-    "message": "Essential Contacts: SEND category=PRODUCT_UPDATES recipient=security@globex.io resource=projects/globex-sec-847293"
+    "message": "essentialcontacts.googleapis.com: Notification SEND FAILED category=SECURITY to=security@meridiantech.io: SMTP 550 mailbox unavailable"
   }
 }

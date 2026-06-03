@@ -7,51 +7,41 @@
   },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west2",
-    "account": { "id": "globex-stg-739158", "name": "Globex Staging" }
+    "region": "me-central2",
+    "account": { "id": "globex-sec-847293", "name": "Globex Security" }
   },
-  "orchestrator": { "cluster": { "name": "gke-data-us-west1" } },
+  "orchestrator": { "cluster": { "name": "gke-ml-asia-southeast1" } },
   "resource": {
-    "id": "node/gke-gke-data-us-west1-np-d1a6",
-    "name": "gke-gke-data-us-west1-np-d1a6",
+    "id": "kube-system/pod/kube-apiserver-master-3",
+    "name": "kube-apiserver-master-3",
     "type": "k8s_object",
-    "sub_type": "kubelet"
+    "sub_type": "kube-apiserver"
   },
   "rule": {
-    "id": "b2909440-5ad0-522e-8db0-9439d573b7d5",
-    "name": "Ensure that the --event-qps argument is set to 0 or a level which ensures appropriate event capture",
-    "section": "4.2.9",
-    "description": "Security relevant information should be captured.",
-    "tags": ["CIS", "Kubernetes", "CIS 4.2.9", "Kubelet"],
+    "id": "c43a57db-5248-5855-a613-2a05d0a42768",
+    "name": "Ensure that the --authorization-mode argument includes Node",
+    "section": "1.2.8",
+    "description": "Restrict kubelet nodes to reading only objects associated with them.",
+    "tags": ["CIS", "Kubernetes", "CIS 1.2.8", "API Server"],
     "benchmark": {
       "id": "cis_k8s",
       "name": "CIS Kubernetes V1.23",
       "version": "v1.0.1",
-      "rule_number": "4.2.9",
+      "rule_number": "1.2.8",
       "posture_type": "kspm"
     },
-    "profile_applicability": "* Level 2",
-    "impact": "Non-compliance with CIS Kubernetes V1.23 4.2.9 — Ensure that the --event-qps argument is set to 0 or a level which ensures appropriate event capture",
-    "remediation": "Remediate per CIS Kubernetes V1.23 v1.0.1 section 4.2.9."
+    "profile_applicability": "* Level 1"
   },
-  "result": {
-    "evaluation": "failed",
-    "evidence": {
-      "config": {
-        "authentication": { "anonymous": { "enabled": true } },
-        "authorization": { "mode": "AlwaysAllow" }
-      }
-    }
-  },
+  "result": { "evaluation": "passed" },
   "event": {
     "kind": "state",
     "category": ["configuration"],
     "type": ["info"],
-    "outcome": "failure",
+    "outcome": "success",
     "dataset": "cloud_security_posture.findings",
     "provider": "elastic_kspm",
     "module": "cloud_security_posture"
   },
-  "message": "[cis_k8s/4.2.9] failed: Ensure that the --event-qps argument is set to 0 or a level which ensures appropriate event capture",
-  "log": { "level": "warn" }
+  "message": "[cis_k8s/1.2.8] passed: Ensure that the --authorization-mode argument includes Node",
+  "log": { "level": "info" }
 }

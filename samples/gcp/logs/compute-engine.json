@@ -1,69 +1,67 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "log": { "level": "info" },
-  "severity": "DEBUG",
+  "severity": "INFO",
   "labels": {
-    "source_name": "src-vmware-dc1-4ihb",
-    "source_type": "PHYSICAL",
-    "migration_status": "IDLE"
+    "instance_id": "1543185970341",
+    "zone": "us-west4-b",
+    "machine_type": "c3-highcpu-22"
   },
-  "insertId": "HL0GNSNFFO1N",
+  "logName": "projects/globex-sec-847293/logs/cloudaudit.googleapis.com%2Factivity",
+  "insertId": "0HPTQOZCLP0G",
   "resource": {
-    "type": "vmmigration.googleapis.com/Source",
+    "type": "gce_instance",
     "labels": {
-      "project_id": "globex-shared-529384",
-      "location": "europe-west3",
-      "source": "src-vmware-dc1-4ihb"
+      "project_id": "globex-sec-847293",
+      "instance_id": "1543185970341",
+      "zone": "us-west4-b"
     }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west3",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
-    "service": { "name": "migrate-to-vms" }
+    "region": "us-west4",
+    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
+    "account": { "id": "847293615048", "name": "Globex Security" },
+    "service": { "name": "compute.googleapis.com" }
   },
   "gcp": {
-    "migrate_to_vms": {
-      "source_name": "src-vmware-dc1-4ihb",
-      "source_type": "PHYSICAL",
-      "target_instance": "mig-batch-u1gn",
-      "migration_status": "IDLE",
-      "replication_cycle": 108,
-      "data_replicated_gb": 5068.8
+    "compute_engine": {
+      "instance_id": "1543185970341",
+      "instance_name": "batch-8dij",
+      "machine_type": "c3-highcpu-22",
+      "zone": "us-west4-b",
+      "status": "OK",
+      "preemptible": false,
+      "network_tags": ["allow-http", "internal-only"],
+      "event_type": "STRUCTURED_APPLICATION",
+      "disk_size_gb": 787
     }
   },
   "event": {
     "kind": "event",
     "category": ["host"],
     "type": ["info"],
-    "action": "compute-engine",
+    "action": "STRUCTURED_APPLICATION",
     "outcome": "success",
-    "duration": 351327,
+    "duration": 3396,
     "module": "gcp",
-    "dataset": "gcp.migrate_vms"
+    "dataset": "gcp.compute"
   },
-  "message": "vmmigration.googleapis.com Source \"src-vmware-dc1-4ihb\" -> target \"mig-batch-u1gn\" status IDLE, cycle 108, 5068.8 GB replicated",
-  "service": { "name": "migrate-to-vms", "type": "gcp" },
+  "message": "{\"severity\":\"INFO\",\"source\":\"batch-etl\",\"message\":\"cache warm\",\"latencyMs\":69}",
+  "jsonPayload": {
+    "severity": "INFO",
+    "source": "batch-etl",
+    "message": "cache warm",
+    "latencyMs": 69
+  },
+  "service": { "name": "compute-engine", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.migrate_vms", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.compute", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west3",
-    "id": "891cycog1v6pusk1xwkdm5z8xckgeygksfrn"
+    "name": "elastic-agent-gcp-us-west4",
+    "id": "zekcg70235dy32j06wm054hnkjt1gxfw05rs"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-529384/logs/migrate-to-vms",
-  "jsonPayload": {
-    "migrate_to_vms": {
-      "source_name": "src-vmware-dc1-4ihb",
-      "source_type": "PHYSICAL",
-      "target_instance": "mig-batch-u1gn",
-      "migration_status": "IDLE",
-      "replication_cycle": 108,
-      "data_replicated_gb": 5068.8
-    },
-    "message": "vmmigration.googleapis.com Source \"src-vmware-dc1-4ihb\" -> target \"mig-batch-u1gn\" status IDLE, cycle 108, 5068.8 GB replicated"
-  }
+  "input": { "type": "gcp-pubsub" }
 }

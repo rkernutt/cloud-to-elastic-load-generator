@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "us-west-2",
+    "account": { "id": "472918364052", "name": "globex-data-platform" },
     "service": { "name": "sqs" }
   },
   "aws": {
-    "dimensions": { "QueueName": "webhook-events" },
+    "dimensions": { "QueueName": "notification-dlq" },
     "sqs": {
       "queue": {
-        "name": "webhook-events",
-        "url": "https://sqs.ap-southeast-3.amazonaws.com/814726593401/webhook-events"
+        "name": "notification-dlq",
+        "url": "https://sqs.us-west-2.amazonaws.com/472918364052/notification-dlq"
       },
-      "operation": "SendMessage",
-      "scenario": "standard_send_receive",
+      "operation": "ChangeMessageVisibility",
+      "scenario": "visibility_timeout",
       "fifo": false,
       "long_poll_wait_seconds": 0,
-      "oldest_message_age": { "sec": 70 },
+      "oldest_message_age": { "sec": 124 },
       "messages": {
-        "delayed": 354,
-        "not_visible": 373,
-        "visible": 1765,
-        "deleted": 334,
-        "received": 2860,
-        "sent": 7069
+        "delayed": 1155,
+        "not_visible": 1966,
+        "visible": 4162,
+        "deleted": 52,
+        "received": 1373,
+        "sent": 9973
       },
-      "empty_receives": 83,
-      "sent_message_size": { "bytes": 87630 }
+      "empty_receives": 90,
+      "sent_message_size": { "bytes": 248180 }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sqs-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-sqs-logs-814726593401"
+        "name": "aws-sqs-logs-472918364052",
+        "arn": "arn:aws:s3:::aws-sqs-logs-472918364052"
       },
       "object": {
-        "key": "AWSLogs/814726593401/sqs/ap-southeast-3/2026/06/02/sqs_S3NXWU34ZVYFRS56JL92.log.gz"
+        "key": "AWSLogs/472918364052/sqs/us-west-2/2026/06/03/sqs_0WW0RRO9QGP91KY8EFCA.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sqs/logs",
-      "log_stream": "ap-southeast-3/e0gp4kzz",
-      "ingestion_time": "2026-06-02T15:33:03.975Z"
+      "log_stream": "us-west-2/pqbij6qx",
+      "ingestion_time": "2026-06-03T09:39:25.612Z"
     }
   },
   "event": {
@@ -50,21 +50,26 @@
     "type": ["info"],
     "dataset": "aws.sqs",
     "provider": "sqs.amazonaws.com",
-    "duration": 303000000,
+    "duration": 35000000,
     "module": "aws"
   },
-  "message": "{\"eventVersion\":\"1.11\",\"eventSource\":\"sqs.amazonaws.com\",\"eventName\":\"SendMessage\",\"eventTime\":\"2026-06-02T15:33:03.184Z\",\"awsRegion\":\"ap-southeast-3\",\"recipientAccountId\":\"814726593401\",\"eventType\":\"AwsApiCall\",\"requestParameters\":{\"queueUrl\":\"https://sqs.ap-southeast-3.amazonaws.com/814726593401/webhook-events\"},\"responseElements\":{\"MD5OfMessageBody\":\"v5x4t5o9hncwsqi3hecq23zpj2pzstug\",\"approximateNumberOfMessages\":1765,\"approximateNumberOfMessagesNotVisible\":373,\"approximateNumberOfMessagesDelayed\":354},\"userIdentity\":{\"type\":\"IAMUser\",\"principalId\":\"AID1QRON5SL9D2KSLQL\",\"arn\":\"arn:aws:iam::814726593401:role/lambda-exec\",\"accountId\":\"814726593401\"},\"requestID\":\"6e25f20c-ffa6-4ad5-96eb-c89bd87609af\",\"eventID\":\"0670f346-b382-45e4-8833-3f4699b4e16d\",\"scenario\":\"standard_send_receive\"}",
-  "log": { "level": "info" },
-  "trace": { "id": "591215ec58c779f284476175cb00bb71" },
-  "transaction": { "id": "2ff8d32a6460b02e" },
+  "message": "{\"eventVersion\":\"1.11\",\"eventSource\":\"sqs.amazonaws.com\",\"eventName\":\"ChangeMessageVisibility\",\"eventTime\":\"2026-06-03T09:39:24.765Z\",\"awsRegion\":\"us-west-2\",\"recipientAccountId\":\"472918364052\",\"eventType\":\"AwsApiCall\",\"requestParameters\":{\"queueUrl\":\"https://sqs.us-west-2.amazonaws.com/472918364052/notification-dlq\",\"visibilityTimeout\":519},\"responseElements\":{\"approximateNumberOfMessages\":4162,\"approximateNumberOfMessagesNotVisible\":1966,\"approximateNumberOfMessagesDelayed\":1155},\"userIdentity\":{\"type\":\"IAMUser\",\"principalId\":\"AID432UKO9E4GLVX46U\",\"arn\":\"arn:aws:iam::472918364052:role/ec2-app\",\"accountId\":\"472918364052\"},\"requestID\":\"d88c20aa-584a-45cf-8527-560f5092b392\",\"eventID\":\"e030f56b-41ef-491a-bb95-ada178b915d9\",\"scenario\":\"visibility_timeout\",\"errorCode\":\"UnsupportedOperation\",\"errorMessage\":\"317 messages dead-lettered after max retries\"}",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AWS.SimpleQueueService.NonExistentQueue",
+    "message": "SQS API rejected the request",
+    "type": "aws"
+  },
+  "trace": { "id": "12bfc4ce6a6f835912d2acce09b6111a" },
+  "transaction": { "id": "b025cb9d4ffa9360" },
   "service": { "name": "sqs", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "4g8gzg1kg20m7nh865ypjkb8vwgzao2cr33l"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "82cegmpkjjsnrdaqnby5vpr4zvz0498h32wg"
   },
   "input": { "type": "aws-cloudwatch" }
 }

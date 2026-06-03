@@ -1,63 +1,75 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "severity": "DEBUG",
-  "labels": { "job_name": "transferJobs/ZDZ7PF3GTK" },
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "DEADLINE_EXCEEDED" },
+  "error": {
+    "code": "DEADLINE_EXCEEDED",
+    "message": "Deadline exceeded while waiting for response from 'projects/globex-prod-482910/buckets/globex-dev-615094-logs'",
+    "type": "gcp"
+  },
+  "severity": "INFO",
+  "labels": {
+    "bucket_name": "globex-dev-615094-logs",
+    "location": "europe-west6",
+    "gcp.rpc.status_code": "DEADLINE_EXCEEDED"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "us-west3",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
-    "service": { "name": "storage-transfer-service" }
+    "region": "europe-west6",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "cloud-storage" }
   },
   "gcp": {
-    "storage_transfer": {
-      "job_name": "transferJobs/ZDZ7PF3GTK",
-      "source_bucket": "s3://source-LIKB08",
-      "destination_bucket": "gs://globex-dev-615094-logs",
-      "bytes_transferred": 95804266563,
-      "objects_transferred": 26715706,
-      "status": "IN_PROGRESS",
-      "transfer_type": "aws-to-gcs"
+    "cloud_storage": {
+      "bucket_name": "globex-dev-615094-logs",
+      "object_name": "exports/q3sfymqe.bin",
+      "object_size": 190027584,
+      "storage_class": "STANDARD",
+      "operation": "lifecycle.setStorageClass",
+      "content_type": "text/csv",
+      "generation": "1780479567688902528",
+      "requester_ip": "100.64.1.195"
     }
   },
   "event": {
     "kind": "event",
     "category": ["file"],
-    "type": ["access"],
+    "type": ["error"],
     "action": "storage",
-    "outcome": "success",
-    "duration": 147038000000,
+    "outcome": "failure",
+    "duration": 141000000,
     "module": "gcp",
-    "dataset": "gcp.storagetransfer"
+    "dataset": "gcp.gcs"
   },
-  "message": "storagetransfer.googleapis.com/transferJobs/ZDZ7PF3GTK: IN_PROGRESS aws-to-gcs bytesTransferred=95804266563 objectsTransferred=26715706",
-  "service": { "name": "storage-transfer", "type": "gcp" },
+  "message": "Lifecycle action DELETE executed on gs://globex-dev-615094-logs/exports/q3sfymqe.bin (generation=1780479567688902528)",
+  "service": { "name": "cloud-storage", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.storagetransfer", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.gcs", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-us-west3",
-    "id": "dgdxsgqxlt5u5wo62cletk2q3rhythvrw4r1"
+    "name": "elastic-agent-gcp-europe-west6",
+    "id": "8rncq9etq7lwtc8jryrhxh88td8k6zu8wifj"
   },
-  "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/storage-transfer",
+  "input": { "type": "gcs-input" },
+  "logName": "projects/globex-prod-482910/logs/cloud-storage",
   "resource": {
-    "type": "global",
-    "labels": { "project_id": "globex-sec-847293", "region": "us-west3" }
+    "type": "gcs_bucket",
+    "labels": { "project_id": "globex-prod-482910", "region": "europe-west6" }
   },
-  "insertId": "8OX6K4EROM2U",
+  "insertId": "XFPRUD69NY1Q",
   "jsonPayload": {
-    "storage_transfer": {
-      "job_name": "transferJobs/ZDZ7PF3GTK",
-      "source_bucket": "s3://source-LIKB08",
-      "destination_bucket": "gs://globex-dev-615094-logs",
-      "bytes_transferred": 95804266563,
-      "objects_transferred": 26715706,
-      "status": "IN_PROGRESS",
-      "transfer_type": "aws-to-gcs"
+    "cloud_storage": {
+      "bucket_name": "globex-dev-615094-logs",
+      "object_name": "exports/q3sfymqe.bin",
+      "object_size": 190027584,
+      "storage_class": "STANDARD",
+      "operation": "lifecycle.setStorageClass",
+      "content_type": "text/csv",
+      "generation": "1780479567688902528",
+      "requester_ip": "100.64.1.195"
     },
-    "message": "storagetransfer.googleapis.com/transferJobs/ZDZ7PF3GTK: IN_PROGRESS aws-to-gcs bytesTransferred=95804266563 objectsTransferred=26715706"
+    "message": "Lifecycle action DELETE executed on gs://globex-dev-615094-logs/exports/q3sfymqe.bin (generation=1780479567688902528)"
   }
 }

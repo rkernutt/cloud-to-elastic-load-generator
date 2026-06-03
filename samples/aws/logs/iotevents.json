@@ -1,38 +1,37 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
     "region": "ap-southeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "account": { "id": "283746150928", "name": "globex-log-archive" },
     "service": { "name": "iotevents" }
   },
   "aws": {
-    "dimensions": { "DetectorModelName": "door-sensor-model", "KeyValue": "unit-02" },
+    "dimensions": { "DetectorModelName": "pressure-monitor", "KeyValue": "unit-01" },
     "iotevents": {
-      "detector_model_name": "door-sensor-model",
-      "detector_id": "unit-02",
-      "key_value": "unit-02",
-      "event_name": "AlarmActivated",
-      "from_state": "Normal",
-      "to_state": "Alarm",
-      "input_name": "HealthCheck",
-      "action_type": "SQS",
-      "timer_name": "idleTimer",
+      "detector_model_name": "pressure-monitor",
+      "detector_id": "unit-01",
+      "key_value": "unit-01",
+      "event_name": "AlarmAcknowledged",
+      "from_state": "Acknowledged",
+      "to_state": "Normal",
+      "input_name": "CommandInput",
+      "action_type": "SetVariable",
       "condition_expression": "$input.data.value < threshold"
     },
     "s3": {
       "bucket": {
-        "name": "aws-iotevents-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-iotevents-logs-293847561023"
+        "name": "aws-iotevents-logs-283746150928",
+        "arn": "arn:aws:s3:::aws-iotevents-logs-283746150928"
       },
       "object": {
-        "key": "AWSLogs/293847561023/iotevents/ap-southeast-1/2026/06/02/iotevents_WQ59400OX9WAXI8LDC78.log.gz"
+        "key": "AWSLogs/283746150928/iotevents/ap-southeast-1/2026/06/03/iotevents_UJEOFAI1RZ71273G09J8.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/iotevents/logs",
-      "log_stream": "ap-southeast-1/eumjap89",
-      "ingestion_time": "2026-06-02T15:33:04.078Z"
+      "log_stream": "ap-southeast-1/z14nwpim",
+      "ingestion_time": "2026-06-03T09:39:25.714Z"
     }
   },
   "event": {
@@ -41,11 +40,11 @@
     "type": ["info"],
     "dataset": "aws.iotevents",
     "provider": "iotevents.amazonaws.com",
-    "duration": 157000000,
+    "duration": 48000000,
     "module": "aws"
   },
-  "message": "{\"detectorModelName\":\"door-sensor-model\",\"detectorName\":\"unit-02\",\"keyValue\":\"unit-02\",\"eventName\":\"AlarmActivated\",\"fromStateName\":\"Normal\",\"toStateName\":\"Alarm\",\"inputName\":\"HealthCheck\",\"actionType\":\"SNS\",\"status\":\"SUCCESS\",\"errorCode\":null,\"timestamp\":\"2026-06-02T15:33:03.184Z\"}",
-  "log": { "level": "warn" },
+  "message": "{\"detectorModelName\":\"pressure-monitor\",\"detectorName\":\"unit-01\",\"keyValue\":\"unit-01\",\"eventName\":\"AlarmAcknowledged\",\"fromStateName\":\"Acknowledged\",\"toStateName\":\"Normal\",\"inputName\":\"CommandInput\",\"actionType\":\"SNS\",\"status\":\"SUCCESS\",\"errorCode\":null,\"timestamp\":\"2026-06-03T09:39:24.765Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "iotevents", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
@@ -53,7 +52,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "qjk98no1jpvbnq28osm5f1z23b6f3i9o4osj"
+    "ephemeral_id": "o24ccgafd1eogwf68peo3zw2i2b1z0gufsy0"
   },
   "input": { "type": "aws-cloudwatch" }
 }

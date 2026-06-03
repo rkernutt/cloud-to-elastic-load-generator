@@ -1,72 +1,73 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "746392018574", "name": "globex-identity" },
+    "region": "eu-west-2",
+    "account": { "id": "283746150928", "name": "globex-log-archive" },
     "service": { "name": "storagegateway" }
   },
   "aws": {
-    "dimensions": { "GatewayId": "sgw-2h0g0e2e", "GatewayName": "prod-sgw-primary" },
+    "dimensions": { "GatewayId": "sgw-72mvbidy", "GatewayName": "prod-sgw-backup" },
     "storagegateway": {
-      "gateway_id": "sgw-2h0g0e2e",
-      "gateway_name": "prod-sgw-primary",
-      "gateway_type": "FILE_FSX",
-      "cache_used_percent": 35,
-      "upload_buffer_used_percent": 29,
-      "cloud_bytes_uploaded": 759654624,
+      "gateway_id": "sgw-72mvbidy",
+      "gateway_name": "prod-sgw-backup",
+      "gateway_type": "VOLUME",
+      "cache_used_percent": 100,
+      "upload_buffer_used_percent": 95,
+      "cloud_bytes_uploaded": 566049198,
       "metrics": {
-        "CacheHit.Percent": { "avg": 76.51313037057866 },
-        "CacheMiss.Percent": { "avg": 23.49 },
-        "CacheUsed.Percent": { "avg": 72.63921243612234 },
-        "CloudBytesDownloaded": { "sum": 32986655 },
-        "CloudBytesUploaded": { "sum": 711911783 },
-        "CloudDownloadLatency": { "avg": 2253.7149622931047 },
-        "ReadBytes": { "sum": 92797569 },
-        "WriteBytes": { "sum": 947531465 },
-        "QueuedWrites": { "avg": 488 },
-        "UploadBufferUsed": { "avg": 316097721 },
-        "UploadBufferFree": { "avg": 799028859 },
-        "CacheHits": { "sum": 72716 },
-        "CacheMisses": { "sum": 869 },
-        "CachePercentDirty": { "avg": 4.797907706632385 },
-        "CachePercentUsed": { "avg": 28.747557134230295 }
+        "CacheHit.Percent": { "avg": 69.09899790185231 },
+        "CacheMiss.Percent": { "avg": 30.9 },
+        "CacheUsed.Percent": { "avg": 57.12598492709838 },
+        "CloudBytesDownloaded": { "sum": 872373453 },
+        "CloudBytesUploaded": { "sum": 152438109 },
+        "CloudDownloadLatency": { "avg": 2917.9951408361953 },
+        "ReadBytes": { "sum": 371559167 },
+        "WriteBytes": { "sum": 153193119 },
+        "QueuedWrites": { "avg": 997 },
+        "UploadBufferUsed": { "avg": 396135895 },
+        "UploadBufferFree": { "avg": 466422787 },
+        "CacheHits": { "sum": 73758 },
+        "CacheMisses": { "sum": 625 },
+        "CachePercentDirty": { "avg": 0.07929356802038434 },
+        "CachePercentUsed": { "avg": 85.45463024602402 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-storagegateway-logs-746392018574",
-        "arn": "arn:aws:s3:::aws-storagegateway-logs-746392018574"
+        "name": "aws-storagegateway-logs-283746150928",
+        "arn": "arn:aws:s3:::aws-storagegateway-logs-283746150928"
       },
       "object": {
-        "key": "AWSLogs/746392018574/storagegateway/ca-west-1/2026/06/02/storagegateway_3S43U2GJKGLFWULE2KGY.log.gz"
+        "key": "AWSLogs/283746150928/storagegateway/eu-west-2/2026/06/03/storagegateway_4KGBPUYFKFMUEB9FRRFV.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/storagegateway/logs",
-      "log_stream": "ca-west-1/jexuf9b9",
-      "ingestion_time": "2026-06-02T15:33:03.956Z"
+      "log_stream": "eu-west-2/ds9r7nzh",
+      "ingestion_time": "2026-06-03T09:39:25.592Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["host", "file"],
     "type": ["access"],
     "dataset": "aws.storagegateway",
     "provider": "storagegateway.amazonaws.com",
-    "duration": 140000000,
+    "duration": 4243000000,
     "module": "aws"
   },
-  "message": "{\"eventType\":\"GatewayEvent\",\"gatewayId\":\"sgw-2h0g0e2e\",\"gatewayName\":\"prod-sgw-primary\",\"gatewayType\":\"FILE_FSX\",\"level\":\"info\",\"log\":\"File uploaded to S3 successfully\",\"cacheUsedPercent\":65,\"uploadBufferUsedPercent\":50,\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"status\":\"Succeeded\"}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"GatewayEvent\",\"gatewayId\":\"sgw-72mvbidy\",\"gatewayName\":\"prod-sgw-backup\",\"gatewayType\":\"VOLUME\",\"level\":\"error\",\"log\":\"SMB authentication failed\",\"cacheUsedPercent\":92,\"uploadBufferUsedPercent\":89,\"timestamp\":\"2026-06-03T09:39:24.765Z\",\"status\":\"Failed\"}",
+  "log": { "level": "error" },
+  "error": { "code": "GatewayError", "message": "SMB authentication failed", "type": "storage" },
   "service": { "name": "storagegateway", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "jxnk5qa70c57fupqgdr4zdlsaf8ja166ij9l"
+    "name": "filebeat-aws-eu-west-2",
+    "ephemeral_id": "xmai0lhuytlmbsqryt0zhrkn4qlic0xauq67"
   },
   "input": { "type": "aws-cloudwatch" }
 }

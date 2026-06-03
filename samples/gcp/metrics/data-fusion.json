@@ -3,46 +3,50 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west3",
-    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
-    "account": { "id": "482910375621", "name": "Globex Production" },
+    "region": "europe-west9",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
     "service": { "name": "data-fusion" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-west3",
-    "ephemeral_id": "kf3i8cyoq9oqwp1kka8wle9142t3umqkzcqm"
+    "name": "metricbeat-gcp-europe-west9",
+    "ephemeral_id": "ywtftrslbm439vx1vuau3zif2hpstn9iap23"
   },
   "monitoringTimeSeries": {
     "metric": {
       "type": "datafusion.googleapis.com/pipeline/execution_count",
-      "labels": { "pipeline_name": "daily-curated" }
+      "labels": { "pipeline_name": "ingest-raw" }
     },
     "resource": {
       "type": "datafusion.googleapis.com/Instance",
       "labels": {
-        "resource_container": "globex-prod-482910",
-        "location": "europe-west3",
-        "instance_id": "df-analytics"
+        "resource_container": "globex-stg-739158",
+        "location": "europe-west9",
+        "instance_id": "df-globex-prod"
       }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "105" } }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "5054" } }
     ]
   },
   "gcp": {
     "data-fusion": {
       "labels": {
-        "resource_container": "globex-prod-482910",
-        "location": "europe-west3",
-        "instance_id": "df-analytics",
-        "pipeline_name": "daily-curated"
+        "resource_container": "globex-stg-739158",
+        "location": "europe-west9",
+        "instance_id": "df-globex-prod",
+        "pipeline_name": "ingest-raw"
       },
       "metrics": {
-        "datafusion.googleapis.com/pipeline/execution_count": { "avg": 105, "sum": 105, "count": 1 }
+        "datafusion.googleapis.com/pipeline/execution_count": {
+          "avg": 5054,
+          "sum": 5054,
+          "count": 1
+        }
       }
     }
   },

@@ -2,63 +2,65 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "log": { "level": "info" },
   "severity": "INFO",
-  "labels": { "resource.type": "aiplatform.googleapis.com/CustomJob", "location": "asia-east2" },
+  "labels": {
+    "resource.type": "discoveryengine.googleapis.com/Engine",
+    "engine": "search-commerce-8mm4"
+  },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east2",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
-    "service": { "name": "aiplatform.googleapis.com" }
+    "region": "europe-west8",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "service": { "name": "discoveryengine.googleapis.com" }
   },
   "gcp": {
-    "vertex_ai": {
-      "model_id": "projects/globex-sec-847293/locations/asia-east2/models/rtf12hetmt",
-      "endpoint_id": "projects/globex-sec-847293/locations/asia-east2/endpoints/a0817ejp",
-      "job_type": "training",
-      "framework": "sklearn",
-      "model_name": "rtf12hetmt",
-      "model_version": "v3",
-      "instances_count": 127,
-      "latency_ms": 672,
-      "training_job_id": "customjob-yytmn0ja5slf",
-      "training_state": "CANCELLING",
-      "accelerator_type": "TPU_V4",
-      "machine_type": "a2-highgpu-1g"
+    "vertex_ai_search": {
+      "engine_name": "search-commerce-8mm4",
+      "query": "api authentication",
+      "results_count": 12,
+      "search_type": "SEARCH",
+      "serving_config": "projects/globex-shared-529384/locations/global/collections/default_collection/engines/search-commerce-8mm4/servingConfigs/default_search",
+      "latency_ms": 259,
+      "session_id": "search-z58oapecb1tp"
     }
   },
-  "event": { "outcome": "success", "duration": 672, "module": "gcp", "dataset": "gcp.vertexai" },
-  "message": "Training job started: job_id=customjob-ci1vuemxm1rk replica_count=5 machine_type=e2-standard-8 accelerator=TPU_V5E",
-  "service": { "name": "vertex-ai", "type": "gcp" },
+  "event": {
+    "kind": "event",
+    "category": ["process"],
+    "type": ["info"],
+    "action": "ml-operation",
+    "outcome": "success",
+    "duration": 259,
+    "module": "gcp",
+    "dataset": "gcp.vertexaisearch"
+  },
+  "message": "search OK engine=search-commerce-8mm4 type=SEARCH query=\"api authentication\" results=12 session=search-z58oapecb1tp latency_ms=259",
+  "service": { "name": "vertex-ai-search", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.vertexai", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.vertexaisearch", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-east2",
-    "id": "06598k8gsao7qd1dtax1rprf8hm8i7kkteas"
+    "name": "elastic-agent-gcp-europe-west8",
+    "id": "nj9ywa7kjhtflxgrknn4kvaldpcfgfalx63n"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-sec-847293/logs/vertex-ai",
+  "logName": "projects/globex-shared-529384/logs/vertex-ai-search",
   "resource": {
-    "type": "aiplatform.googleapis.com/Endpoint",
-    "labels": { "project_id": "globex-sec-847293", "region": "asia-east2" }
+    "type": "global",
+    "labels": { "project_id": "globex-shared-529384", "region": "europe-west8" }
   },
-  "insertId": "ODYS06RJ200F",
+  "insertId": "YFQ0U774UIOL",
   "jsonPayload": {
-    "vertex_ai": {
-      "model_id": "projects/globex-sec-847293/locations/asia-east2/models/rtf12hetmt",
-      "endpoint_id": "projects/globex-sec-847293/locations/asia-east2/endpoints/a0817ejp",
-      "job_type": "training",
-      "framework": "sklearn",
-      "model_name": "rtf12hetmt",
-      "model_version": "v3",
-      "instances_count": 127,
-      "latency_ms": 672,
-      "training_job_id": "customjob-yytmn0ja5slf",
-      "training_state": "CANCELLING",
-      "accelerator_type": "TPU_V4",
-      "machine_type": "a2-highgpu-1g"
+    "vertex_ai_search": {
+      "engine_name": "search-commerce-8mm4",
+      "query": "api authentication",
+      "results_count": 12,
+      "search_type": "SEARCH",
+      "serving_config": "projects/globex-shared-529384/locations/global/collections/default_collection/engines/search-commerce-8mm4/servingConfigs/default_search",
+      "latency_ms": 259,
+      "session_id": "search-z58oapecb1tp"
     },
-    "message": "Training job started: job_id=customjob-ci1vuemxm1rk replica_count=5 machine_type=e2-standard-8 accelerator=TPU_V5E"
+    "message": "search OK engine=search-commerce-8mm4 type=SEARCH query=\"api authentication\" results=12 session=search-z58oapecb1tp latency_ms=259"
   }
 }

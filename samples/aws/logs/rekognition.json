@@ -1,55 +1,63 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-east-1",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ca-central-1",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "rekognition" }
   },
   "aws": {
-    "dimensions": { "Operation": "StartFaceDetection" },
+    "dimensions": { "Operation": "DetectModerationLabels" },
     "rekognition": {
-      "operation": "StartFaceDetection",
-      "input_source": "Video",
-      "image_bytes": 7313058,
-      "duration_ms": 950,
-      "labels_detected": 23,
-      "faces_detected": 0,
-      "max_confidence": 85.82082053492452,
+      "operation": "DetectModerationLabels",
+      "input_source": "S3Object",
+      "image_bytes": 4884538,
+      "duration_ms": 323,
+      "labels_detected": 1,
+      "faces_detected": 2,
+      "max_confidence": 88.11927056515795,
       "confidence_threshold": 70,
       "FaceDetails": [],
+      "Labels": {
+        "LabelCount": 28,
+        "TopLabels": [
+          { "Name": "Computer", "Confidence": 90.79621657509018 },
+          { "Name": "Office", "Confidence": 90.33669362714127 }
+        ]
+      },
+      "moderation_labels": ["Violence"],
       "metrics": {
         "SuccessfulRequestCount": { "sum": 1 },
         "ThrottledCount": { "sum": 0 },
         "UserErrorCount": { "sum": 0 },
         "ServerErrorCount": { "sum": 0 },
-        "ResponseTime": { "avg": 102.21072390045647 }
+        "ResponseTime": { "avg": 628.333411970271 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rekognition-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-rekognition-logs-738291046572"
+        "name": "aws-rekognition-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-rekognition-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/738291046572/rekognition/us-east-1/2026/06/02/rekognition_KST1FUAHSY05YSTUBONT.log.gz"
+        "key": "AWSLogs/814726593401/rekognition/ca-central-1/2026/06/03/rekognition_7MDM953NX5T8OL63U83C.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/rekognition/logs",
-      "log_stream": "us-east-1/a0buri8h",
-      "ingestion_time": "2026-06-02T15:33:04.021Z"
+      "log_stream": "ca-central-1/r3mjuawv",
+      "ingestion_time": "2026-06-03T09:39:25.656Z"
     }
   },
   "event": {
-    "duration": 949731537.0492067,
+    "duration": 323027189.10388875,
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.rekognition",
     "provider": "rekognition.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"StartFaceDetection\",\"operation\":\"StartFaceDetection\",\"durationMs\":950,\"labelsDetected\":38,\"facesDetected\":10,\"maxConfidence\":85.82082053492452,\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"status\":\"Succeeded\"}",
+  "message": "{\"eventType\":\"DetectModerationLabels\",\"operation\":\"DetectModerationLabels\",\"durationMs\":323,\"labelsDetected\":11,\"facesDetected\":5,\"maxConfidence\":88.11927056515795,\"timestamp\":\"2026-06-03T09:39:24.765Z\",\"status\":\"Succeeded\"}",
   "log": { "level": "info" },
   "service": { "name": "rekognition", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -57,8 +65,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "vpdymzlotoylpqjpj51efh6yfmt0m9v1r06w"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "1rbymp9tqfnw900512fs1mxvhagmyjw0f2ij"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,70 +1,71 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
+  "@timestamp": "2026-06-03T09:39:24.765Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-east-1",
-    "account": { "id": "283746150928", "name": "globex-log-archive" },
+    "region": "us-west-2",
+    "account": { "id": "391827465039", "name": "globex-payments-prod" },
     "service": { "name": "ecs" }
   },
   "aws": {
-    "dimensions": { "ClusterName": "staging", "ServiceName": "scheduler" },
+    "dimensions": { "ClusterName": "staging", "ServiceName": "auth-service" },
     "ecs": {
       "ecs_cluster": "staging",
-      "ecs_task_definition": "scheduler-td:41",
-      "ecs_task_arn": "arn:aws:ecs:ap-east-1:283746150928:task/staging/3jijsi3mtdwr2j2mnxh4a89vjntzrrll",
+      "ecs_task_definition": "auth-service-td:3",
+      "ecs_task_arn": "arn:aws:ecs:us-west-2:391827465039:task/staging/ftl6dhhcq1mugjjeqsj0t8cp0wgxc601",
       "metrics": {
-        "CPUUtilization": { "avg": 16.497826888899493 },
-        "CPUReservation": { "avg": 42.07117558297248 },
-        "MemoryUtilization": { "avg": 16.956032915066135 },
-        "MemoryReservation": { "avg": 21.85639014025078 },
+        "CPUUtilization": { "avg": 35.632249438877075 },
+        "CPUReservation": { "avg": 57.47804623649497 },
+        "MemoryUtilization": { "avg": 44.0737953967513 },
+        "MemoryReservation": { "avg": 51.293088157996785 },
         "GPUReservation": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-ecs-logs-283746150928",
-        "arn": "arn:aws:s3:::aws-ecs-logs-283746150928"
+        "name": "aws-ecs-logs-391827465039",
+        "arn": "arn:aws:s3:::aws-ecs-logs-391827465039"
       },
       "object": {
-        "key": "AWSLogs/283746150928/ecs/ap-east-1/2026/06/02/ecs_YJVJCEFOKUNL614K808Y.log.gz"
+        "key": "AWSLogs/391827465039/ecs/us-west-2/2026/06/03/ecs_OR84ANILGT0IH9CS00HE.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/ecs/ecs-cluster-ak69hu",
-      "log_stream": "ap-east-1/0wc9kkny",
-      "ingestion_time": "2026-06-02T15:33:03.857Z"
+      "log_group": "/ecs/ecs-cluster-p452ll",
+      "log_stream": "us-west-2/ikz4t9o6",
+      "ingestion_time": "2026-06-03T09:39:25.497Z"
     }
   },
   "container": {
-    "id": "sip3crhs20yo",
-    "name": "scheduler",
-    "image": { "name": "python:alpine", "tag": "latest" },
+    "id": "ez4znzyip6ly",
+    "name": "auth-service",
+    "image": { "name": "golang:1.24", "tag": "latest" },
     "runtime": "docker"
   },
-  "process": { "pid": 14600, "name": "scheduler" },
-  "log": { "level": "info" },
+  "process": { "pid": 8757, "name": "auth-service" },
+  "log": { "level": "error" },
   "event": {
     "category": ["process"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.ecs",
     "provider": "ecs.amazonaws.com",
-    "duration": 2456000000000,
+    "duration": 188000000000,
     "module": "aws"
   },
-  "message": "{\"ecs_cluster\":\"staging\",\"ecs_task_arn\":\"arn:aws:ecs:ap-east-1:283746150928:task/staging/3jijsi3mtdwr2j2mnxh4a89vjntzrrll\",\"container_name\":\"scheduler\",\"log\":\"containerd: successfully pulled image \\\"283746150928.dkr.ecr.ap-east-1.amazonaws.com/scheduler:sha256:a1b2\\\" in 3.2s\",\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"ecs_task_definition\":\"scheduler-td:41\",\"level\":\"info\"}",
-  "service": { "name": "scheduler", "type": "ecs" },
+  "message": "{\"ecs_cluster\":\"staging\",\"ecs_task_arn\":\"arn:aws:ecs:us-west-2:391827465039:task/staging/ftl6dhhcq1mugjjeqsj0t8cp0wgxc601\",\"container_name\":\"auth-service\",\"log\":\"ecs-agent: [ERROR] TaskEngine: error transitioning container [auth-service] to [CREATED]: DockerTimeoutError\",\"timestamp\":\"2026-06-03T09:39:24.765Z\",\"ecs_task_definition\":\"auth-service-td:3\",\"level\":\"error\"}",
+  "service": { "name": "auth-service", "type": "ecs" },
   "ecs_cluster": "staging",
-  "ecs_task_definition": "scheduler-td:41",
-  "ecs_task_arn": "arn:aws:ecs:ap-east-1:283746150928:task/staging/3jijsi3mtdwr2j2mnxh4a89vjntzrrll",
-  "host": { "name": "ip-33-225-241-117.ec2.internal", "hostname": "ecs-5uzhwuqi" },
+  "ecs_task_definition": "auth-service-td:3",
+  "ecs_task_arn": "arn:aws:ecs:us-west-2:391827465039:task/staging/ftl6dhhcq1mugjjeqsj0t8cp0wgxc601",
+  "error": { "code": "TaskSetNotFoundException", "message": "Failed to pull image", "type": "aws" },
+  "host": { "name": "ip-14-80-199-253.ec2.internal", "hostname": "ecs-ft7m99hb" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-east-1",
-    "ephemeral_id": "a5ur4dld2cergpcu1wzjzrekff29889f5h9l"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "q6f6mh0klww708lx67dwmyya5fwt99skhupv"
   },
   "input": { "type": "aws-cloudwatch" }
 }

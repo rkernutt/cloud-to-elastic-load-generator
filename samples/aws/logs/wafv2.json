@@ -1,116 +1,124 @@
 {
-  "@timestamp": "2026-06-02T15:33:03.184Z",
-  "host": { "name": "ip-10-128-14-25.ap-east-1.compute.internal" },
+  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "host": { "name": "ip-10-128-12-51.sa-east-1.compute.internal" },
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "sa-east-1",
+    "account": { "id": "283746150928", "name": "globex-log-archive" },
     "service": { "name": "wafv2" }
   },
   "aws": {
-    "dimensions": {
-      "WebACL": "admin-portal-waf",
-      "Rule": "NoUserAgent",
-      "Region": "ap-southeast-1"
-    },
+    "dimensions": { "WebACL": "regional-waf", "Rule": "GenericLFI_URIPATH", "Region": "sa-east-1" },
     "waf": {
-      "id": "3afee337-f5db-4d93-8f29-0cc6c61b0d80",
-      "arn": "arn:aws:wafv2:ap-southeast-1:293847561023:regional/webacl/admin-portal-waf/5168ad72-0c28-4f35-b27d-28f115d12886",
+      "id": "0f0d96cc-4c1e-4e31-905a-be37ea5cd449",
+      "arn": "arn:aws:wafv2:sa-east-1:283746150928:regional/webacl/regional-waf/70246c83-b85c-4606-bb6e-3939021bcd22",
       "format_version": "1",
-      "source": { "name": "CF", "id": "293847561023-app/admin-portal-waf/hsx1z36qm6bbsz7u" },
-      "rule_group_list": [{ "ruleGroupId": "GeoBlockRule", "nonTerminatingMatchingRules": [] }],
+      "source": { "name": "CF", "id": "283746150928-app/regional-waf/xdnkyrkvs7e013xz" },
+      "rule_group_list": [
+        {
+          "ruleGroupId": "AWSManagedRulesCommonRuleSet",
+          "terminatingRule": {
+            "action": "BLOCK",
+            "ruleId": "GenericLFI_URIPATH",
+            "ruleMatchDetails": []
+          },
+          "nonTerminatingMatchingRules": []
+        }
+      ],
       "non_terminating_matching_rules": [],
       "terminating_rule_match_details": [],
       "request": {
         "headers": [
-          { "name": "Host", "value": "www.meridiantech.io" },
+          { "name": "Host", "value": "dashboard.cascadeops.com" },
           {
             "name": "User-Agent",
-            "value": "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.82 Mobile Safari/537.36"
+            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15"
           },
           { "name": "Accept", "value": "*/*" }
         ]
       },
-      "labels": [],
+      "labels": [{ "name": "awswaf:managed:aws:known-bad-inputs:NoUserAgent_HEADER" }],
+      "response_code_sent": 403,
       "metrics": {
-        "AllowedRequests": { "sum": 1 },
-        "BlockedRequests": { "sum": 0 },
+        "AllowedRequests": { "sum": 0 },
+        "BlockedRequests": { "sum": 1 },
         "CountedRequests": { "sum": 0 },
-        "PassedRequests": { "sum": 1 },
+        "PassedRequests": { "sum": 0 },
         "RequestsWithValidCaptchaToken": { "sum": 0 },
         "ChallengeRequests": { "sum": 0 },
         "FailedCaptcha": { "sum": 0 }
       },
-      "webaclId": "5168ad72-0c28-4f35-b27d-28f115d12886",
-      "terminatingRuleId": "NoUserAgent",
-      "terminatingRuleType": "GROUP",
-      "action": "ALLOW",
+      "webaclId": "70246c83-b85c-4606-bb6e-3939021bcd22",
+      "terminatingRuleId": "GenericLFI_URIPATH",
+      "terminatingRuleType": "MANAGED_RULE_GROUP",
+      "action": "BLOCK",
       "httpRequest": {
-        "clientIp": "146.21.44.89",
+        "clientIp": "166.140.109.36",
         "country": "US",
         "headers": [
-          { "name": "Host", "value": "www.meridiantech.io" },
+          { "name": "Host", "value": "dashboard.cascadeops.com" },
           {
             "name": "User-Agent",
-            "value": "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.82 Mobile Safari/537.36"
+            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15"
           },
           { "name": "Accept", "value": "*/*" }
         ],
-        "httpMethod": "POST",
+        "httpMethod": "PUT",
         "httpVersion": "HTTP/1.1",
-        "uri": "/favicon.ico"
+        "uri": "/static/js/main.chunk.js"
       },
-      "httpSourceId": "293847561023-app/admin-portal-waf/hsx1z36qm6bbsz7u",
+      "httpSourceId": "283746150928-app/regional-waf/xdnkyrkvs7e013xz",
       "rateBasedRuleList": [],
       "nonTerminatingMatchingRules": [],
       "requestHeadersInserted": [],
-      "responseCodeSent": 200
+      "responseCodeSent": 403
     },
     "s3": {
       "bucket": {
-        "name": "aws-wafv2-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-wafv2-logs-293847561023"
+        "name": "aws-wafv2-logs-283746150928",
+        "arn": "arn:aws:s3:::aws-wafv2-logs-283746150928"
       },
       "object": {
-        "key": "AWSLogs/293847561023/wafv2/ap-southeast-1/2026/06/02/wafv2_68XO2WT96ECA6OMG84S0.log.gz"
+        "key": "AWSLogs/283746150928/wafv2/sa-east-1/2026/06/03/wafv2_VA2VCRLOJ3U90AUZPXXY.log.gz"
       }
     }
   },
   "source": {
-    "ip": "146.21.44.89",
+    "ip": "166.140.109.36",
     "geo": {
       "country_iso_code": "US",
       "country_name": "United States",
-      "city_name": "Ashburn",
-      "location": { "lat": 39.0438, "lon": -77.4874 }
+      "city_name": "Dallas",
+      "location": { "lat": 32.7767, "lon": -96.797 }
     }
   },
-  "http": { "request": { "method": "POST", "bytes": 9351 } },
-  "url": { "path": "/favicon.ico" },
+  "http": { "request": { "method": "PUT", "bytes": 9067 } },
+  "url": { "path": "/static/js/main.chunk.js" },
   "user_agent": {
-    "original": "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.82 Mobile Safari/537.36"
+    "original": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15"
   },
   "event": {
-    "action": "allow",
-    "outcome": "success",
+    "action": "block",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "type": ["info"],
     "dataset": "aws.waf",
     "provider": "wafv2.amazonaws.com",
-    "duration": 46000000,
+    "duration": 302000000,
     "module": "aws"
   },
-  "message": "{\"timestamp\":\"2026-06-02T15:33:03.184Z\",\"formatVersion\":1,\"webaclId\":\"5168ad72-0c28-4f35-b27d-28f115d12886\",\"terminatingRuleId\":\"NoUserAgent\",\"terminatingRuleType\":\"GROUP\",\"action\":\"ALLOW\",\"httpRequest\":{\"clientIp\":\"146.21.44.89\",\"country\":\"US\",\"headers\":[{\"name\":\"Host\",\"value\":\"www.meridiantech.io\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.82 Mobile Safari/537.36\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"POST\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/favicon.ico\"},\"httpSourceId\":\"293847561023-app/admin-portal-waf/hsx1z36qm6bbsz7u\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":200}",
-  "log": { "level": "info" },
+  "message": "{\"timestamp\":\"2026-06-03T09:39:24.765Z\",\"formatVersion\":1,\"webaclId\":\"70246c83-b85c-4606-bb6e-3939021bcd22\",\"terminatingRuleId\":\"GenericLFI_URIPATH\",\"terminatingRuleType\":\"MANAGED_RULE_GROUP\",\"action\":\"BLOCK\",\"httpRequest\":{\"clientIp\":\"166.140.109.36\",\"country\":\"US\",\"headers\":[{\"name\":\"Host\",\"value\":\"dashboard.cascadeops.com\"},{\"name\":\"User-Agent\",\"value\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15\"},{\"name\":\"Accept\",\"value\":\"*/*\"}],\"httpMethod\":\"PUT\",\"httpVersion\":\"HTTP/1.1\",\"uri\":\"/static/js/main.chunk.js\"},\"httpSourceId\":\"283746150928-app/regional-waf/xdnkyrkvs7e013xz\",\"rateBasedRuleList\":[],\"nonTerminatingMatchingRules\":[],\"requestHeadersInserted\":[],\"responseCodeSent\":403}",
+  "log": { "level": "warn" },
+  "error": { "code": "WAFBlock", "message": "WAFv2 request blocked", "type": "security" },
   "service": { "name": "wafv2", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.waf", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-1",
-    "ephemeral_id": "tikby7xrui5hmloqol2xx3r3ey4bawuau1ga"
+    "name": "filebeat-aws-sa-east-1",
+    "ephemeral_id": "pgq6emztjiz35r0j4sinocydwvtq0c9f7ouo"
   },
   "input": { "type": "aws-s3" },
-  "related": { "ip": ["146.21.44.89"] }
+  "related": { "ip": ["166.140.109.36"] }
 }
