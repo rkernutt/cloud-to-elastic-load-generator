@@ -124,12 +124,12 @@ Fluent Bit's **Elasticsearch** output plugin sets `_index` (and optionally `_typ
 
 Set `data_stream.dataset` on each document to match the load generator's `event.dataset` value:
 
-| Container platform | Recommended index | `data_stream.dataset` |
-|---|---|---|
-| ECS (standard tasks) | `logs-aws.ecs` | `aws.ecs` |
-| ECS Fargate | `logs-aws.fargate` | `aws.fargate` |
-| EKS pods | `logs-aws.eks` | `aws.eks` |
-| Lambda (Fluent Bit layer) | `logs-aws.lambda_logs` | `aws.lambda_logs` |
+| Container platform        | Recommended index      | `data_stream.dataset` |
+| ------------------------- | ---------------------- | --------------------- |
+| ECS (standard tasks)      | `logs-aws.ecs`         | `aws.ecs`             |
+| ECS Fargate               | `logs-aws.fargate`     | `aws.fargate`         |
+| EKS pods                  | `logs-aws.eks`         | `aws.eks`             |
+| Lambda (Fluent Bit layer) | `logs-aws.lambda_logs` | `aws.lambda_logs`     |
 
 ### Simulating Fluent Bit in the load generator
 
@@ -151,22 +151,23 @@ This produces documents that land in the same data streams as real Fluent Bit ou
 
 The load generator ships documents with `cloud.account.id` drawn from a 12-account pool that mirrors a typical AWS Organization:
 
-| Account name | Purpose | OAM role |
-|---|---|---|
-| `globex-production` | Production workloads | Source |
-| `globex-staging` | Pre-prod | Source |
-| `globex-development` | Dev/test | Source |
+| Account name              | Purpose                             | OAM role   |
+| ------------------------- | ----------------------------------- | ---------- |
+| `globex-production`       | Production workloads                | Source     |
+| `globex-staging`          | Pre-prod                            | Source     |
+| `globex-development`      | Dev/test                            | Source     |
 | `globex-security-tooling` | GuardDuty, Security Hub aggregation | Monitoring |
-| `globex-shared-services` | Transit Gateway, DNS, DirectConnect | Source |
-| `globex-log-archive` | Centralised S3 log archive | Monitoring |
-| `globex-networking` | VPC, NAT, TGW | Source |
-| `globex-identity` | IAM Identity Center, SSO | Source |
-| `globex-payments-prod` | Payments (isolated for PCI) | Source |
-| `globex-data-platform` | EMR, Glue, Athena | Source |
-| `globex-ml-platform` | SageMaker, Bedrock | Source |
-| `globex-sandbox` | Experimentation | Source |
+| `globex-shared-services`  | Transit Gateway, DNS, DirectConnect | Source     |
+| `globex-log-archive`      | Centralised S3 log archive          | Monitoring |
+| `globex-networking`       | VPC, NAT, TGW                       | Source     |
+| `globex-identity`         | IAM Identity Center, SSO            | Source     |
+| `globex-payments-prod`    | Payments (isolated for PCI)         | Source     |
+| `globex-data-platform`    | EMR, Glue, Athena                   | Source     |
+| `globex-ml-platform`      | SageMaker, Bedrock                  | Source     |
+| `globex-sandbox`          | Experimentation                     | Source     |
 
 When using OAM in a real environment:
+
 1. Deploy the Elastic Agent into `globex-security-tooling` (or `globex-log-archive`).
 2. Create an OAM sink in the monitoring account; attach source policies to the source accounts.
 3. Configure one AWS integration in Fleet pointing at the monitoring account — it will see all source accounts' CloudWatch log groups and CloudWatch metrics.
@@ -176,10 +177,10 @@ When using OAM in a real environment:
 
 OAM does not move logs to S3 — it shares them in-place. For compliance retention:
 
-| Tier | AWS path | Elastic path |
-|---|---|---|
-| Standard (3 months) | CloudWatch retention policy | Hot / warm ILM tier |
-| NIS2 (18 months) | S3 lifecycle → Standard-IA | Cold ILM tier (searchable snapshots) |
-| DORA (5 years) | S3 Glacier / Deep Archive | Frozen ILM tier (searchable snapshots) |
+| Tier                | AWS path                    | Elastic path                           |
+| ------------------- | --------------------------- | -------------------------------------- |
+| Standard (3 months) | CloudWatch retention policy | Hot / warm ILM tier                    |
+| NIS2 (18 months)    | S3 lifecycle → Standard-IA  | Cold ILM tier (searchable snapshots)   |
+| DORA (5 years)      | S3 Glacier / Deep Archive   | Frozen ILM tier (searchable snapshots) |
 
 The Elastic data stream ILM policies installed by the load generator use a 30-day hot phase. Extend the cold/frozen phases and attach a snapshot repository backed by the customer's S3 Glacier bucket to cover NIS2 and DORA without changing the ingestion path.

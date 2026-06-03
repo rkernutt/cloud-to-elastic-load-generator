@@ -123,17 +123,17 @@ Generators must produce documents that are indistinguishable from real cloud tel
 
 ### ID formats
 
-| Field | Correct format | Notes |
-|---|---|---|
-| AWS X-Ray trace ID | `1-<8 hex>-<24 hex>` | Epoch hex in second segment; use `randHexId(24)` for third |
-| Lambda log stream | `YYYY/MM/DD/[$LATEST]<32 hex>` | Suffix must be lowercase hex only |
-| OTel `trace.id` / `transaction.id` | 32 / 16 lowercase hex chars | Use `randHexId(32)` / `randHexId(16)` |
-| W3C `traceparent` | `00-<32 hex>-<16 hex>-01` | All segments must be hex |
-| Git commit SHA | 40 lowercase hex chars | Use `randHexId(40)` — `randId(40)` produces BASE36 (includes g–z) |
-| Docker / OCI digest | `sha256:<64 hex>` | Use `randHexId(64)` |
-| Docker container ID | `docker://<64 hex>` | Same |
-| AWS WAF WebACL ID | UUID (`randUUID()`) | Was incorrectly using `randId(36)` BASE36 |
-| Elastic agent `ephemeral_id` | UUID | Same |
+| Field                              | Correct format                 | Notes                                                             |
+| ---------------------------------- | ------------------------------ | ----------------------------------------------------------------- |
+| AWS X-Ray trace ID                 | `1-<8 hex>-<24 hex>`           | Epoch hex in second segment; use `randHexId(24)` for third        |
+| Lambda log stream                  | `YYYY/MM/DD/[$LATEST]<32 hex>` | Suffix must be lowercase hex only                                 |
+| OTel `trace.id` / `transaction.id` | 32 / 16 lowercase hex chars    | Use `randHexId(32)` / `randHexId(16)`                             |
+| W3C `traceparent`                  | `00-<32 hex>-<16 hex>-01`      | All segments must be hex                                          |
+| Git commit SHA                     | 40 lowercase hex chars         | Use `randHexId(40)` — `randId(40)` produces BASE36 (includes g–z) |
+| Docker / OCI digest                | `sha256:<64 hex>`              | Use `randHexId(64)`                                               |
+| Docker container ID                | `docker://<64 hex>`            | Same                                                              |
+| AWS WAF WebACL ID                  | UUID (`randUUID()`)            | Was incorrectly using `randId(36)` BASE36                         |
+| Elastic agent `ephemeral_id`       | UUID                           | Same                                                              |
 
 `randId()` generates BASE36 (0–9, A–Z) and is **only** correct for opaque resource-name suffixes (function names, bucket suffixes, stack IDs, etc.). Use `randHexId()` or `randUUID()` wherever the real service enforces a specific encoding.
 

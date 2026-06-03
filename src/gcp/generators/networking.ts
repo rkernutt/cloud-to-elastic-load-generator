@@ -127,8 +127,14 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   const bytesSent = randInt(64, isErr ? 512 : 1_500_000);
   const packetsSent = Math.max(1, Math.floor(bytesSent / randInt(512, 1500)));
   const latencyNs = randLatencyMs(randInt(1, 5), isErr) * 1e6;
-  const srcIsPublic = !srcIp.startsWith("10.") && !srcIp.startsWith("192.168.") && !/^172\.(1[6-9]|2\d|3[01])\./.test(srcIp);
-  const destIsPublic = !destIp.startsWith("10.") && !destIp.startsWith("192.168.") && !/^172\.(1[6-9]|2\d|3[01])\./.test(destIp);
+  const srcIsPublic =
+    !srcIp.startsWith("10.") &&
+    !srcIp.startsWith("192.168.") &&
+    !/^172\.(1[6-9]|2\d|3[01])\./.test(srcIp);
+  const destIsPublic =
+    !destIp.startsWith("10.") &&
+    !destIp.startsWith("192.168.") &&
+    !/^172\.(1[6-9]|2\d|3[01])\./.test(destIp);
   const srcLoc = srcIsPublic ? randGeo() : null;
   const destLoc = destIsPublic ? randGeo() : null;
   const connection = {
@@ -137,8 +143,12 @@ export function generateVpcFlowLog(ts: string, er: number): EcsDocument {
     src_port: srcPort,
     dest_port: destPort,
     protocol: proto,
-    ...(srcIsPublic ? {} : { src_instance: instanceInConnection(project.id, region, srcInst, vpc, subnet) }),
-    ...(destIsPublic ? {} : { dest_instance: instanceInConnection(project.id, region, destInst, vpc, subnet) }),
+    ...(srcIsPublic
+      ? {}
+      : { src_instance: instanceInConnection(project.id, region, srcInst, vpc, subnet) }),
+    ...(destIsPublic
+      ? {}
+      : { dest_instance: instanceInConnection(project.id, region, destInst, vpc, subnet) }),
   };
   const jsonPayload = {
     connection,

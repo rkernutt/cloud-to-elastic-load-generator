@@ -288,7 +288,12 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
         };
       }
 
-      if (source === "cloudwatch" || source === "api" || source === "agent" || source === "fluent-bit") {
+      if (
+        source === "cloudwatch" ||
+        source === "api" ||
+        source === "agent" ||
+        source === "fluent-bit"
+      ) {
         const cwExtra =
           doc.aws?.cloudwatch && typeof doc.aws.cloudwatch === "object" ? doc.aws.cloudwatch : {};
         ctx.cloudwatch = {

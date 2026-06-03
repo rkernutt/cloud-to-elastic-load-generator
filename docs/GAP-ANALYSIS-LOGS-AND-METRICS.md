@@ -221,11 +221,11 @@ Failed findings include realistic resource evidence — for example, S3 buckets 
 
 The following were removed from the load-generator catalog — not open gaps. Per-cloud sunset lists:
 
-| Cloud | Service | Status |
-| ----- | ------- | ------ |
-| AWS | Artifact, Trusted Advisor, CloudShell, FreeRTOS, Panorama, SimSpace Weaver, QLDB, RoboMaker, Forecast, Lookout for Metrics, Kendra, CloudSearch, MediaStore | **Removed — service discontinued by cloud provider** |
-| GCP | Dataprep | **Removed — service discontinued by cloud provider** |
-| Azure | Time Series Insights, Blueprints | **Removed — service discontinued by cloud provider** |
+| Cloud | Service                                                                                                                                                     | Status                                               |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| AWS   | Artifact, Trusted Advisor, CloudShell, FreeRTOS, Panorama, SimSpace Weaver, QLDB, RoboMaker, Forecast, Lookout for Metrics, Kendra, CloudSearch, MediaStore | **Removed — service discontinued by cloud provider** |
+| GCP   | Dataprep                                                                                                                                                    | **Removed — service discontinued by cloud provider** |
+| Azure | Time Series Insights, Blueprints                                                                                                                            | **Removed — service discontinued by cloud provider** |
 
 ---
 

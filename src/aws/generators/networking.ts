@@ -2053,7 +2053,10 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
         ? rand([randInt(1, 1023), randInt(40000, 65535)])
         : randInt(1024, 65535);
   // Geo data only applies to public IPs; private/RFC1918 addresses have no geo
-  const dstIsPublic = !dst.startsWith("10.") && !dst.startsWith("192.168.") && !/^172\.(1[6-9]|2\d|3[01])\./.test(dst);
+  const dstIsPublic =
+    !dst.startsWith("10.") &&
+    !dst.startsWith("192.168.") &&
+    !/^172\.(1[6-9]|2\d|3[01])\./.test(dst);
   const dstGeo = dstIsPublic ? rand(GEO_LOCATIONS) : null;
   const vpcId = `vpc-${randHexId(8)}`;
   const eni = `eni-${randHexId(8)}`;
@@ -2064,7 +2067,11 @@ function generateVpcFlowLog(ts: string, er: number): EcsDocument {
   return {
     "@timestamp": ts,
     // host.name reflects the ENI's instance when known, matched to region
-    host: { name: instanceId ? `i-${instanceId.slice(2)}.${region}.compute.internal` : `eni-${eni.slice(4)}.${region}.compute.internal` },
+    host: {
+      name: instanceId
+        ? `i-${instanceId.slice(2)}.${region}.compute.internal`
+        : `eni-${eni.slice(4)}.${region}.compute.internal`,
+    },
     cloud: {
       provider: "aws",
       region,

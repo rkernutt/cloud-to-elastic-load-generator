@@ -2242,13 +2242,14 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
   const userIdentity = {
     type: identityType,
     principalId,
-    arn: identityType === "Root"
-      ? `arn:aws:iam::${acct.id}:root`
-      : identityType === "AssumedRole"
-        ? `arn:aws:sts::${acct.id}:assumed-role/execution-role/${user}-session`
-        : identityType === "AWSService"
-          ? `arn:aws:iam::${acct.id}:role/aws-service-role/lambda.amazonaws.com/AWSServiceRoleForLambda`
-          : userArn,
+    arn:
+      identityType === "Root"
+        ? `arn:aws:iam::${acct.id}:root`
+        : identityType === "AssumedRole"
+          ? `arn:aws:sts::${acct.id}:assumed-role/execution-role/${user}-session`
+          : identityType === "AWSService"
+            ? `arn:aws:iam::${acct.id}:role/aws-service-role/lambda.amazonaws.com/AWSServiceRoleForLambda`
+            : userArn,
     accountId: acct.id,
     ...(identityType !== "Root" && identityType !== "AWSService" ? { accessKeyId } : {}),
     ...(identityType === "IAMUser" ? { userName: user } : {}),
@@ -2337,15 +2338,23 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
 
   const errorMessageForCode = (code: string | undefined): string => {
     if (!code) return "An unspecified error occurred";
-    if (code === "AccessDenied" || code === "UnauthorizedOperation" || code === "AccessDeniedException")
+    if (
+      code === "AccessDenied" ||
+      code === "UnauthorizedOperation" ||
+      code === "AccessDeniedException"
+    )
       return `User: ${userArn} is not authorized to perform: ${ev.svc.split(".")[0]}:${eventName}`;
     if (code === "Throttling") return `Rate exceeded for ${eventName}. Request throttled.`;
-    if (code === "InvalidClientTokenId") return "The security token included in the request is invalid.";
-    if (code === "RequestExpired") return "The request signature was expired. Check your system clock.";
-    if (code === "ServiceUnavailable") return "The service is currently unavailable. Please try again.";
-    if (code === "EntityAlreadyExistsException") return "The resource you requested already exists.";
+    if (code === "InvalidClientTokenId")
+      return "The security token included in the request is invalid.";
+    if (code === "RequestExpired")
+      return "The request signature was expired. Check your system clock.";
+    if (code === "ServiceUnavailable")
+      return "The service is currently unavailable. Please try again.";
+    if (code === "EntityAlreadyExistsException")
+      return "The resource you requested already exists.";
     if (code === "NoSuchEntityException" || code === "LimitExceededException")
-      return `The ${eventName.replace(/[A-Z]/g, c => " " + c).trim()} operation failed: resource limit reached or entity not found.`;
+      return `The ${eventName.replace(/[A-Z]/g, (c) => " " + c).trim()} operation failed: resource limit reached or entity not found.`;
     return `An error occurred (${code}) when calling the ${eventName} operation.`;
   };
 
@@ -2402,16 +2411,66 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
     source: {
       ip: sourceIPAddress,
       geo: rand([
-        { country_iso_code: "US", country_name: "United States", city_name: "Ashburn", location: { lat: 39.0438, lon: -77.4874 } },
-        { country_iso_code: "US", country_name: "United States", city_name: "Seattle", location: { lat: 47.6062, lon: -122.3321 } },
-        { country_iso_code: "GB", country_name: "United Kingdom", city_name: "London", location: { lat: 51.5074, lon: -0.1278 } },
-        { country_iso_code: "DE", country_name: "Germany", city_name: "Frankfurt", location: { lat: 50.1109, lon: 8.6821 } },
-        { country_iso_code: "JP", country_name: "Japan", city_name: "Tokyo", location: { lat: 35.6762, lon: 139.6503 } },
-        { country_iso_code: "AU", country_name: "Australia", city_name: "Sydney", location: { lat: -33.8688, lon: 151.2093 } },
-        { country_iso_code: "CA", country_name: "Canada", city_name: "Toronto", location: { lat: 43.6532, lon: -79.3832 } },
-        { country_iso_code: "IN", country_name: "India", city_name: "Mumbai", location: { lat: 19.076, lon: 72.8777 } },
-        { country_iso_code: "SG", country_name: "Singapore", city_name: "Singapore", location: { lat: 1.3521, lon: 103.8198 } },
-        { country_iso_code: "FR", country_name: "France", city_name: "Paris", location: { lat: 48.8566, lon: 2.3522 } },
+        {
+          country_iso_code: "US",
+          country_name: "United States",
+          city_name: "Ashburn",
+          location: { lat: 39.0438, lon: -77.4874 },
+        },
+        {
+          country_iso_code: "US",
+          country_name: "United States",
+          city_name: "Seattle",
+          location: { lat: 47.6062, lon: -122.3321 },
+        },
+        {
+          country_iso_code: "GB",
+          country_name: "United Kingdom",
+          city_name: "London",
+          location: { lat: 51.5074, lon: -0.1278 },
+        },
+        {
+          country_iso_code: "DE",
+          country_name: "Germany",
+          city_name: "Frankfurt",
+          location: { lat: 50.1109, lon: 8.6821 },
+        },
+        {
+          country_iso_code: "JP",
+          country_name: "Japan",
+          city_name: "Tokyo",
+          location: { lat: 35.6762, lon: 139.6503 },
+        },
+        {
+          country_iso_code: "AU",
+          country_name: "Australia",
+          city_name: "Sydney",
+          location: { lat: -33.8688, lon: 151.2093 },
+        },
+        {
+          country_iso_code: "CA",
+          country_name: "Canada",
+          city_name: "Toronto",
+          location: { lat: 43.6532, lon: -79.3832 },
+        },
+        {
+          country_iso_code: "IN",
+          country_name: "India",
+          city_name: "Mumbai",
+          location: { lat: 19.076, lon: 72.8777 },
+        },
+        {
+          country_iso_code: "SG",
+          country_name: "Singapore",
+          city_name: "Singapore",
+          location: { lat: 1.3521, lon: 103.8198 },
+        },
+        {
+          country_iso_code: "FR",
+          country_name: "France",
+          city_name: "Paris",
+          location: { lat: 48.8566, lon: 2.3522 },
+        },
       ]),
     },
     user_agent: { original: userAgent },
@@ -2439,9 +2498,7 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
       eventType,
       recipientAccountId: acct.id,
       readOnly,
-      ...(isErr
-        ? { errorCode, errorMessage: errorMessageForCode(errorCode) }
-        : {}),
+      ...(isErr ? { errorCode, errorMessage: errorMessageForCode(errorCode) } : {}),
     }),
     log: { level: isErr ? "warn" : "info" },
     ...(isErr

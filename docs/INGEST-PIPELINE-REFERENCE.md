@@ -12,20 +12,20 @@ Service pipelines are generated from `installer/shared/pipeline-processors.mjs` 
 
 ### Shared processors (all service pipelines)
 
-| Processor | Tag / type | Purpose |
-| --------- | ---------- | ------- |
+| Processor                  | Tag / type                        | Purpose                                                                                                                                                                                                                                           |
+| -------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`vendorFieldPromotion`** | Painless (`promote_to_vendor_ns`) | After JSON extraction, copies parsed `{ns}.*` fields into `aws.{ns}.*` (fill-don't-overwrite) so dashboards, ML jobs, and rules that query `aws.<service>.*` work whether data arrived via ingest pipeline or was pre-populated by the generator. |
-| **`nonJsonFallback`** | Grok (`grok_log4j_fallback`) | When JSON parse did not produce `{ns}.parsed`, applies log4j-style grok patterns on `event.original` for analytics, compute, ML, AI/ML, and serverless groups — extracts `log.level` and message fragments from plain-text lines. |
+| **`nonJsonFallback`**      | Grok (`grok_log4j_fallback`)      | When JSON parse did not produce `{ns}.parsed`, applies log4j-style grok patterns on `event.original` for analytics, compute, ML, AI/ML, and serverless groups — extracts `log.level` and message fragments from plain-text lines.                 |
 
 ### Reroute pipelines (dynamic dataset routing)
 
 Three **reroute** pipelines (`group: "reroute"`) sit at generic ingestion entry points. They detect the target AWS service from ingestion metadata and `reroute` documents to the correct `logs-aws.{service}-default` data stream (and its service pipeline):
 
-| Pipeline ID | Ingestion path | Routing signal |
-| ----------- | -------------- | -------------- |
+| Pipeline ID                       | Ingestion path                       | Routing signal                                                        |
+| --------------------------------- | ------------------------------------ | --------------------------------------------------------------------- |
 | `logs-aws.cloudwatch_logs@custom` | CloudWatch Logs subscription / agent | `aws.cloudwatch.log_group` (e.g. `/aws/lambda/…`, `/ecs/…` → Fargate) |
-| `logs-aws_logs.generic@custom` | S3 / generic `aws_logs` path | `aws.s3.object.key` (`AWSLogs/<account>/<service>/…`) |
-| `logs-awsfirehose@custom` | Kinesis Data Firehose delivery | CloudWatch log group and/or S3 key (same matchers as above) |
+| `logs-aws_logs.generic@custom`    | S3 / generic `aws_logs` path         | `aws.s3.object.key` (`AWSLogs/<account>/<service>/…`)                 |
+| `logs-awsfirehose@custom`         | Kinesis Data Firehose delivery       | CloudWatch log group and/or S3 key (same matchers as above)           |
 
 Attach the reroute pipeline matching your ingestion method at the generic data stream; service-specific pipelines run after reroute.
 

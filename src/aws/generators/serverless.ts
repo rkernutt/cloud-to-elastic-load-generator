@@ -420,7 +420,9 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
         ? rand(["Forbidden", "Unauthorized", "Not found", "Too many requests"])
         : null;
   const traceId =
-    Math.random() < 0.5 ? `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randHexId(24)}` : null;
+    Math.random() < 0.5
+      ? `1-${Math.floor(new Date(ts).getTime() / 1000).toString(16)}-${randHexId(24)}`
+      : null;
   const apiType = rand(["REST", "HTTP", "HTTP", "WEBSOCKET"]);
   const isWebSocket = apiType === "WEBSOCKET";
   const isRest = apiType === "REST";
