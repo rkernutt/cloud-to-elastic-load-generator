@@ -162,9 +162,14 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
       "x-elastic-url": url,
       "x-elastic-key": apiKey,
     };
-    const endDate = new Date();
-    const windowMs = eventType === "metrics" ? 2 * 3600 * 1000 : 1800000;
-    const startDate = new Date(endDate.getTime() - windowMs);
+    const windowMs = eventType === "metrics" ? 10 * 60 * 1000 : 1800000;
+
+    const freshTimeRange = () => {
+      const end = new Date();
+      return { startDate: new Date(end.getTime() - windowMs), endDate: end };
+    };
+
+    const { startDate, endDate } = freshTimeRange();
 
     if (isTracesMode) {
       const TRACE_GENERATORS = await config.loadTraceGenerators();
@@ -533,10 +538,14 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
           await flushDocBatch(batch);
         }
       };
+      const svcTime = freshTimeRange();
       invocationLoop: for (let docOffset = 0; docOffset < svcDocCount; docOffset++) {
         if (abortRef.current) break invocationLoop;
         if (isDimensionalMetrics) {
-          const raw = METRICS_GENERATORS![svc](randTs(startDate, endDate), errorRate);
+          const raw = METRICS_GENERATORS![svc](
+            randTs(svcTime.startDate, svcTime.endDate),
+            errorRate
+          );
           const docs = Array.isArray(raw) ? raw : [raw];
           for (const d of docs) {
             if (abortRef.current) break invocationLoop;
@@ -544,7 +553,7 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
             await pushPreparedDoc(d as LooseDoc);
           }
         } else {
-          const result = GENERATORS![svc](randTs(startDate, endDate), errorRate);
+          const result = GENERATORS![svc](randTs(svcTime.startDate, svcTime.endDate), errorRate);
           if (Array.isArray(result)) {
             for (const d of result) {
               if (abortRef.current) break invocationLoop;
