@@ -220,7 +220,7 @@ function flattenAwsFields(obj, prefix = "") {
 }
 
 function pickDimensionField(fields, awsPrefix) {
-  const full = fields.map((f) => `aws.${awsPrefix}.${f.path}`);
+  const _full = fields.map((f) => `aws.${awsPrefix}.${f.path}`);
   for (const leaf of DIM_PRIORITY) {
     const hit = fields.find((f) => f.leaf === leaf || f.path.endsWith(`.${leaf}`));
     if (hit) return `aws.${awsPrefix}.${hit.path}`;

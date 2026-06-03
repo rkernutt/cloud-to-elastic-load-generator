@@ -103,7 +103,6 @@ function generateBedrockGuardrailsLog(ts: string, er: number): EcsDocument {
     const claims = randInt(1, 8);
     const hallucinations = randInt(0, 2);
     messageDetails = { claims, hallucinations };
-  } else {
   }
 
   const message = JSON.stringify({
@@ -230,7 +229,7 @@ function generateGwlbLog(ts: string, er: number): EcsDocument {
     const targetIp = randIp();
     messageDetails = { targetIp };
   } else if (scenario === "cross_zone_rebalance") {
-  } else {
+    messageDetails = {};
   }
 
   const message = JSON.stringify({
@@ -476,11 +475,12 @@ function generateMediaConnectLog(ts: string, er: number): EcsDocument {
       type: "network",
     };
   } else if (scenario === "failover_switch") {
+    messageDetails = {};
   } else if (scenario === "output_started") {
     const protocol = rand(["SRT", "Zixi", "RIST", "CDI"]);
     messageDetails = { protocol };
   } else if (scenario === "source_health_ok") {
-  } else {
+    messageDetails = {};
   }
 
   const message = JSON.stringify({
@@ -571,8 +571,9 @@ function generateMediaPackageLog(ts: string, er: number): EcsDocument {
     const segBytes = randInt(50_000, 4_000_000);
     messageDetails = { segNum, segBytes };
   } else if (scenario === "endpoint_created") {
+    messageDetails = {};
   } else if (scenario === "harvest_complete") {
-  } else {
+    messageDetails = {};
   }
 
   const message = JSON.stringify({
@@ -671,7 +672,7 @@ function generateMediaTailorLog(ts: string, er: number): EcsDocument {
     const sessionId = randId(16);
     messageDetails = { sessionId };
   } else if (scenario === "prefetch_ok") {
-  } else {
+    messageDetails = {};
   }
 
   const message = JSON.stringify({
@@ -769,14 +770,15 @@ function generateIvsLog(ts: string, er: number): EcsDocument {
       type: "client",
     };
   } else if (scenario === "stream_start") {
+    messageDetails = {};
   } else if (scenario === "stream_end") {
     const durSec = randInt(60, 28800);
     messageDetails = { ...messageDetails, durSec };
   } else if (scenario === "recording_saved") {
+    messageDetails = {};
   } else if (scenario === "viewer_spike") {
     const delta = randInt(1000, 20000);
     messageDetails = { ...messageDetails, delta };
-  } else {
   }
 
   const message = JSON.stringify({
@@ -1238,11 +1240,13 @@ function generateMgnLog(ts: string, er: number): EcsDocument {
       message: `Staging disk ${disk} near capacity`,
       type: "server",
     };
-  } else if (scenario === "cutover_ok") {
-  } else if (scenario === "test_launch") {
-  } else if (scenario === "agent_connect") {
-  } else if (scenario === "finalize") {
-  } else {
+  } else if (
+    scenario === "cutover_ok" ||
+    scenario === "test_launch" ||
+    scenario === "agent_connect" ||
+    scenario === "finalize"
+  ) {
+    /* success — no error block */
   }
 
   const message = JSON.stringify({
@@ -1380,6 +1384,7 @@ function generateCwSyntheticsLog(ts: string, er: number): EcsDocument {
     const stepMs = randInt(100, 5000);
     messageDetails = { stepMs };
   } else if (scenario === "visual_pass") {
+    messageDetails = {};
   } else {
     const steps = randInt(3, 8);
     messageDetails = { steps };
@@ -1526,7 +1531,9 @@ function generateManagedPrometheusLog(ts: string, er: number): EcsDocument {
     const rules = randInt(5, 50);
     messageDetails = { ruleGroup, rules };
   } else if (scenario === "ruler_reload") {
+    messageDetails = {};
   } else if (scenario === "workspace_describe") {
+    messageDetails = {};
   } else {
     const scraper = rand([
       "prometheus-k8s-0",

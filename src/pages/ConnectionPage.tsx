@@ -64,11 +64,17 @@ const DEPLOYMENT_OPTIONS = [
   { id: "serverless", label: "Cloud Serverless" },
 ];
 
-const EVENT_TYPE_OPTIONS = [
+const ALL_EVENT_TYPE_OPTIONS = [
   { id: "logs", label: "Logs" },
   { id: "metrics", label: "Metrics" },
   { id: "traces", label: "Traces" },
 ];
+
+const EVENT_TYPES_BY_PROJECT: Record<string, string[]> = {
+  security: ["logs"],
+  observability: ["logs", "metrics", "traces"],
+  elasticsearch: ["logs", "metrics"],
+};
 
 const SERVERLESS_PROJECT_TYPE_OPTIONS = [
   { id: "observability", label: "Observability" },
@@ -135,6 +141,12 @@ export function ConnectionPage({
   unifiedCloudPicker,
 }: ConnectionPageProps) {
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
+  const eventTypeOptions = useMemo(() => {
+    if (deploymentType !== "serverless") return ALL_EVENT_TYPE_OPTIONS;
+    const allowed = EVENT_TYPES_BY_PROJECT[serverlessProjectType] ?? ["logs", "metrics", "traces"];
+    return ALL_EVENT_TYPE_OPTIONS.filter((o) => allowed.includes(o.id));
+  }, [deploymentType, serverlessProjectType]);
 
   /** Max 3 buttons per row so long labels (e.g. Azure Monitor Distro → EDOT GW) stay readable. */
   const ingestionRows = useMemo(() => {
@@ -260,11 +272,15 @@ export function ConnectionPage({
       {/* Event type */}
       <EuiFormRow
         label={<ConnectionSubheading>Event Type</ConnectionSubheading>}
-        helpText="Choose what type of data to generate"
+        helpText={
+          deploymentType === "serverless" && eventTypeOptions.length < ALL_EVENT_TYPE_OPTIONS.length
+            ? `Available event types for ${serverlessProjectType} projects`
+            : "Choose what type of data to generate"
+        }
       >
         <EuiButtonGroup
           legend="Event type selection"
-          options={EVENT_TYPE_OPTIONS}
+          options={eventTypeOptions}
           idSelected={eventType}
           onChange={(id) => onEventTypeChange(id)}
         />

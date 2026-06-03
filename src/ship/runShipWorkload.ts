@@ -8,6 +8,37 @@ type BulkRespItem = {
 };
 
 /**
+ * Elastic Cloud (especially Serverless) rejects bulk bodies above ~10 MB.
+ * Cap well below that to leave headroom for gzip overhead and metadata.
+ */
+const MAX_NDJSON_BYTES = 5 * 1024 * 1024;
+
+/**
+ * Split a document array into sub-batches whose serialized NDJSON stays
+ * under MAX_NDJSON_BYTES. Each doc is measured as action-line + doc-line.
+ */
+function splitBySize(docs: LooseDoc[], makeActionLine: (doc: LooseDoc) => string): LooseDoc[][] {
+  const batches: LooseDoc[][] = [];
+  let current: LooseDoc[] = [];
+  let currentBytes = 0;
+
+  for (const doc of docs) {
+    const action = makeActionLine(doc);
+    const body = JSON.stringify(doc);
+    const docBytes = action.length + 1 + body.length + 1;
+    if (current.length > 0 && currentBytes + docBytes > MAX_NDJSON_BYTES) {
+      batches.push(current);
+      current = [];
+      currentBytes = 0;
+    }
+    current.push(doc);
+    currentBytes += docBytes;
+  }
+  if (current.length > 0) batches.push(current);
+  return batches;
+}
+
+/**
  * Walk a log document and multiply any field ending in `_ms`, `_us`, `_sec`,
  * `duration`, `execution_time_ms`, `total_time`, or `turn_around_time` by
  * the given factor. This makes duration-based ML detectors (high_mean) fire
@@ -162,7 +193,15 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
 
         const shipTraceBatch = async (batch: LooseDoc[]) => {
           if (!batch.length) return;
-          if (abortRef.current) return;
+          const subs = splitBySize(batch, () => apmMeta);
+          for (const sub of subs) {
+            if (abortRef.current) return;
+            await shipTraceSubBatch(sub);
+          }
+        };
+
+        const shipTraceSubBatch = async (batch: LooseDoc[]) => {
+          if (!batch.length || abortRef.current) return;
           batchNum++;
           const ndjsonParts: string[] = [];
           for (const doc of batch) {
@@ -278,10 +317,10 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
             if (abortRef.current) break;
             let injIndexed = 0,
               injErrs = 0;
-            for (let i = 0; i < injDocs.length; i += batchSize) {
+            const apmMetaInj = JSON.stringify({ create: { _index: APM_INDEX } });
+            const traceInjSubBatches = splitBySize(injDocs, () => apmMetaInj);
+            for (const batch of traceInjSubBatches) {
               if (abortRef.current) break;
-              const batch = injDocs.slice(i, i + batchSize);
-              const apmMetaInj = JSON.stringify({ create: { _index: APM_INDEX } });
               const ndjsonPartsInj: string[] = [];
               for (const doc of batch) {
                 ndjsonPartsInj.push(apmMetaInj, "\n", JSON.stringify(doc), "\n");
@@ -400,6 +439,21 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
       const flushDocBatch = async (batch: LooseDoc[]) => {
         if (!batch.length) return;
         if (abortRef.current) return;
+
+        const subBatches = splitBySize(batch, (doc) => {
+          const { __dataset } = doc as LooseDoc;
+          const idx = __dataset ? config.formatDocDatasetIndex(indexPrefix, __dataset) : indexName;
+          return JSON.stringify({ create: { _index: idx } });
+        });
+
+        for (const sub of subBatches) {
+          if (abortRef.current) return;
+          await flushDocSubBatch(sub);
+        }
+      };
+
+      const flushDocSubBatch = async (batch: LooseDoc[]) => {
+        if (!batch.length || abortRef.current) return;
         batchNum++;
         const ndjsonParts: string[] = [];
         for (const doc of batch) {
@@ -554,9 +608,9 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
         const apmMeta = JSON.stringify({ create: { _index: APM_INDEX } });
         let traceSent = 0,
           traceErrs = 0;
-        for (let i = 0; i < traceDocs.length; i += batchSize) {
+        const traceSubBatches = splitBySize(traceDocs, () => apmMeta);
+        for (const batch of traceSubBatches) {
           if (abortRef.current) break;
-          const batch = traceDocs.slice(i, i + batchSize);
           const ndjsonParts: string[] = [];
           for (const doc of batch) {
             ndjsonParts.push(apmMeta, "\n", JSON.stringify(doc), "\n");
@@ -665,9 +719,15 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
           if (abortRef.current) break;
           let injIndexed = 0,
             injRealErrs = 0;
-          for (let i = 0; i < injDocs.length; i += batchSize) {
+          const injSubBatches = splitBySize(injDocs, (doc) => {
+            const { __dataset } = doc;
+            const idx = __dataset
+              ? config.formatDocDatasetIndex(indexPrefix, __dataset)
+              : indexName;
+            return JSON.stringify({ create: { _index: idx } });
+          });
+          for (const batch of injSubBatches) {
             if (abortRef.current) break;
-            const batch = injDocs.slice(i, i + batchSize);
             const ndjsonPartsInj: string[] = [];
             for (const doc of batch) {
               const { __dataset, ...cleanDoc } = doc;

@@ -501,6 +501,19 @@ export function LoadGeneratorApp({
     }
   };
 
+  const handleServerlessProjectTypeChange = (
+    val: "observability" | "security" | "elasticsearch"
+  ) => {
+    setServerlessProjectType(val);
+    if (val === "security" && eventType !== "logs") {
+      setEventType("logs");
+    } else if (val === "observability" && eventType === "traces") {
+      // traces stay — all three event types are natural for Observability
+    } else if (val === "elasticsearch" && eventType === "traces") {
+      setEventType("logs");
+    }
+  };
+
   const exportConfig = () => {
     const config = {
       selectedServices,
@@ -1170,7 +1183,7 @@ export function LoadGeneratorApp({
             validationErrors={validationErrors}
             ingestionSource={ingestionSource}
             onDeploymentTypeChange={setDeploymentType}
-            onServerlessProjectTypeChange={setServerlessProjectType}
+            onServerlessProjectTypeChange={handleServerlessProjectTypeChange}
             onElasticUrlChange={(val) => {
               setElasticUrl(val);
               setValidationErrors((prev) => ({ ...prev, elasticUrl: "" }));
