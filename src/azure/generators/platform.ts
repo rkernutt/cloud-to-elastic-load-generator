@@ -1071,3 +1071,9 @@ export function generateM365Log(ts: string, er: number): EcsDocument {
       : `Microsoft 365 ${workload}: ${recordType} by ${user}`,
   };
 }
+
+    message: isErr
+      ? `Microsoft 365 ${workload}: ${recordType} failed for ${user}`
+      : `Microsoft 365 ${workload}: ${recordType} by ${user}`,
+  };
+}
