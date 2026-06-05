@@ -270,6 +270,13 @@ export const GCP_VENDOR_SERVICE_ICONS: Record<string, string> = {
   "service-directory": "service-directory.png",
   "backup-dr": "backup-dr.png",
   "recaptcha-enterprise": "recaptcha-enterprise.png",
+  "distributed-cloud": "distributed-cloud.svg",
+  parallelstore: "parallelstore.svg",
+  "netapp-volumes": "netapp-volumes.svg",
+  biglake: "biglake.svg",
+  dataform: "dataform.svg",
+  "vertex-ai-agent-builder": "vertex-ai-agent-builder.svg",
+  "colab-enterprise": "colab-enterprise.svg",
 };
 
 export const GCP_VENDOR_CATEGORY_ICONS: Record<string, string> = {

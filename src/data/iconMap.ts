@@ -31,6 +31,7 @@ const AWS_SERVICE_ICON_MAP = {
   waf: "AWSWAF",
   wafv2: "AWSWAF",
   route53: "AmazonRoute53",
+  route53resolver: "AmazonRoute53",
   networkfirewall: "AWSNetworkFirewall",
   shield: "AWSShield",
   globalaccelerator: "AWSGlobalAccelerator",
