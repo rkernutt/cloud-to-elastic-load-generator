@@ -416,6 +416,17 @@ export const AZURE_VENDOR_SERVICE_ICONS: Record<string, string> = {
   "communication-services": "communication-services.svg",
   "notification-hubs": "notification-hubs.svg",
   "deployment-environments": "deployment-environments.svg",
+  "capacity-reservation": "capacity-reservation.svg",
+  "virtual-desktop": "virtual-desktop.svg",
+  "dns-private-resolver": "dns-private-resolver.svg",
+  "elastic-san": "elastic-san.svg",
+  "data-explorer": "data-explorer.svg",
+  "ai-foundry": "ai-foundry.svg",
+  "dedicated-hsm": "dedicated-hsm.svg",
+  "video-indexer": "video-indexer.svg",
+  "managed-prometheus": "managed-prometheus.svg",
+  "managed-grafana": "managed-grafana.svg",
+  "application-insights": "application-insights.svg",
 };
 
 export const AZURE_VENDOR_CATEGORY_ICONS: Record<string, string> = {
