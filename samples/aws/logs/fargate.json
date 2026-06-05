@@ -1,68 +1,73 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "us-west-1",
-    "account": { "id": "528174630291", "name": "globex-ml-platform" },
+    "region": "me-central-1",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "fargate" }
   },
   "aws": {
     "dimensions": {
       "ServiceName": "web-frontend",
-      "ClusterName": "batch-workers-cluster",
+      "ClusterName": "prod-cluster",
       "TaskDefinitionFamily": "web-frontend"
     },
     "ecs": {
       "metrics": {
-        "CPUUtilization": { "avg": 27 },
-        "CPUReservation": { "avg": 49.465066187670836 },
-        "MemoryUtilization": { "avg": 29.418933436400355 },
-        "MemoryReservation": { "avg": 55.39669541416301 },
+        "CPUUtilization": { "avg": 99 },
+        "CPUReservation": { "avg": 72.18139816184912 },
+        "MemoryUtilization": { "avg": 29.921039646413075 },
+        "MemoryReservation": { "avg": 56.88378120974489 },
         "GPUReservation": { "avg": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-fargate-logs-528174630291",
-        "arn": "arn:aws:s3:::aws-fargate-logs-528174630291"
+        "name": "aws-fargate-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-fargate-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/528174630291/fargate/us-west-1/2026/06/03/fargate_4PFKNUQSK19F1HOBLGCH.log.gz"
+        "key": "AWSLogs/164820739518/fargate/me-central-1/2026/06/05/fargate_ORHRQ7ZHM7JLLXZS1LEY.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fargate/logs",
-      "log_stream": "us-west-1/4u53sjsy",
-      "ingestion_time": "2026-06-03T09:39:25.513Z"
+      "log_stream": "me-central-1/s5vn0orz",
+      "ingestion_time": "2026-06-05T13:00:31.434Z"
     }
   },
   "container": {
-    "id": "jqm2x0h3wpmy",
+    "id": "85m9jwe701j2",
     "name": "web-frontend",
     "image": { "name": "myrepo/web-frontend:latest", "tag": "latest" },
     "runtime": "docker"
   },
-  "process": { "pid": 29750, "name": "web-frontend" },
-  "log": { "level": "info" },
+  "process": { "pid": 56646, "name": "web-frontend" },
+  "log": { "level": "error" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.ecs_fargate",
     "provider": "ecs.amazonaws.com",
-    "duration": 288000000000,
+    "duration": 277000000000,
     "module": "aws"
   },
-  "message": "{\"cluster\":\"batch-workers-cluster\",\"taskArn\":\"arn:aws:ecs:us-west-1:528174630291:task/batch-workers-cluster/ufw5wgu3xw8ayn9wiyzhdu3uhwvcpdvv\",\"taskId\":\"ufw5wgu3xw8ayn9wiyzhdu3uhwvcpdvv\",\"taskDefinitionArn\":\"arn:aws:ecs:us-west-1:528174630291:task-definition/web-frontend:45\",\"containerName\":\"web-frontend\",\"stream\":\"stderr\",\"level\":\"info\",\"log\":\"Task deregistered gracefully\",\"timestamp\":\"2026-06-03T09:39:24.765Z\"}",
-  "host": { "name": "ip-171-40-14-144.ec2.internal", "hostname": "fargate-iikwu3g5" },
+  "message": "{\"cluster\":\"prod-cluster\",\"taskArn\":\"arn:aws:ecs:me-central-1:164820739518:task/prod-cluster/fyf0dp8pq7q2c797n9eza3pzaxety5gx\",\"taskId\":\"fyf0dp8pq7q2c797n9eza3pzaxety5gx\",\"taskDefinitionArn\":\"arn:aws:ecs:me-central-1:164820739518:task-definition/web-frontend:49\",\"containerName\":\"web-frontend\",\"stream\":\"stdout\",\"level\":\"error\",\"log\":\"Task failed to reach RUNNING state\",\"timestamp\":\"2026-06-05T13:00:30.622Z\",\"exitCode\":54,\"reason\":\"OutOfMemoryError\"}",
+  "error": {
+    "code": "InvalidParameterException",
+    "message": "Task stopped with exit code 1",
+    "type": "aws"
+  },
+  "host": { "name": "ip-241-72-132-242.ec2.internal", "hostname": "fargate-ph7ib1ak" },
   "service": { "name": "fargate", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-us-west-1",
-    "ephemeral_id": "om5tc3psnuoppuxv7vckuq3bpkg08ulnplxr"
+    "name": "filebeat-aws-me-central-1",
+    "ephemeral_id": "3rr89mz0v4ocap3qdbbpqrtb848xdy705t2s"
   },
   "input": { "type": "aws-cloudwatch" }
 }

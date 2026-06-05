@@ -1,49 +1,49 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "us-west-2",
+    "account": { "id": "391827465039", "name": "globex-payments-prod" },
     "service": { "name": "dax" }
   },
   "aws": {
-    "dimensions": { "ClusterName": "session-dax", "NodeId": "session-dax-b" },
+    "dimensions": { "ClusterName": "prod-dax", "NodeId": "prod-dax-a" },
     "dax": {
-      "cluster_name": "session-dax",
-      "node_id": "session-dax-b",
-      "operation": "Scan",
-      "cache_hit": true,
-      "item_size_bytes": 72104,
-      "request_latency_ms": 42,
-      "consumed_read_capacity_units": 4.1,
+      "cluster_name": "prod-dax",
+      "node_id": "prod-dax-a",
+      "operation": "BatchWriteItem",
+      "cache_hit": false,
+      "item_size_bytes": 85848,
+      "request_latency_ms": 46,
+      "consumed_read_capacity_units": 4.2,
       "table_name": "users"
     },
     "s3": {
       "bucket": {
-        "name": "aws-dax-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-dax-logs-293847561023"
+        "name": "aws-dax-logs-391827465039",
+        "arn": "arn:aws:s3:::aws-dax-logs-391827465039"
       },
       "object": {
-        "key": "AWSLogs/293847561023/dax/eu-west-1/2026/06/03/dax_XX2LC88Q9CP75JLLW7TQ.log.gz"
+        "key": "AWSLogs/391827465039/dax/us-west-2/2026/06/05/dax_5LQD6VUQF7NRGKK0RJBP.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/dax/logs",
-      "log_stream": "eu-west-1/hegxgy5c",
-      "ingestion_time": "2026-06-03T09:39:25.604Z"
+      "log_stream": "us-west-2/a1uoib0g",
+      "ingestion_time": "2026-06-05T13:00:31.549Z"
     }
   },
   "event": {
-    "action": "NodeRestart",
+    "action": "ClusterScaling",
     "outcome": "success",
     "category": ["database"],
     "type": ["access"],
     "dataset": "aws.dax",
     "provider": "dax.amazonaws.com",
-    "duration": 42000000,
+    "duration": 46000000,
     "module": "aws"
   },
-  "message": "{\"eventType\":\"dax_cluster_event\",\"clusterName\":\"session-dax\",\"nodeId\":\"session-dax-b\",\"operation\":\"Scan\",\"tableName\":\"users\",\"cacheHit\":true,\"itemSizeBytes\":72104,\"latency_ms\":42,\"consumedReadCapacityUnits\":4.1,\"status\":\"success\"}",
+  "message": "{\"eventType\":\"dax_cluster_event\",\"clusterName\":\"prod-dax\",\"nodeId\":\"prod-dax-a\",\"operation\":\"BatchWriteItem\",\"tableName\":\"users\",\"cacheHit\":false,\"itemSizeBytes\":85848,\"latency_ms\":46,\"consumedReadCapacityUnits\":4.2,\"status\":\"success\"}",
   "log": { "level": "info" },
   "service": { "name": "dax", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -51,8 +51,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "pyq7o8eg9uwy2p1ioopyzwytina9okwq2jzc"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "zit8cy8vytzpgld2fub49a33wgu1iny5611b"
   },
   "input": { "type": "aws-cloudwatch" }
 }

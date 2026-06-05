@@ -930,3 +930,180 @@ export function generateGcpDataExfilChain(ts: string, _er: number): EcsDocument[
 
   return [vpc, gcs, dlp];
 }
+
+// ── Entra ID Workforce Identity Federation Chain (GCP) ──────────────────────
+// Real-world scenario: attacker compromises Entra ID credentials, exchanges
+// OIDC token via GCP Workforce Identity Federation (sts.googleapis.com),
+// then performs reconnaissance and data access using the federated principal.
+export function generateGcpEntraFederatedChain(ts: string, _er: number): EcsDocument[] {
+  const { region, project } = makeGcpSetup(0);
+  const baseDate = new Date(ts);
+  const attackSessionId = randUUID();
+  const callerIp = randIp();
+  const tenantId = randUUID();
+  const workforcePoolId = "entra-id-pool";
+  const providerId = "entra-oidc";
+  const principalEmail = `principal://iam.googleapis.com/locations/global/workforcePools/${workforcePoolId}/subject/attacker@meridiantech.com`;
+  const humanEmail = "attacker@meridiantech.com";
+  const targetSa = `data-admin@${project.id}.iam.gserviceaccount.com`;
+  const targetBucket = `${project.id}-confidential-exports`;
+
+  const chainLabels = {
+    attack_session_id: attackSessionId,
+    federation_provider: "entra-id",
+    workforce_pool_id: workforcePoolId,
+    project_id: project.id,
+  };
+
+  const auditDoc = (
+    eventTs: string,
+    serviceName: string,
+    methodName: string,
+    resourceName: string,
+    authInfo: Array<Record<string, unknown>>,
+    msg: string,
+    tactic: { name: string; id: string },
+    technique: { name: string; id: string },
+    extraGcp?: Record<string, unknown>
+  ): EcsDocument => ({
+    "@timestamp": eventTs,
+    __dataset: "gcp.audit",
+    labels: chainLabels,
+    cloud: gcpCloud(region, project, "cloud-audit-logs"),
+    gcp: {
+      cloud_audit: {
+        service_name: serviceName,
+        method_name: methodName,
+        resource_name: resourceName,
+        caller_ip: callerIp,
+        caller_type: "USER",
+        authorization_decision: "ALLOWED",
+        authorization_info: authInfo,
+        authentication_info: {
+          principal_email: humanEmail,
+          principal_subject: principalEmail,
+          third_party_principal: {
+            payload: {
+              iss: `https://sts.windows.net/${tenantId}/`,
+              aud: `https://iam.googleapis.com/locations/global/workforcePools/${workforcePoolId}/providers/${providerId}`,
+              sub: humanEmail,
+              tid: tenantId,
+              appid: "c44b4083-3bb0-49c1-b47d-974e53cbdf3c",
+            },
+          },
+        },
+        request_metadata: {
+          caller_network: `projects/${project.id}/global/networks/default`,
+          request_id: randId(16).toLowerCase(),
+          caller_supplied_user_agent:
+            "google-cloud-sdk gcloud/475.0.0 command/gcloud.auth.print-access-token",
+        },
+        ...extraGcp,
+      },
+    },
+    user: { name: humanEmail },
+    source: { ip: callerIp },
+    threat: { tactic, technique },
+    event: {
+      outcome: "success",
+      category: ["iam", "authentication"],
+      type: ["info"],
+      duration: randInt(1_000_000, 8_000_000),
+    },
+    message: msg,
+    log: { level: "warn" },
+  });
+
+  const t0 = offsetTs(baseDate, 0);
+  const t1 = offsetTs(baseDate, randInt(10_000, 30_000));
+  const t2 = offsetTs(baseDate, randInt(60_000, 120_000));
+  const t3 = offsetTs(baseDate, randInt(180_000, 360_000));
+  const t4 = offsetTs(baseDate, randInt(400_000, 600_000));
+
+  return [
+    auditDoc(
+      t0,
+      "sts.googleapis.com",
+      "google.identity.sts.v1.SecurityTokenService.ExchangeToken",
+      `locations/global/workforcePools/${workforcePoolId}/providers/${providerId}`,
+      [
+        {
+          resource: `locations/global/workforcePools/${workforcePoolId}`,
+          permission: "iam.workforcePools.use",
+          granted: true,
+        },
+      ],
+      `Cloud Audit [EntraFederation 1/5]: ExchangeToken — Entra ID OIDC token exchanged for GCP federated credential (issuer: sts.windows.net/${tenantId})`,
+      { name: "Initial Access", id: "TA0001" },
+      { name: "Trusted Relationship", id: "T1199" }
+    ),
+    auditDoc(
+      t1,
+      "iamcredentials.googleapis.com",
+      "GenerateAccessToken",
+      `projects/-/serviceAccounts/${targetSa}`,
+      [
+        {
+          resource: `projects/${project.id}/serviceAccounts/${targetSa}`,
+          permission: "iam.serviceAccounts.getAccessToken",
+          granted: true,
+          permission_type: "DATA_READ",
+        },
+      ],
+      `Cloud Audit [EntraFederation 2/5]: GenerateAccessToken — federated principal impersonated ${targetSa}`,
+      { name: "Privilege Escalation", id: "TA0004" },
+      { name: "Valid Accounts: Cloud Accounts", id: "T1078.004" }
+    ),
+    auditDoc(
+      t2,
+      "storage.googleapis.com",
+      "storage.buckets.list",
+      `projects/${project.id}`,
+      [
+        {
+          resource: `projects/${project.id}`,
+          permission: "storage.buckets.list",
+          granted: true,
+          permission_type: "DATA_READ",
+        },
+      ],
+      `Cloud Audit [EntraFederation 3/5]: storage.buckets.list — bucket enumeration by federated user`,
+      { name: "Discovery", id: "TA0007" },
+      { name: "Cloud Infrastructure Discovery", id: "T1580" }
+    ),
+    auditDoc(
+      t3,
+      "storage.googleapis.com",
+      "storage.objects.get",
+      `projects/_/buckets/${targetBucket}/objects/exports/customer-pii-2026.csv`,
+      [
+        {
+          resource: `projects/_/buckets/${targetBucket}`,
+          permission: "storage.objects.get",
+          granted: true,
+          permission_type: "DATA_READ",
+        },
+      ],
+      `Cloud Audit [EntraFederation 4/5]: storage.objects.get from gs://${targetBucket}/exports/customer-pii-2026.csv — potential data access`,
+      { name: "Collection", id: "TA0009" },
+      { name: "Data from Cloud Storage Object", id: "T1530" }
+    ),
+    auditDoc(
+      t4,
+      "iam.googleapis.com",
+      "google.iam.admin.v1.CreateServiceAccountKey",
+      `projects/${project.id}/serviceAccounts/${targetSa}/keys/${randId(16)}`,
+      [
+        {
+          resource: `projects/${project.id}/serviceAccounts/${targetSa}`,
+          permission: "iam.serviceAccountKeys.create",
+          granted: true,
+          permission_type: "ADMIN_WRITE",
+        },
+      ],
+      `Cloud Audit [EntraFederation 5/5]: CreateServiceAccountKey for ${targetSa} — persistence attempt by federated attacker`,
+      { name: "Persistence", id: "TA0003" },
+      { name: "Account Manipulation", id: "T1098" }
+    ),
+  ];
+}

@@ -1,47 +1,47 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-2",
-    "account": { "id": "738291046572", "name": "globex-development" },
+    "region": "ap-east-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "cloudformation" }
   },
   "aws": {
     "cloudformation": {
-      "stack_name": "ecs-services",
-      "stack_id": "arn:aws:cloudformation:ap-south-2:738291046572:stack/ecs-services/nqx7mzx8",
-      "scenario": "changeset_execute",
-      "aws_api_operation": "CreateChangeSet",
-      "change_set_id": "arn:aws:cloudformation:ap-south-2:738291046572:changeSet/cs-JKS4NOVEIJ",
-      "stack_status": "UPDATE_IN_PROGRESS",
-      "resource_type": "AWS::EC2::VPC",
-      "logical_resource_id": "WebServerASG",
-      "physical_resource_id": "arn:aws:lambda:ap-south-2:738291046572:function:api-handler",
+      "stack_name": "api-gateway-stack",
+      "stack_id": "arn:aws:cloudformation:ap-east-1:501938274650:stack/api-gateway-stack/6czd0u3t",
+      "scenario": "nested_stack_update",
+      "aws_api_operation": "UpdateStack",
+      "nested_stack_logical_id": "NestedVPCStack",
+      "stack_status": "CREATE_COMPLETE",
+      "resource_type": "AWS::Lambda::Function",
+      "logical_resource_id": "VPC",
+      "physical_resource_id": "arn:aws:rds:ap-east-1:501938274650:db:prod-001",
       "resource_status": "CREATE_IN_PROGRESS",
-      "resource_status_reason": "Insufficient capacity",
-      "drift_status": "IN_SYNC",
+      "resource_status_reason": "Eventual consistency check initiated",
+      "drift_status": "NOT_CHECKED",
       "structured_logging": true,
       "metrics": {
-        "TotalStack": { "avg": 213 },
+        "TotalStack": { "avg": 136 },
         "ErroredStack": { "avg": 0 },
         "RollbackStack": { "avg": 0 },
-        "DeletedStack": { "avg": 27 },
-        "StackInstancesDeployed": { "avg": 1468 }
+        "DeletedStack": { "avg": 2 },
+        "StackInstancesDeployed": { "avg": 3157 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cloudformation-logs-738291046572",
-        "arn": "arn:aws:s3:::aws-cloudformation-logs-738291046572"
+        "name": "aws-cloudformation-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-cloudformation-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/738291046572/cloudformation/ap-south-2/2026/06/03/cloudformation_UB8P6A4IGLCZW3PSDGLW.log.gz"
+        "key": "AWSLogs/501938274650/cloudformation/ap-east-1/2026/06/05/cloudformation_US7RZ73S0C9BCQ6BXWCL.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/cloudformation/cloudformation-stack-6l9lmb",
-      "log_stream": "ap-south-2/s2n2hol1",
-      "ingestion_time": "2026-06-03T09:39:25.677Z"
+      "log_group": "/aws/cloudformation/cloudformation-stack-zpp6su",
+      "log_stream": "ap-east-1/uwqjb1he",
+      "ingestion_time": "2026-06-05T13:00:31.650Z"
     }
   },
   "event": {
@@ -49,10 +49,10 @@
     "category": ["configuration", "process"],
     "dataset": "aws.cloudformation",
     "provider": "cloudformation.amazonaws.com",
-    "duration": 169000000000,
+    "duration": 319000000000,
     "module": "aws"
   },
-  "message": "{\"StackId\":\"arn:aws:cloudformation:ap-south-2:738291046572:stack/ecs-services/nqx7mzx8\",\"StackName\":\"ecs-services\",\"ResourceType\":\"AWS::EC2::VPC\",\"LogicalResourceId\":\"WebServerASG\",\"PhysicalResourceId\":\"arn:aws:lambda:ap-south-2:738291046572:function:api-handler\",\"ResourceStatus\":\"CREATE_IN_PROGRESS\",\"ResourceStatusReason\":\"Insufficient capacity\",\"Timestamp\":\"2026-06-03T09:39:24.765Z\"}",
+  "message": "{\"StackId\":\"arn:aws:cloudformation:ap-east-1:501938274650:stack/api-gateway-stack/6czd0u3t\",\"StackName\":\"api-gateway-stack\",\"ResourceType\":\"AWS::Lambda::Function\",\"LogicalResourceId\":\"VPC\",\"PhysicalResourceId\":\"arn:aws:rds:ap-east-1:501938274650:db:prod-001\",\"ResourceStatus\":\"CREATE_IN_PROGRESS\",\"ResourceStatusReason\":\"Eventual consistency check initiated\",\"Timestamp\":\"2026-06-05T13:00:30.622Z\"}",
   "log": { "level": "info" },
   "service": { "name": "cloudformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -60,8 +60,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-2",
-    "ephemeral_id": "0on80zz14h5rqlcz7asu8a08mry5srsiuzfs"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "ig6p45pcvrgpnnb10kykabwk3rmb9h1p45hn"
   },
   "input": { "type": "aws-cloudwatch" }
 }

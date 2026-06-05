@@ -1,73 +1,67 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "il-central-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "me-south-1",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "lakeformation" }
   },
   "aws": {
     "dimensions": {
-      "ResourceArn": "arn:aws:glue:il-central-1:814726593401:table/raw_data/products",
-      "Principal": "arn:aws:iam::814726593401:user/svc-monitoring"
+      "ResourceArn": "arn:aws:glue:me-south-1:501938274650:table/analytics/products",
+      "Principal": "arn:aws:iam::501938274650:role/glue-role"
     },
     "lakeformation": {
-      "database": "raw_data",
+      "database": "analytics",
       "table": "products",
-      "action": "CreateLakeFormationTag",
-      "principal_arn": "arn:aws:iam::814726593401:user/svc-monitoring",
-      "resource_arn": "arn:aws:glue:il-central-1:814726593401:table/raw_data/products",
+      "action": "Grant",
+      "principal_arn": "arn:aws:iam::501938274650:role/glue-role",
+      "resource_arn": "arn:aws:glue:me-south-1:501938274650:table/analytics/products",
       "permissions": ["DESCRIBE"],
-      "lf_tag_key": "pii",
+      "lf_tag_key": "team",
       "lf_tag_values": ["prod"],
-      "error_code": "AccessDeniedException",
       "metrics": {
-        "GrantCount": { "sum": 0 },
-        "DatabaseCount": { "avg": 2 },
-        "TableCount": { "avg": 150 },
+        "GrantCount": { "sum": 24 },
+        "DatabaseCount": { "avg": 5 },
+        "TableCount": { "avg": 79 },
         "DataLakeSettings": { "avg": 1 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-lakeformation-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-lakeformation-logs-814726593401"
+        "name": "aws-lakeformation-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-lakeformation-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/814726593401/lakeformation/il-central-1/2026/06/03/lakeformation_A5G8LNG01YRAQ36QGKK1.log.gz"
+        "key": "AWSLogs/501938274650/lakeformation/me-south-1/2026/06/05/lakeformation_VG600DD8C55E1MIN7OPG.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/lakeformation/logs",
-      "log_stream": "il-central-1/cpv6wqyh",
-      "ingestion_time": "2026-06-03T09:39:25.634Z"
+      "log_stream": "me-south-1/0pm3tovg",
+      "ingestion_time": "2026-06-05T13:00:31.587Z"
     }
   },
   "event": {
-    "action": "CreateLakeFormationTag",
-    "duration": 3144000000,
-    "outcome": "failure",
+    "action": "Grant",
+    "duration": 596000000,
+    "outcome": "success",
     "category": ["database", "iam"],
     "type": ["access"],
     "dataset": "aws.lakeformation",
     "provider": "lakeformation.amazonaws.com",
     "module": "aws"
   },
-  "message": "Lake Formation CreateLakeFormationTag FAILED on raw_data.products: Access denied",
-  "log": { "level": "error" },
-  "error": {
-    "code": "EntityNotFoundException",
-    "message": "Lake Formation operation failed",
-    "type": "access"
-  },
+  "message": "Lake Formation Grant: DESCRIBE on analytics.products",
+  "log": { "level": "info" },
   "service": { "name": "lakeformation", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-il-central-1",
-    "ephemeral_id": "w0utuiie9bs0t8jzbzbj8xzhw5pxqfars8zb"
+    "name": "filebeat-aws-me-south-1",
+    "ephemeral_id": "60jaewblm13rgs4wbd8urwn0lzds9ketitwo"
   },
   "input": { "type": "aws-cloudwatch" }
 }

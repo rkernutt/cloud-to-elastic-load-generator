@@ -165,6 +165,7 @@ const GCP_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   "gcp-kspm": "api",
   "gcp-iam-privesc-chain": "api",
   "gcp-data-exfil-chain": "api",
+  "gcp-entra-federation-chain": "api",
   "gcp-data-pipeline-chain": "api",
   servicenow_cmdb: "api",
 };

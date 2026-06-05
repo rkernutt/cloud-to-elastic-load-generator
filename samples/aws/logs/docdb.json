@@ -1,76 +1,70 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-3",
-    "account": { "id": "631827495103", "name": "globex-networking" },
+    "region": "ap-southeast-2",
+    "account": { "id": "164820739518", "name": "globex-shared-services" },
     "service": { "name": "docdb" }
   },
   "aws": {
-    "dimensions": { "DBClusterIdentifier": "docdb-ap-southeast-3-cluster", "Role": "READER" },
+    "dimensions": { "DBClusterIdentifier": "docdb-ap-southeast-2-cluster", "Role": "WRITER" },
     "docdb": {
-      "cluster_id": "docdb-ap-southeast-3-cluster",
+      "cluster_id": "docdb-ap-southeast-2-cluster",
       "database": "appdb",
       "collection": "users",
-      "operation": "delete",
-      "duration_ms": 163,
-      "documents_affected": 0,
-      "error": "WriteConflict",
+      "operation": "aggregate",
+      "duration_ms": 489,
+      "documents_affected": 644,
       "metrics": {
-        "CPUUtilization": { "avg": 79.76292622037315 },
-        "DatabaseConnections": { "avg": 191 },
-        "FreeLocalStorage": { "avg": 32052246970 },
-        "FreeableMemory": { "avg": 5426719605 },
-        "ReadIOPS": { "avg": 3155 },
-        "WriteIOPS": { "avg": 3859 },
-        "ReadLatency": { "avg": 36.53290113850644 },
-        "WriteLatency": { "avg": 44.49042097035164 },
+        "CPUUtilization": { "avg": 55.99186063558862 },
+        "DatabaseConnections": { "avg": 43 },
+        "FreeLocalStorage": { "avg": 50379291854 },
+        "FreeableMemory": { "avg": 1645736167 },
+        "ReadIOPS": { "avg": 3674 },
+        "WriteIOPS": { "avg": 4663 },
+        "ReadLatency": { "avg": 3.91933366715153 },
+        "WriteLatency": { "avg": 4.134446885897544 },
         "DocumentsInserted": { "sum": 0 },
-        "DocumentsDeleted": { "sum": 70 },
+        "DocumentsDeleted": { "sum": 0 },
         "DocumentsUpdated": { "sum": 0 },
-        "DocumentsReturned": { "sum": 0 }
+        "DocumentsReturned": { "sum": 8874 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-docdb-logs-631827495103",
-        "arn": "arn:aws:s3:::aws-docdb-logs-631827495103"
+        "name": "aws-docdb-logs-164820739518",
+        "arn": "arn:aws:s3:::aws-docdb-logs-164820739518"
       },
       "object": {
-        "key": "AWSLogs/631827495103/docdb/ap-southeast-3/2026/06/03/docdb_BTEVU1NBNB5F3M5IIHPV.log.gz"
+        "key": "AWSLogs/164820739518/docdb/ap-southeast-2/2026/06/05/docdb_4IYV02FHKTB48GFPLU0M.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/docdb/docdb-cluster-vzx075/profiler",
-      "log_stream": "ap-southeast-3/ybl3k8ru",
-      "ingestion_time": "2026-06-03T09:39:25.600Z"
+      "log_group": "/aws/docdb/docdb-cluster-o62suh/profiler",
+      "log_stream": "ap-southeast-2/x1njpabf",
+      "ingestion_time": "2026-06-05T13:00:31.544Z"
     }
   },
-  "db": { "name": "appdb", "operation": "delete", "type": "document" },
+  "db": { "name": "appdb", "operation": "aggregate", "type": "document" },
   "event": {
-    "duration": 163325199.06376725,
-    "outcome": "failure",
+    "duration": 489347512.11476845,
+    "outcome": "success",
     "category": ["database"],
     "type": ["access"],
     "dataset": "aws.docdb",
     "provider": "docdb.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"atype\":\"authCheck\",\"ts\":{\"$date\":\"2026-06-03T09:39:24.765Z\"},\"uuid\":{\"$binary\":{\"base64\":\"QSY46NHVYSRXDNBI\",\"subType\":\"04\"}},\"local\":{\"ip\":\"95.86.247.117\",\"port\":48853},\"remote\":{\"ip\":\"223.5.67.182\",\"port\":56397},\"users\":[{\"user\":\"svc-cicd-runner\",\"db\":\"appdb\"}],\"param\":{\"command\":{\"op\":\"delete\",\"ns\":\"appdb.users\"},\"latency_ms\":163,\"documentsAffected\":0},\"result\":\"WriteConflict\"}",
-  "log": { "level": "error" },
-  "error": {
-    "code": "InvalidDBClusterStateFault",
-    "message": "DocumentDB delete failed",
-    "type": "db"
-  },
+  "message": "{\"atype\":\"aggregate\",\"ts\":{\"$date\":\"2026-06-05T13:00:30.622Z\"},\"uuid\":{\"$binary\":{\"base64\":\"5KMNSYTQW75ODRSG\",\"subType\":\"04\"}},\"local\":{\"ip\":\"23.197.116.194\",\"port\":58378},\"remote\":{\"ip\":\"180.178.108.229\",\"port\":43994},\"users\":[{\"user\":\"agarcia\",\"db\":\"appdb\"}],\"param\":{\"command\":{\"op\":\"aggregate\",\"ns\":\"appdb.users\"},\"latency_ms\":489,\"documentsAffected\":386},\"result\":0}",
+  "log": { "level": "info" },
   "service": { "name": "docdb", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-3",
-    "ephemeral_id": "wax4ssp0exmy2u17je1ccegl0k4s9r2da2ia"
+    "name": "filebeat-aws-ap-southeast-2",
+    "ephemeral_id": "dxuv7g151k91dqihelvwj7pqz4aq2vpf1p6s"
   },
   "input": { "type": "aws-cloudwatch" }
 }

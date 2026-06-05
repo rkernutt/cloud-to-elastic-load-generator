@@ -1,57 +1,56 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "746392018574", "name": "globex-identity" },
+    "region": "ap-northeast-1",
+    "account": { "id": "472918364052", "name": "globex-data-platform" },
     "service": { "name": "fis" }
   },
   "aws": {
-    "dimensions": { "ExperimentTemplateId": "EXTSD6AQQQO" },
+    "dimensions": { "ExperimentTemplateId": "EXTPKZS2RWT" },
     "fis": {
-      "experiment_id": "EXPEJB6J9Z8",
-      "experiment_template_id": "EXTSD6AQQQO",
-      "experiment_name": "cpu-stress-test",
-      "experiment_state": "stopped",
-      "target_resource_type": "EKS nodes",
-      "action_type": "aws:network-acl:replace-entries",
-      "stop_condition": "none",
-      "role_arn": "arn:aws:iam::746392018574:role/FISRole-cpu-stress-test"
+      "experiment_id": "EXPKCSTFE47",
+      "experiment_template_id": "EXTPKZS2RWT",
+      "experiment_name": "network-latency-inject",
+      "experiment_state": "pending",
+      "target_resource_type": "Lambda functions",
+      "action_type": "aws:ssm:send-command",
+      "stop_condition": "aws:cloudwatch:alarm",
+      "role_arn": "arn:aws:iam::472918364052:role/FISRole-network-latency-inject"
     },
     "s3": {
       "bucket": {
-        "name": "aws-fis-logs-746392018574",
-        "arn": "arn:aws:s3:::aws-fis-logs-746392018574"
+        "name": "aws-fis-logs-472918364052",
+        "arn": "arn:aws:s3:::aws-fis-logs-472918364052"
       },
       "object": {
-        "key": "AWSLogs/746392018574/fis/eu-central-2/2026/06/03/fis_X6GE9TJ5ON3JOJYEJ2MC.log.gz"
+        "key": "AWSLogs/472918364052/fis/ap-northeast-1/2026/06/05/fis_VMBGBSK11EPHTRHPMDF7.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/fis/logs",
-      "log_stream": "eu-central-2/3kb8cmzu",
-      "ingestion_time": "2026-06-03T09:39:25.690Z"
+      "log_stream": "ap-northeast-1/rm5tx7pt",
+      "ingestion_time": "2026-06-05T13:00:31.669Z"
     }
   },
   "event": {
-    "action": "TagResource",
-    "outcome": "failure",
+    "action": "StartExperiment",
+    "outcome": "success",
     "category": ["process"],
     "dataset": "aws.fis",
     "provider": "fis.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"TagResource\",\"experimentId\":\"EXPEJB6J9Z8\",\"experimentTemplateId\":\"EXTSD6AQQQO\",\"experimentName\":\"cpu-stress-test\",\"state\":{\"status\":\"stopped\"},\"targetResourceType\":\"EKS nodes\",\"actionId\":\"action-t8vnjcu6\",\"actionType\":\"aws:network-acl:replace-entries\",\"stopCondition\":\"none\",\"roleArn\":\"arn:aws:iam::746392018574:role/FISRole-cpu-stress-test\",\"status\":\"FAILED\",\"timestamp\":\"2026-06-03T09:39:24.765Z\"}",
-  "log": { "level": "error" },
-  "error": { "code": "ValidationException", "message": "FIS experiment failed", "type": "process" },
+  "message": "{\"eventType\":\"StartExperiment\",\"experimentId\":\"EXPKCSTFE47\",\"experimentTemplateId\":\"EXTPKZS2RWT\",\"experimentName\":\"network-latency-inject\",\"state\":{\"status\":\"pending\"},\"targetResourceType\":\"Lambda functions\",\"actionId\":\"action-t111idwj\",\"actionType\":\"aws:ssm:send-command\",\"stopCondition\":\"aws:cloudwatch:alarm\",\"roleArn\":\"arn:aws:iam::472918364052:role/FISRole-network-latency-inject\",\"status\":\"SUCCESS\",\"timestamp\":\"2026-06-05T13:00:30.622Z\"}",
+  "log": { "level": "info" },
   "service": { "name": "fis", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "au5ikthr16ydcwjgfem7qirgrj83qexwlbgk"
+    "name": "filebeat-aws-ap-northeast-1",
+    "ephemeral_id": "uj9t20txyjpqku0wc0uqmvo63o8bk5fch7qw"
   },
   "input": { "type": "aws-cloudwatch" }
 }

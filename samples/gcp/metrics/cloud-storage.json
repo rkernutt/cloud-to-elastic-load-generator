@@ -3,52 +3,51 @@
   "ecs": { "version": "8.11.0" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-central2",
-    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
-    "account": { "id": "739158264830", "name": "Globex Staging" },
-    "service": { "name": "storage-transfer" }
+    "region": "africa-south1",
+    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
+    "account": { "id": "615094738261", "name": "Globex Development" },
+    "service": { "name": "cloud-storage" }
   },
   "agent": {
     "type": "metricbeat",
     "version": "8.18.0",
-    "name": "metricbeat-gcp-europe-central2",
-    "ephemeral_id": "wl7r5fd8vdxw4guckbcvx3dhhob7chdm56lp"
+    "name": "metricbeat-gcp-africa-south1",
+    "ephemeral_id": "7gdnzlacgmb5yef7ow9xygg3r4hwuqoiqfbb"
   },
   "monitoringTimeSeries": {
     "metric": {
-      "type": "storagetransfer.googleapis.com/transferjob/found_bytes_count",
-      "labels": { "origin": "source" }
+      "type": "storage.googleapis.com/api/request_count",
+      "labels": { "method": "GET", "response_code": "200" }
     },
     "resource": {
-      "type": "storage_transfer_job",
-      "labels": { "project_id": "globex-stg-739158", "job_id": "transferJobs/s3tobq-991" }
+      "type": "gcs_bucket",
+      "labels": {
+        "project_id": "globex-dev-615094",
+        "bucket_name": "data-lake-raw",
+        "location": "africa-south1"
+      }
     },
     "metricKind": "DELTA",
     "valueType": "INT64",
     "points": [
-      {
-        "interval": { "endTime": "2026-04-04T12:00:00.000Z" },
-        "value": { "int64Value": "512708558753" }
-      }
+      { "interval": { "endTime": "2026-04-04T12:00:00.000Z" }, "value": { "int64Value": "26646" } }
     ]
   },
   "gcp": {
-    "storage-transfer": {
+    "cloud-storage": {
       "labels": {
-        "project_id": "globex-stg-739158",
-        "job_id": "transferJobs/s3tobq-991",
-        "origin": "source"
+        "project_id": "globex-dev-615094",
+        "bucket_name": "data-lake-raw",
+        "location": "africa-south1",
+        "method": "GET",
+        "response_code": "200"
       },
       "metrics": {
-        "storagetransfer.googleapis.com/transferjob/found_bytes_count": {
-          "avg": 512708558753,
-          "sum": 512708558753,
-          "count": 1
-        }
+        "storage.googleapis.com/api/request_count": { "avg": 26646, "sum": 26646, "count": 1 }
       }
     }
   },
-  "metricset": { "name": "storage-transfer", "period": 60000 },
+  "metricset": { "name": "cloud-storage", "period": 60000 },
   "data_stream": { "type": "metrics", "dataset": "gcp.gcs_metrics", "namespace": "default" },
   "input": { "type": "gcp-monitoring" },
   "event": { "kind": "metric", "dataset": "gcp.gcs_metrics", "module": "gcp" }

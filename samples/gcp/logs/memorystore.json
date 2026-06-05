@@ -1,65 +1,71 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "severity": "INFO",
-  "log": { "level": "info" },
-  "labels": { "instance_id": "mem-z269kp" },
+  "severity": "WARNING",
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "DEADLINE_EXCEEDED" },
+  "error": {
+    "code": "DEADLINE_EXCEEDED",
+    "message": "DEADLINE_EXCEEDED: operation failed",
+    "type": "gcp"
+  },
+  "labels": { "instance_id": "mem-b8wplt", "gcp.rpc.status_code": "DEADLINE_EXCEEDED" },
   "cloud": {
     "provider": "gcp",
-    "region": "europe-west2",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
+    "region": "europe-central2",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
     "service": { "name": "memorystore" }
   },
   "gcp": {
     "memorystore": {
-      "instance_id": "mem-z269kp",
-      "tier": "STANDARD_HA",
+      "instance_id": "mem-b8wplt",
+      "tier": "BASIC",
       "engine": "REDIS",
-      "version": "7.2",
+      "version": "7.0",
       "operation": "GET",
-      "memory_used_mb": 754,
-      "connected_clients": 510,
-      "evicted_keys": 23
+      "memory_used_mb": 9642,
+      "connected_clients": 3909,
+      "evicted_keys": 253820
     }
   },
   "event": {
     "kind": "event",
     "category": ["database"],
-    "type": ["access"],
+    "type": ["error"],
     "action": "database",
-    "outcome": "success",
-    "duration": 11000000,
+    "outcome": "failure",
+    "duration": 108000000,
     "module": "gcp",
     "dataset": "gcp.memorystore"
   },
-  "message": "Memorystore REDIS GET mem-z269kp mem=754MB clients=510",
+  "message": "Memorystore REDIS mem-b8wplt OOM risk — evicted_keys=253820 clients=3909",
   "service": { "name": "memorystore", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "gcp.memorystore", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-europe-west2",
-    "id": "gn1qs32td8a1yfbfobfhporxvd2012ehnumi"
+    "name": "elastic-agent-gcp-europe-central2",
+    "id": "dy3oyz5px6xuso8jk36acj6zuegzuf4cungi"
   },
   "input": { "type": "gcp-pubsub" },
-  "logName": "projects/globex-shared-529384/logs/memorystore",
+  "logName": "projects/globex-stg-739158/logs/memorystore",
   "resource": {
     "type": "global",
-    "labels": { "project_id": "globex-shared-529384", "region": "europe-west2" }
+    "labels": { "project_id": "globex-stg-739158", "region": "europe-central2" }
   },
-  "insertId": "PEAJFR1H8O71",
+  "insertId": "3FMW1O32FI9K",
   "jsonPayload": {
     "memorystore": {
-      "instance_id": "mem-z269kp",
-      "tier": "STANDARD_HA",
+      "instance_id": "mem-b8wplt",
+      "tier": "BASIC",
       "engine": "REDIS",
-      "version": "7.2",
+      "version": "7.0",
       "operation": "GET",
-      "memory_used_mb": 754,
-      "connected_clients": 510,
-      "evicted_keys": 23
+      "memory_used_mb": 9642,
+      "connected_clients": 3909,
+      "evicted_keys": 253820
     },
-    "message": "Memorystore REDIS GET mem-z269kp mem=754MB clients=510"
+    "message": "Memorystore REDIS mem-b8wplt OOM risk — evicted_keys=253820 clients=3909"
   }
 }

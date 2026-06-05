@@ -1,100 +1,134 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
-  "host": { "name": "ip-10-128-7-58.eu-central-1.compute.internal" },
+  "@timestamp": "2026-06-05T13:00:30.622Z",
+  "host": { "name": "ip-10-128-6-33.ap-southeast-1.compute.internal" },
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "501938274650", "name": "globex-security-tooling" },
+    "region": "eu-south-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "guardduty" }
   },
   "aws": {
-    "dimensions": { "DetectorId": "s2cgn5l3o8jecc1nllc490pzt4yeu6kz" },
+    "dimensions": { "DetectorId": "24eacw109yu17km5s4f60yb4q6e4e91d" },
     "guardduty": {
       "schemaVersion": "2.0",
-      "accountId": "501938274650",
-      "region": "ca-west-1",
+      "accountId": "293847561023",
+      "region": "eu-south-1",
       "partition": "aws",
-      "id": "zb4p1zmgde97oiyfnegw56jxz06oatr3",
-      "arn": "arn:aws:guardduty:ca-west-1:501938274650:detector/s2cgn5l3o8jecc1nllc490pzt4yeu6kz/finding/zb4p1zmgde97oiyfnegw56jxz06oatr3",
-      "type": "UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B",
+      "id": "bf0kx4cgxq2x6xkl7rzytp0klwq2klf4",
+      "arn": "arn:aws:guardduty:eu-south-1:293847561023:detector/24eacw109yu17km5s4f60yb4q6e4e91d/finding/bf0kx4cgxq2x6xkl7rzytp0klwq2klf4",
+      "type": "Impact:S3/MaliciousIPCaller",
       "resource": {
-        "resourceType": "AccessKey",
-        "accessKeyDetails": {
-          "accessKeyId": "AKIAS1KL695T7NZ6RNY5",
-          "principalId": "501938274650:svc-cicd-runner",
-          "userName": "jchen",
-          "userType": "IAMUser"
-        }
+        "resourceType": "S3Bucket",
+        "s3BucketDetails": [
+          {
+            "arn": "arn:aws:s3:::globex-staging-data-wcls0o",
+            "name": "globex-staging-data-lyil9c",
+            "type": "Destination",
+            "createdAt": "2026-06-05T12:23:10.622Z",
+            "owner": { "id": "293847561023" },
+            "publicAccess": {
+              "permissionConfiguration": { "bucketLevel": { "blockPublicAccess": true } }
+            }
+          }
+        ]
       },
       "service": {
         "serviceName": "guardduty",
-        "detectorId": "s2cgn5l3o8jecc1nllc490pzt4yeu6kz",
+        "detectorId": "24eacw109yu17km5s4f60yb4q6e4e91d",
         "action": {
-          "actionType": "AWS_API_CALL",
-          "awsApiCallAction": {
-            "api": "AssumeRole",
-            "callerType": "Remote IP",
-            "remoteIpDetails": { "ipAddressV4": "70.237.86.102", "organization": {} },
-            "serviceName": "sts.amazonaws.com"
+          "actionType": "NETWORK_CONNECTION",
+          "networkConnectionAction": {
+            "connectionDirection": "OUTBOUND",
+            "remoteIpDetails": {
+              "ipAddressV4": "134.81.249.86",
+              "geoLocation": {},
+              "organization": {}
+            },
+            "localPortDetails": { "port": 11871 },
+            "remotePortDetails": { "port": 8080 },
+            "protocol": "TCP",
+            "blocked": false
           }
         },
         "resourceRole": "ACTOR",
-        "eventFirstSeen": "2026-06-03T09:24:42.765Z",
-        "eventLastSeen": "2026-06-03T09:39:24.765Z",
+        "eventFirstSeen": "2026-06-05T12:23:10.622Z",
+        "eventLastSeen": "2026-06-05T13:00:30.622Z",
         "archived": false,
-        "count": 55,
-        "additionalInfo": {}
+        "count": 153,
+        "additionalInfo": {},
+        "evidence": { "threatIntelligenceDetails": [] }
       },
-      "severity": 0,
-      "title": "IAMUser ConsoleLoginSuccess B",
-      "description": "GuardDuty processed telemetry and did not raise a finding for this sample.",
-      "createdAt": "2026-06-03T09:39:24.765Z",
-      "updatedAt": "2026-06-03T09:39:24.765Z",
-      "confidence": 98.59462576101825,
+      "severity": 4,
+      "title": "S3 MaliciousIPCaller",
+      "description": "GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: Impact:S3/MaliciousIPCaller.",
+      "createdAt": "2026-06-05T13:00:30.622Z",
+      "updatedAt": "2026-06-05T13:00:30.622Z",
+      "confidence": 84.33466577382696,
       "metrics": {
-        "FindingCount": { "sum": 0 },
+        "FindingCount": { "sum": 18 },
         "HighSeverityFindingCount": { "sum": 0 },
-        "MediumSeverityFindingCount": { "sum": 0 },
+        "MediumSeverityFindingCount": { "sum": 13 },
         "LowSeverityFindingCount": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-guardduty-logs-501938274650",
-        "arn": "arn:aws:s3:::aws-guardduty-logs-501938274650"
+        "name": "aws-guardduty-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-guardduty-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/501938274650/guardduty/ca-west-1/2026/06/03/guardduty_6OWV2SVGIG3310NW9HUE.log.gz"
+        "key": "AWSLogs/293847561023/guardduty/eu-south-1/2026/06/05/guardduty_ORSICO5F8KS0HJRBRMBW.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/guardduty/logs",
-      "log_stream": "ca-west-1/ixk6u7gu",
-      "ingestion_time": "2026-06-03T09:39:25.550Z"
+      "log_stream": "eu-south-1/116e2tkq",
+      "ingestion_time": "2026-06-05T13:00:31.479Z"
     }
   },
-  "rule": { "category": "threat", "type": ["info"] },
-  "threat": { "indicator": [{ "type": "ip", "value": "70.237.86.102" }] },
+  "rule": {
+    "category": "threat",
+    "type": ["info"],
+    "ruleset": "Impact",
+    "name": "Impact:S3/MaliciousIPCaller"
+  },
+  "threat": { "indicator": [{ "type": "ip", "value": "230.210.247.235" }] },
+  "source": {
+    "ip": "230.210.247.235",
+    "geo": {
+      "country_iso_code": "IR",
+      "country_name": "Iran",
+      "city_name": "Tehran",
+      "location": { "lat": 35.6892, "lon": 51.389 }
+    }
+  },
+  "destination": { "ip": "134.81.249.86" },
   "event": {
     "kind": "alert",
-    "severity": 0,
-    "outcome": "success",
+    "severity": 4,
+    "outcome": "failure",
     "category": ["threat"],
     "type": ["indicator"],
     "dataset": "aws.guardduty",
     "provider": "guardduty.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"schemaVersion\":\"2.0\",\"accountId\":\"501938274650\",\"region\":\"ca-west-1\",\"partition\":\"aws\",\"id\":\"zb4p1zmgde97oiyfnegw56jxz06oatr3\",\"arn\":\"arn:aws:guardduty:ca-west-1:501938274650:detector/s2cgn5l3o8jecc1nllc490pzt4yeu6kz/finding/zb4p1zmgde97oiyfnegw56jxz06oatr3\",\"type\":\"UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B\",\"resource\":{\"resourceType\":\"AccessKey\",\"accessKeyDetails\":{\"accessKeyId\":\"AKIAS1KL695T7NZ6RNY5\",\"principalId\":\"501938274650:svc-cicd-runner\",\"userName\":\"jchen\",\"userType\":\"IAMUser\"}},\"service\":{\"serviceName\":\"guardduty\",\"detectorId\":\"s2cgn5l3o8jecc1nllc490pzt4yeu6kz\",\"action\":{\"actionType\":\"AWS_API_CALL\",\"awsApiCallAction\":{\"api\":\"AssumeRole\",\"callerType\":\"Remote IP\",\"remoteIpDetails\":{\"ipAddressV4\":\"70.237.86.102\",\"organization\":{}},\"serviceName\":\"sts.amazonaws.com\"}},\"eventFirstSeen\":\"2026-06-03T09:24:42.765Z\",\"eventLastSeen\":\"2026-06-03T09:39:24.765Z\",\"archived\":false,\"count\":373},\"severity\":0,\"title\":\"IAMUser ConsoleLoginSuccess B\",\"description\":\"GuardDuty processed telemetry and did not raise a finding for this sample.\",\"createdAt\":\"2026-06-03T09:39:24.765Z\",\"updatedAt\":\"2026-06-03T09:39:24.765Z\"}",
-  "log": { "level": "info" },
+  "message": "{\"schemaVersion\":\"2.0\",\"accountId\":\"293847561023\",\"region\":\"eu-south-1\",\"partition\":\"aws\",\"id\":\"bf0kx4cgxq2x6xkl7rzytp0klwq2klf4\",\"arn\":\"arn:aws:guardduty:eu-south-1:293847561023:detector/24eacw109yu17km5s4f60yb4q6e4e91d/finding/bf0kx4cgxq2x6xkl7rzytp0klwq2klf4\",\"type\":\"Impact:S3/MaliciousIPCaller\",\"resource\":{\"resourceType\":\"S3Bucket\",\"s3BucketDetails\":[{\"arn\":\"arn:aws:s3:::globex-staging-data-wcls0o\",\"name\":\"globex-staging-data-lyil9c\",\"type\":\"Destination\",\"createdAt\":\"2026-06-05T12:23:10.622Z\",\"owner\":{\"id\":\"293847561023\"},\"publicAccess\":{\"permissionConfiguration\":{\"bucketLevel\":{\"blockPublicAccess\":true}}}}]},\"service\":{\"serviceName\":\"guardduty\",\"detectorId\":\"24eacw109yu17km5s4f60yb4q6e4e91d\",\"action\":{\"actionType\":\"NETWORK_CONNECTION\",\"networkConnectionAction\":{\"connectionDirection\":\"OUTBOUND\",\"remoteIpDetails\":{\"ipAddressV4\":\"134.81.249.86\",\"geoLocation\":{},\"organization\":{}},\"localPortDetails\":{\"port\":11871},\"remotePortDetails\":{\"port\":8080},\"protocol\":\"TCP\",\"blocked\":false}},\"eventFirstSeen\":\"2026-06-05T12:23:10.622Z\",\"eventLastSeen\":\"2026-06-05T13:00:30.622Z\",\"archived\":false,\"count\":201},\"severity\":4,\"title\":\"S3 MaliciousIPCaller\",\"description\":\"GuardDuty identified suspicious behavior or a possible compromise based on VPC flow logs, DNS logs, or CloudTrail events. Finding type: Impact:S3/MaliciousIPCaller.\",\"createdAt\":\"2026-06-05T13:00:30.622Z\",\"updatedAt\":\"2026-06-05T13:00:30.622Z\"}",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "ThreatFinding",
+    "message": "GuardDuty finding: Impact:S3/MaliciousIPCaller",
+    "type": "security"
+  },
   "service": { "name": "guardduty", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.guardduty", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "hmbu0mzup5oc2jciotsclnq7s7lk8xd6uxgr"
+    "name": "filebeat-aws-eu-south-1",
+    "ephemeral_id": "6wlthrj08ra2dl45x512kxr86tbprxywua57"
   },
-  "input": { "type": "http_endpoint" }
+  "input": { "type": "http_endpoint" },
+  "related": { "ip": ["230.210.247.235", "134.81.249.86"] }
 }

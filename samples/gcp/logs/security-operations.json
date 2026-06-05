@@ -1,84 +1,69 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "error" },
-  "gcp.rpc": { "status_code": "RESOURCE_EXHAUSTED" },
-  "error": {
-    "code": "RESOURCE_EXHAUSTED",
-    "message": "Quota exceeded for resource 'resource'",
-    "type": "gcp"
-  },
-  "labels": { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" },
-  "severity": "ERROR",
-  "logName": "projects/globex-dev-615094/logs/chronicle.googleapis.com%2Fsoar_events",
-  "insertId": "697wlometb3tgdw6",
+  "log": { "level": "info" },
+  "labels": {},
+  "severity": "NOTICE",
+  "logName": "projects/globex-shared-529384/logs/chronicle.googleapis.com%2Falert",
+  "insertId": "7u8bnsw79yxuzkjm",
   "resource": {
-    "type": "security_operations_case",
-    "labels": { "project_id": "globex-dev-615094", "case_id": "case-4w3wz3ad6c" }
+    "type": "chronicle_instance",
+    "labels": { "project_id": "globex-shared-529384", "region": "us-west3" }
   },
   "jsonPayload": {
-    "case": {
-      "name": "projects/globex-dev-615094/locations/global/cases/case-4w3wz3ad6c",
-      "displayName": "Investigation case-4w3wz3ad6c",
-      "stage": "IN_PROGRESS",
-      "priority": "HIGH"
+    "result": {
+      "ruleName": "dns_tunneling",
+      "versionId": "ru_NQNLEHOY",
+      "detections": [{ "type": "ALERT", "severity": "NOTICE", "eventsMatched": 30751 }],
+      "ioc": { "type": "DOMAIN", "value": "evil-JBH3UE.net" }
     },
-    "playbook": { "name": "phish_triage", "revisionId": "rev_UCY4OL" },
-    "action": { "type": "RESPONSE_ACTION", "entitiesTouched": 3, "indicatorsTouched": 3 },
-    "siem": {
-      "product": "Google Security Operations",
-      "instance": "projects/globex-dev-615094/locations/global"
-    }
+    "case": { "name": "CASE-BIMD8O", "stage": "ACKNOWLEDGED" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-central1",
-    "project": { "id": "globex-dev-615094", "name": "Globex Development" },
-    "account": { "id": "615094738261", "name": "Globex Development" },
+    "region": "us-west3",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
     "service": { "name": "security-operations" }
   },
   "gcp": {
-    "security_operations": {
+    "secops_detection": {
       "json_payload": {
-        "case": {
-          "name": "projects/globex-dev-615094/locations/global/cases/case-4w3wz3ad6c",
-          "displayName": "Investigation case-4w3wz3ad6c",
-          "stage": "IN_PROGRESS",
-          "priority": "HIGH"
+        "result": {
+          "ruleName": "dns_tunneling",
+          "versionId": "ru_NQNLEHOY",
+          "detections": [{ "type": "ALERT", "severity": "NOTICE", "eventsMatched": 30751 }],
+          "ioc": { "type": "DOMAIN", "value": "evil-JBH3UE.net" }
         },
-        "playbook": { "name": "phish_triage", "revisionId": "rev_UCY4OL" },
-        "action": { "type": "RESPONSE_ACTION", "entitiesTouched": 3, "indicatorsTouched": 3 },
-        "siem": {
-          "product": "Google Security Operations",
-          "instance": "projects/globex-dev-615094/locations/global"
-        }
+        "case": { "name": "CASE-BIMD8O", "stage": "ACKNOWLEDGED" }
       },
-      "case_id": "case-4w3wz3ad6c",
-      "playbook_name": "phish_triage",
-      "action_type": "RESPONSE_ACTION",
-      "severity": "HIGH",
-      "entities_count": 3,
-      "indicators_count": 3
+      "rule_name": "dns_tunneling",
+      "detection_type": "ALERT",
+      "severity": "NOTICE",
+      "alert_state": "ACKNOWLEDGED",
+      "ioc_type": "DOMAIN",
+      "matched_events_count": 30751,
+      "case_name": "CASE-B0KKPI"
     }
   },
   "event": {
     "kind": "event",
     "category": ["intrusion_detection"],
-    "type": ["denied"],
+    "type": ["info"],
     "action": "security-event",
-    "outcome": "failure",
-    "duration": 441000000,
+    "outcome": "success",
+    "duration": 46000000,
     "module": "gcp",
-    "dataset": "gcp.secops"
+    "dataset": "gcp.secops_detection"
   },
-  "message": "securityoperations.googleapis.com/RESPONSE_ACTION case=case-4w3wz3ad6c playbook=phish_triage",
-  "service": { "name": "security-operations", "type": "gcp" },
+  "message": "chronicle.googleapis.com/Detections dns_tunneling ALERT events=30751",
+  "service": { "name": "secops-detection", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.secops", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.secops_detection", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-me-central1",
-    "id": "xxcy7sdh31h01d8tsm60ox7sm3gg3tm9dhv3"
+    "name": "elastic-agent-gcp-us-west3",
+    "id": "0rgshj331cwnsds6sf43le5z7h33ax1ba6x5"
   },
-  "input": { "type": "http_endpoint" }
+  "input": { "type": "gcp-pubsub" }
 }

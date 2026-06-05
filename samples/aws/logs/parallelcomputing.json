@@ -1,58 +1,70 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "af-south-1",
-    "account": { "id": "528174630291", "name": "globex-ml-platform" },
+    "region": "us-west-2",
+    "account": { "id": "391827465039", "name": "globex-payments-prod" },
     "service": { "name": "pcs" }
   },
   "aws": {
-    "dimensions": { "ClusterId": "pcs-xc3p60s8", "QueueName": "batch" },
+    "dimensions": { "ClusterId": "pcs-oiyux489", "QueueName": "batch" },
     "pcs": {
-      "cluster_id": "pcs-xc3p60s8",
+      "cluster_id": "pcs-oiyux489",
       "scheduler": "slurm",
-      "scenario": "cluster_create",
+      "scenario": "mpi_barrier",
       "queue_name": "batch",
-      "job_id": "job-105615",
-      "job_state": "RUNNING",
-      "metrics": { "running_jobs": 202, "pending_jobs": 93, "compute_nodes_active": 939 }
+      "job_id": "job-137542",
+      "job_state": "FAILED",
+      "mpi": {
+        "comm_world_size": 9199,
+        "barrier_wait_ms_p99": 5,
+        "ibv_retries": 1,
+        "collective": "MPI_Barrier"
+      },
+      "metrics": { "running_jobs": 172, "pending_jobs": 635, "compute_nodes_active": 813 },
+      "api_error_code": "ValidationException"
     },
     "s3": {
       "bucket": {
-        "name": "aws-parallelcomputing-logs-528174630291",
-        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-528174630291"
+        "name": "aws-parallelcomputing-logs-391827465039",
+        "arn": "arn:aws:s3:::aws-parallelcomputing-logs-391827465039"
       },
       "object": {
-        "key": "AWSLogs/528174630291/parallelcomputing/af-south-1/2026/06/03/parallelcomputing_W02CXXDGF7EY6CFV3PSD.log.gz"
+        "key": "AWSLogs/391827465039/parallelcomputing/us-west-2/2026/06/05/parallelcomputing_5ZRTSCH13QQ4A1385G54.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/parallelcomputing/logs",
-      "log_stream": "af-south-1/8wcfm3io",
-      "ingestion_time": "2026-06-03T09:39:25.518Z"
+      "log_stream": "us-west-2/bz1iaa2b",
+      "ingestion_time": "2026-06-05T13:00:31.442Z"
     }
   },
   "event": {
-    "action": "cluster_create",
-    "outcome": "success",
+    "action": "mpi_barrier",
+    "outcome": "failure",
     "category": ["process"],
     "type": ["info"],
     "dataset": "aws.pcs",
     "provider": "pcs.amazonaws.com",
-    "duration": 1838000000,
+    "duration": 55687000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.pcs", "namespace": "default" },
-  "message": "{\"eventType\":\"cluster_create\",\"clusterId\":\"pcs-xc3p60s8\",\"scheduler\":\"slurm\",\"queueName\":\"batch\",\"jobId\":\"job-105615\",\"jobState\":\"RUNNING\",\"metrics\":{\"runningJobs\":202,\"pendingJobs\":93,\"computeNodesActive\":939}}",
-  "log": { "level": "info" },
-  "host": { "name": "ip-70-132-230-19.ec2.internal", "hostname": "parallelcomputing-vc8j3sbv" },
+  "message": "{\"eventType\":\"mpi_barrier\",\"clusterId\":\"pcs-oiyux489\",\"scheduler\":\"slurm\",\"queueName\":\"batch\",\"jobId\":\"job-137542\",\"jobState\":\"FAILED\",\"mpi\":{\"comm_world_size\":9199,\"barrier_wait_ms_p99\":5,\"ibv_retries\":1,\"collective\":\"MPI_Barrier\"},\"metrics\":{\"runningJobs\":172,\"pendingJobs\":635,\"computeNodesActive\":813},\"error\":\"ValidationException\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ValidationException",
+    "message": "PCS mpi_barrier failed on cluster pcs-oiyux489",
+    "type": "aws"
+  },
+  "host": { "name": "ip-251-107-202-3.ec2.internal", "hostname": "parallelcomputing-zhge9e4d" },
   "service": { "name": "parallelcomputing", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-af-south-1",
-    "ephemeral_id": "h9jxgv8wwk2csu8qfyhkx0cokxqhaub0yn00"
+    "name": "filebeat-aws-us-west-2",
+    "ephemeral_id": "0tboxmi743sm1hctxg5u3rdiey1lush68jx4"
   },
   "input": { "type": "aws-cloudwatch" }
 }

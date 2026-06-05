@@ -1,58 +1,67 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "746392018574", "name": "globex-identity" },
+    "region": "ap-east-1",
+    "account": { "id": "283746150928", "name": "globex-log-archive" },
     "service": { "name": "dsql" }
   },
   "aws": {
-    "dimensions": { "ClusterId": "dsql-9gy6fszjw9", "RegionMode": "replica" },
+    "dimensions": { "ClusterId": "dsql-ur25b5w6uj", "RegionMode": "primary" },
     "auroradsql": {
-      "cluster_id": "dsql-9gy6fszjw9",
-      "linked_cluster_arns": ["arn:aws:dsql:us-east-1:746392018574:cluster/dsql-wid87u5g"],
-      "transaction_id": "txn-v2yltd85m9bw",
-      "region_mode": "replica",
+      "cluster_id": "dsql-ur25b5w6uj",
+      "linked_cluster_arns": [
+        "arn:aws:dsql:us-east-1:283746150928:cluster/dsql-ctruyof8",
+        "arn:aws:dsql:us-west-2:283746150928:cluster/dsql-pmls6z6a"
+      ],
+      "transaction_id": "txn-jf43k6srr5cr",
+      "region_mode": "primary",
       "metrics": {
-        "transactions_per_sec": 7297.125036645978,
-        "storage_used_gb": 262.3539553617739,
-        "replication_lag_ms": 68
-      }
+        "transactions_per_sec": 0,
+        "storage_used_gb": 190.12208827774754,
+        "replication_lag_ms": 0
+      },
+      "error_code": "ConflictError"
     },
     "s3": {
       "bucket": {
-        "name": "aws-auroradsql-logs-746392018574",
-        "arn": "arn:aws:s3:::aws-auroradsql-logs-746392018574"
+        "name": "aws-auroradsql-logs-283746150928",
+        "arn": "arn:aws:s3:::aws-auroradsql-logs-283746150928"
       },
       "object": {
-        "key": "AWSLogs/746392018574/auroradsql/ca-west-1/2026/06/03/auroradsql_03DOVYGWINWOW20L557Z.log.gz"
+        "key": "AWSLogs/283746150928/auroradsql/ap-east-1/2026/06/05/auroradsql_XH5RQ79OFEHF4KBG3IAF.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/auroradsql/logs",
-      "log_stream": "ca-west-1/pxjwmeay",
-      "ingestion_time": "2026-06-03T09:39:25.608Z"
+      "log_stream": "ap-east-1/7i37ns96",
+      "ingestion_time": "2026-06-05T13:00:31.553Z"
     }
   },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["database"],
     "type": ["access"],
     "dataset": "aws.auroradsql",
     "provider": "dsql.amazonaws.com",
-    "duration": 6000000,
+    "duration": 302000000,
     "module": "aws"
   },
   "data_stream": { "type": "logs", "dataset": "aws.auroradsql", "namespace": "default" },
-  "message": "{\"eventType\":\"aurora_dsql_event\",\"clusterId\":\"dsql-9gy6fszjw9\",\"transactionId\":\"txn-v2yltd85m9bw\",\"regionMode\":\"replica\",\"linkedClusterArns\":[\"arn:aws:dsql:us-east-1:746392018574:cluster/dsql-wid87u5g\"],\"metrics\":{\"transactionsPerSec\":7297.125036645978,\"storageUsedGb\":262.3539553617739,\"replicationLagMs\":68},\"query\":\"BEGIN TRANSACTION /* txn-v2yltd85m9bw */\",\"latency_ms\":41,\"status\":\"success\"}",
-  "log": { "level": "info" },
+  "message": "{\"eventType\":\"aurora_dsql_event\",\"clusterId\":\"dsql-ur25b5w6uj\",\"transactionId\":\"txn-jf43k6srr5cr\",\"regionMode\":\"primary\",\"linkedClusterArns\":[\"arn:aws:dsql:us-east-1:283746150928:cluster/dsql-ctruyof8\",\"arn:aws:dsql:us-west-2:283746150928:cluster/dsql-pmls6z6a\"],\"metrics\":{\"transactionsPerSec\":0,\"storageUsedGb\":190.12208827774754,\"replicationLagMs\":0},\"query\":\"BEGIN TRANSACTION /* txn-jf43k6srr5cr */\",\"latency_ms\":3808,\"status\":\"failed\",\"errorCode\":\"ConflictError\"}",
+  "log": { "level": "error" },
+  "error": {
+    "code": "ConflictError",
+    "message": "Aurora DSQL transaction failed on cluster dsql-ur25b5w6uj",
+    "type": "database"
+  },
   "service": { "name": "auroradsql", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "o8w2unu11evhp5k6bxg6fkho6xeqxger402z"
+    "name": "filebeat-aws-ap-east-1",
+    "ephemeral_id": "hyahxfkv1vvdcdx03mf20uzoh8t59hx5pte7"
   },
   "input": { "type": "aws-cloudwatch" }
 }

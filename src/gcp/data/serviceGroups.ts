@@ -712,6 +712,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         desc: "Attack chain: IAM enumeration, SA key, policy escalation, token abuse (Cloud Audit)",
       },
       {
+        id: "gcp-entra-federation-chain",
+        label: "Entra ID Federation chain",
+        icon: "🔑",
+        desc: "Attack chain: Entra Workforce Identity Federation (OIDC token exchange) → SA impersonation → GCS data access → key persistence",
+      },
+      {
         id: "gcp-data-exfil-chain",
         label: "Data exfiltration chain",
         icon: "◂",

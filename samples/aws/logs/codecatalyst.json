@@ -1,50 +1,52 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-west-1",
-    "account": { "id": "391827465039", "name": "globex-payments-prod" },
+    "region": "ca-central-1",
+    "account": { "id": "293847561023", "name": "globex-staging" },
     "service": { "name": "codecatalyst" }
   },
   "aws": {
-    "dimensions": { "SpaceName": "data-team", "ProjectName": "mobile-app" },
+    "dimensions": { "SpaceName": "data-team", "ProjectName": "infrastructure" },
     "codecatalyst": {
       "space_name": "data-team",
-      "project_name": "mobile-app",
-      "workflow_name": "ci-pipeline",
-      "workflow_run_id": "run-hvi324gaqr1nivy2tbuv",
+      "project_name": "infrastructure",
+      "workflow_name": "cd-pipeline",
+      "workflow_run_id": "run-k4z8mtyslxpyq0s287sp",
       "workflow_run_status": "QUEUED",
       "workflow_steps_completed": 6,
-      "dev_environment_id": "dev-c84xqsqp6nasahij",
-      "dev_environment_status": "STOPPED",
+      "pull_request_number": 105,
+      "pull_request_head_branch": "feature/auth-refresh",
+      "dev_environment_id": "dev-0l4ayrtg8upcafmy",
+      "dev_environment_status": "RUNNING",
       "ide": "IntelliJ IDEA",
-      "branch_name": "release/v2.0",
+      "branch_name": "main",
       "event_type": "SOURCE_REPOSITORY"
     },
     "s3": {
       "bucket": {
-        "name": "aws-codecatalyst-logs-391827465039",
-        "arn": "arn:aws:s3:::aws-codecatalyst-logs-391827465039"
+        "name": "aws-codecatalyst-logs-293847561023",
+        "arn": "arn:aws:s3:::aws-codecatalyst-logs-293847561023"
       },
       "object": {
-        "key": "AWSLogs/391827465039/codecatalyst/eu-west-1/2026/06/03/codecatalyst_7XUR2BATYEDI290V0WEO.log.gz"
+        "key": "AWSLogs/293847561023/codecatalyst/ca-central-1/2026/06/05/codecatalyst_WDKUVSIKNLNR7RRULSLO.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codecatalyst/logs",
-      "log_stream": "eu-west-1/gm8fnjt1",
-      "ingestion_time": "2026-06-03T09:39:25.627Z"
+      "log_stream": "ca-central-1/cwu1gb0b",
+      "ingestion_time": "2026-06-05T13:00:31.576Z"
     }
   },
   "event": {
-    "action": "StopWorkflowRun",
+    "action": "DeleteDevEnvironment",
     "outcome": "success",
     "category": ["process"],
     "dataset": "aws.codecatalyst",
     "provider": "codecatalyst.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"StopWorkflowRun\",\"spaceName\":\"data-team\",\"projectName\":\"mobile-app\",\"workflowName\":\"ci-pipeline\",\"workflowRunId\":\"run-hvi324gaqr1nivy2tbuv\",\"workflowRunStatus\":\"QUEUED\",\"timestamp\":\"2026-06-03T09:39:24.765Z\",\"trigger\":{\"type\":\"schedule\",\"ref\":\"refs/heads/main\"},\"steps\":[{\"name\":\"Checkout\",\"status\":\"Succeeded\",\"durationMs\":32758,\"order\":1},{\"name\":\"Install\",\"status\":\"Succeeded\",\"durationMs\":165526,\"order\":2},{\"name\":\"Lint\",\"status\":\"Succeeded\",\"durationMs\":33858,\"order\":3},{\"name\":\"UnitTests\",\"status\":\"Succeeded\",\"durationMs\":126855,\"order\":4},{\"name\":\"BuildImage\",\"status\":\"Succeeded\",\"durationMs\":130971,\"order\":5},{\"name\":\"PublishArtifacts\",\"status\":\"Succeeded\",\"durationMs\":70524,\"order\":6}],\"status\":\"Succeeded\"}",
+  "message": "{\"eventType\":\"DeleteDevEnvironment\",\"spaceName\":\"data-team\",\"projectName\":\"infrastructure\",\"workflowName\":\"cd-pipeline\",\"workflowRunId\":\"run-k4z8mtyslxpyq0s287sp\",\"workflowRunStatus\":\"QUEUED\",\"timestamp\":\"2026-06-05T13:00:30.622Z\",\"trigger\":{\"type\":\"pull_request\",\"pullRequestNumber\":105,\"headBranch\":\"feature/auth-refresh\",\"baseBranch\":\"main\",\"commitSha\":\"237b517125eb77417433d3e25de6fe3334ebf3e6\"},\"steps\":[{\"name\":\"Checkout\",\"status\":\"Succeeded\",\"durationMs\":124911,\"order\":1},{\"name\":\"Install\",\"status\":\"Succeeded\",\"durationMs\":164019,\"order\":2},{\"name\":\"Lint\",\"status\":\"Succeeded\",\"durationMs\":88308,\"order\":3},{\"name\":\"UnitTests\",\"status\":\"Succeeded\",\"durationMs\":59244,\"order\":4},{\"name\":\"BuildImage\",\"status\":\"Succeeded\",\"durationMs\":55487,\"order\":5},{\"name\":\"PublishArtifacts\",\"status\":\"Succeeded\",\"durationMs\":69304,\"order\":6}],\"devEnvironment\":{\"id\":\"dev-0l4ayrtg8upcafmy\",\"status\":\"STOPPING\",\"machineType\":\"PERFORMANCE\"},\"status\":\"Succeeded\"}",
   "log": { "level": "info" },
   "service": { "name": "codecatalyst", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -52,8 +54,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-west-1",
-    "ephemeral_id": "j4ljjlz579ye5ccl40i1lg43eq2oj82dkxjd"
+    "name": "filebeat-aws-ca-central-1",
+    "ephemeral_id": "igk1dcu0dcma5kaeshtslilazfgr7zorewgm"
   },
   "input": { "type": "aws-cloudwatch" }
 }

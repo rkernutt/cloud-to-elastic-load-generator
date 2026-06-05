@@ -1,61 +1,71 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d/resourceGroups/rg-network-v9ca8b/providers/Microsoft.Relay/namespaces/relay-edj4tg",
-  "operationName": "Microsoft.Relay/namespaces/hybridConnections/metrics/throttle",
-  "category": "HybridConnectionQuota",
-  "resultType": "Success",
-  "resultSignature": "within_quota",
-  "callerIpAddress": "76.41.227.171",
-  "correlationId": "36651bed-2ef5-4071-aad7-526943e060ea",
-  "level": "Information",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-shared-uqxb72/providers/Microsoft.Relay/namespaces/relay-2x4p9v",
+  "operationName": "Microsoft.Relay/namespaces/hybridConnections/sender/write",
+  "category": "HybridConnectionSender",
+  "resultType": "Failure",
+  "resultSignature": "rejected",
+  "callerIpAddress": "249.0.118.99",
+  "correlationId": "7be48173-c1db-41df-b619-e896978ebbd7",
+  "level": "Warning",
   "properties": {
-    "hybridConnectionName": "hc-api-b76v",
-    "windowSec": 148,
-    "messagesPerSec": 845.0574929984496,
-    "quotaBreached": false
+    "hybridConnectionName": "hc-agent-dkuf",
+    "senderId": "snd-84psxkan",
+    "bytesPending": 1128688,
+    "sendOutcome": "rejected",
+    "error": {
+      "code": "ServiceBusNamespaceNotFound",
+      "message": "Sender frame rejected or broker returned error for hybrid connection path",
+      "type": "azure"
+    }
   },
   "cloud": {
     "provider": "azure",
-    "region": "switzerlandnorth",
-    "account": { "id": "a3f8c2e1-7b4d-4f9a-8e2c-1d5f6a7b8c9d", "name": "Meridian-Platform" },
+    "region": "canadacentral",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.Relay/namespaces" }
   },
   "azure": {
     "relay": {
-      "namespace": "relay-edj4tg",
-      "hybrid_connection": "hc-api-b76v",
-      "resource_group": "rg-network-v9ca8b",
-      "category": "HybridConnectionQuota",
-      "correlation_id": "36651bed-2ef5-4071-aad7-526943e060ea",
+      "namespace": "relay-2x4p9v",
+      "hybrid_connection": "hc-agent-dkuf",
+      "resource_group": "rg-shared-uqxb72",
+      "category": "HybridConnectionSender",
+      "correlation_id": "7be48173-c1db-41df-b619-e896978ebbd7",
       "properties": {
-        "hybridConnectionName": "hc-api-b76v",
-        "windowSec": 148,
-        "messagesPerSec": 845.0574929984496,
-        "quotaBreached": false
+        "hybridConnectionName": "hc-agent-dkuf",
+        "senderId": "snd-84psxkan",
+        "bytesPending": 1128688,
+        "sendOutcome": "rejected",
+        "error": {
+          "code": "ServiceBusNamespaceNotFound",
+          "message": "Sender frame rejected or broker returned error for hybrid connection path",
+          "type": "azure"
+        }
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["process"],
-    "type": ["info"],
-    "action": "Microsoft.Relay/namespaces/hybridConnections/metrics/throttle",
-    "outcome": "success",
-    "duration": 360107919,
+    "type": ["error"],
+    "action": "Microsoft.Relay/namespaces/hybridConnections/sender/write",
+    "outcome": "failure",
+    "duration": 118590596,
     "module": "azure",
     "dataset": "azure.relay"
   },
-  "message": "Relay relay-edj4tg: throughput healthy mps=845.1",
+  "message": "Relay relay-2x4p9v/hc-agent-dkuf: sender snd-84psxkan rejected",
   "service": { "name": "relay", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.relay", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-switzerlandnorth",
-    "id": "3pnvfh84z9ujvtjhh6n7gza9phtfsb95uocf"
+    "name": "elastic-agent-azure-canadacentral",
+    "id": "wb18ko3079ru0bdhu5m58y220a3olg8x0pj2"
   },
   "input": { "type": "azure-eventhub" }
 }

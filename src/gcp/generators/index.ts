@@ -10,6 +10,7 @@ import {
   generateGcpKspmFindings,
   generateGcpIamPrivEscChain,
   generateGcpDataExfilChain,
+  generateGcpEntraFederatedChain,
 } from "./securityChains.js";
 import { generateGcpDataPipelineChain } from "./dataPipelineChain.js";
 import { generateServiceNowCmdbLog } from "../../servicenow/generators/index.js";
@@ -395,6 +396,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "gcp-kspm": generateGcpKspmFindings,
   "gcp-iam-privesc-chain": generateGcpIamPrivEscChain,
   "gcp-data-exfil-chain": generateGcpDataExfilChain,
+  "gcp-entra-federation-chain": generateGcpEntraFederatedChain,
   "gcp-data-pipeline-chain": generateGcpDataPipelineChain,
   // Cross-cloud ITSM
   servicenow_cmdb: generateServiceNowCmdbLog,

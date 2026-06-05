@@ -1,51 +1,61 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-north-1",
-    "account": { "id": "814726593401", "name": "globex-production" },
+    "region": "ap-southeast-1",
+    "account": { "id": "738291046572", "name": "globex-development" },
     "service": { "name": "cognito" }
   },
   "aws": {
-    "dimensions": { "UserPool": "eu-north-1_KD1XFE0EV", "UserPoolClient": "eu-users-web" },
+    "dimensions": { "UserPool": "ap-southeast-1_8AAS54F1Z", "UserPoolClient": "b2b-customers-web" },
     "cognito": {
-      "user_pool_id": "eu-north-1_KD1XFE0EV",
-      "user_pool_name": "eu-users",
-      "event_type": "SignIn",
-      "error_code": "NotAuthorizedException",
-      "source_ip": "174.229.156.87",
-      "mfa_type": "SMS_MFA",
+      "user_pool_id": "ap-southeast-1_8AAS54F1Z",
+      "user_pool_name": "b2b-customers",
+      "event_type": "AccountTakeoverRisk",
+      "username": "user-ni2on4vz@globex.io",
+      "source_ip": "250.172.9.72",
+      "mfa_type": "SOFTWARE_TOKEN_MFA",
+      "risk_type": "AccountTakeoverRisk",
+      "advanced_security": {
+        "risk_level": "HIGH",
+        "risk_decision": "BLOCK",
+        "compromised_credentials_detected": false,
+        "impossible_travel": false,
+        "previous_location": { "ip": "57.247.174.47", "country": "FR" },
+        "current_location": { "ip": "127.159.180.66", "country": "RU" },
+        "time_between_events_seconds": 200
+      },
       "metrics": {
-        "SignInSuccesses": { "sum": 0 },
-        "SignInAttempts": { "sum": 9344 },
-        "TokenRefreshSuccesses": { "sum": 0 },
+        "SignInSuccesses": { "sum": 3834 },
+        "SignInAttempts": { "sum": 3834 },
+        "TokenRefreshSuccesses": { "sum": 45721 },
         "SignUpSuccesses": { "sum": 0 },
         "FederationSuccesses": { "sum": 0 },
-        "CallCount": { "sum": 1411 },
-        "ThrottleCount": { "sum": 76 },
-        "AccountTakeoverRisk": { "sum": 5 },
-        "CompromisedCredentialsRisk": { "sum": 2 }
+        "CallCount": { "sum": 71167 },
+        "ThrottleCount": { "sum": 0 },
+        "AccountTakeoverRisk": { "sum": 4 },
+        "CompromisedCredentialsRisk": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-cognito-logs-814726593401",
-        "arn": "arn:aws:s3:::aws-cognito-logs-814726593401"
+        "name": "aws-cognito-logs-738291046572",
+        "arn": "arn:aws:s3:::aws-cognito-logs-738291046572"
       },
       "object": {
-        "key": "AWSLogs/814726593401/cognito/eu-north-1/2026/06/03/cognito_78R8N0BQAKFW1760L47A.log.gz"
+        "key": "AWSLogs/738291046572/cognito/ap-southeast-1/2026/06/05/cognito_T21M0SH0YT8UAII66Z3L.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/cognito/userpools/eu-north-1_FAR8MPZ43",
-      "log_stream": "eu-north-1/c2b33924",
-      "ingestion_time": "2026-06-03T09:39:25.560Z"
+      "log_group": "/aws/cognito/userpools/ap-southeast-1_Z447DCVZQ",
+      "log_stream": "ap-southeast-1/rywwzvz9",
+      "ingestion_time": "2026-06-05T13:00:31.491Z"
     }
   },
-  "user": {},
-  "source": { "ip": "103.82.244.197" },
+  "user": { "name": "user-ni2on4vz@globex.io" },
+  "source": { "ip": "17.53.114.36" },
   "event": {
-    "action": "SignIn",
+    "action": "AccountTakeoverRisk",
     "outcome": "failure",
     "category": ["authentication"],
     "type": ["start"],
@@ -53,12 +63,12 @@
     "provider": "cognito-idp.amazonaws.com",
     "module": "aws"
   },
-  "message": "{\"eventType\":\"SignIn\",\"eventResponse\":\"Fail\",\"userPoolId\":\"eu-north-1_KD1XFE0EV\",\"userPoolName\":\"eu-users\",\"clientId\":\"eu-users-web\",\"ipAddress\":\"7.131.212.235\",\"challengeName\":\"NotAuthorizedException\"}",
-  "log": { "level": "warn" },
+  "message": "{\"eventType\":\"AccountTakeoverRisk\",\"eventResponse\":\"Fail\",\"userPoolId\":\"ap-southeast-1_8AAS54F1Z\",\"userPoolName\":\"b2b-customers\",\"userName\":\"user-ni2on4vz@globex.io\",\"clientId\":\"b2b-customers-web\",\"ipAddress\":\"15.176.219.155\",\"riskLevel\":\"HIGH\",\"riskDecision\":\"BLOCK\",\"advancedSecurityFeatures\":{\"risk_level\":\"HIGH\",\"risk_decision\":\"BLOCK\",\"compromised_credentials_detected\":false,\"impossible_travel\":false,\"previous_location\":{\"ip\":\"57.247.174.47\",\"country\":\"FR\"},\"current_location\":{\"ip\":\"127.159.180.66\",\"country\":\"RU\"},\"time_between_events_seconds\":200}}",
+  "log": { "level": "error" },
   "error": {
-    "code": "NotAuthorizedException",
-    "message": "Authentication failed",
-    "type": "authentication"
+    "code": "AccountTakeoverRisk",
+    "message": "Cognito advanced security blocked: AccountTakeoverRisk",
+    "type": "security"
   },
   "service": { "name": "cognito", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -66,9 +76,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-north-1",
-    "ephemeral_id": "ocd4ow2e7az1xif0plr92ibwmlcz6ya11spc"
+    "name": "filebeat-aws-ap-southeast-1",
+    "ephemeral_id": "erb3shda7qw522xuh9d5vx1ij8i35owhi9v1"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "ip": ["103.82.244.197"] }
+  "related": { "ip": ["17.53.114.36"], "user": ["user-ni2on4vz@globex.io"] }
 }

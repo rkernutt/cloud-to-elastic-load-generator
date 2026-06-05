@@ -1,9 +1,9 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "ap-south-2",
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "events" }
   },
   "aws": {
@@ -11,49 +11,47 @@
     "eventbridge": {
       "event_bus": "default",
       "rule": "order-created-rule",
-      "source": "custom.app",
-      "detail_type": "EC2 Instance State-change Notification",
-      "targets_invoked": 2,
+      "source": "com.partner.events",
+      "detail_type": "Order Placed",
+      "targets_invoked": 1,
       "targets_failed": 0,
-      "event_id": "2482f403-9ede-4ff1-8a22-6736675e6f7e",
-      "log_kind": "pipe_enrichment",
-      "enrichment_arn": "arn:aws:lambda:ap-southeast-2:293847561023:function:maskPii",
-      "pipe_name": "orders-to-lambda",
+      "event_id": "1ba34f3e-a20b-448e-9af4-33ae7a473a3c",
+      "log_kind": "target_delivery",
       "structured_logging": true,
       "metrics": {
         "Invocations": { "sum": 1 },
         "FailedInvocations": { "sum": 0 },
         "TriggeredRules": { "sum": 1 },
-        "MatchedEvents": { "sum": 68 },
+        "MatchedEvents": { "sum": 12 },
         "ThrottledRules": { "sum": 0 },
         "DeadLetterInvocations": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eventbridge-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-eventbridge-logs-293847561023"
+        "name": "aws-eventbridge-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-eventbridge-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/293847561023/eventbridge/ap-southeast-2/2026/06/03/eventbridge_7JNKYMFKUHSYR8OE7AWS.log.gz"
+        "key": "AWSLogs/501938274650/eventbridge/ap-south-2/2026/06/05/eventbridge_WKV8UXNFX8SRJWRSCJUJ.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/events/eventbridge-rule-879z3d",
-      "log_stream": "ap-southeast-2/iudfn4ft",
-      "ingestion_time": "2026-06-03T09:39:25.612Z"
+      "log_group": "/aws/events/eventbridge-rule-v800ln",
+      "log_stream": "ap-south-2/h673r0ox",
+      "ingestion_time": "2026-06-05T13:00:31.559Z"
     }
   },
   "event": {
     "outcome": "success",
     "category": ["process"],
-    "type": ["deletion"],
+    "type": ["creation"],
     "dataset": "aws.eventbridge",
     "provider": "events.amazonaws.com",
-    "duration": 76000000,
+    "duration": 182000000,
     "module": "aws"
   },
-  "message": "{\"version\":\"0\",\"id\":\"2482f403-9ede-4ff1-8a22-6736675e6f7e\",\"detail-type\":\"Object Created\",\"source\":\"custom.app\",\"account\":\"293847561023\",\"time\":\"2026-06-03T09:39:24.765Z\",\"region\":\"ap-southeast-2\",\"resources\":[\"arn:aws:events:ap-southeast-2:293847561023:rule/order-created-rule\"],\"detail\":{\"eventBus\":\"default\",\"rule\":\"order-created-rule\",\"logKind\":\"pipe_enrichment\",\"pipeName\":\"orders-to-lambda\",\"enrichmentArn\":\"arn:aws:lambda:ap-southeast-2:293847561023:function:maskPii\",\"recordsTransformed\":1808,\"transformStatus\":\"OK\"}}",
+  "message": "{\"version\":\"0\",\"id\":\"1ba34f3e-a20b-448e-9af4-33ae7a473a3c\",\"detail-type\":\"EC2 Instance State-change Notification\",\"source\":\"com.partner.events\",\"account\":\"501938274650\",\"time\":\"2026-06-05T13:00:30.622Z\",\"region\":\"ap-south-2\",\"resources\":[\"arn:aws:lambda:ap-south-2:501938274650:function:fanOut\"],\"detail\":{\"eventBus\":\"default\",\"rule\":\"order-created-rule\",\"logKind\":\"target_delivery\",\"targetArn\":\"arn:aws:lambda:ap-south-2:501938274650:function:fanOut\",\"status\":\"SUCCESS\",\"httpStatusCode\":200,\"attempt\":2,\"deadLetterQueueArn\":\"arn:aws:sqs:ap-south-2:501938274650:rules-dlq\"}}",
   "log": { "level": "info" },
   "service": { "name": "eventbridge", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -61,8 +59,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "rhxu6sfv22mh118k1920q0z7vhvgxmmoqlz5"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "ut0ox2dhoteznwstuyxamqb5ztmneg6jz6tr"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,103 +1,103 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "ca-west-1",
-    "account": { "id": "528174630291", "name": "globex-ml-platform" },
+    "region": "ap-northeast-3",
+    "account": { "id": "957483012647", "name": "globex-sandbox" },
     "service": { "name": "rds" }
   },
   "aws": {
     "dimensions": {
-      "DBInstanceIdentifier": "prod-db-replica",
+      "DBInstanceIdentifier": "prod-db-analytics",
       "DatabaseClass": "db.m5.large",
-      "EngineName": "aurora-postgresql",
-      "SourceRegion": "ca-west-1"
+      "EngineName": "mysql",
+      "SourceRegion": "ap-northeast-3"
     },
     "cloudwatch": {
-      "log_group": "/aws/rds/cluster/prod-db-replica/postgresql",
-      "log_stream": "prod-db-replica",
-      "ingestion_time": "2026-06-03T09:39:25.495Z"
+      "log_group": "/aws/rds/instance/prod-db-analytics/slowquery",
+      "log_stream": "prod-db-analytics",
+      "ingestion_time": "2026-06-05T13:00:31.411Z"
     },
     "rds": {
       "db_instance": {
-        "identifier": "prod-db-replica",
+        "identifier": "prod-db-analytics",
         "class": "db.m5.large",
-        "engine_name": "aurora-postgresql",
-        "engine_version": "15.4",
-        "arn": "arn:aws:rds:ca-west-1:528174630291:db:prod-db-replica",
+        "engine_name": "mysql",
+        "engine_version": "8.0.33",
+        "arn": "arn:aws:rds:ap-northeast-3:957483012647:db:prod-db-analytics",
         "status": "available",
-        "role": "read-replica",
-        "multi_az": false,
-        "storage_type": "gp3",
-        "allocated_storage_gb": 1000
+        "role": "instance",
+        "multi_az": true,
+        "storage_type": "io1",
+        "allocated_storage_gb": 100
       },
-      "log_type": "postgresql",
-      "cpu": { "total": { "pct": 0.4568 } },
-      "freeable_memory": { "bytes": 3048003519 },
-      "free_storage": { "bytes": 406132649430 },
-      "database_connections": 106,
-      "read_io": { "ops_per_sec": 311.5253048647889 },
-      "write_io": { "ops_per_sec": 435.0797071912943 },
-      "latency": { "read": 0.01898458794130473, "write": 0.008413858556276837 },
+      "log_type": "slowquery",
+      "cpu": { "total": { "pct": 0.3356 } },
+      "freeable_memory": { "bytes": 1537269736 },
+      "free_storage": { "bytes": 67883112014 },
+      "database_connections": 195,
+      "read_io": { "ops_per_sec": 2403.702217300707 },
+      "write_io": { "ops_per_sec": 2061.381342048465 },
+      "latency": { "read": 0.0023646674581623926, "write": 0.005985680663475324 },
       "throughput": {
-        "read": 55905548,
-        "write": 18848617,
-        "network_receive": 35956604,
-        "network_transmit": 91241692
+        "read": 82006781,
+        "write": 58157002,
+        "network_receive": 6419925,
+        "network_transmit": 10372264
       },
-      "replica_lag": { "sec": 12.633318724514497 },
-      "swap_usage": { "bytes": 3616437 },
-      "disk_usage": { "bin_log": { "bytes": 250921656 } },
+      "replica_lag": { "sec": 10.45737341757469 },
+      "swap_usage": { "bytes": 56903631 },
+      "disk_usage": { "bin_log": { "bytes": 627129098 } },
       "enhanced_monitoring": {
         "cpuUtilization": {
-          "guest": 0.9759574149098609,
-          "irq": 0.8688128674545014,
-          "system": 7.645040945835453,
-          "wait": 2.9560098278469726,
-          "idle": 64.7,
-          "user": 22.828299760644956,
-          "total": 35.3
+          "guest": 0.6849360784605913,
+          "irq": 0.07047009386125025,
+          "system": 9.331019550229131,
+          "wait": 2.7717348609669843,
+          "idle": 69.6,
+          "user": 17.532286514897343,
+          "total": 30.4
         },
         "memory": {
-          "total": 37492748187,
-          "free": 1759470906,
-          "cached": 3516652720,
-          "active": 2122036749,
-          "inactive": 2481612817,
-          "buffers": 327205933
+          "total": 42666576899,
+          "free": 7075706555,
+          "cached": 2034522450,
+          "active": 11373057765,
+          "inactive": 3216089896,
+          "buffers": 494571185
         },
         "disk": {
-          "readIOsPS": 1259.5225808548862,
-          "writeIOsPS": 766.4915504365739,
-          "readKbPS": 344298.0666651918,
-          "writeKbPS": 329063.9213977719,
-          "avgQueueLen": 6.3825442961497405,
-          "await": 8.36111587637825
+          "readIOsPS": 722.7369657595624,
+          "writeIOsPS": 858.0173968093015,
+          "readKbPS": 13133.389006294748,
+          "writeKbPS": 99243.31622732586,
+          "avgQueueLen": 3.400235517890402,
+          "await": 9.30520649675665
         },
-        "network": { "rx": 93729607, "tx": 87456970 },
-        "numVCPUs": 16,
-        "uptime": "13 days, 4:16:53"
+        "network": { "rx": 97045695, "tx": 57376684 },
+        "numVCPUs": 32,
+        "uptime": "94 days, 1:32:06"
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-rds-logs-528174630291",
-        "arn": "arn:aws:s3:::aws-rds-logs-528174630291"
+        "name": "aws-rds-logs-957483012647",
+        "arn": "arn:aws:s3:::aws-rds-logs-957483012647"
       },
       "object": {
-        "key": "AWSLogs/528174630291/rds/ca-west-1/2026/06/03/rds_GNQB20G4UC8FVGFDIH38.log.gz"
+        "key": "AWSLogs/957483012647/rds/ap-northeast-3/2026/06/05/rds_WXOFFQ9CIBCV8BLN8QNQ.log.gz"
       }
     }
   },
   "db": {
-    "user": { "name": "replica" },
-    "name": "appdb",
-    "statement": "INSERT INTO events (name, email, created_at) VALUES ($1, $2, now())",
+    "user": { "name": "admin" },
+    "name": "events_db",
+    "statement": "INSERT INTO events (name, email) VALUES ('platform-admin', 'maria.zhang@meridiantech.io')",
     "type": "sql"
   },
-  "source": { "ip": "92.129.139.121" },
+  "source": { "ip": "125.140.8.228" },
   "event": {
-    "duration": 782693268.1998804,
+    "duration": 903187219.2345423,
     "outcome": "success",
     "category": ["database"],
     "type": ["info", "access"],
@@ -105,7 +105,7 @@
     "provider": "rds.amazonaws.com",
     "module": "aws"
   },
-  "message": "2026-06-03 09:39:24.765 UTC:92.129.139.121(63840):replica@appdb:[36085]:LOG:  duration: 782.693 ms  parse <unnamed>: INSERT INTO events (name, email, created_at) VALUES ($1, $2, now())",
+  "message": "# Time: 2026-06-05 13:00:30.622\n# User@Host: admin[admin] @ 125.140.8.228 [125.140.8.228]  Id: 80668\n# Query_time: 0.903187  Lock_time: 0.001609 Rows_sent: 1377  Rows_examined: 61765\nSET timestamp=1780664430;\nINSERT INTO events (name, email) VALUES ('platform-admin', 'maria.zhang@meridiantech.io');",
   "log": { "level": "info" },
   "service": { "name": "rds", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -113,9 +113,9 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ca-west-1",
-    "ephemeral_id": "jhjcdz90sm1c2lm8ptrkbhfdx2wa8oam2hjp"
+    "name": "filebeat-aws-ap-northeast-3",
+    "ephemeral_id": "8hypgw2w43avg7tsjietybwzpvfdxpfllfhr"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "ip": ["92.129.139.121"] }
+  "related": { "ip": ["125.140.8.228"] }
 }

@@ -2,69 +2,94 @@
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "log": { "level": "info" },
   "labels": {},
-  "severity": "INFO",
-  "logName": "projects/globex-shared-529384/logs/compute.googleapis.com%2Fserverless_neg",
-  "insertId": "4ll59po1o7i0w1v3",
+  "severity": "DEBUG",
+  "logName": "projects/globex-prod-482910/logs/requests",
+  "insertId": "01rzqmvmn6miqnod",
   "resource": {
-    "type": "network_endpoint_group",
+    "type": "http_load_balancer",
     "labels": {
-      "project_id": "globex-shared-529384",
-      "neg": "neg-v2yy6r2d",
-      "region": "asia-east1"
+      "project_id": "globex-prod-482910",
+      "zone": "global",
+      "url_map_name": "um-6mh6ez",
+      "target_proxy_name": "tp-https-wsy8",
+      "forwarding_rule_name": "fr-asia-northeast2-29vr",
+      "backend_service_name": "bes-web-gjt0"
     }
   },
+  "httpRequest": {
+    "requestMethod": "PUT",
+    "requestUrl": "https://api.globex-prod-482910.com/wp-login.php",
+    "status": 200,
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+    "remoteIp": "42.155.156.204",
+    "latency": "0.043000s",
+    "protocol": "HTTP/2"
+  },
   "jsonPayload": {
-    "serverless_neg": "projects/globex-shared-529384/regions/asia-east1/networkEndpointGroups/neg-v2yy6r2d",
-    "backend_service": "projects/globex-shared-529384/regions/asia-east1/backendServices/bes-fn-1rbj",
-    "target_type": "cloud-run",
-    "cloud_run_revision": "projects/globex-shared-529384/locations/asia-east1/services/api-HD0C/revisions/api-K3JW-00001-abc",
-    "health_check": { "state": "HEALTHY", "consecutive_success": 12, "consecutive_failure": 0 },
-    "stats": { "requests": 1685643, "error_rate": 0.0272 }
+    "cacheDecision": "CACHE_MISS",
+    "backendTargetProjectNumber": "482910375621",
+    "backend_name": "bes-web-gjt0",
+    "forwarding_rule_name": "fr-asia-northeast2-29vr",
+    "url_map_name": "um-6mh6ez",
+    "target_proxy_name": "tp-https-wsy8"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "asia-east1",
-    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
-    "account": { "id": "529384716205", "name": "Globex Shared Services" },
-    "service": { "name": "serverless-neg" }
+    "region": "asia-northeast2",
+    "project": { "id": "globex-prod-482910", "name": "Globex Production" },
+    "account": { "id": "482910375621", "name": "Globex Production" },
+    "service": { "name": "cloud-lb" }
   },
   "gcp": {
-    "serverless_neg": {
-      "json_payload": {
-        "serverless_neg": "projects/globex-shared-529384/regions/asia-east1/networkEndpointGroups/neg-v2yy6r2d",
-        "backend_service": "projects/globex-shared-529384/regions/asia-east1/backendServices/bes-fn-1rbj",
-        "target_type": "cloud-run",
-        "cloud_run_revision": "projects/globex-shared-529384/locations/asia-east1/services/api-HD0C/revisions/api-K3JW-00001-abc",
-        "health_check": { "state": "HEALTHY", "consecutive_success": 12, "consecutive_failure": 0 },
-        "stats": { "requests": 1685643, "error_rate": 0.0272 }
+    "cloud_lb": {
+      "http_request": {
+        "requestMethod": "PUT",
+        "requestUrl": "https://api.globex-prod-482910.com/wp-login.php",
+        "status": 200,
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+        "remoteIp": "42.155.156.204",
+        "latency": "0.043000s",
+        "protocol": "HTTP/2"
       },
-      "neg_name": "neg-v2yy6r2d",
-      "backend_service": "bes-fn-1rbj",
-      "target_type": "cloud-run",
-      "health_status": "HEALTHY",
-      "request_count": 1685643,
-      "error_rate": 0.0272
+      "json_payload": {
+        "cacheDecision": "CACHE_MISS",
+        "backendTargetProjectNumber": "482910375621",
+        "backend_name": "bes-web-gjt0",
+        "forwarding_rule_name": "fr-asia-northeast2-29vr",
+        "url_map_name": "um-6mh6ez",
+        "target_proxy_name": "tp-https-wsy8"
+      },
+      "backend_service": "bes-web-gjt0",
+      "url_map": "um-6mh6ez",
+      "forwarding_rule": "fr-asia-northeast2-29vr",
+      "request_method": "PUT",
+      "url_path": "/wp-login.php",
+      "response_code": 200,
+      "latency_ms": 43,
+      "client_ip": "42.155.156.204",
+      "backend_ip": "252.241.125.226",
+      "protocol": "HTTP/2"
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
     "type": ["connection"],
-    "action": "serverless-neg",
+    "action": "http-request",
     "outcome": "success",
-    "duration": 70000000,
+    "duration": 43000000,
     "module": "gcp",
-    "dataset": "gcp.serverless_neg"
+    "dataset": "gcp.loadbalancing"
   },
-  "message": "compute.googleapis.com/serverless_negs neg-v2yy6r2d health=HEALTHY",
-  "service": { "name": "serverless-neg", "type": "gcp" },
+  "message": "loadbalancing.googleapis.com/requests PUT 200 0.043000s https://api.globex-prod-482910.com/wp-login.php",
+  "service": { "name": "cloud-lb", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.serverless_neg", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.loadbalancing", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-asia-east1",
-    "id": "x80z95p8kuz1h2zru1rkt7pjlqli4gmc33sh"
+    "name": "elastic-agent-gcp-asia-northeast2",
+    "id": "ur4a48j7qk3jihg3kv417p6rv2ptqk59q8fr"
   },
   "input": { "type": "gcp-pubsub" }
 }

@@ -227,6 +227,7 @@ const AWS_SERVICE_ICON_MAP = {
   kspm: "SecurityKSPM.png",
   "iam-privesc-chain": "SecurityIAMPrivEsc.png",
   "data-exfil-chain": "SecurityDataExfil.png",
+  "entra-federation-chain": "SecurityIAMPrivEsc.png",
 };
 
 /**

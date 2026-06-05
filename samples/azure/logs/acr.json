@@ -1,66 +1,73 @@
 {
   "@timestamp": "2026-04-07T12:00:00.000Z",
   "time": "2026-04-07T12:00:00.0000000Z",
-  "resourceId": "/subscriptions/c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d/resourceGroups/rg-data-d1p7uo/providers/Microsoft.ContainerRegistry/registries/crv6g1sqhe",
-  "operationName": "Microsoft.ContainerRegistry/registries/replications/write",
-  "category": "ContainerRegistryGeoReplication",
-  "resultType": "Success",
-  "resultSignature": "Ready",
-  "callerIpAddress": "169.149.131.106",
-  "correlationId": "f5f6ffd1-1c66-4de0-b1c8-56a78be8c245",
-  "level": "Information",
+  "resourceId": "/subscriptions/e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e/resourceGroups/rg-app-p2ur9e/providers/Microsoft.ContainerRegistry/registries/crhwg8dnj0",
+  "operationName": "Microsoft.ContainerRegistry/registries/pullManifest/failed",
+  "category": "ContainerRegistryRepositoryEvents",
+  "resultType": "Failure",
+  "resultSignature": "Throttled",
+  "callerIpAddress": "26.142.59.213",
+  "correlationId": "98159bb2-46a2-4996-b4c0-224c7dd00fca",
+  "level": "Warning",
   "properties": {
-    "replicationName": "crv6g1sqhe-repl-uksouth",
-    "destinationRegion": "uksouth",
-    "synchronizationStatus": "Ready",
-    "lastSyncLagSeconds": 58,
-    "commitManifestDigest": "sha256:c51624483d15c648e20cf3868e50e91e1527dc1ab6108e25102fb184f682a25c",
-    "message": "geo-replication: manifest replicated to paired region endpoint"
+    "repository": "worker:v3.3.5",
+    "action": "Pull",
+    "identity": "appid=14600fd2-3a32-4d9c-ba51-8f4e2e999fe5",
+    "loginServer": "crhwg8dnj0.azurecr.io",
+    "result": "Throttled",
+    "requestUri": "https://crhwg8dnj0.azurecr.io/v2/worker/manifests/v3.3.5",
+    "digest": "sha256:35965d376087f68d4428d61576436a31de6ed47cbafe654051448f772955a1f5"
+  },
+  "error": {
+    "code": "VMExtensionProvisioningError",
+    "message": "VM extension handler returned a failure; extension provisioning could not complete.",
+    "type": "azure"
   },
   "cloud": {
     "provider": "azure",
-    "region": "centralus",
-    "account": { "id": "c4a2d8f6-3b91-4e7c-a5d2-9e1f0c8b7a6d", "name": "Northpeak-Dev" },
+    "region": "switzerlandnorth",
+    "account": { "id": "e7d94b23-1f68-42a5-9c3e-8f2d1a6b5c7e", "name": "Cascade-Prod" },
     "service": { "name": "Microsoft.ContainerRegistry/registries" }
   },
   "azure": {
     "container_registry": {
-      "registry_name": "crv6g1sqhe",
-      "repository": "frontend",
-      "tag": "latest",
-      "resource_group": "rg-data-d1p7uo",
-      "category": "ContainerRegistryGeoReplication",
-      "correlation_id": "f5f6ffd1-1c66-4de0-b1c8-56a78be8c245",
+      "registry_name": "crhwg8dnj0",
+      "repository": "worker",
+      "tag": "v3.3.5",
+      "digest": "sha256:35965d376087f68d4428d61576436a31de6ed47cbafe654051448f772955a1f5",
+      "resource_group": "rg-app-p2ur9e",
+      "category": "ContainerRegistryRepositoryEvents",
+      "correlation_id": "98159bb2-46a2-4996-b4c0-224c7dd00fca",
       "properties": {
-        "replicationName": "crv6g1sqhe-repl-uksouth",
-        "destinationRegion": "uksouth",
-        "synchronizationStatus": "Ready",
-        "lastSyncLagSeconds": 58,
-        "commitManifestDigest": "sha256:c51624483d15c648e20cf3868e50e91e1527dc1ab6108e25102fb184f682a25c",
-        "message": "geo-replication: manifest replicated to paired region endpoint"
+        "repository": "worker:v3.3.5",
+        "action": "Pull",
+        "identity": "appid=14600fd2-3a32-4d9c-ba51-8f4e2e999fe5",
+        "loginServer": "crhwg8dnj0.azurecr.io",
+        "result": "Throttled",
+        "requestUri": "https://crhwg8dnj0.azurecr.io/v2/worker/manifests/v3.3.5"
       }
     }
   },
   "event": {
     "kind": "event",
     "category": ["host"],
-    "type": ["info"],
-    "action": "Microsoft.ContainerRegistry/registries/replications/write",
-    "outcome": "success",
-    "duration": 6008315229,
+    "type": ["error"],
+    "action": "true",
+    "outcome": "failure",
+    "duration": 352059097,
     "module": "azure",
     "dataset": "azure.container_registry"
   },
-  "message": "ACR crv6g1sqhe: synced sha256:c51624483d15c64... to uksouth",
+  "message": "ACR crhwg8dnj0: Pull failed for worker:v3.3.5 (Throttled)",
   "service": { "name": "container-registry", "type": "azure" },
-  "log": { "level": "info" },
+  "log": { "level": "error" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "azure.container_registry", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-azure-centralus",
-    "id": "w7ru3utntxqd26eut70oei1ldz7zr8zz754p"
+    "name": "elastic-agent-azure-switzerlandnorth",
+    "id": "7s18xk07ja64yucu4fjgqvpufb3vlzoxf3m0"
   },
   "input": { "type": "azure-eventhub" }
 }

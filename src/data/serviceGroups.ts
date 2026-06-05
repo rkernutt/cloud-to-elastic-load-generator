@@ -264,6 +264,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         desc: "Attack chain: IAM enumeration → credential creation → policy escalation → AssumeRole",
       },
       {
+        id: "entra-federation-chain",
+        label: "Entra ID Federation Chain",
+        icon: "🔑",
+        desc: "Attack chain: Entra SAML federation (AssumeRoleWithSAML) → reconnaissance → S3 data access → IAM persistence",
+      },
+      {
         id: "data-exfil-chain",
         label: "Data Exfil Chain",
         icon: "◂",

@@ -140,7 +140,7 @@ const ARM_PROVIDERS: Record<string, string> = {
   speech: "Microsoft.CognitiveServices/accounts",
   translator: "Microsoft.CognitiveServices/accounts",
   "document-intelligence": "Microsoft.CognitiveServices/accounts",
-  "entra-id": "Microsoft.AzureActiveDirectory/tenants",
+  "entra-id": "microsoft.aadiam",
   m365: "Microsoft.Office365/auditLogs",
   "key-vault": "Microsoft.KeyVault/vaults",
   "managed-identity": "Microsoft.ManagedIdentity/userAssignedIdentities",

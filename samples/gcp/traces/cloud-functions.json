@@ -1,44 +1,48 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
   "processor": { "name": "transaction", "event": "transaction" },
-  "trace": { "id": "39a814b8469ae7f1ad6f93adb9a45bd6" },
+  "trace": { "id": "ad4ffccadffe34ea130ea9e8f7ee7f4e" },
   "transaction": {
-    "id": "7245707233196c2d",
-    "name": "POST /catalog-enricher",
+    "id": "24ac5a2867742a82",
+    "name": "POST /inventory-sync",
     "type": "request",
-    "duration": { "us": 10223000 },
-    "result": "HTTP 2xx",
+    "duration": { "us": 7724000 },
+    "result": "HTTP 504",
     "sampled": true,
-    "span_count": { "started": 3, "dropped": 0 }
+    "span_count": { "started": 4, "dropped": 0 }
   },
   "faas": {
     "coldstart": false,
-    "execution": "ab567c7d-8bbd55ff2df1276c",
-    "trigger": { "type": "datastore" }
+    "execution": "75fa77e9-fc70a8779478338e",
+    "trigger": { "type": "pubsub" }
   },
   "service": {
-    "name": "catalog-enricher",
+    "name": "inventory-sync",
     "environment": "production",
-    "version": "1.42.0",
-    "language": { "name": "go" },
+    "version": "2.14.2",
+    "language": { "name": "python" },
     "framework": { "name": "Google Cloud Functions" },
-    "runtime": { "name": "go", "version": "1.22.5" }
+    "runtime": { "name": "python", "version": "3.12.3" }
   },
   "cloud": {
     "provider": "gcp",
-    "region": "me-west1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
+    "region": "asia-south1",
+    "project": { "id": "globex-shared-529384", "name": "Globex Shared Services" },
+    "account": { "id": "529384716205", "name": "Globex Shared Services" },
     "service": { "name": "cloudfunctions.googleapis.com" }
   },
-  "labels": { "gcp.project_id": "globex-sec-847293", "gcp.cloud_functions.trigger": "storage" },
+  "labels": {
+    "gcp.project_id": "globex-shared-529384",
+    "gcp.cloud_functions.trigger": "pubsub",
+    "gcp.error.domain": "googleapis.com"
+  },
   "data_stream": { "type": "traces", "dataset": "apm", "namespace": "default" },
-  "event": { "outcome": "success", "module": "gcp", "dataset": "gcp.cloudfunctions" },
+  "event": { "outcome": "failure", "module": "gcp", "dataset": "gcp.cloudfunctions" },
   "ecs": { "version": "8.11.0" },
   "input": { "type": "opentelemetry" },
-  "agent": { "name": "opentelemetry/go", "version": "1.x" },
+  "agent": { "name": "opentelemetry/python", "version": "1.x" },
   "telemetry": {
-    "sdk": { "name": "opentelemetry", "language": "go", "version": "1.32.0" },
+    "sdk": { "name": "opentelemetry", "language": "python", "version": "1.29.0" },
     "distro": { "name": "elastic", "version": "8.18.0" },
     "otel_pipeline": {
       "hop": "otel_collector",
@@ -47,7 +51,7 @@
     }
   },
   "gcpCloudTrace": {
-    "trace": "projects/globex-sec-847293/traces/39a814b8469ae7f1ad6f93adb9a45bd6",
-    "spanId": "7245707233196c2d"
+    "trace": "projects/globex-shared-529384/traces/ad4ffccadffe34ea130ea9e8f7ee7f4e",
+    "spanId": "24ac5a2867742a82"
   }
 }

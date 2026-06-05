@@ -902,95 +902,427 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
   };
 }
 
+const ENTRA_WELL_KNOWN_APPS = [
+  { id: "00000003-0000-0ff1-ce00-000000000000", name: "Office 365 Exchange Online" },
+  { id: "00000006-0000-0ff1-ce00-000000000000", name: "Microsoft Office 365 Portal" },
+  { id: "c44b4083-3bb0-49c1-b47d-974e53cbdf3c", name: "Azure Portal" },
+  { id: "1fec8e78-bce4-4aaf-ab1b-5451cc387264", name: "Microsoft Teams" },
+  { id: "00000003-0000-0000-c000-000000000000", name: "Microsoft Graph" },
+  { id: "de8bc8b5-d9f9-48b1-a8ad-b748da725064", name: "Microsoft 365 Compliance Center" },
+  { id: "89bee1f7-5e6e-4d8a-9f3d-ecd601259da7", name: "Office365 Shell WCSS-Client" },
+  { id: "4765445b-32c6-49b0-83e6-1d93765276ca", name: "Microsoft 365 Defender Portal" },
+] as const;
+
+const ENTRA_SIGN_IN_ERROR_MAP: Record<number, string> = {
+  50055: "The password has expired.",
+  50126: "Error validating credentials due to invalid username or password.",
+  50053:
+    "Account is locked because the user tried to sign in too many times with an incorrect user ID or password.",
+  50057: "The user account is disabled.",
+  700016: "Application with identifier was not found in the directory.",
+  530032: "User blocked due to risk on home tenant.",
+  50074: "Strong authentication (MFA) is required.",
+};
+const ENTRA_SIGN_IN_ERROR_CODES = Object.keys(ENTRA_SIGN_IN_ERROR_MAP).map(Number);
+
+const ENTRA_LOCATIONS = [
+  {
+    city: "Seattle",
+    state: "Washington",
+    countryOrRegion: "US",
+    geoCoordinates: { latitude: 47.6062, longitude: -122.3321 },
+  },
+  {
+    city: "London",
+    state: "England",
+    countryOrRegion: "GB",
+    geoCoordinates: { latitude: 51.5074, longitude: -0.1278 },
+  },
+  {
+    city: "Singapore",
+    state: "Singapore",
+    countryOrRegion: "SG",
+    geoCoordinates: { latitude: 1.3521, longitude: 103.8198 },
+  },
+  {
+    city: "New York",
+    state: "New York",
+    countryOrRegion: "US",
+    geoCoordinates: { latitude: 40.7128, longitude: -74.006 },
+  },
+  {
+    city: "Frankfurt",
+    state: "Hessen",
+    countryOrRegion: "DE",
+    geoCoordinates: { latitude: 50.1109, longitude: 8.6821 },
+  },
+  {
+    city: "Sydney",
+    state: "New South Wales",
+    countryOrRegion: "AU",
+    geoCoordinates: { latitude: -33.8688, longitude: 151.2093 },
+  },
+  {
+    city: "Toronto",
+    state: "Ontario",
+    countryOrRegion: "CA",
+    geoCoordinates: { latitude: 43.6532, longitude: -79.3832 },
+  },
+  {
+    city: "Tokyo",
+    state: "Tokyo",
+    countryOrRegion: "JP",
+    geoCoordinates: { latitude: 35.6762, longitude: 139.6503 },
+  },
+  {
+    city: "Mumbai",
+    state: "Maharashtra",
+    countryOrRegion: "IN",
+    geoCoordinates: { latitude: 19.076, longitude: 72.8777 },
+  },
+  {
+    city: "São Paulo",
+    state: "São Paulo",
+    countryOrRegion: "BR",
+    geoCoordinates: { latitude: -23.5505, longitude: -46.6333 },
+  },
+] as const;
+
+const ENTRA_DEVICE_OS = ["Windows 10", "Windows 11", "MacOS", "iOS 17.5", "Android 14"] as const;
+const ENTRA_BROWSERS = [
+  "Chrome 125.0.0",
+  "Edge 125.0.2535",
+  "Safari 17.5",
+  "Firefox 126.0",
+  "Mobile Safari 17.5",
+] as const;
+
+const ENTRA_AUDIT_ACTIVITIES: {
+  name: string;
+  category: string;
+  loggedByService: string;
+  operationType: string;
+  targetType: string;
+}[] = [
+  {
+    name: "Add member to group",
+    category: "GroupManagement",
+    loggedByService: "Core Directory",
+    operationType: "Add",
+    targetType: "Group",
+  },
+  {
+    name: "Update user",
+    category: "UserManagement",
+    loggedByService: "Core Directory",
+    operationType: "Update",
+    targetType: "User",
+  },
+  {
+    name: "Add app role assignment grant to user",
+    category: "ApplicationManagement",
+    loggedByService: "Core Directory",
+    operationType: "Add",
+    targetType: "ServicePrincipal",
+  },
+  {
+    name: "Add owner to application",
+    category: "ApplicationManagement",
+    loggedByService: "Core Directory",
+    operationType: "Add",
+    targetType: "Application",
+  },
+  {
+    name: "Delete user",
+    category: "UserManagement",
+    loggedByService: "Core Directory",
+    operationType: "Delete",
+    targetType: "User",
+  },
+  {
+    name: "Reset user password",
+    category: "UserManagement",
+    loggedByService: "Self-service Password Management",
+    operationType: "Update",
+    targetType: "User",
+  },
+  {
+    name: "Add member to role",
+    category: "RoleManagement",
+    loggedByService: "PIM",
+    operationType: "Add",
+    targetType: "Role",
+  },
+  {
+    name: "Remove member from group",
+    category: "GroupManagement",
+    loggedByService: "Core Directory",
+    operationType: "Delete",
+    targetType: "Group",
+  },
+  {
+    name: "Add service principal",
+    category: "ApplicationManagement",
+    loggedByService: "Core Directory",
+    operationType: "Add",
+    targetType: "ServicePrincipal",
+  },
+  {
+    name: "Consent to application",
+    category: "ApplicationManagement",
+    loggedByService: "Core Directory",
+    operationType: "Add",
+    targetType: "ServicePrincipal",
+  },
+];
+
+const ENTRA_RISK_TYPES = [
+  "unfamiliarFeatures",
+  "anonymizedIPAddress",
+  "maliciousIPAddress",
+  "impossibleTravel",
+  "leakedCredentials",
+  "suspiciousIPAddress",
+  "investigationsThreatIntelligence",
+] as const;
+
 export function generateEntraIdLog(ts: string, er: number): EcsDocument {
   const { region, subscription, isErr } = makeAzureSetup(er);
   const user = randAzureOrgEmail();
+  const firstName = user.split(".")[0] ?? "User";
+  const lastName = (user.split(".")[1] ?? "Unknown").split("@")[0] ?? "Unknown";
+  const userDisplayName = `${firstName.charAt(0).toUpperCase()}${firstName.slice(1)} ${lastName.charAt(0).toUpperCase()}${lastName.slice(1)}`;
+  const userId = randUUID();
   const tenantId = randUUID();
   const callerIp = randPublicIp();
   const correlationId = randUUID();
+  const originalRequestId = randUUID();
   const time = azureDiagnosticTime(ts);
   const cat = rand(["SignInLogs", "AuditLogs", "RiskDetection"] as const);
-  const resourceId = `/tenants/${tenantId}/providers/Microsoft.Identity/signInActivity`;
-  const props =
-    cat === "SignInLogs"
-      ? {
+  const resourceId = `/tenants/${tenantId}/providers/microsoft.aadiam`;
+
+  let props: Record<string, unknown>;
+  let operationName: string;
+  let eventCategory: string[];
+  let eventType: string[];
+
+  if (cat === "SignInLogs") {
+    const app = rand(ENTRA_WELL_KNOWN_APPS);
+    const loc = rand(ENTRA_LOCATIONS);
+    const errCode = isErr ? rand(ENTRA_SIGN_IN_ERROR_CODES) : 0;
+    const failureReason = isErr ? (ENTRA_SIGN_IN_ERROR_MAP[errCode] ?? "") : "";
+    const caStatus = isErr ? rand(["failure", "notApplied"]) : rand(["success", "notApplied"]);
+    const isInteractive = Math.random() > 0.2;
+    const clientApp = rand(["Browser", "Mobile Apps and Desktop clients", "Exchange ActiveSync"]);
+    const authReq =
+      Math.random() > 0.6 ? "multiFactorAuthentication" : "singleFactorAuthentication";
+    const deviceOs = rand(ENTRA_DEVICE_OS);
+    const browser = rand(ENTRA_BROWSERS);
+
+    props = {
+      id: randUUID(),
+      createdDateTime: time,
+      userPrincipalName: user,
+      userDisplayName,
+      userId,
+      appId: app.id,
+      appDisplayName: app.name,
+      ipAddress: callerIp,
+      isInteractive,
+      clientAppUsed: clientApp,
+      userAgent: rand(USER_AGENTS),
+      resourceDisplayName: rand([
+        "Microsoft Graph",
+        "Windows Azure Active Directory",
+        "Office 365 Exchange Online",
+      ]),
+      resourceId: randUUID(),
+      authenticationRequirement: authReq,
+      tokenIssuerType: "AzureAD",
+      tokenIssuerName: "",
+      location: {
+        city: loc.city,
+        state: loc.state,
+        countryOrRegion: loc.countryOrRegion,
+        geoCoordinates: loc.geoCoordinates,
+      },
+      status: { errorCode: errCode, failureReason },
+      deviceDetail: {
+        deviceId: "",
+        displayName: "",
+        operatingSystem: deviceOs,
+        browser,
+        isCompliant: false,
+        isManaged: false,
+      },
+      conditionalAccessStatus: caStatus,
+      originalRequestId,
+      correlationId,
+      riskDetail: isErr ? "none" : "none",
+      riskLevelAggregated: "none",
+      riskLevelDuringSignIn: "none",
+      riskState: "none",
+      riskEventTypes_v2: [],
+      authenticationDetails: [
+        {
+          authenticationStepDateTime: time,
+          authenticationMethod:
+            authReq === "multiFactorAuthentication" ? "Microsoft Authenticator App" : "Password",
+          authenticationMethodDetail:
+            authReq === "multiFactorAuthentication" ? "Notification" : "Password in the cloud",
+          succeeded: !isErr,
+          authenticationStepResultDetail: isErr ? failureReason : "MFA completed in Azure AD",
+          authenticationStepRequirement:
+            authReq === "multiFactorAuthentication"
+              ? "Primary and secondary authentication"
+              : "Primary authentication",
+        },
+      ],
+      homeTenantId: tenantId,
+    };
+    operationName = "Sign-in activity";
+    eventCategory = ["authentication"];
+    eventType = ["info"];
+  } else if (cat === "AuditLogs") {
+    const act = rand(ENTRA_AUDIT_ACTIVITIES);
+    const targetName =
+      act.targetType === "Group"
+        ? `grp-${randId(4)}`
+        : act.targetType === "User"
+          ? user
+          : `app-${randId(6)}`;
+
+    props = {
+      id: `Directory_${randId(12)}`,
+      activityDateTime: time,
+      activityDisplayName: act.name,
+      category: act.category,
+      loggedByService: act.loggedByService,
+      operationType: act.operationType,
+      correlationId,
+      initiatedBy: {
+        user: {
+          id: userId,
+          displayName: userDisplayName,
           userPrincipalName: user,
-          userId: randUUID(),
-          appId: randId(8).toLowerCase(),
-          appDisplayName: rand(["Office 365 Exchange Online", "Azure Portal", "Microsoft Teams"]),
           ipAddress: callerIp,
-          location: {
-            city: rand(["Seattle", "London", "Singapore"]),
-            countryOrRegion: rand(["US", "GB", "SG"]),
-          },
-          status: {
-            errorCode: isErr ? rand([50055, 50126, 700016]) : 0,
-            failureReason: isErr ? "Invalid username or password" : "",
-          },
-          deviceDetail: { deviceId: "", displayName: rand(["Windows 11", "iPhone", "Chrome"]) },
-          conditionalAccessStatus: rand(["success", "failure", "notApplied"]),
-        }
-      : cat === "AuditLogs"
-        ? {
-            activityDisplayName: rand([
-              "Add member to group",
-              "Update user",
-              "Add app role assignment",
-            ]),
-            category: rand(["GroupManagement", "UserManagement", "ApplicationManagement"]),
-            initiatedBy: { user: { userPrincipalName: user, ipAddress: callerIp } },
-            targetResources: [{ displayName: `grp-${randId(4)}`, type: "Group" }],
-            result: isErr ? "Failure" : "Success",
-            resultReason: isErr ? "Insufficient privileges" : "",
-          }
-        : {
-            riskType: rand(["unfamiliarFeatures", "anonymizedIPAddress", "maliciousIPAddress"]),
-            riskLevel: isErr ? "high" : rand(["low", "medium"]),
-            riskState: isErr ? "atRisk" : "remediated",
-            userPrincipalName: user,
-            ipAddress: callerIp,
-          };
-  const operationName =
+        },
+      },
+      targetResources: [
+        {
+          id: randUUID(),
+          displayName: targetName,
+          type: act.targetType,
+          modifiedProperties: [
+            {
+              displayName: act.operationType === "Add" ? "member" : "displayName",
+              oldValue: act.operationType === "Add" ? "[]" : `"${targetName}"`,
+              newValue: act.operationType === "Delete" ? "[]" : `"${targetName}"`,
+            },
+          ],
+        },
+      ],
+      result: isErr ? "failure" : "success",
+      resultReason: isErr ? "Microsoft.Online.Administration.InsufficientPrivilegesException" : "",
+    };
+    operationName = act.name;
+    eventCategory = ["iam"];
+    eventType = isErr
+      ? ["admin"]
+      : [
+          act.operationType === "Delete"
+            ? "deletion"
+            : act.operationType === "Add"
+              ? "creation"
+              : "change",
+        ];
+  } else {
+    const riskType = rand(ENTRA_RISK_TYPES);
+    const loc = rand(ENTRA_LOCATIONS);
+    const riskLevel = isErr ? rand(["high", "medium"]) : rand(["low", "medium"]);
+    const detectionTiming = rand(["realtime", "offline"]);
+
+    props = {
+      id: randUUID(),
+      requestId: originalRequestId,
+      correlationId,
+      riskType,
+      riskEventType: riskType,
+      riskLevel,
+      riskState: isErr ? "atRisk" : "remediated",
+      riskDetail: isErr ? "none" : "aiConfirmedSigninSafe",
+      userPrincipalName: user,
+      userDisplayName,
+      userId,
+      ipAddress: callerIp,
+      detectedDateTime: time,
+      lastUpdatedDateTime: time,
+      location: {
+        city: loc.city,
+        state: loc.state,
+        countryOrRegion: loc.countryOrRegion,
+        geoCoordinates: loc.geoCoordinates,
+      },
+      source: "Identity Protection",
+      detectionTimingType: detectionTiming,
+      activity: "signin",
+      tokenIssuerType: "AzureAD",
+    };
+    operationName = "Risk detection";
+    eventCategory = ["intrusion_detection"];
+    eventType = ["info"];
+  }
+
+  const resultType = isErr ? "Failure" : "Success";
+  const caStatus =
     cat === "SignInLogs"
-      ? "Sign-in activity"
+      ? (props.conditionalAccessStatus as string)
       : cat === "AuditLogs"
-        ? "Audit activity"
-        : "Risk detection";
+        ? (props.result as string)
+        : (props.riskState as string);
+
   return {
     "@timestamp": ts,
     time,
+    tenantId,
     resourceId,
     operationName,
+    operationVersion: "1.0",
     category: cat,
-    resultType: isErr ? "Failure" : "Success",
+    resultType,
     resultSignature: isErr ? "1" : "0",
     callerIpAddress: callerIp,
     correlationId,
     level: isErr ? "Warning" : "Information",
     properties: props,
-    cloud: azureCloud(region, subscription, "Microsoft.Authorization"),
+    cloud: azureCloud(region, subscription, "microsoft.aadiam"),
     azure: {
       entra_id: {
         category: cat,
         user,
-        app_id: randId(8).toLowerCase(),
+        user_display_name: userDisplayName,
+        user_id: userId,
+        app_id: cat === "SignInLogs" ? (props.appId as string) : undefined,
+        app_display_name: cat === "SignInLogs" ? (props.appDisplayName as string) : undefined,
         ip_address: callerIp,
-        result: isErr ? rand(["Failure", "Interrupted"]) : "Success",
-        conditional_access: rand(["Success", "Failure", "Not applied"]),
+        result: resultType,
+        conditional_access: caStatus,
         tenant_id: tenantId,
         correlation_id: correlationId,
         properties: props,
       },
     },
+    user: { name: userDisplayName, email: user, id: userId },
+    source: { ip: callerIp },
     event: {
       kind: "event",
-      category: ["process"],
-      type: isErr ? ["error"] : ["start"],
+      category: eventCategory,
+      type: eventType,
       action: operationName,
       outcome: isErr ? "failure" : "success",
       duration: randInt(5e5, 2e8),
     },
-    message: isErr ? `Entra ${cat}: failure for ${user}` : `Entra ${cat}: success for ${user}`,
+    message: JSON.stringify(props),
   };
 }
 
@@ -1066,12 +1398,6 @@ export function generateM365Log(ts: string, er: number): EcsDocument {
       outcome: isErr ? "failure" : "success",
       duration: randInt(5e5, 2e8),
     },
-    message: isErr
-      ? `Microsoft 365 ${workload}: ${recordType} failed for ${user}`
-      : `Microsoft 365 ${workload}: ${recordType} by ${user}`,
-  };
-}
-
     message: isErr
       ? `Microsoft 365 ${workload}: ${recordType} failed for ${user}`
       : `Microsoft 365 ${workload}: ${recordType} by ${user}`,

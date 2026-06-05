@@ -1,70 +1,68 @@
 {
   "@timestamp": "2026-04-04T12:00:00.000Z",
-  "log": { "level": "info" },
-  "labels": {},
-  "severity": "INFO",
-  "logName": "projects/globex-sec-847293/logs/compute.googleapis.com%2Fpacket_mirroring",
-  "insertId": "2ml88x57hmq90603",
-  "resource": {
-    "type": "packet_mirroring_policy",
-    "labels": {
-      "project_id": "globex-sec-847293",
-      "policy": "pm-policy-iwqs6",
-      "region": "australia-southeast1"
-    }
+  "log": { "level": "error" },
+  "gcp.rpc": { "status_code": "RESOURCE_EXHAUSTED" },
+  "error": {
+    "code": "RESOURCE_EXHAUSTED",
+    "message": "RESOURCE_EXHAUSTED: operation failed",
+    "type": "gcp"
   },
+  "labels": { "gcp.rpc.status_code": "RESOURCE_EXHAUSTED" },
+  "severity": "WARNING",
+  "logName": "projects/globex-stg-739158/logs/compute.googleapis.com%2Fnetwork_tier_usage",
+  "insertId": "y74u7qyimxnqbmly",
+  "resource": { "type": "project", "labels": { "project_id": "globex-stg-739158" } },
   "jsonPayload": {
-    "packet_mirroring_policy": "projects/globex-sec-847293/regions/australia-southeast1/packetMirrorings/pm-policy-iwqs6",
-    "mirrored_network": "projects/globex-sec-847293/global/networks/shared-vpc",
-    "collector_ilb": "projects/globex-sec-847293/regions/australia-southeast1/forwardingRules/ilb-worker-loxy",
-    "mirrored_instance_count": 27,
-    "filter": { "ip_cidr_range": "10.96.182.0/24", "protocol": "all" },
-    "health": "HEALTHY"
+    "network_tier": "STANDARD",
+    "resource_kind": "VPN",
+    "region": "asia-southeast1",
+    "egress_bytes": "318",
+    "routing_preference": "HOT_POTATO",
+    "project": "globex-stg-739158"
   },
   "cloud": {
     "provider": "gcp",
-    "region": "australia-southeast1",
-    "project": { "id": "globex-sec-847293", "name": "Globex Security" },
-    "account": { "id": "847293615048", "name": "Globex Security" },
-    "service": { "name": "packet-mirroring" }
+    "region": "asia-southeast1",
+    "project": { "id": "globex-stg-739158", "name": "Globex Staging" },
+    "account": { "id": "739158264830", "name": "Globex Staging" },
+    "service": { "name": "network-service-tiers" }
   },
   "gcp": {
-    "packet_mirroring": {
+    "network_service_tiers": {
       "json_payload": {
-        "packet_mirroring_policy": "projects/globex-sec-847293/regions/australia-southeast1/packetMirrorings/pm-policy-iwqs6",
-        "mirrored_network": "projects/globex-sec-847293/global/networks/shared-vpc",
-        "collector_ilb": "projects/globex-sec-847293/regions/australia-southeast1/forwardingRules/ilb-worker-loxy",
-        "mirrored_instance_count": 27,
-        "filter": { "ip_cidr_range": "10.96.182.0/24", "protocol": "all" },
-        "health": "HEALTHY"
+        "network_tier": "STANDARD",
+        "resource_kind": "VPN",
+        "region": "asia-southeast1",
+        "egress_bytes": "318",
+        "routing_preference": "HOT_POTATO",
+        "project": "globex-stg-739158"
       },
-      "policy_name": "pm-policy-iwqs6",
-      "mirrored_network": "shared-vpc",
-      "collector_instance": "worker-loxy",
-      "mirrored_instances_count": 27,
-      "filter_protocol": "all",
-      "filter_cidr": "10.96.182.0/24"
+      "tier": "STANDARD",
+      "resource_type": "VPN",
+      "region": "asia-southeast1",
+      "egress_bytes": 318,
+      "routing_type": "HOT_POTATO"
     }
   },
   "event": {
     "kind": "event",
     "category": ["network"],
-    "type": ["connection"],
-    "action": "packet-mirror",
-    "outcome": "success",
-    "duration": 119000000,
+    "type": ["denied"],
+    "action": "network-tier",
+    "outcome": "failure",
+    "duration": 52000000,
     "module": "gcp",
-    "dataset": "gcp.packetmirroring"
+    "dataset": "gcp.nst"
   },
-  "message": "compute.googleapis.com/packet_mirroring pm-policy-iwqs6 mirrored=27",
-  "service": { "name": "packet-mirroring", "type": "gcp" },
+  "message": "compute.googleapis.com/network_tiers STANDARD VPN egress=318",
+  "service": { "name": "network-service-tiers", "type": "gcp" },
   "ecs": { "version": "8.11.0" },
-  "data_stream": { "type": "logs", "dataset": "gcp.packetmirroring", "namespace": "default" },
+  "data_stream": { "type": "logs", "dataset": "gcp.nst", "namespace": "default" },
   "agent": {
     "type": "elastic-agent",
     "version": "8.18.0",
-    "name": "elastic-agent-gcp-australia-southeast1",
-    "id": "9ehqh73tll8r6ailcxa61n8zdmwhftm9ja7u"
+    "name": "elastic-agent-gcp-asia-southeast1",
+    "id": "bnc3ml5x7z70sdv4ptk7gsrorlp6adjy9b8r"
   },
   "input": { "type": "gcp-pubsub" }
 }

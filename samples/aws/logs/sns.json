@@ -1,46 +1,48 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
     "region": "us-east-1",
-    "account": { "id": "391827465039", "name": "globex-payments-prod" },
+    "account": { "id": "501938274650", "name": "globex-security-tooling" },
     "service": { "name": "sns" }
   },
   "aws": {
-    "dimensions": { "TopicName": "system-events" },
+    "dimensions": { "TopicName": "deployment-events" },
     "sns": {
-      "scenario": "delivery_failure_logging",
-      "operation": "GetTopicAttributes",
-      "topic_arn": "arn:aws:sns:us-east-1:391827465039:system-events",
-      "subscription_arn": "arn:aws:sns:us-east-1:391827465039:system-events:acd8e64d-b03",
-      "protocol": "http",
+      "scenario": "filter_policy_match",
+      "operation": "Publish",
+      "topic_arn": "arn:aws:sns:us-east-1:501938274650:deployment-events",
+      "endpoint_arn": "arn:aws:sns:us-east-1:501938274650:endpoint/APNS/production/DIPI9MD8",
+      "subscription_arn": "arn:aws:sns:us-east-1:501938274650:deployment-events:68672e8f-380",
+      "protocol": "application",
+      "filter_policy": "{\"tier\":[\"premium\",\"enterprise\"],\"region\":[{\"prefix\":\"us-\"}]}",
       "metrics": {
-        "NumberOfMessagesPublished": { "sum": 7837 },
-        "NumberOfNotificationsDelivered": { "sum": 7837 },
+        "NumberOfMessagesPublished": { "sum": 6693 },
+        "NumberOfNotificationsDelivered": { "sum": 6693 },
         "NumberOfNotificationsFailed": { "sum": 0 },
         "NumberOfNotificationsFilteredOut": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-InvalidAttributes": { "sum": 0 },
         "NumberOfNotificationsFilteredOut-NoMessageAttributes": { "sum": 0 },
         "NumberOfNotificationsRedrivenToDlq": { "sum": 0 },
         "NumberOfNotificationsFailedToRedriveToDlq": { "sum": 0 },
-        "PublishSize": { "avg": 155933 },
+        "PublishSize": { "avg": 108689 },
         "SMSSuccessRate": {},
         "SMSMonthToDateSpentUSD": { "sum": 0 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-sns-logs-391827465039",
-        "arn": "arn:aws:s3:::aws-sns-logs-391827465039"
+        "name": "aws-sns-logs-501938274650",
+        "arn": "arn:aws:s3:::aws-sns-logs-501938274650"
       },
       "object": {
-        "key": "AWSLogs/391827465039/sns/us-east-1/2026/06/03/sns_50XJBJ205G2GLDOPO2VQ.log.gz"
+        "key": "AWSLogs/501938274650/sns/us-east-1/2026/06/05/sns_9TT8KIUMXYVOET2WSHVL.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/sns/logs",
-      "log_stream": "us-east-1/b4eh7v3w",
-      "ingestion_time": "2026-06-03T09:39:25.615Z"
+      "log_stream": "us-east-1/ot1a1gi6",
+      "ingestion_time": "2026-06-05T13:00:31.561Z"
     }
   },
   "event": {
@@ -49,10 +51,10 @@
     "type": ["info"],
     "dataset": "aws.sns",
     "provider": "sns.amazonaws.com",
-    "duration": 415550407.487166,
+    "duration": 264593508.63100094,
     "module": "aws"
   },
-  "message": "{\"notification\":{\"messageId\":\"7be16638-eb47-443e-9ced-d10fed3c4113\",\"topicArn\":\"arn:aws:sns:us-east-1:391827465039:system-events\",\"timestamp\":\"2026-06-03T09:39:24.765Z\"},\"delivery\":{\"statusCode\":200,\"providerResponse\":\"OK\",\"destination\":\"http://ITF1J87P\",\"deliveryAttempts\":2,\"subscriptionArn\":\"arn:aws:sns:us-east-1:391827465039:system-events:acd8e64d-b03\",\"protocol\":\"http\"},\"status\":\"SUCCESS\"}",
+  "message": "{\"notification\":{\"messageId\":\"ba31f986-f73a-45cd-bbed-a36496dbb7db\",\"topicArn\":\"arn:aws:sns:us-east-1:501938274650:deployment-events\",\"timestamp\":\"2026-06-05T13:00:30.622Z\"},\"delivery\":{\"statusCode\":200,\"providerResponse\":\"OK\",\"destination\":\"application://459Q840V\",\"deliveryAttempts\":1,\"subscriptionArn\":\"arn:aws:sns:us-east-1:501938274650:deployment-events:68672e8f-380\",\"protocol\":\"application\"},\"status\":\"SUCCESS\",\"filterPolicyMatch\":true,\"messageAttributes\":{\"tier\":{\"Type\":\"String\",\"Value\":\"premium\"}}}",
   "log": { "level": "info" },
   "service": { "name": "sns", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -61,7 +63,7 @@
     "type": "filebeat",
     "version": "8.18.0",
     "name": "filebeat-aws-us-east-1",
-    "ephemeral_id": "99n8mv1chgyl2qd1dtr9m40fai0kzsf5r7s2"
+    "ephemeral_id": "e0gkhvpd8eeho0m6wo40kfu62q90mujzygkb"
   },
   "input": { "type": "aws-cloudwatch" }
 }

@@ -1,84 +1,89 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-south-1",
-    "account": { "id": "391827465039", "name": "globex-payments-prod" },
+    "region": "ap-south-2",
+    "account": { "id": "283746150928", "name": "globex-log-archive" },
     "service": { "name": "eks" }
   },
   "aws": {
     "dimensions": {
-      "ClusterName": "prod-cluster-ap-south-1",
-      "NodeName": "ip-10-114-176-197.ap-south-1.compute.internal",
-      "Namespace": "default",
-      "PodName": "web-0qqat-jbjfa"
+      "ClusterName": "prod-cluster-ap-south-2",
+      "NodeName": "ip-10-1-100-49.ap-south-2.compute.internal",
+      "Namespace": "app-prod",
+      "PodName": "cache-fzu8h-0ijl2"
     },
     "eks": {
       "structured_logging": true,
-      "log_line_kind": "kubelet",
-      "cluster": { "name": "prod-cluster-ap-south-1" },
-      "node": { "name": "ip-10-114-176-197.ap-south-1.compute.internal" },
+      "log_line_kind": "controller",
+      "cluster": { "name": "prod-cluster-ap-south-2" },
+      "node": { "name": "ip-10-1-100-49.ap-south-2.compute.internal" },
       "metrics": {
-        "cluster_failed_node_count": { "avg": 0 },
-        "node_cpu_utilization": { "avg": 50.59498955958537 },
-        "node_memory_utilization": { "avg": 42.15809715527612 },
-        "node_network_total_bytes": { "sum": 210278704 },
-        "node_filesystem_utilization": { "avg": 73.45307539781702 },
-        "pod_cpu_utilization": { "avg": 56.12837331377362 },
-        "pod_memory_utilization": { "avg": 28.137790674144938 },
-        "pod_network_rx_bytes": { "sum": 19061490 },
-        "pod_network_tx_bytes": { "sum": 83167432 },
-        "node_count": { "avg": 13 },
-        "pod_count": { "avg": 199 }
+        "cluster_failed_node_count": { "avg": 3 },
+        "node_cpu_utilization": { "avg": 59.68156167975594 },
+        "node_memory_utilization": { "avg": 45.1313718918141 },
+        "node_network_total_bytes": { "sum": 611693325 },
+        "node_filesystem_utilization": { "avg": 21.27986323315134 },
+        "pod_cpu_utilization": { "avg": 58.88639812496344 },
+        "pod_memory_utilization": { "avg": 34.55168450862102 },
+        "pod_network_rx_bytes": { "sum": 45995295 },
+        "pod_network_tx_bytes": { "sum": 43551682 },
+        "node_count": { "avg": 23 },
+        "pod_count": { "avg": 419 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-eks-logs-391827465039",
-        "arn": "arn:aws:s3:::aws-eks-logs-391827465039"
+        "name": "aws-eks-logs-283746150928",
+        "arn": "arn:aws:s3:::aws-eks-logs-283746150928"
       },
       "object": {
-        "key": "AWSLogs/391827465039/eks/ap-south-1/2026/06/03/eks_IGS6GB6DBBH4FUJ62Q7H.log.gz"
+        "key": "AWSLogs/283746150928/eks/ap-south-2/2026/06/05/eks_ZE1ZI2LZSJ49VOWSP4M7.log.gz"
       }
     },
     "cloudwatch": {
-      "log_group": "/aws/eks/eks-cluster-g03nty/cluster",
-      "log_stream": "ap-south-1/teijhot2",
-      "ingestion_time": "2026-06-03T09:39:25.505Z"
+      "log_group": "/aws/eks/eks-cluster-82cufh/cluster",
+      "log_stream": "ap-south-2/uqf2znno",
+      "ingestion_time": "2026-06-05T13:00:31.424Z"
     }
   },
   "container": {
-    "id": "466zmox0vivn",
-    "name": "web",
-    "image": { "name": "k8s.gcr.io/web:v1.28.3" },
+    "id": "jmbv1o5h9a4u",
+    "name": "cache",
+    "image": { "name": "k8s.gcr.io/cache:v1.25.0" },
     "runtime": "containerd"
   },
   "kubernetes": {
-    "namespace": "default",
-    "pod": { "name": "web-0qqat-jbjfa" },
-    "container": { "name": "web" },
-    "labels": { "app": "web", "env": "prod" }
+    "namespace": "app-prod",
+    "pod": { "name": "cache-fzu8h-0ijl2" },
+    "container": { "name": "cache" },
+    "labels": { "app": "cache", "env": "prod" }
   },
-  "log": { "level": "warn" },
+  "log": { "level": "error" },
   "event": {
     "category": ["process"],
     "type": ["info"],
-    "outcome": "success",
+    "outcome": "failure",
     "dataset": "aws.eks",
     "provider": "eks.amazonaws.com",
-    "duration": 2423000000000,
+    "duration": 284000000000,
     "module": "aws"
   },
-  "message": "{\"apiVersion\":\"v1\",\"kind\":\"PodLog\",\"metadata\":{\"cluster\":\"prod-cluster-ap-south-1\",\"namespace\":\"default\",\"name\":\"web-0qqat-jbjfa\"},\"stream\":\"stdout\",\"log\":\"HPA scaling event: replicas 3->8\",\"timestamp\":\"2026-06-03T09:39:24.765Z\",\"level\":\"warn\"}",
-  "host": { "name": "ip-198-97-87-194.ec2.internal", "hostname": "eks-6yq52bjt" },
+  "message": "{\"apiVersion\":\"v1\",\"kind\":\"Event\",\"metadata\":{\"namespace\":\"app-prod\",\"name\":\"cache-fzu8h-0ijl2\",\"creationTimestamp\":\"2026-06-05T13:00:30.622Z\"},\"verb\":\"sync\",\"user\":{\"username\":\"system:kube-controller-manager\"},\"objectRef\":{\"kind\":\"Deployment\",\"namespace\":\"app-prod\",\"name\":\"cache\",\"resource\":\"deployments\",\"apiVersion\":\"apps/v1\"},\"message\":\"error syncing deployment app-prod/cache: failed to create ReplicaSet: forbidden\",\"reason\":\"FailedCreate\",\"type\":\"Warning\"}",
+  "error": {
+    "code": "InvalidParameterException",
+    "message": "FailedScheduling: 0/12 nodes available",
+    "type": "aws"
+  },
+  "host": { "name": "ip-51-128-121-60.ec2.internal", "hostname": "eks-annzo9wq" },
   "service": { "name": "eks", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-south-1",
-    "ephemeral_id": "4uam93nwgfmpjdarhgmudasdjyueplaxts7t"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "pepm3d4d85reft4l47sk9esseovmt7dqjrch"
   },
   "input": { "type": "aws-cloudwatch" }
 }

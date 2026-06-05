@@ -1,67 +1,73 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-northeast-1",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "af-south-1",
+    "account": { "id": "472918364052", "name": "globex-data-platform" },
     "service": { "name": "verified-access" }
   },
   "aws": {
-    "dimensions": { "ApplicationId": "va-app-4aui39un" },
+    "dimensions": { "ApplicationId": "va-app-q7td0cbo" },
     "verifiedaccess": {
-      "endpoint_id": "vae-y06ga0yo5qswmubpj",
-      "group_id": "vag-9vo782jtkajo8uso4",
-      "instance_id": "vai-04c508fcc44d968da",
+      "endpoint_id": "vae-443xj39zlsjyaah8w",
+      "group_id": "vag-01qvpgrx1ynw9yygj",
+      "instance_id": "vai-85e751d4a93ef63e7",
       "policy_name": "jump-server-only",
       "trust_provider_type": "oidc-okta",
       "device_posture": "UNKNOWN",
-      "verdict": "allow",
-      "http_method": "PUT",
+      "verdict": "deny",
+      "deny_reason": "mfa_required",
+      "http_method": "DELETE",
       "http_path": "/api/v2/analytics",
-      "http_status": 201,
-      "request_id": "c66188af-94b6-4c1a-a021-3426d2cc08b6",
-      "connection_id": "Z1WLOVAD9VFOIPBDVPJR",
-      "session_id": "J17T24WA2EV696QMQGBZY2ABBBL4OA2N",
-      "sni_hostname": "internal-dashboard.internal.cascadeops.com",
-      "application_name": "internal-dashboard"
+      "http_status": 401,
+      "request_id": "18e3827a-07c4-4feb-b790-6d9f1ace03c7",
+      "connection_id": "DB8XZF5PQM0OEUGNNUHL",
+      "session_id": "7QB3WXD45VY6LR9XR1S5J5I5MOBD51G7",
+      "sni_hostname": "git-server.internal.cascadeops.com",
+      "application_name": "git-server"
     },
     "s3": {
       "bucket": {
-        "name": "aws-verifiedaccess-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-293847561023"
+        "name": "aws-verifiedaccess-logs-472918364052",
+        "arn": "arn:aws:s3:::aws-verifiedaccess-logs-472918364052"
       },
       "object": {
-        "key": "AWSLogs/293847561023/verifiedaccess/ap-northeast-1/2026/06/03/verifiedaccess_A26HJVM5L1LTC43DJM4U.log.gz"
+        "key": "AWSLogs/472918364052/verifiedaccess/af-south-1/2026/06/05/verifiedaccess_47NDEOKVLE1YCZRTT6SZ.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/verifiedaccess/logs",
-      "log_stream": "ap-northeast-1/nd9tct21",
-      "ingestion_time": "2026-06-03T09:39:25.566Z"
+      "log_stream": "af-south-1/7gp3v71j",
+      "ingestion_time": "2026-06-05T13:00:31.498Z"
     }
   },
-  "user": { "email": "contractor@northwind-infra.net", "name": "contractor" },
-  "source": { "ip": "111.17.36.86" },
+  "user": { "email": "contractor@cascadeops.com", "name": "contractor" },
+  "source": { "ip": "158.169.94.1" },
   "event": {
-    "outcome": "success",
+    "outcome": "failure",
     "category": ["authentication", "network"],
-    "type": ["allowed"],
+    "type": ["denied"],
     "dataset": "aws.verifiedaccess",
     "provider": "verified-access.amazonaws.com",
-    "duration": 130000000,
+    "duration": 154000000,
     "module": "aws"
   },
-  "message": "{\"endpointId\":\"vae-ckylry4kvlefdp1bi\",\"applicationName\":\"internal-dashboard\",\"userIdentity\":{\"type\":\"IAMIdentityCenter\",\"userName\":\"contractor@northwind-infra.net\",\"userEmail\":\"contractor@northwind-infra.net\"},\"trustProviderType\":\"oidc-okta\",\"devicePosture\":\"UNKNOWN\",\"verdict\":\"allow\",\"denyReason\":null,\"httpMethod\":\"PUT\",\"httpPath\":\"/api/v2/analytics\",\"httpStatus\":201,\"requestId\":\"4e0a6dcb-7df5-4107-a19e-02eb77fcd1b7\",\"connectionId\":\"D8R46DN2Y935CP4ESSY6\",\"sessionId\":\"2QNXQXV2MEXN1OHRZG6CJRYAJ4YUO4YO\",\"sniHostname\":\"internal-dashboard.internal.northwind-infra.net\",\"policyName\":\"require-mfa\"}",
-  "log": { "level": "info" },
+  "message": "{\"endpointId\":\"vae-s1fnvc9ee856wbz8k\",\"applicationName\":\"git-server\",\"userIdentity\":{\"type\":\"IAMIdentityCenter\",\"userName\":\"contractor@cascadeops.com\",\"userEmail\":\"contractor@cascadeops.com\"},\"trustProviderType\":\"oidc-okta\",\"devicePosture\":\"UNKNOWN\",\"verdict\":\"deny\",\"denyReason\":\"mfa_required\",\"httpMethod\":\"DELETE\",\"httpPath\":\"/api/v2/analytics\",\"httpStatus\":401,\"requestId\":\"e586eabe-ea7c-4426-ae96-a177aba36d18\",\"connectionId\":\"G7R3KIK5SQASEWUXHWWD\",\"sessionId\":\"OOM9TBIYTPLKPHHTHH8OY7WU38XYWHZ0\",\"sniHostname\":\"git-server.internal.northwind-infra.net\",\"policyName\":\"corporate-device\"}",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "AccessDenied",
+    "message": "Verified Access policy denied: mfa_required",
+    "type": "authentication"
+  },
   "service": { "name": "verifiedaccess", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.cloudwatch_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-northeast-1",
-    "ephemeral_id": "e363zzufklk7pofiz9bfjxwd31vjtbat9x80"
+    "name": "filebeat-aws-af-south-1",
+    "ephemeral_id": "eqn9a6m6acj0o1kaj1jz5x0oxatngvck6z8i"
   },
   "input": { "type": "aws-cloudwatch" },
-  "related": { "ip": ["111.17.36.86"], "user": ["contractor", "contractor@northwind-infra.net"] }
+  "related": { "ip": ["158.169.94.1"], "user": ["contractor", "contractor@cascadeops.com"] }
 }

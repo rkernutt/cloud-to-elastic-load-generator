@@ -4663,6 +4663,280 @@ function generateIncidentManagerLog(ts: string, er: number): EcsDocument {
   };
 }
 
+// ── Entra ID Federated Identity Chain (SAML → AWS) ──────────────────────────
+// Real-world scenario: attacker compromises Entra ID credentials, federates
+// into AWS via SAML IdP trust, then performs reconnaissance and data access.
+function generateEntraFederatedChain(ts: string, _er: number): EcsDocument[] {
+  const region = rand(REGIONS);
+  const acct = randAccount();
+  const baseDate = new Date(ts);
+  const attackSessionId = randUUID();
+  const sourceIp = randPublicIp();
+  const userAgent =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
+  const samlProviderName = "EntraID-SAML";
+  const samlProviderArn = `arn:aws:iam::${acct.id}:saml-provider/${samlProviderName}`;
+  const roleArn = `arn:aws:iam::${acct.id}:role/EntraID-SSO-AdminRole`;
+  const sessionName = `attacker@meridiantech.com`;
+  const principalId = `AROA${randId(16).toUpperCase()}:${sessionName}`;
+  const tenantId = randUUID();
+  const targetBucket = `${acct.name.toLowerCase().replace(/\s+/g, "-")}-confidential-data`;
+
+  const chainLabels = {
+    attack_session_id: attackSessionId,
+    federation_provider: "entra-id",
+    saml_provider_arn: samlProviderArn,
+    assumed_role_arn: roleArn,
+  };
+
+  const ctDoc = (
+    eventTs: string,
+    eventName: string,
+    eventSource: string,
+    readOnly: boolean,
+    reqParams: Record<string, unknown> | null,
+    respElements: Record<string, unknown> | null,
+    outcome: "success" | "failure",
+    identityType: "SAMLUser" | "AssumedRole",
+    errorCode?: string
+  ): EcsDocument => ({
+    __dataset: "aws.cloudtrail",
+    "@timestamp": eventTs,
+    cloud: {
+      provider: "aws",
+      region,
+      account: { id: acct.id, name: acct.name },
+      service: { name: "cloudtrail" },
+    },
+    aws: {
+      dimensions: { EventName: eventName, EventSource: eventSource },
+      cloudtrail: {
+        event_version: "1.09",
+        event_category: "Management",
+        event_type: "AwsApiCall",
+        request_id: randUUID(),
+        management_event: true,
+        read_only: readOnly,
+        recipient_account_id: acct.id,
+        aws_region: region,
+        user_identity:
+          identityType === "SAMLUser"
+            ? {
+                type: "SAMLUser",
+                principal_id: `${samlProviderArn}:${sessionName}`,
+                arn: roleArn,
+                account_id: acct.id,
+                session_context: {
+                  session_issuer: {
+                    type: "Role",
+                    principal_id: `AROA${randId(16).toUpperCase()}`,
+                    arn: roleArn,
+                    account_id: acct.id,
+                    user_name: "EntraID-SSO-AdminRole",
+                  },
+                  web_id_federation_data: {
+                    federated_provider: samlProviderArn,
+                    attributes: {
+                      "https://aws.amazon.com/SAML/Attributes/RoleSessionName": sessionName,
+                      "https://aws.amazon.com/SAML/Attributes/Role": `${roleArn},${samlProviderArn}`,
+                      issuer: `https://sts.windows.net/${tenantId}/`,
+                    },
+                  },
+                  attributes: {
+                    creation_date: eventTs,
+                    mfa_authenticated: "false",
+                  },
+                },
+              }
+            : {
+                type: "AssumedRole",
+                principal_id: principalId,
+                arn: `${roleArn}/${sessionName}`,
+                account_id: acct.id,
+                access_key_id: `ASIA${randId(16).toUpperCase()}`,
+                session_context: {
+                  session_issuer: {
+                    type: "Role",
+                    principal_id: `AROA${randId(16).toUpperCase()}`,
+                    arn: roleArn,
+                    account_id: acct.id,
+                    user_name: "EntraID-SSO-AdminRole",
+                  },
+                  web_id_federation_data: null,
+                  attributes: {
+                    creation_date: eventTs,
+                    mfa_authenticated: "false",
+                  },
+                },
+              },
+        ...(reqParams ? { request_parameters: JSON.stringify(reqParams) } : {}),
+        ...(respElements ? { response_elements: JSON.stringify(respElements) } : {}),
+        ...(errorCode
+          ? {
+              error_code: errorCode,
+              error_message: `User: ${roleArn}/${sessionName} is not authorized to perform: ${eventName}`,
+            }
+          : {}),
+      },
+    },
+    user: { name: sessionName, id: principalId },
+    source: { ip: sourceIp },
+    user_agent: { original: userAgent },
+    event: {
+      kind: "event",
+      action: eventName,
+      outcome,
+      category: ["iam", "authentication"],
+      type: outcome === "success" ? ["info"] : ["access"],
+      dataset: "aws.cloudtrail",
+      provider: "cloudtrail.amazonaws.com",
+    },
+    log: { level: "warn" },
+    labels: chainLabels,
+  });
+
+  const t0 = offsetTs(baseDate, 0);
+  const t1 = offsetTs(baseDate, randInt(5_000, 15_000));
+  const t2 = offsetTs(baseDate, randInt(30_000, 90_000));
+  const t3 = offsetTs(baseDate, randInt(120_000, 300_000));
+  const t4 = offsetTs(baseDate, randInt(310_000, 600_000));
+
+  return [
+    {
+      ...ctDoc(
+        t0,
+        "AssumeRoleWithSAML",
+        "sts.amazonaws.com",
+        false,
+        {
+          roleArn,
+          principalArn: samlProviderArn,
+          SAMLAssertion: "<REDACTED>",
+          roleSessionName: sessionName,
+          durationSeconds: 3600,
+        },
+        {
+          credentials: {
+            accessKeyId: `ASIA${randId(16).toUpperCase()}`,
+            sessionToken: "<REDACTED>",
+            expiration: offsetTs(baseDate, 3_600_000),
+          },
+          assumedRoleUser: {
+            assumedRoleId: principalId,
+            arn: `${roleArn}/${sessionName}`,
+          },
+          issuer: `https://sts.windows.net/${tenantId}/`,
+          audience: `https://signin.aws.amazon.com/saml`,
+          nameQualifier: randId(32).toLowerCase(),
+          subject: sessionName,
+          subjectType: "persistent",
+        },
+        "success",
+        "SAMLUser"
+      ),
+      threat: {
+        tactic: { name: "Initial Access", id: "TA0001" },
+        technique: {
+          name: "Trusted Relationship",
+          id: "T1199",
+          subtechnique: { name: "Cloud Account", id: "T1199.001" },
+        },
+      },
+      message: `CloudTrail [EntraFederation 1/5]: AssumeRoleWithSAML — ${sessionName} federated via ${samlProviderName} (issuer: sts.windows.net/${tenantId})`,
+    },
+    {
+      ...ctDoc(
+        t1,
+        "GetCallerIdentity",
+        "sts.amazonaws.com",
+        true,
+        null,
+        {
+          userId: principalId,
+          account: acct.id,
+          arn: `${roleArn}/${sessionName}`,
+        },
+        "success",
+        "AssumedRole"
+      ),
+      threat: {
+        tactic: { name: "Discovery", id: "TA0007" },
+        technique: { name: "System Information Discovery", id: "T1082" },
+      },
+      message: `CloudTrail [EntraFederation 2/5]: GetCallerIdentity — session probe by federated user`,
+    },
+    {
+      ...ctDoc(
+        t2,
+        "ListBuckets",
+        "s3.amazonaws.com",
+        true,
+        null,
+        {
+          buckets: [
+            { name: targetBucket, creationDate: offsetTs(baseDate, -86_400_000 * 90) },
+            {
+              name: `${acct.name.toLowerCase().replace(/\s+/g, "-")}-logs`,
+              creationDate: offsetTs(baseDate, -86_400_000 * 180),
+            },
+          ],
+        },
+        "success",
+        "AssumedRole"
+      ),
+      threat: {
+        tactic: { name: "Discovery", id: "TA0007" },
+        technique: { name: "Cloud Infrastructure Discovery", id: "T1580" },
+      },
+      message: `CloudTrail [EntraFederation 3/5]: ListBuckets — enumeration of S3 resources by federated user`,
+    },
+    {
+      ...ctDoc(
+        t3,
+        "GetObject",
+        "s3.amazonaws.com",
+        true,
+        {
+          bucketName: targetBucket,
+          key: "exports/customer-pii-2026.csv",
+        },
+        null,
+        "success",
+        "AssumedRole"
+      ),
+      threat: {
+        tactic: { name: "Collection", id: "TA0009" },
+        technique: { name: "Data from Cloud Storage", id: "T1530" },
+      },
+      message: `CloudTrail [EntraFederation 4/5]: GetObject from s3://${targetBucket}/exports/customer-pii-2026.csv — potential data exfiltration`,
+    },
+    {
+      ...ctDoc(
+        t4,
+        "CreateAccessKey",
+        "iam.amazonaws.com",
+        false,
+        { userName: "backup-service" },
+        {
+          accessKey: {
+            accessKeyId: `AKIA${randId(16).toUpperCase()}`,
+            status: "Active",
+            userName: "backup-service",
+            createDate: t4,
+          },
+        },
+        "success",
+        "AssumedRole"
+      ),
+      threat: {
+        tactic: { name: "Persistence", id: "TA0003" },
+        technique: { name: "Account Manipulation", id: "T1098" },
+      },
+      message: `CloudTrail [EntraFederation 5/5]: CreateAccessKey for backup-service — persistence attempt by federated attacker`,
+    },
+  ];
+}
+
 export {
   generateGuardDutyLog,
   generateSecurityHubLog,
@@ -4691,4 +4965,5 @@ export {
   generatePaymentCryptographyLog,
   generateNetworkAccessAnalyzerLog,
   generateIncidentManagerLog,
+  generateEntraFederatedChain,
 };

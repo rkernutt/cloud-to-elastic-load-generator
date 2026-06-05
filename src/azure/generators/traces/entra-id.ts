@@ -26,7 +26,7 @@ export function generateEntraIdTrace(ts: string, er: number): EcsDocument[] {
     runtimeVersion: "8.0",
   });
   const dim = (e: Record<string, string>) => cd(region, resourceGroup, subscription.id, e);
-  const cloud = azureCloud(region, subscription, "Microsoft.AzureActiveDirectory");
+  const cloud = azureCloud(region, subscription, "microsoft.aadiam");
   const tenant = rand(["meridiantech.onmicrosoft.com", "cascadeops.onmicrosoft.com"]);
   const failIdx = isErr ? randInt(0, 3) : -1;
 

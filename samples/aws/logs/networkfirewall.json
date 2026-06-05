@@ -1,75 +1,80 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "eu-central-2",
-    "account": { "id": "283746150928", "name": "globex-log-archive" },
+    "region": "ap-south-2",
+    "account": { "id": "814726593401", "name": "globex-production" },
     "service": { "name": "network-firewall" }
   },
   "aws": {
     "dimensions": {
-      "FirewallName": "fw-eu-central-2",
-      "AvailabilityZone": "eu-central-2a",
-      "CustomAction": "CustomPassAction"
+      "FirewallName": "fw-ap-south-2",
+      "AvailabilityZone": "ap-south-2a",
+      "CustomAction": "CustomBlockAction"
     },
     "firewall_logs": {
-      "flow_id": 182228,
-      "event_timestamp": "2026-06-03T09:39:24.765Z",
-      "action": "PASS",
-      "src_ip": "192.168.114.49",
-      "dest_ip": "10.43.76.121",
-      "src_port": 17047,
-      "dest_port": 80,
-      "protocol": "ICMP",
-      "firewall_name": "fw-eu-central-2",
-      "availability_zone": "eu-central-2a"
+      "flow_id": 987115,
+      "event_timestamp": "2026-06-05T13:00:30.622Z",
+      "action": "DROP",
+      "src_ip": "192.168.134.3",
+      "dest_ip": "10.98.220.158",
+      "src_port": 28500,
+      "dest_port": 3306,
+      "protocol": "UDP",
+      "firewall_name": "fw-ap-south-2",
+      "availability_zone": "ap-south-2a"
     },
     "network_firewall": {
-      "firewall_name": "fw-eu-central-2",
-      "availability_zone": "eu-central-2a",
+      "firewall_name": "fw-ap-south-2",
+      "availability_zone": "ap-south-2a",
       "policy_name": "prod-fw-policy",
       "metrics": {
-        "DroppedPackets": { "sum": 0 },
-        "PassedPackets": { "sum": 65726 },
+        "DroppedPackets": { "sum": 850 },
+        "PassedPackets": { "sum": 0 },
         "RejectedPackets": { "sum": 0 },
-        "Packets": { "sum": 37165 },
-        "DroppedBytes": { "sum": 0 }
+        "Packets": { "sum": 10787 },
+        "DroppedBytes": { "sum": 27200 }
       }
     },
     "s3": {
       "bucket": {
-        "name": "aws-networkfirewall-logs-283746150928",
-        "arn": "arn:aws:s3:::aws-networkfirewall-logs-283746150928"
+        "name": "aws-networkfirewall-logs-814726593401",
+        "arn": "arn:aws:s3:::aws-networkfirewall-logs-814726593401"
       },
       "object": {
-        "key": "AWSLogs/283746150928/networkfirewall/eu-central-2/2026/06/03/networkfirewall_D0OQ7SXBOBBLNOKFVNJ7.log.gz"
+        "key": "AWSLogs/814726593401/networkfirewall/ap-south-2/2026/06/05/networkfirewall_BBEM6G2C7RI872RL9BUO.log.gz"
       }
     }
   },
-  "source": { "ip": "192.168.114.49", "port": 17047 },
-  "destination": { "ip": "10.43.76.121", "port": 80 },
-  "network": { "transport": "icmp", "bytes": 7575, "packets": 23 },
+  "source": { "ip": "192.168.134.3", "port": 28500 },
+  "destination": { "ip": "10.98.220.158", "port": 3306 },
+  "network": { "transport": "udp", "bytes": 32251, "packets": 49 },
   "event": {
-    "action": "pass",
-    "outcome": "success",
+    "action": "drop",
+    "outcome": "failure",
     "category": ["intrusion_detection", "network"],
     "type": ["info"],
     "dataset": "aws.firewall_logs",
     "provider": "network-firewall.amazonaws.com",
-    "duration": 27000000,
+    "duration": 66000000,
     "module": "aws"
   },
-  "message": "PASS ICMP flow",
-  "log": { "level": "info" },
+  "message": "DROP UDP flow",
+  "log": { "level": "warn" },
+  "error": {
+    "code": "FlowDropped",
+    "message": "Packet dropped by firewall rule",
+    "type": "network"
+  },
   "service": { "name": "networkfirewall", "type": "aws" },
   "ecs": { "version": "8.11.0" },
   "data_stream": { "type": "logs", "dataset": "aws.firewall_logs", "namespace": "default" },
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-eu-central-2",
-    "ephemeral_id": "opjwsrgwauvigu9y05y06kxs0ce6f3gky0uy"
+    "name": "filebeat-aws-ap-south-2",
+    "ephemeral_id": "btvsxx7uc62rehq0615ubcmbmioiapibgmp6"
   },
   "input": { "type": "aws-s3" },
-  "related": { "ip": ["192.168.114.49", "10.43.76.121"] }
+  "related": { "ip": ["192.168.134.3", "10.98.220.158"] }
 }

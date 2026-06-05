@@ -209,6 +209,7 @@ const SERVICE_INGESTION_DEFAULTS = {
   kspm: "api",
   "iam-privesc-chain": "api",
   "data-exfil-chain": "api",
+  "entra-federation-chain": "api",
   "dns-c2-chain": "api",
   "data-pipeline-chain": "api",
   servicenow_cmdb: "api",

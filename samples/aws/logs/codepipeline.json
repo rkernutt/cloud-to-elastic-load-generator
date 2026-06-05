@@ -1,21 +1,21 @@
 {
-  "@timestamp": "2026-06-03T09:39:24.765Z",
+  "@timestamp": "2026-06-05T13:00:30.622Z",
   "cloud": {
     "provider": "aws",
-    "region": "ap-southeast-2",
-    "account": { "id": "293847561023", "name": "globex-staging" },
+    "region": "eu-south-2",
+    "account": { "id": "391827465039", "name": "globex-payments-prod" },
     "service": { "name": "codepipeline" }
   },
   "aws": {
-    "dimensions": { "PipelineName": "infra-pipeline" },
+    "dimensions": { "PipelineName": "api-deploy" },
     "codepipeline": {
-      "pipeline_name": "infra-pipeline",
-      "pipeline_arn": "arn:aws:codepipeline:ap-southeast-2:293847561023:infra-pipeline",
-      "execution_id": "64707f29-703b-4e24-be47-1cc72b32c528",
-      "stage_name": "Staging",
+      "pipeline_name": "api-deploy",
+      "pipeline_arn": "arn:aws:codepipeline:eu-south-2:391827465039:api-deploy",
+      "execution_id": "cd327be5-2b6c-4bf2-b6b2-a66b3b2f5306",
+      "stage_name": "Approval",
       "action_name": "Manual",
       "state": "Succeeded",
-      "revision_id": "eca8f5b61d9483a2d2c761724c8b2571a1ed2cf9",
+      "revision_id": "43a041a1695769711afed4c8376b55ec1a3e5cf1",
       "structured_logging": true,
       "metrics": {
         "PipelineExecutionAttempts": { "sum": 1 },
@@ -28,17 +28,17 @@
     },
     "s3": {
       "bucket": {
-        "name": "aws-codepipeline-logs-293847561023",
-        "arn": "arn:aws:s3:::aws-codepipeline-logs-293847561023"
+        "name": "aws-codepipeline-logs-391827465039",
+        "arn": "arn:aws:s3:::aws-codepipeline-logs-391827465039"
       },
       "object": {
-        "key": "AWSLogs/293847561023/codepipeline/ap-southeast-2/2026/06/03/codepipeline_Z09XSC0PIYXWPEEUMHWX.log.gz"
+        "key": "AWSLogs/391827465039/codepipeline/eu-south-2/2026/06/05/codepipeline_NJHFZWVMDKPU96HJ6WT7.log.gz"
       }
     },
     "cloudwatch": {
       "log_group": "/aws/codepipeline/logs",
-      "log_stream": "ap-southeast-2/64f5sjz6",
-      "ingestion_time": "2026-06-03T09:39:25.621Z"
+      "log_stream": "eu-south-2/nlnye7o1",
+      "ingestion_time": "2026-06-05T13:00:31.569Z"
     }
   },
   "event": {
@@ -46,10 +46,10 @@
     "category": ["process", "configuration"],
     "dataset": "aws.codepipeline",
     "provider": "codepipeline.amazonaws.com",
-    "duration": 82000000000,
+    "duration": 81000000000,
     "module": "aws"
   },
-  "message": "{\"eventType\":\"PipelineExecutionStateChange\",\"pipeline\":\"infra-pipeline\",\"executionId\":\"64707f29-703b-4e24-be47-1cc72b32c528\",\"stage\":\"Staging\",\"state\":\"Succeeded\",\"timestamp\":\"2026-06-03T09:39:24.765Z\",\"revision\":\"eca8f5b61d9483a2d2c761724c8b2571a1ed2cf9\",\"region\":\"ap-southeast-2\",\"artifacts\":{\"source\":\"s3://293847561023-codepipeline-ap-southeast-2/infra-pipeline/source_out/eca8f5b61d9483a2d2c761724c8b2571a1ed2cf9.zip\",\"build\":\"s3://293847561023-codepipeline-ap-southeast-2/infra-pipeline/build_out/64707f29-703b-4e24-be47-1cc72b32c528/BuildOut\",\"deploy\":\"s3://293847561023-codepipeline-ap-southeast-2/infra-pipeline/deploy/64707f29-703b-4e24-be47-1cc72b32c528/DeploymentBundle\"},\"stages\":[\"Source\",\"Build\",\"Deploy\",\"Test\"],\"currentStage\":{\"name\":\"Staging\",\"status\":\"Succeeded\",\"actions\":[{\"name\":\"CheckoutSource\",\"provider\":\"S3\",\"status\":\"Succeeded\"},{\"name\":\"CodeBuild\",\"provider\":\"CodeBuild\",\"status\":\"Succeeded\"},{\"name\":\"CodeDeploy\",\"provider\":\"CodeDeploy\",\"status\":\"Succeeded\"}]}}",
+  "message": "{\"eventType\":\"PipelineExecutionStateChange\",\"pipeline\":\"api-deploy\",\"executionId\":\"cd327be5-2b6c-4bf2-b6b2-a66b3b2f5306\",\"stage\":\"Approval\",\"state\":\"Succeeded\",\"timestamp\":\"2026-06-05T13:00:30.622Z\",\"revision\":\"43a041a1695769711afed4c8376b55ec1a3e5cf1\",\"region\":\"eu-south-2\",\"artifacts\":{\"source\":\"s3://391827465039-codepipeline-eu-south-2/api-deploy/source_out/43a041a1695769711afed4c8376b55ec1a3e5cf1.zip\",\"build\":\"s3://391827465039-codepipeline-eu-south-2/api-deploy/build_out/cd327be5-2b6c-4bf2-b6b2-a66b3b2f5306/BuildOut\",\"deploy\":\"s3://391827465039-codepipeline-eu-south-2/api-deploy/deploy/cd327be5-2b6c-4bf2-b6b2-a66b3b2f5306/DeploymentBundle\"},\"stages\":[\"Source\",\"Build\",\"Deploy\",\"Test\"],\"currentStage\":{\"name\":\"Approval\",\"status\":\"Succeeded\",\"actions\":[{\"name\":\"Source\",\"provider\":\"GitHub\",\"status\":\"Succeeded\"},{\"name\":\"JenkinsProvider\",\"provider\":\"JenkinsProvider\",\"status\":\"Succeeded\"},{\"name\":\"CloudFormation\",\"provider\":\"CloudFormation\",\"status\":\"Succeeded\"}]},\"approval\":{\"action\":\"ManualApproval\",\"approvedBy\":\"agarcia\"}}",
   "log": { "level": "info" },
   "service": { "name": "codepipeline", "type": "aws" },
   "ecs": { "version": "8.11.0" },
@@ -57,8 +57,8 @@
   "agent": {
     "type": "filebeat",
     "version": "8.18.0",
-    "name": "filebeat-aws-ap-southeast-2",
-    "ephemeral_id": "vf240e95uz92ew1cxrjgun9l7m79rxeypr88"
+    "name": "filebeat-aws-eu-south-2",
+    "ephemeral_id": "9kricbq41duhb59slvgsr1570usbwaz7v09n"
   },
   "input": { "type": "aws-cloudwatch" }
 }
