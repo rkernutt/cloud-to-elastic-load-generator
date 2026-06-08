@@ -305,12 +305,6 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         desc: "Identity & device management logs",
       },
       {
-        id: "managed-ad",
-        label: "Managed Active Directory",
-        icon: "⊞",
-        desc: "AD domain controller logs",
-      },
-      {
         id: "security-operations",
         label: "Security Operations (SecOps)",
         icon: "◈",
@@ -728,12 +722,6 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         label: "Data Pipeline",
         icon: "⛁",
         desc: "Data & Analytics pipeline: Composer → GCS → Dataproc/Spark → Data Catalog → BigQuery with failure cascades + APM traces",
-      },
-      {
-        id: "servicenow_cmdb",
-        label: "ServiceNow CMDB",
-        icon: "⎈",
-        desc: "CMDB configuration items, incidents, change requests, users, and support groups for asset enrichment",
       },
     ],
   },

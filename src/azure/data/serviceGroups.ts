@@ -256,18 +256,6 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
     color: "#107C10",
     icon: "🔐",
     services: [
-      {
-        id: "entra-id",
-        label: "Microsoft Entra ID",
-        icon: "🔑",
-        desc: "Directory audit & sign-in",
-      },
-      {
-        id: "m365",
-        label: "Microsoft 365 (unified audit)",
-        icon: "📧",
-        desc: "One stream logs-azure.microsoft_365 — workload field separates Exchange, Teams, SharePoint, etc.",
-      },
       { id: "key-vault", label: "Key Vault", icon: "🗝", desc: "Key / secret access" },
       { id: "managed-identity", label: "Managed Identity", icon: "◎", desc: "Identity operations" },
       {
@@ -289,38 +277,6 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         label: "Dedicated HSM",
         icon: "🗝",
         desc: "Thales Luna-class hardware security modules",
-      },
-    ],
-  },
-  {
-    id: "o365-metrics",
-    label: "Microsoft 365 metrics (Graph)",
-    color: "#107C10",
-    icon: "📊",
-    services: [
-      {
-        id: "active-users-services",
-        label: "Active users by workload",
-        icon: "👥",
-        desc: "o365_metrics.active_users_services_user_counts",
-      },
-      {
-        id: "teams-user-activity",
-        label: "Teams user activity",
-        icon: "💬",
-        desc: "o365_metrics.teams_user_activity_user_counts",
-      },
-      {
-        id: "outlook-activity",
-        label: "Outlook activity",
-        icon: "✉",
-        desc: "o365_metrics.outlook_activity",
-      },
-      {
-        id: "onedrive-usage-storage",
-        label: "OneDrive storage",
-        icon: "☁",
-        desc: "o365_metrics.onedrive_usage_storage",
       },
     ],
   },
@@ -476,12 +432,6 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         label: "Data Pipeline",
         icon: "⛁",
         desc: "Data & Analytics pipeline: Data Factory → Blob → Databricks/Spark → Purview → Synapse with failure cascades + APM traces",
-      },
-      {
-        id: "servicenow_cmdb",
-        label: "ServiceNow CMDB",
-        icon: "⎈",
-        desc: "CMDB configuration items, incidents, change requests, users, and support groups for asset enrichment",
       },
     ],
   },

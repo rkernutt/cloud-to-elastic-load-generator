@@ -4,7 +4,7 @@
 
 This document compares what **Cloud Loadgen for Elastic** (AWS catalog) currently emits per service with what is needed for **complete** logs and metrics as defined by **Elastic AWS integration** and **AWS service documentation**. Use it to prioritize additions (fields, message types, metrics) for full fidelity in Elastic dashboards, rules, and ML.
 
-**Current coverage (`npm run samples:verify`, [README](../README.md)):** **AWS:** **217** services (**56** trace generators) — **GCP:** **137** services (**58** traces) — **Azure:** **140** services (**52** traces). Installer assets: **496** dashboards, **778** ML jobs, **243** alerting rules.
+**Current coverage (`npm run samples:verify`, [README](../README.md)):** **AWS:** **217** services (**56** traces) — **GCP:** **136** services (**58** traces) — **Azure:** **133** services (**52** traces) — **Supporting:** **8** services. Installer assets: **496** dashboards, **62** ML jobs, **31** alerting rules.
 
 **Historical release notes:** v8.0 expanded metrics coverage and made `aws.dimensions` always-present; v11.x aligned `METRICS_SUPPORTED_SERVICE_IDS` with `METRICS_GENERATORS`. v7.6 aligned CloudWatch metric names/dimensions and `event.category` as an ECS array across metrics generators; v7.5 closed `event.duration` gaps, addressed RDS Enhanced Monitoring fields, and Lambda START/END/REPORT patterns. All generators use real AWS API error codes on failure paths.
 

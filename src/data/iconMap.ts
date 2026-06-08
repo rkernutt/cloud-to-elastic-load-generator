@@ -262,6 +262,7 @@ const CATEGORY_ICON_MAP = {
   media: "Category-Media",
   messaging: "Category-BusinessApps",
   findings: "Category-SecurityFindings.png",
+  supporting: "Category-BusinessApps",
 };
 
 export { AWS_ICON_BASE, AWS_SERVICE_ICON_MAP, TRACE_SERVICE_ICON_MAP, CATEGORY_ICON_MAP, iconSrc };

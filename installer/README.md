@@ -34,7 +34,7 @@ The **recommended** approach is to install assets **per service** as **Cloud Loa
 
 All assets are tagged **`cloudloadgen`** — filter in Kibana **Saved Objects → Tags → cloudloadgen** to view, bulk-edit, or bulk-delete load-generator assets without affecting production objects. ML jobs and pipelines include `cloudloadgen` in their metadata for the same easy filtering.
 
-**Catalog size (AWS + GCP + Azure):** **496** dashboards, **778** ML anomaly jobs, **243** alerting rules (per-cloud breakdown in the [project README](../README.md)).
+**Catalog size (AWS + GCP + Azure + Supporting):** **496** dashboards, **62** ML anomaly jobs, **31** alerting rules (per-cloud breakdown in the [project README](../README.md)).
 
 ### Web UI Setup step
 
@@ -166,9 +166,7 @@ ML anomaly detection jobs that detect real operational and security anomalies. J
 
 ### Chained scenario assets (dashboards, rules, ML jobs)
 
-Beyond per-service bundles, the repo ships chained-scenario assets for **Data & Analytics Pipeline** (`data-pipeline-dashboard.json` / `gcp-data-pipeline-dashboard.json` / `azure-data-pipeline-dashboard.json`) and for **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** (`security-finding-chain`, `iam-privesc-chain`, and `data-exfil-chain` name prefixes; GCP and Azure use `gcp-` / `azure-` prefixes). There are **three security-chain dashboards per cloud** (**nine** such dashboards across AWS, GCP, and Azure), each with matching **Elasticsearch-query alert rule** and **ML job** JSON. Rule bundles live in `installer/{aws,gcp,azure}-custom-rules/` (`data-pipeline-rules.json` plus the three chain files, and domain-specific files for per-service rules); installing **all** rule files for a cloud installs **115** rules (AWS), **62** (GCP), or **66** (Azure) — **243 total**. ML definitions include `data-pipeline-jobs` plus the three chain job files per cloud under `installer/{aws,gcp,azure}-custom-ml-jobs/jobs/`. Install with the same `setup:*-dashboards`, `setup:*-ml-jobs`, and `npm run setup:alert-rules` commands as other custom assets.
-
-Beyond chained scenarios, the repo ships **per-service domain rules** covering compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **243 rules total** across AWS (115), GCP (62), and Azure (66). Rule bundles live in `installer/{aws,gcp,azure}-custom-rules/` with domain-specific files (`compute-rules.json`, `database-rules.json`, `networking-rules.json`, `aiml-rules.json`, `storage-rules.json`, `messaging-rules.json`, `devops-rules.json`, `security-ops-rules.json`, and `spark-rules.json` for AWS).
+Beyond per-service bundles, the repo ships chained-scenario assets for **Data & Analytics Pipeline** (`data-pipeline-dashboard.json` / `gcp-data-pipeline-dashboard.json` / `azure-data-pipeline-dashboard.json`) and for **Security Finding**, **IAM Privilege Escalation**, and **Data Exfiltration** (`security-finding-chain`, `iam-privesc-chain`, and `data-exfil-chain` name prefixes; GCP and Azure use `gcp-` / `azure-` prefixes). There are **three security-chain dashboards per cloud** (**nine** such dashboards across AWS, GCP, and Azure), each with matching **Elasticsearch-query alert rule** and **ML job** JSON. Rule bundles live in `installer/{aws,gcp,azure}-custom-rules/` (`data-pipeline-rules.json` plus the three chain files, and domain-specific files for per-service rules); installing **all** rule files for a cloud installs **13** rules (AWS), **9** (GCP), or **9** (Azure) — **31 total**. ML definitions include `data-pipeline-jobs` plus the three chain job files per cloud under `installer/{aws,gcp,azure}-custom-ml-jobs/jobs/`. Install with the same `setup:*-dashboards`, `setup:*-ml-jobs`, and `npm run setup:alert-rules` commands as other custom assets.
 
 Each chained-scenario rule also ships with `artifacts.dashboards` linking the **chain overview plus one or more per-service dashboards** that match the rule's primary dataset — see [../docs/SETUP-WIZARD-AND-UNINSTALL.md → Linked dashboards on alerts](../docs/SETUP-WIZARD-AND-UNINSTALL.md#linked-dashboards-on-alerts) for the per-rule mapping (multi-source correlation rules link the chain overview only). The wizard skips a link when the user untoggled the matching dashboard during install, so partial-install runs never produce broken references.
 
@@ -190,7 +188,7 @@ Running **Installer 1** (official Fleet package) plus **per-service bundles** gi
 
 ### ServiceNow CMDB Integration auto-install
 
-When the **ServiceNow CMDB Integration** toggle is enabled in the Setup wizard, the app installs the `servicenow` Fleet integration package. This enables Elastic's ServiceNow data views and allows cross-index enrichment between pipeline alerts and CMDB records (CI ownership, support groups, incidents, change requests). The ServiceNow CMDB generator produces realistic records across 9 CMDB/ITSM tables with CIs correlated to cloud infrastructure names. Data ships to `logs-servicenow.event-*`.
+When the **ServiceNow CMDB Integration** toggle is enabled in the Setup wizard, the app installs the `servicenow` Fleet integration package. This enables Elastic's ServiceNow data views and allows cross-index enrichment between pipeline alerts and CMDB records (CI ownership, support groups, incidents, change requests). The ServiceNow CMDB generator (available under the **Supporting Services** vendor) produces realistic records across 9 CMDB/ITSM tables with CIs correlated to cloud infrastructure names. Data ships to `logs-servicenow.event-*`.
 
 ### Cloud Security Posture (CSPM/KSPM) auto-install
 

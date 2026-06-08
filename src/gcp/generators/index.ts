@@ -13,7 +13,6 @@ import {
   generateGcpEntraFederatedChain,
 } from "./securityChains.js";
 import { generateGcpDataPipelineChain } from "./dataPipelineChain.js";
-import { generateServiceNowCmdbLog } from "../../servicenow/generators/index.js";
 import {
   generateCloudFunctionsLog,
   generateCloudRunLog,
@@ -88,7 +87,6 @@ import {
   generateDlpLog,
   generateWebRiskLog,
   generateCloudIdentityLog,
-  generateManagedAdLog,
   generateOsLoginLog,
   generateSecurityOperationsLog,
   generateAccessTransparencyLog,
@@ -285,7 +283,6 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   dlp: generateDlpLog,
   "web-risk": generateWebRiskLog,
   "cloud-identity": generateCloudIdentityLog,
-  "managed-ad": generateManagedAdLog,
   "security-operations": mergeGcpLogVariants([generateSecurityOperationsLog, generateChronicleLog]),
 
   // Storage
@@ -398,8 +395,6 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "gcp-data-exfil-chain": generateGcpDataExfilChain,
   "gcp-entra-federation-chain": generateGcpEntraFederatedChain,
   "gcp-data-pipeline-chain": generateGcpDataPipelineChain,
-  // Cross-cloud ITSM
-  servicenow_cmdb: generateServiceNowCmdbLog,
 };
 
 export { GCP_GENERATORS };

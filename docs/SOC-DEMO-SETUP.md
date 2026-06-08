@@ -36,8 +36,8 @@ npm run setup:security-detection-rules
 # 3. Install everything else via the setup wizard (or CLI)
 #    The wizard installs:
 #    - Security Alert Enrichment workflow (auto-installed with data-pipeline workflow)
-#    - SOC Analyst Agent Builder (auto-installed with vendor analyst)
 #    - Dashboards, ML jobs, alerting rules
+#    Agent Builder (SOC Analyst) is available in the deployment by default.
 ```
 
 ## Step-by-step
@@ -92,9 +92,9 @@ This installs 16 detection rules via the Detection Engine API:
 
 All rules include MITRE ATT&CK tactic/technique mappings and are tagged `Attack Discovery` so the workflow can count related alerts.
 
-### 3. Install the SOC Analyst Agent Builder
+### 3. SOC Analyst Agent Builder
 
-The setup wizard automatically installs the SOC Analyst agent alongside the vendor-specific analyst. The SOC Analyst has 7 security-focused tools:
+Agent Builder is available in the deployment by default — no separate install toggle is needed. The SOC Analyst has 8 security-focused tools:
 
 | Tool                       | What it does                                                                                     |
 | -------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -109,7 +109,7 @@ The setup wizard automatically installs the SOC Analyst agent alongside the vend
 
 ### 4. Install the SOC Knowledge Base
 
-The setup wizard automatically indexes 364 knowledge base documents when Agent Builder is enabled. The knowledge base includes:
+The setup wizard indexes 364 knowledge base documents. The knowledge base includes:
 
 | Category              | Documents | Content                                                                    |
 | --------------------- | --------- | -------------------------------------------------------------------------- |
@@ -207,7 +207,7 @@ Plus security-themed incidents:
 | Attack Discovery shows no patterns   | Fewer than 50 alerts                 | Ship data longer; check Security → Alerts for count  |
 | Detection rules not firing           | Data not in correct index patterns   | Verify `logs-aws.cloudtrail*` has documents          |
 | Workflow enrichment fields are blank | CMDB data not shipped                | Enable the `cmdb` generator                          |
-| Agent Builder SOC analyst missing    | Setup didn't include Agent Builder   | Re-run setup wizard with Agent Builder enabled       |
+| Agent Builder SOC analyst missing    | Agent Builder not available           | Verify your deployment includes Agent Builder        |
 | Workflow not running                 | Not attached to rules or not enabled | See workflow deployment guide                        |
 | KB search returns no results         | Index not populated                  | Run `npm run setup:knowledge-base` or re-run wizard  |
 | Agent gives generic advice           | KB tool not registered               | Ensure `soc-knowledge-base` tool is in Agent Builder |

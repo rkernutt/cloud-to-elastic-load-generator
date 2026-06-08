@@ -50,7 +50,7 @@ The proxy uses **HTTP keep-alive** agents (up to 16 sockets) so TLS/TCP connecti
 
 The **Setup** wizard installs **Cloud Loadgen Integrations** per service — each integration bundles an ingest pipeline, Kibana dashboard, ML anomaly detection jobs, and alerting rules. All assets are tagged **`cloudloadgen`** so you can filter, view, or bulk-edit them easily in Kibana. Data streams use **TSDS** for metrics where appropriate. **Post-install options** let you enable alerting rules and start ML jobs immediately after installation (both off by default). **Scheduled shipping** is disabled by default — users must explicitly enable it. **Serverless** may limit uninstall/reinstall — [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
 
-**Setup UI implementation (for contributors):** Service-category grouping is built in the `servicePackIndex` `useMemo` in `src/pages/SetupPage.tsx`. Title-fragment extraction uses `src/setup/setupAssetMatch.ts`. Service IDs are normalised via `SERVICE_ALIASES`, `GCP_OVERRIDES`, and `AZURE_OVERRIDES` maps (cloud-aware resolution) — the `normalize()` function strips `[-_\s/()+&]+` so fragments like "Pub/Sub" and "Security Operations (SecOps)" resolve cleanly. Category assignment uses the `SERVICE_CATEGORY` map (503 entries across all clouds). Labels come from `src/setup/setupDisplayPolish.ts` (`polishSetupCategoryLabel`). Behavior is documented in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
+**Setup UI implementation (for contributors):** Service-category grouping is built in the `servicePackIndex` `useMemo` in `src/pages/SetupPage.tsx`. Title-fragment extraction uses `src/setup/setupAssetMatch.ts`. Service IDs are normalised via `SERVICE_ALIASES`, `GCP_OVERRIDES`, and `AZURE_OVERRIDES` maps (cloud-aware resolution) — the `normalize()` function strips `[-_\s/()+&]+` so fragments like "Pub/Sub" and "Security Operations (SecOps)" resolve cleanly. Category assignment uses the `SERVICE_CATEGORY` map (covers all clouds and Supporting Services). Labels come from `src/setup/setupDisplayPolish.ts` (`polishSetupCategoryLabel`). Behavior is documented in [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md).
 
 ## Build and preview
 
@@ -184,7 +184,8 @@ Generators must produce documents that are indistinguishable from real cloud tel
 | `src/aws/generators/`            | AWS log, metric, trace, and chained-event generators (incl. EMR Spark)            |
 | `src/gcp/generators/`            | GCP generators                                                                    |
 | `src/azure/generators/`          | Azure generators                                                                  |
-| `src/servicenow/generators/`     | ServiceNow CMDB log generator (cross-cloud reference data)                        |
+| `src/supporting/`                | Supporting Services vendor config, service groups, generators (Entra ID, M365, Managed AD, O365 metrics, ServiceNow CMDB) |
+| `src/servicenow/generators/`     | ServiceNow CMDB log generator (used by Supporting Services)                       |
 | `src/helpers/identity.ts`        | Shared user identity pool and audit trail event builders                          |
 | `src/hooks/useMLTrainingLoop.ts` | React hook for automated ML reset → baseline → wait → inject → stabilise workflow |
 | `src/pages/`                     | React page components (Landing, Connection, Services, Setup, Ship)                |

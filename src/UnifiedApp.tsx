@@ -6,7 +6,7 @@ const LoadGeneratorApp = lazy(() => import("./App").then((m) => ({ default: m.Lo
 
 const LS_VENDOR_KEY = "unifiedCloudVendor";
 
-const CLOUD_IDS = new Set<CloudId>(["aws", "gcp", "azure"]);
+const CLOUD_IDS = new Set<CloudId>(["aws", "gcp", "azure", "supporting"]);
 
 async function loadCloudConfig(id: CloudId): Promise<CloudAppConfig> {
   switch (id) {
@@ -16,6 +16,8 @@ async function loadCloudConfig(id: CloudId): Promise<CloudAppConfig> {
       return (await import("./cloud/gcpConfig")).GCP_CONFIG;
     case "azure":
       return (await import("./cloud/azureConfig")).AZURE_CONFIG;
+    case "supporting":
+      return (await import("./cloud/supportingConfig")).SUPPORTING_CONFIG;
   }
 }
 

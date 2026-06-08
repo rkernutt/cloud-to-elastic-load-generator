@@ -8,19 +8,12 @@ import { AZURE_ALL_SERVICE_IDS } from "./serviceGroups.js";
 const AZURE_SERVICE_INGESTION_OVERRIDES: Record<string, string> = {
   monitor: "azure-monitor",
   "activity-log": "azure-monitor",
-  "entra-id": "entra",
-  m365: "m365",
-  "active-users-services": "o365-cel",
-  "teams-user-activity": "o365-cel",
-  "outlook-activity": "o365-cel",
-  "onedrive-usage-storage": "o365-cel",
   "azure-security-chain": "api",
   "azure-cspm": "api",
   "azure-kspm": "api",
   "azure-iam-privesc-chain": "api",
   "azure-data-exfil-chain": "api",
   "azure-data-pipeline-chain": "api",
-  servicenow_cmdb: "api",
 };
 
 const AZURE_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {

@@ -375,7 +375,8 @@ export function enrichGcpAzureDocument(
 
 export type CloudEnrichContext =
   | { kind: "aws" }
-  | { kind: "gcp-azure"; ctx: GcpAzureEnrichContext };
+  | { kind: "gcp-azure"; ctx: GcpAzureEnrichContext }
+  | { kind: "supporting" };
 
 /** Unified enricher for load generator UIs — AWS delegates to existing enrich.ts */
 export function enrichForCloud(
@@ -384,5 +385,6 @@ export function enrichForCloud(
   cloud: CloudEnrichContext
 ): LooseDoc {
   if (cloud.kind === "aws") return enrichAwsDocument(doc, opts);
+  if (cloud.kind === "supporting") return doc;
   return enrichGcpAzureDocument(doc, opts, cloud.ctx);
 }

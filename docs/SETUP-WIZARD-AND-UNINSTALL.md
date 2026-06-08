@@ -47,7 +47,7 @@ The Setup page groups integrations by **service category**:
 | End User & Media        | WorkSpaces, Connect, Media Services                                            |
 | Advanced Data Types     | Data & Analytics Pipeline, ServiceNow CMDB, CSPM/KSPM, chained event scenarios |
 
-Categories are collapsible, making it easy to navigate large catalogs (**217** AWS services, **137** GCP, **140** Azure — see `src/data/serviceGroups.ts` and the matching GCP/Azure service group files). AWS services are distributed across specific categories — there is no catch-all "Additional Services" group; every service belongs to a logically appropriate category.
+Categories are collapsible, making it easy to navigate large catalogs (**217** AWS services, **136** GCP, **133** Azure, **8** Supporting — see `src/data/serviceGroups.ts` and the matching GCP/Azure/Supporting service group files). Supporting Services (Entra ID, M365, Managed AD, O365 metrics, ServiceNow CMDB) are a standalone fourth vendor on the Start page, separate from the three cloud providers.
 
 ---
 
@@ -92,7 +92,7 @@ Each install run starts by emitting a one-line plan summary so the activity log 
 
 ```
 ── Install run started 05/05/2026, 14:59:14 ──
-Plan: install AWS integration, APM integration, ServiceNow, 193 ingest pipelines, 223 dashboards, 401 ML jobs, 17 alerting rules.
+Plan: install AWS integration, APM integration, 223 dashboards, 33 ML jobs, 13 alerting rules.
 Skipping (toggles off): alert-enrichment Workflow.
 Installing AWS Integration…
 …

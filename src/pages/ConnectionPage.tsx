@@ -191,8 +191,8 @@ export function ConnectionPage({
           <ConnectionSubheading>Cloud Vendor</ConnectionSubheading>
           <EuiText size="s" color="subdued">
             <p>
-              Choose AWS, GCP, or Azure. This reloads the app with that cloud&apos;s services and
-              defaults.
+              Choose a cloud vendor or Supporting Services. This reloads the app with the selected
+              services and defaults.
             </p>
           </EuiText>
           <EuiSpacer size="m" />

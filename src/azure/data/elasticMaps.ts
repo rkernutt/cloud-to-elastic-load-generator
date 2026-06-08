@@ -88,13 +88,6 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "document-intelligence": "azure.document_intelligence",
   "video-indexer": "azure.video_indexer",
   // Identity / security
-  "entra-id": "azure.entra_id",
-  /** Single combined audit stream; `workload` / `record_type` distinguish Exchange, Teams, etc. */
-  m365: "azure.microsoft_365",
-  "active-users-services": "azure.o365_active_users",
-  "teams-user-activity": "azure.o365_teams_activity",
-  "outlook-activity": "azure.o365_outlook_activity",
-  "onedrive-usage-storage": "azure.o365_onedrive_storage",
   "key-vault": "azure.key_vault",
   "managed-identity": "azure.managed_identity",
   "defender-for-cloud": "azure.defender",
@@ -161,8 +154,6 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "azure-iam-privesc-chain": "azure.activitylogs",
   "azure-data-exfil-chain": "azure.defender",
   "azure-data-pipeline-chain": "azure.data_factory",
-  // Cross-cloud ITSM
-  servicenow_cmdb: "servicenow.event",
 };
 
 const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([
@@ -197,10 +188,6 @@ const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "stream-analytics",
   "acr",
   "defender-for-cloud",
-  "active-users-services",
-  "teams-user-activity",
-  "outlook-activity",
-  "onedrive-usage-storage",
   "activity-log",
   "advisor",
   "ai-search",
@@ -231,7 +218,6 @@ const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "device-provisioning",
   "digital-twins",
   "document-intelligence",
-  "entra-id",
   "event-grid",
   "expressroute-circuit",
   "expressroute-gateway",
@@ -245,7 +231,6 @@ const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "lab-services",
   "load-testing",
   "logic-apps",
-  "m365",
   "managed-identity",
   "maps",
   "media-services",
@@ -328,11 +313,6 @@ const AZURE_METRICS_DATASET_MAP: Record<string, string> = {
   "stream-analytics": "azure.stream_analytics_metrics",
   acr: "azure.container_registry_metrics",
   "defender-for-cloud": "azure.defender_metrics",
-  // Microsoft 365 Graph reports (Elastic o365_metrics integration — separate from Azure Monitor)
-  "active-users-services": "o365_metrics.active_users_services_user_counts",
-  "teams-user-activity": "o365_metrics.teams_user_activity_user_counts",
-  "outlook-activity": "o365_metrics.outlook_activity",
-  "onedrive-usage-storage": "o365_metrics.onedrive_usage_storage",
   "activity-log": "azure.activity_log_metrics",
   advisor: "azure.advisor_metrics",
   "ai-search": "azure.ai_search_metrics",

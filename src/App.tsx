@@ -194,7 +194,8 @@ export function LoadGeneratorApp({
     }
     return "otel";
   }, [ingestionSource]);
-  const includeSecurityPatterns = !isTracesMode && eventType === "logs";
+  const includeSecurityPatterns =
+    !isTracesMode && eventType === "logs" && config.id !== "supporting";
   const wizardStepIds = useMemo(
     () => buildWizardStepIds(includeSecurityPatterns),
     [includeSecurityPatterns]

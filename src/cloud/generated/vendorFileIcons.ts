@@ -296,6 +296,7 @@ export const GCP_VENDOR_CATEGORY_ICONS: Record<string, string> = {
   iot: "_category-iot.svg",
   media: "_category-media.svg",
   integration: "_category-integration.svg",
+  supporting: "_category-integration.svg",
 };
 
 export const AZURE_VENDOR_FALLBACK = "_fallback.svg";
@@ -445,7 +446,7 @@ export const AZURE_VENDOR_CATEGORY_ICONS: Record<string, string> = {
   databases: "_category-databases.svg",
   "data-ai": "_category-data-ai.svg",
   "identity-security": "_category-identity-security.svg",
-  "o365-metrics": "_category-o365-metrics.svg",
+  supporting: "_category-o365-metrics.svg",
   integration: "_category-integration.svg",
   "iot-media": "_category-iot-media.svg",
   management: "_category-management.svg",

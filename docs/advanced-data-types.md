@@ -28,7 +28,7 @@ flowchart LR
 | **Data Exfiltration**         | `data-exfil-chain` dashboard, **4** rules, ML jobs (storage and network evidence with MB-scale volumes)                                                                    | [chained-events/data-exfiltration-chain.md](./chained-events/data-exfiltration-chain.md)                          |
 | **DNS C2 Chain**              | **4** detection rules, DNS alert enrichment workflow, Attack Discovery correlation (DGA → C2 resolution → beaconing → DNS Firewall block)                                  | [chained-events/dns-c2-chain.md](./chained-events/dns-c2-chain.md)                                                |
 
-Installing **all** chained-scenario rule files for one cloud gives you 17 rules (5 + 4 + 4 + 4). Beyond these, **per-service domain rules** cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **243 rules total** across all clouds (AWS 115, GCP 62, Azure 66). Use `npm run setup:alert-rules` (cross-cloud) or the web-UI Setup step.
+Installing **all** chained-scenario rule files for one cloud gives you the full set of chain rules. Beyond these, **per-service domain rules** cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **31 rules total** across all clouds (AWS 13, GCP 9, Azure 9). Use `npm run setup:alert-rules` (cross-cloud) or the web-UI Setup step.
 
 Each rule ships with **per-rule context** wired in two ways:
 
@@ -53,6 +53,8 @@ CSPM/KSPM is only available on **Security** Serverless projects — see the use-
 
 ## ServiceNow CMDB
 
+> ServiceNow CMDB, Microsoft Entra ID, M365, Managed AD, and O365 metrics are now part of the **Supporting Services** vendor — a standalone fourth option on the Start page. They no longer appear within individual cloud vendors.
+
 A ServiceNow CMDB log generator produces realistic records across nine CMDB and ITSM tables and ships them to `logs-servicenow.event-*` (using the `servicenow.event` dataset and the integration's `.value` / `.display_value` field convention).
 
 | Table             | Records                                                  |
@@ -71,9 +73,11 @@ CIs are correlated with cloud infrastructure names from the data pipeline chains
 
 ServiceNow CMDB is treated as **reference data** — capped at 50 documents per ship run. Enable the **ServiceNow** Fleet integration toggle in the Setup wizard to install the `servicenow` integration package alongside the cloud vendor integration.
 
-## Cross-cloud generators
+## Cross-cloud generators and Supporting Services
 
-`servicenow_cmdb`, `cspm`/`gcp-cspm`/`azure-cspm`, and `kspm`/`gcp-kspm`/`azure-kspm` are **cross-cloud** generators: they target Elastic integration data streams (`logs-servicenow.event-default`, `logs-cloud_security_posture.findings-default`) whose mappings are owned by the relevant Fleet integration package, not by any single cloud. The generators emit byte-for-byte equivalent documents whether you've selected AWS, GCP, or Azure as the active vendor — the only vendor-specific bits are the CIS rule set (`CIS_AWS_RULES` / `CIS_GCP_RULES` / `CIS_AZURE_RULES`) and the resource shape (`s3-bucket` vs `gcs-bucket` vs `azure-storage-account`), which is exactly the model Elastic's [cloudbeat](https://github.com/elastic/cloudbeat) follows when it normalises vendor-specific API responses into the shared findings schema.
+The **Supporting Services** vendor (the fourth option on Start) bundles cross-cloud generators that are not specific to any single hyperscaler: **Microsoft Entra ID** (directory audit & sign-in), **Microsoft 365** (unified audit), **Managed Active Directory**, **O365 metrics** (Teams, Outlook, OneDrive), and **ServiceNow CMDB**. These generators were previously duplicated within each cloud vendor and have been consolidated into their own top-level vendor for clarity.
+
+CSPM/KSPM generators (`cspm`/`gcp-cspm`/`azure-cspm`, `kspm`/`gcp-kspm`/`azure-kspm`) remain within each cloud vendor since the CIS rule set and resource shape are vendor-specific — matching how Elastic's [cloudbeat](https://github.com/elastic/cloudbeat) normalises vendor-specific API responses into the shared findings schema.
 
 Two implementation rules follow from this and matter if you write or modify a generator:
 
@@ -107,7 +111,7 @@ A third workflow at [`workflows/dns-alert-enrichment.yaml`](../workflows/dns-ale
 
 ### Elastic Security detection rules
 
-Cloud Loadgen also ships **20 Elastic Security detection rules** (`installer/security-detection-rules/`) installed via the Detection Engine API. These produce alerts in `.alerts-security.alerts-*` — required for **Attack Discovery**. The rules cover IAM privilege escalation (6), security findings (6), data exfiltration (4), and DNS threat detection (4), each with MITRE ATT&CK mappings, severity, and risk scores. Install with `npm run setup:security-detection-rules`.
+Cloud Loadgen also ships **Elastic Security detection rules** (`installer/security-detection-rules/`) installed via the Detection Engine API. These produce alerts in `.alerts-security.alerts-*` — required for **Attack Discovery**. The rules cover IAM privilege escalation (6), security findings (6), data exfiltration (4), and DNS threat detection (4), each with MITRE ATT&CK mappings, severity, and risk scores. Install with `npm run setup:security-detection-rules`.
 
 ### SOC knowledge base
 

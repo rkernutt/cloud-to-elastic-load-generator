@@ -84,7 +84,6 @@ import {
   generateIncidentManagerLog,
 } from "./security.js";
 import { generateDataPipelineChain } from "./dataPipelineChain.js";
-import { generateServiceNowCmdbLog } from "../../servicenow/generators/index.js";
 import {
   generateS3Log,
   generateS3StorageLensLog,
@@ -485,8 +484,6 @@ const GENERATORS = {
   mgn: generateMgnLog,
   cwsynthetics: generateCwSyntheticsLog,
   managedprometheus: generateManagedPrometheusLog,
-  // Cross-cloud ITSM
-  servicenow_cmdb: generateServiceNowCmdbLog,
 };
 
 /**

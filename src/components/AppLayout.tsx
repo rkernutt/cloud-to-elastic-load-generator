@@ -43,10 +43,7 @@ interface AppLayoutProps {
 }
 
 /** Secondary nav items. */
-const EXTRA_NAV = [
-  { id: "anomalies", label: "Anomalies", icon: "bug" },
-  { id: "log", label: "Activity Log", icon: "list" },
-] as const;
+const EXTRA_NAV = [{ id: "log", label: "Activity Log", icon: "list" }] as const;
 
 const OVERVIEW_NAV = [{ id: "welcome", label: "Welcome", icon: "home" }] as const;
 

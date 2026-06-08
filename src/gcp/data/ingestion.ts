@@ -135,7 +135,6 @@ const GCP_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   dlp: "api",
   "web-risk": "api",
   "cloud-identity": "api",
-  "managed-ad": "cloud-logging",
   "os-login": "cloud-logging",
   "security-operations": "api",
   "bare-metal-oracle": "cloud-logging",
@@ -167,7 +166,6 @@ const GCP_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   "gcp-data-exfil-chain": "api",
   "gcp-entra-federation-chain": "api",
   "gcp-data-pipeline-chain": "api",
-  servicenow_cmdb: "api",
 };
 
 const GCP_INGESTION_META: Record<string, { label: string; color: string; inputType: string }> = {

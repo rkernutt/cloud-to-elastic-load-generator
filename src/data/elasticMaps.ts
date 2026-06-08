@@ -120,8 +120,6 @@ const ELASTIC_DATASET_MAP = {
   mgn: "aws.mgn",
   cwsynthetics: "aws.cwsynthetics",
   managedprometheus: "aws.managedprometheus",
-  // Cross-cloud ITSM
-  servicenow_cmdb: "servicenow.event",
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

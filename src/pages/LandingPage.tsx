@@ -52,11 +52,6 @@ export function LandingPage({ isUnifiedCloud, onGetStarted }: LandingPageProps) 
 
   const sidebarListItems = [
     {
-      title: "Anomalies",
-      description:
-        "Toggle anomaly injection settings used during shipping (spikes and outliers for logs, metrics, or traces).",
-    },
-    {
       title: "Activity Log",
       description:
         "View recent messages from the generator and download a text log for troubleshooting or sharing.",

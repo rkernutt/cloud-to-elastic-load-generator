@@ -100,8 +100,6 @@ import {
   generateServiceBusLog,
   generateEventHubsLog,
   generateKeyVaultLog,
-  generateEntraIdLog,
-  generateM365Log,
 } from "./platform.js";
 import { generateOpenAiLog } from "./aiml.js";
 import {
@@ -112,7 +110,6 @@ import {
   generateAzureDataExfilChain,
 } from "./securityChains.js";
 import { generateAzureDataPipelineChain } from "./dataPipelineChain.js";
-import { generateServiceNowCmdbLog } from "../../servicenow/generators/index.js";
 import {
   generateIotHubLog,
   generateLogicAppsLog,
@@ -147,10 +144,6 @@ import {
   generateFrontDoorLog,
   generateCdnLog,
   generateVpnGatewayLog,
-  generateActiveUsersServicesLog,
-  generateTeamsUserActivityLog,
-  generateOutlookActivityLog,
-  generateOnedriveUsageStorageLog,
   generateArcLog,
   generateStackLog,
   generateApiCenterLog,
@@ -271,12 +264,6 @@ const DEDICATED: Record<string, Gen> = {
   "service-bus": generateServiceBusLog,
   "event-hubs": generateEventHubsLog,
   "key-vault": generateKeyVaultLog,
-  "entra-id": generateEntraIdLog,
-  m365: generateM365Log,
-  "active-users-services": generateActiveUsersServicesLog,
-  "teams-user-activity": generateTeamsUserActivityLog,
-  "outlook-activity": generateOutlookActivityLog,
-  "onedrive-usage-storage": generateOnedriveUsageStorageLog,
   openai: generateOpenAiLog,
   "iot-hub": generateIotHubLog,
   relay: generateRelayLog,
@@ -313,8 +300,6 @@ const DEDICATED: Record<string, Gen> = {
   "azure-iam-privesc-chain": generateAzureIamPrivEscChain,
   "azure-data-exfil-chain": generateAzureDataExfilChain,
   "azure-data-pipeline-chain": generateAzureDataPipelineChain,
-  // Cross-cloud ITSM
-  servicenow_cmdb: generateServiceNowCmdbLog,
 };
 
 const AZURE_LOG_MERGE_CHILDREN: Record<string, readonly string[]> = {

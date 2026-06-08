@@ -34,6 +34,14 @@ export const UNIFIED_VENDOR_CARDS: {
     logoSrcDarkBg: publicUrl("icons/azure-vendor.svg"),
     logoAlt: "Microsoft Azure",
   },
+  {
+    id: "supporting",
+    label: "Supporting Services",
+    shortLabel: "Supporting",
+    logoSrcLightBg: publicUrl("icons/supporting-vendor.svg"),
+    logoSrcDarkBg: publicUrl("icons/supporting-vendor.svg"),
+    logoAlt: "Supporting Services",
+  },
 ];
 
 export function unifiedVendorCard(id: CloudId) {

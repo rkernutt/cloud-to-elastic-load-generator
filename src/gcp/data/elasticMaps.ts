@@ -135,7 +135,6 @@ const GCP_ELASTIC_DATASET_MAP: Record<string, string> = {
   dlp: "gcp.dlp",
   "web-risk": "gcp.webrisk",
   "cloud-identity": "gcp.cloudidentity",
-  "managed-ad": "gcp.managed_ad",
   "os-login": "gcp.oslogin",
   "security-operations": "gcp.secops",
   "bare-metal-oracle": "gcp.bms_oracle",
@@ -167,8 +166,6 @@ const GCP_ELASTIC_DATASET_MAP: Record<string, string> = {
   "gcp-data-exfil-chain": "gcp.dlp",
   "gcp-entra-federation-chain": "gcp.audit",
   "gcp-data-pipeline-chain": "gcp.composer",
-  // Cross-cloud ITSM
-  servicenow_cmdb: "servicenow.event",
 };
 
 const GCP_METRICS_SUPPORTED_SERVICE_IDS = new Set([
@@ -272,7 +269,6 @@ const GCP_METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "gemini",
   "iam",
   "looker",
-  "managed-ad",
   "media-cdn",
   "migrate-to-containers",
   "natural-language",

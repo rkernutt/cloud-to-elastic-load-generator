@@ -215,7 +215,7 @@ export function SetupPage({
   const [activateAlertRules, setActivateAlertRules] = useState(false);
   const [startMlJobs, setStartMlJobs] = useState(false);
   const [enableWorkflow, setEnableWorkflow] = useState(false);
-  const [enableAgentBuilder, setEnableAgentBuilder] = useState(true);
+  const [enableAgentBuilder] = useState(true);
   const [enableSlos, setEnableSlos] = useState(true);
   const [enableSecurityDetectionRules, setEnableSecurityDetectionRules] = useState(false);
   const [workflowNotifyTo, setWorkflowNotifyTo] = useState("data-platform-oncall@example.com");
@@ -266,6 +266,8 @@ export function SetupPage({
     setAssetFilterQuery("");
     setExpandedSetupSections(new Set());
   }, [cloudId, setupBundle.fleetPackage]); // eslint-disable-line react-hooks/exhaustive-deps -- reset only on vendor switch
+
+  const isSupporting = cloudId === "supporting";
 
   const [isRunning, setIsRunning] = useState(false);
   const [isDone, setIsDone] = useState(false);
@@ -502,6 +504,7 @@ export function SetupPage({
     | "Management & Governance"
     | "End User & Media"
     | "Advanced Data Types"
+    | "Supporting Services"
     | "Other";
 
   const SERVICE_CATEGORY: Record<string, ServiceCategory> = {
@@ -607,7 +610,6 @@ export function SetupPage({
     "data-exfil-chain": "Advanced Data Types",
     "data-pipeline": "Advanced Data Types",
     "data-pipeline-chain": "Advanced Data Types",
-    servicenow_cmdb: "Advanced Data Types",
 
     // AI & Machine Learning
     sagemaker: "AI & Machine Learning",
@@ -821,8 +823,6 @@ export function SetupPage({
     translator: "AI & Machine Learning",
     "document-intelligence": "AI & Machine Learning",
     "ai-foundry": "AI & Machine Learning",
-    "entra-id": "Security & Identity",
-    m365: "Security & Identity",
     "key-vault": "Security & Identity",
     "managed-identity": "Security & Identity",
     "defender-for-cloud": "Security & Identity",
@@ -830,10 +830,6 @@ export function SetupPage({
     attestation: "Security & Identity",
     "confidential-ledger": "Security & Identity",
     "dedicated-hsm": "Security & Identity",
-    "active-users-services": "Management & Governance",
-    "teams-user-activity": "Management & Governance",
-    "outlook-activity": "Management & Governance",
-    "onedrive-usage-storage": "Management & Governance",
     "service-bus": "Streaming & Messaging",
     "event-grid": "Streaming & Messaging",
     "logic-apps": "Streaming & Messaging",
@@ -938,7 +934,6 @@ export function SetupPage({
     dlp: "Security & Identity",
     "web-risk": "Security & Identity",
     "cloud-identity": "Security & Identity",
-    "managed-ad": "Security & Identity",
     "security-operations": "Security & Identity",
     "cloud-storage": "Storage",
     "persistent-disk": "Storage",
@@ -1037,6 +1032,16 @@ export function SetupPage({
     "gcp-data-exfil-chain": "Advanced Data Types",
     "gcp-data-pipeline-chain": "Advanced Data Types",
     "gcp-data-pipeline": "Advanced Data Types",
+
+    // ── Supporting services (cross-cloud) ────────────────────────────────
+    "entra-id": "Supporting Services",
+    m365: "Supporting Services",
+    "managed-ad": "Supporting Services",
+    "active-users-services": "Supporting Services",
+    "teams-user-activity": "Supporting Services",
+    "outlook-activity": "Supporting Services",
+    "onedrive-usage-storage": "Supporting Services",
+    servicenow_cmdb: "Supporting Services",
   };
 
   const CATEGORY_ORDER: ServiceCategory[] = [
@@ -1053,6 +1058,7 @@ export function SetupPage({
     "Management & Governance",
     "End User & Media",
     "Advanced Data Types",
+    "Supporting Services",
     "Other",
   ];
 
@@ -2548,8 +2554,8 @@ export function SetupPage({
                 <>
                   CSPM/KSPM integration is not available on Observability projects. Security-focused
                   chains (Finding Chain, IAM PrivEsc, Data Exfiltration) can still ship data but are
-                  best paired with a Security project. Data Pipeline chains, ServiceNow CMDB, ML
-                  jobs, dashboards, and alerting rules work fully.
+                  best paired with a Security project. Data Pipeline chains, ML jobs, dashboards,
+                  and alerting rules work fully.
                 </>
               )}
               {serverlessProjectType === "elasticsearch" && (
@@ -2656,72 +2662,75 @@ export function SetupPage({
 
       <EuiSpacer size="l" />
 
-      <InstallerRow
-        label={setupBundle.fleetPackageLabel}
-        badge="Kibana"
-        description={descIntegration}
-        enabled={enableIntegration}
-        onToggle={setEnableIntegration}
-      />
-
-      <EuiSpacer size="m" />
-
-      {setupBundle.showApmToggle && (
+      {!isSupporting && (
         <>
           <InstallerRow
-            label="APM Integration"
+            label={setupBundle.fleetPackageLabel}
             badge="Kibana"
-            description={descApm}
-            enabled={enableApm}
-            onToggle={setEnableApm}
+            description={descIntegration}
+            enabled={enableIntegration}
+            onToggle={setEnableIntegration}
+          />
+
+          <EuiSpacer size="m" />
+
+          {setupBundle.showApmToggle && (
+            <>
+              <InstallerRow
+                label="APM Integration"
+                badge="Kibana"
+                description={descApm}
+                enabled={enableApm}
+                onToggle={setEnableApm}
+              />
+              <EuiSpacer size="m" />
+            </>
+          )}
+          <InstallerRow
+            label="CSPM / KSPM Integration"
+            badge="Kibana"
+            disabled={cspBlockedByProjectType}
+            description={
+              removeMode ? (
+                <>
+                  <strong>Uninstalls</strong> the Cloud Security Posture Management integration from
+                  Fleet.
+                </>
+              ) : cspBlockedByProjectType ? (
+                <>
+                  The <strong>cloud_security_posture</strong> integration requires a{" "}
+                  <strong>Security</strong> Serverless project. Switch project type on the Start page
+                  or use a Cloud Hosted / self-managed deployment.
+                </>
+              ) : (
+                <>
+                  Installs the official Elastic <strong>cloud_security_posture</strong> integration
+                  via Kibana Fleet — enables the Posture Dashboard, Findings page, and Benchmark
+                  Rules using <strong>321 real CIS rules</strong> (AWS 55, GCP 71, Azure 72, EKS 31,
+                  K8s 92).
+                  {isServerless && serverlessProjectType === "security" && (
+                    <EuiBadge color="success" style={{ marginLeft: 8 }}>
+                      Security project
+                    </EuiBadge>
+                  )}
+                  {cspServicesSelected ? (
+                    <EuiBadge color="success" style={{ marginLeft: 8 }}>
+                      CSPM/KSPM services selected
+                    </EuiBadge>
+                  ) : (
+                    <EuiBadge color="hollow" style={{ marginLeft: 8 }}>
+                      No CSPM/KSPM services selected
+                    </EuiBadge>
+                  )}
+                </>
+              )
+            }
+            enabled={enableCsp}
+            onToggle={setEnableCsp}
           />
           <EuiSpacer size="m" />
         </>
       )}
-
-      <InstallerRow
-        label="CSPM / KSPM Integration"
-        badge="Kibana"
-        disabled={cspBlockedByProjectType}
-        description={
-          removeMode ? (
-            <>
-              <strong>Uninstalls</strong> the Cloud Security Posture Management integration from
-              Fleet.
-            </>
-          ) : cspBlockedByProjectType ? (
-            <>
-              The <strong>cloud_security_posture</strong> integration requires a{" "}
-              <strong>Security</strong> Serverless project. Switch project type on the Start page or
-              use a Cloud Hosted / self-managed deployment.
-            </>
-          ) : (
-            <>
-              Installs the official Elastic <strong>cloud_security_posture</strong> integration via
-              Kibana Fleet — enables the Posture Dashboard, Findings page, and Benchmark Rules using{" "}
-              <strong>321 real CIS rules</strong> (AWS 55, GCP 71, Azure 72, EKS 31, K8s 92).
-              {isServerless && serverlessProjectType === "security" && (
-                <EuiBadge color="success" style={{ marginLeft: 8 }}>
-                  Security project
-                </EuiBadge>
-              )}
-              {cspServicesSelected ? (
-                <EuiBadge color="success" style={{ marginLeft: 8 }}>
-                  CSPM/KSPM services selected
-                </EuiBadge>
-              ) : (
-                <EuiBadge color="hollow" style={{ marginLeft: 8 }}>
-                  No CSPM/KSPM services selected
-                </EuiBadge>
-              )}
-            </>
-          )
-        }
-        enabled={enableCsp}
-        onToggle={setEnableCsp}
-      />
-
-      <EuiSpacer size="m" />
 
       <InstallerRow
         label="ServiceNow CMDB Integration"
@@ -2731,10 +2740,12 @@ export function SetupPage({
         onToggle={setEnableServiceNow}
       />
 
-      <EuiSpacer size="m" />
+      {!isSupporting && (
+        <>
+          <EuiSpacer size="m" />
 
-      <InstallerRow
-        label="Alert-enrichment Workflows (×3)"
+          <InstallerRow
+            label="Alert-enrichment Workflows (×3)"
         badge="Kibana"
         description={
           removeMode ? (
@@ -2746,32 +2757,8 @@ export function SetupPage({
             </>
           ) : (
             <>
-              Installs three bundled Kibana Workflows:
-              <EuiSpacer size="xs" />
-              <strong>1.</strong> <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode> — enriches
-              data-pipeline alerts with ServiceNow CMDB context and emails the on-call group.
-              <br />
-              <strong>2.</strong> <EuiCode>{"security-alert-enrichment"}</EuiCode> — enriches
-              security alerts (GuardDuty, IAM, VPC) with CMDB context and emails the SOC team.
-              <br />
-              <strong>3.</strong> <EuiCode>{"dns-alert-enrichment"}</EuiCode> — enriches DNS
-              detection alerts with threat-intel lookups and emails the security team.
-              <EuiSpacer size="xs" />
-              Requires Workflows (preview from Stack 9.3, GA on Cloud Hosted) and an Enterprise
-              licence — the wizard auto-detects 9.4+ and uses the new{" "}
-              <EuiCode>{"cases.createCase"}</EuiCode> step when available. The same YAMLs are also
-              available in <EuiCode>{"workflows/"}</EuiCode> /{" "}
-              <EuiCode>{"assets/workflows/"}</EuiCode> for manual paste into Stack Management →
-              Workflows.
-              <EuiSpacer size="xs" />
-              <strong>All workflows install DISABLED on purpose.</strong> Before turning them on,
-              you still need to: (1) review the notification step (default is email — Slack / Teams
-              / PagerDuty / ServiceNow ITSM / Opsgenie / webhook variants ship as commented blocks
-              in the YAML); (2) attach each workflow to your alerting rules — every Cloud Loadgen
-              rule installs with <EuiCode>{"actions=[]"}</EuiCode>, so workflows only fire once you
-              wire them up in <em>Stack Management → Rules → &lt;rule&gt; → Actions → Workflow</em>;
-              and (3) flip each workflow's <em>Enabled</em> toggle in{" "}
-              <em>Stack Management → Workflows</em>.
+              Install alert-enrichment workflows for data pipeline, security, and DNS alerts.
+              Requires Stack 9.3+ with an Enterprise or Trial license.
             </>
           )
         }
@@ -3232,13 +3219,6 @@ export function SetupPage({
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiSwitch
-              label={removeMode ? "Uninstall AI Analyst agent" : "Install AI Analyst agent"}
-              checked={enableAgentBuilder}
-              onChange={(e) => setEnableAgentBuilder(e.target.checked)}
-            />
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiSwitch
               label={removeMode ? "Uninstall SLOs" : "Install SLOs"}
               checked={enableSlos}
               onChange={(e) => setEnableSlos(e.target.checked)}
@@ -3268,14 +3248,16 @@ export function SetupPage({
           ) : (
             <p>
               Rules are created disabled and ML jobs are created closed by default. Enable these to
-              activate them immediately after installation. The AI Analyst agent and SLOs require
-              Agent Builder and Observability SLO APIs (skipped automatically if unavailable).
-              Security detection rules are installed via the Detection Engine API and generate
-              alerts in <EuiCode>.alerts-security.alerts-*</EuiCode> for Attack Discovery.
+              activate them immediately after installation. SLOs require the Observability SLO API
+              (skipped automatically if unavailable). Security detection rules are installed via the
+              Detection Engine API and generate alerts in{" "}
+              <EuiCode>.alerts-security.alerts-*</EuiCode> for Attack Discovery.
             </p>
           )}
         </EuiText>
       </EuiPanel>
+        </>
+      )}
 
       <EuiSpacer size="xl" />
       <EuiHorizontalRule margin="none" />

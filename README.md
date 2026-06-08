@@ -1,6 +1,6 @@
 # Cloud Loadgen for Elastic
 
-A web UI that bulk-generates **realistic** AWS, Google Cloud, and Microsoft Azure observability data — logs, metrics, and traces — and ships it straight into Elasticsearch with the `_bulk` API. Documents follow **ECS** naming and use each provider's **native log/metric shapes** (CloudWatch, Cloud Logging, Azure Monitor), with **JSON `message` fields** that match what each service actually exports, so dashboards, ML jobs, and alerting rules behave the way they would with real cloud workloads.
+A web UI that bulk-generates **realistic** AWS, Google Cloud, Microsoft Azure, and **Supporting Services** (Entra ID, M365, Managed AD, ServiceNow CMDB) observability data — logs, metrics, and traces — and ships it straight into Elasticsearch with the `_bulk` API. Documents follow **ECS** naming and use each provider's **native log/metric shapes** (CloudWatch, Cloud Logging, Azure Monitor), with **JSON `message` fields** that match what each service actually exports, so dashboards, ML jobs, and alerting rules behave the way they would with real cloud workloads.
 
 > Use synthetic data for demos, training, and pilot builds. Don't ship to production-shared indices without explicit approval.
 
@@ -27,7 +27,7 @@ flowchart LR
     Es --> Dash[Dashboards · ML jobs ·<br/>Alerting rules · APM Service Map]
 ```
 
-A four-step wizard. **Start** picks the cloud and Elastic deployment, **Setup** installs Cloud Loadgen Integrations, **Services** chooses what to generate, **Ship** runs the bulk index. Credentials live in the browser session; the small Node proxy forwards `_bulk` so the API key never leaves the host.
+A four-step wizard. **Start** picks the cloud vendor (AWS, GCP, Azure, or Supporting Services) and Elastic deployment, **Setup** installs Cloud Loadgen Integrations, **Services** chooses what to generate, **Ship** runs the bulk index. Credentials live in the browser session; the small Node proxy forwards `_bulk` so the API key never leaves the host.
 
 The **ingestion source** you pick on **Start** (CloudWatch, S3, Firehose, API polling, OTel, and similar) drives a dynamic **`event.dataset`** per document — for example `aws.cloudwatch_logs`, `aws_logs.generic`, or `awsfirehose.logs` on AWS — so shipped data lands on the same data streams as the Fleet integration path you configured in **Setup**.
 
@@ -51,11 +51,12 @@ The wizard opens on the **Start** step, where you pick cloud vendor, deployment 
 
 Catalog size today:
 
-| Cloud | Services | Pipelines | Dashboards | ML jobs | Traces | Alerting rules |
-| ----- | -------- | --------- | ---------- | ------- | ------ | -------------- |
-| AWS   | 217      | 193       | 223        | 401     | 56     | 115            |
-| GCP   | 137      | 156       | 135        | 182     | 58     | 62             |
-| Azure | 140      | 133       | 138        | 195     | 52     | 66             |
+| Vendor     | Services | Dashboards | ML jobs | Traces | Alerting rules |
+| ---------- | -------- | ---------- | ------- | ------ | -------------- |
+| AWS        | 217      | 223        | 33      | 56     | 13             |
+| GCP        | 136      | 135        | 15      | 58     | 9              |
+| Azure      | 133      | 138        | 14      | 52     | 9              |
+| Supporting | 8        | —          | —       | —      | —              |
 
 Trace generators produce APM transactions and spans for the Elastic **Service Map**; the remaining services emit logs and metrics only — matching real-world instrumentation patterns where not every cloud service is OTel-instrumented.
 
@@ -63,15 +64,15 @@ Behaviour, categories, post-install toggles, Serverless limits, dashboard fallba
 
 ## Beyond per-service generators
 
-Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with shared correlation IDs and audit attribution, **CSPM/KSPM findings using 321 real CIS rule UUIDs**, a **ServiceNow CMDB** generator for cross-index enrichment, and **Microsoft 365** metrics (Teams, Outlook, OneDrive). A canonical alert-enrichment **Elastic Workflow** ties them together. Detail in **[docs/advanced-data-types.md](docs/advanced-data-types.md)**.
+Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with shared correlation IDs and audit attribution, and **CSPM/KSPM findings using 321 real CIS rule UUIDs**. The **Supporting Services** vendor provides standalone generators for **Microsoft Entra ID**, **Microsoft 365** (unified audit), **Managed Active Directory**, **ServiceNow CMDB**, and **O365 metrics** (Teams, Outlook, OneDrive) — cross-cloud services that are not specific to any single hyperscaler. A canonical alert-enrichment **Elastic Workflow** ties them together. Detail in **[docs/advanced-data-types.md](docs/advanced-data-types.md)**.
 
-The Setup wizard also installs **SLO definitions** (availability and data-pipeline SLIs per cloud) via the Kibana Observability SLO API, and optional **Agent Builder** tool definitions for AI-assisted investigation — including a dedicated **SOC Analyst** agent with 8 security-focused tools for investigating attack chains, querying CMDB context, triaging security alerts, and searching a **364-document knowledge base** of runbooks, investigation guides, and detection rule context.
+The Setup wizard also installs **SLO definitions** (availability and data-pipeline SLIs per cloud) via the Kibana Observability SLO API, and optional **Agent Builder** tool definitions for AI-assisted investigation — including a dedicated **SOC Analyst** agent with 8 security-focused tools for investigating attack chains, querying CMDB context, triaging security alerts, and searching a **364-document knowledge base** of runbooks, investigation guides, and detection rule context. Agent Builder is available in the deployment by default and does not require a separate install toggle.
 
 ## AI SOC demo
 
 Cloud Loadgen ships a complete AI SOC demo scenario built around **IAM privilege escalation**, with **16 Elastic Security detection rules** (6 IAM, 6 finding, 4 exfiltration) that produce 50+ alerts for **Attack Discovery**, a **security alert enrichment workflow** that adds originating IP and hostname from **ServiceNow CMDB**, an **Agent Builder SOC Analyst** for conversational investigation, and a **364-document knowledge base** (`kb-cloudloadgen-soc`) of investigation runbooks, detection rule guides, and MITRE ATT&CK context that grounds the agent's responses in documented procedures. Full walkthrough in **[docs/SOC-DEMO-SETUP.md](docs/SOC-DEMO-SETUP.md)**.
 
-Alerting rules ship in two tiers. **51 chained-scenario rules** (17 per cloud) cover the four multi-service chains. **192 per-service domain rules** cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **243 rules total** across AWS (115), GCP (62), and Azure (66). Each rule's `artifacts.dashboards` field links **the chain overview plus per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
+Alerting rules ship in two tiers. Chained-scenario rules cover the multi-service chains, and per-service domain rules cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **31 rules total** across AWS (13), GCP (9), and Azure (9). Each rule's `artifacts.dashboards` field links **the chain overview plus per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
 
 ## ML training mode
 
@@ -83,7 +84,7 @@ Two least-privilege key definitions live in `[installer/api-keys/](installer/api
 
 ## Sample data
 
-Reference JSON for every registered generator lives under `samples/{aws,gcp,azure}/{logs,metrics,traces}/`. The directory is gitignored — regenerate locally with `npm run samples` and verify with `npm run samples:verify`.
+Reference JSON for every registered generator lives under `samples/{aws,gcp,azure,supporting}/{logs,metrics,traces}/`. The directory is gitignored — regenerate locally with `npm run samples` and verify with `npm run samples:verify`.
 
 ## Testing
 

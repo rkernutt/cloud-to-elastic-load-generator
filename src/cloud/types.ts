@@ -3,7 +3,7 @@ import type { CloudEnrichContext } from "../helpers/enrichGcpAzure";
 import type { ServiceGroup } from "../data/serviceGroups";
 import type { CloudSetupBundle } from "../setup/types";
 
-export type CloudId = "aws" | "gcp" | "azure";
+export type CloudId = "aws" | "gcp" | "azure" | "supporting";
 
 export interface TraceServiceMeta {
   id: string;

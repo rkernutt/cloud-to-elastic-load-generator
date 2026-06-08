@@ -1,8 +1,8 @@
 # Cloud Loadgen for Elastic — Architecture Diagrams
 
-> **Catalog sizes (services · trace generators):** AWS **217 · 56**; GCP **137 · 58**; Azure **140 · 52** (see [README](../README.md)).
+> **Catalog sizes (services · trace generators):** AWS **217 · 56**; GCP **136 · 58**; Azure **133 · 52**; Supporting **8** (see [README](../README.md)).
 
-> **Installer assets (custom Kibana dashboards · ML anomaly jobs · alerting rules):** AWS **223 · 401 · 115**; GCP **135 · 182 · 62**; Azure **138 · 195 · 66** (**496** dashboards, **778** ML jobs, **243** rules total). Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
+> **Installer assets (custom Kibana dashboards · ML anomaly jobs · alerting rules):** AWS **223 · 33 · 13**; GCP **135 · 15 · 9**; Azure **138 · 14 · 9** (**496** dashboards, **62** ML jobs, **31** rules total). Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
 
 ---
 
@@ -22,10 +22,10 @@ flowchart LR
     end
 
     subgraph Elastic["Elastic Stack"]
-        PIPE["Ingest Pipelines\nAWS pipeline registry\n193 objects installed"]
+        PIPE["Ingest Pipelines\nAWS pipeline registry"]
         DS[("Data Streams\nlogs-aws.*\nmetrics-aws.*\ntraces-apm.*")]
         KB["Kibana\n223 custom dashboards"]
-        ML["ML Anomaly Detection\n401 jobs / 33 groups"]
+        ML["ML Anomaly Detection\n33 jobs"]
     end
 
     UI -->|"select services\nset volume + error rate"| SEL
@@ -88,7 +88,7 @@ flowchart TD
 
 ---
 
-## 3 · Service Groups (217 services)
+## 3 · Service Groups (217 AWS services)
 
 ```mermaid
 mindmap
@@ -303,7 +303,7 @@ flowchart TD
     subgraph I2["setup:aws-pipelines"]
         direction TB
         B1["Elasticsearch Ingest API"]
-        B2["AWS pipeline registry\n193 total objects (enrichment + routing + reroute)\n15 groups\nlogs-aws.service-default"]
+        B2["AWS pipeline registry\n(enrichment + routing + reroute)\nlogs-aws.service-default"]
     end
 
     subgraph I3["setup:aws-dashboards"]
@@ -315,7 +315,7 @@ flowchart TD
     subgraph I4["setup:aws-ml-jobs"]
         direction TB
         D1["Elasticsearch ML API"]
-        D2["401 anomaly detection jobs\n33 groups\noptional auto-start"]
+        D2["33 anomaly detection jobs\noptional auto-start"]
     end
 
     I1 --> DONE
@@ -343,7 +343,7 @@ flowchart TD
     SWITCH -->|"Metrics"| METRICS
     SWITCH -->|"Traces"| TRACES
 
-    subgraph LOGS["Logs — 217 services"]
+    subgraph LOGS["Logs — 217 AWS services"]
         direction TB
         L1["GENERATORS registry\nsrc/aws/generators/*.ts"]
         L2["fn(ts, er) → single ECS doc"]
@@ -676,7 +676,7 @@ flowchart TD
 
     DS --> FEED
 
-    subgraph FEED["Datafeeds — 778 jobs (401 AWS)"]
+    subgraph FEED["Datafeeds — 62 jobs (33 AWS)"]
         direction TB
         F1["Query: event.dataset filter\ne.g. aws.lambda_logs"]
         F2["Indices: logs-aws.* or metrics-aws.*"]

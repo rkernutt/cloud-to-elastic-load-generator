@@ -287,12 +287,6 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⛁",
         desc: "Data pipeline: S3 (Avro) → EMR/Spark → S3 (Parquet) + metadata → Glue Catalog → Athena → Tableau | orchestrated via MWAA, EventBridge, or manual trigger | schema drift + failure cascades",
       },
-      {
-        id: "servicenow_cmdb",
-        label: "ServiceNow CMDB",
-        icon: "⎈",
-        desc: "CMDB configuration items, incidents, change requests, users, and support groups for asset enrichment",
-      },
     ],
   },
   {
