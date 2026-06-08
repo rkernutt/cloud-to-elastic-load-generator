@@ -9,7 +9,7 @@ Run a live Security Operations Centre demo with Attack Discovery, Agent Builder,
 | **Attack Discovery** | 50+ security alerts automatically grouped into a correlated IAM privilege escalation attack pattern                                               |
 | **Agent Builder**    | A conversational SOC analyst that traces the attack chain, looks up CMDB context, and recommends containment                                      |
 | **Workflow**         | A security alert fires and is automatically enriched with the originating IP address, hostname, CI owner, and open incidents from ServiceNow CMDB |
-| **Detection Rules**  | 16 custom Elastic Security detection rules with MITRE ATT&CK mappings, severity, and risk scores                                                  |
+| **Detection Rules**  | 20 custom Elastic Security detection rules with MITRE ATT&CK mappings, severity, and risk scores                                                  |
 | **Knowledge Base**   | 364 indexed documents — runbooks, investigation guides, and detection rule context — enabling grounded Agent Builder responses                    |
 
 ## Prerequisites
@@ -63,7 +63,7 @@ Ship for at least **10 minutes** before opening Attack Discovery — the detecti
 npm run setup:security-detection-rules
 ```
 
-This installs 16 detection rules via the Detection Engine API:
+This installs 20 detection rules via the Detection Engine API:
 
 **IAM Privilege Escalation (6 rules)**
 
@@ -89,6 +89,13 @@ This installs 16 detection rules via the Detection Engine API:
 - S3 Mass Object Access (threshold)
 - VPC Flow Unusually High Egress Volume
 - WAF Block Rate Spike
+
+**DNS Threat Detection (4 rules)**
+
+- DNS DGA Domain Resolution Detected
+- DNS C2 Beaconing Activity
+- High Volume DNS NXDOMAIN Responses
+- DNS Query to Known Malicious Domain
 
 All rules include MITRE ATT&CK tactic/technique mappings and are tagged `Attack Discovery` so the workflow can count related alerts.
 

@@ -15,7 +15,7 @@ The runbooks are **cloud-agnostic** in structure and call out vendor-specific da
 
 ## Security detection rule runbooks (Attack Discovery)
 
-These runbooks cover the **16 Elastic Security detection rules** installed via the Detection Engine API. They produce alerts in `.alerts-security.alerts-*` for Attack Discovery and Agent Builder investigation.
+These runbooks cover the **20 Elastic Security detection rules** installed via the Detection Engine API. They produce alerts in `.alerts-security.alerts-*` for Attack Discovery and Agent Builder investigation.
 
 | Category                 | Rules                                                                                                            | Runbook                                                                  |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |

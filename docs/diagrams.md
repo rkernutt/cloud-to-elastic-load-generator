@@ -15,7 +15,7 @@ flowchart LR
     end
 
     subgraph Engine["Load Generator Engine"]
-        SEL["Service Selector\n233 AWS services / 15 groups"]
+        SEL["Service Selector\n217 AWS services / 14 groups"]
         MODE["Mode Switch\nLogs · Metrics · Traces"]
         GEN["Generator Functions\nECS-shaped documents"]
         BUF["Batch Buffer\n50–1,000 docs / request"]
@@ -351,9 +351,9 @@ flowchart TD
         L1 --> L2 --> L3
     end
 
-    subgraph METRICS["Metrics — 208 services"]
+    subgraph METRICS["Metrics — 186 services"]
         direction TB
-        M1["208 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
+        M1["186 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
         M2["fn(ts, er) → Object[ ] array\nCloudWatch-shaped dimensional metrics"]
         M1 --> M2
     end
@@ -592,7 +592,7 @@ flowchart TD
 
     subgraph DED["Dedicated Generators"]
         direction TB
-        D1["208 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
+        D1["186 dedicated generators\nsrc/aws/generators/metrics/*.ts"]
         D2["Service-specific dimensions\naws.lambda.function.name\naws.ec2.instance.id\naws.rds.db_instance.identifier"]
         D3["Service-specific metrics\nCPUUtilization · Invocations\nReadLatency · BucketSizeBytes"]
         D1 --> D2 --> D3
@@ -686,14 +686,14 @@ flowchart TD
 
     FEED --> JOBS
 
-    subgraph JOBS["ML Job Groups — 32 groups"]
+    subgraph JOBS["ML Job Groups — 33 groups"]
         direction TB
         J1["Compute\nLambda error spike\nEC2 CPU anomaly"]
         J2["Databases\nRDS query latency\nDynamo throttle spike"]
         J3["Streaming\nKinesis iterator age\nKDA KPU utilisation"]
         J4["Security\nGuardDuty finding spike\nIAM failed auth"]
         J5["Networking\nALB latency\nVPC flow anomaly"]
-        J6["+ 17 more groups ..."]
+        J6["+ 28 more groups ..."]
     end
 
     JOBS --> DETECT

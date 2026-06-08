@@ -75,7 +75,7 @@ Verify that files on disk match every registered generator:
 npm run samples:verify
 ```
 
-Sample layout: **`samples/aws/{logs,metrics,traces}`**, **`samples/gcp/...`**, **`samples/azure/...`**.
+Sample layout: **`samples/aws/{logs,metrics,traces}`**, **`samples/gcp/...`**, **`samples/azure/...`**, **`samples/supporting/...`**.
 
 Similarly, `assets/` (standalone asset JSONs) and `installer/aws-custom-dashboards/ndjson/` are gitignored. Regenerate with `npm run assets:export` and `npm run generate:aws-dashboards:ndjson` respectively.
 

@@ -1,6 +1,6 @@
 # Setup wizard and uninstall behavior
 
-The **Setup** step in the web UI installs or removes Elastic assets for the cloud you chose on **Start** (AWS, GCP, or Azure). Assets are organised as **Cloud Loadgen Integrations** — each service gets a bundle of ingest pipelines, data stream templates, Kibana dashboards, ML anomaly detection jobs, and alerting rules, all installed together. CLI equivalents live under `installer/` — see [installer/README.md](../installer/README.md).
+The **Setup** step in the web UI installs or removes Elastic assets for the vendor you chose on **Start** (AWS, GCP, Azure, or Supporting Services). Assets are organised as **Cloud Loadgen Integrations** — each service gets a bundle of ingest pipelines, data stream templates, Kibana dashboards, ML anomaly detection jobs, and alerting rules, all installed together. CLI equivalents live under `installer/` — see [installer/README.md](../installer/README.md).
 
 ---
 
