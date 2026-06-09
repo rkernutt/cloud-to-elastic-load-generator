@@ -179,18 +179,18 @@ Generators must produce documents that are indistinguishable from real cloud tel
 
 ## Key source directories
 
-| Path                             | Description                                                                       |
-| -------------------------------- | --------------------------------------------------------------------------------- |
-| `src/aws/generators/`            | AWS log, metric, trace, and chained-event generators (incl. EMR Spark)            |
-| `src/gcp/generators/`            | GCP generators                                                                    |
-| `src/azure/generators/`          | Azure generators                                                                  |
+| Path                             | Description                                                                                                               |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `src/aws/generators/`            | AWS log, metric, trace, and chained-event generators (incl. EMR Spark)                                                    |
+| `src/gcp/generators/`            | GCP generators                                                                                                            |
+| `src/azure/generators/`          | Azure generators                                                                                                          |
 | `src/supporting/`                | Supporting Services vendor config, service groups, generators (Entra ID, M365, Managed AD, O365 metrics, ServiceNow CMDB) |
-| `src/servicenow/generators/`     | ServiceNow CMDB log generator (used by Supporting Services)                       |
-| `src/helpers/identity.ts`        | Shared user identity pool and audit trail event builders                          |
-| `src/hooks/useMLTrainingLoop.ts` | React hook for automated ML reset → baseline → wait → inject → stabilise workflow |
-| `src/pages/`                     | React page components (Landing, Connection, Services, Setup, Ship)                |
-| `installer/`                     | CLI installers and asset JSON (496 dashboards, 778 ML jobs, 243 rules, pipelines) |
-| `workflows/`                     | Elastic Workflow YAML definitions (alert enrichment automation)                   |
+| `src/servicenow/generators/`     | ServiceNow CMDB log generator (used by Supporting Services)                                                               |
+| `src/helpers/identity.ts`        | Shared user identity pool and audit trail event builders                                                                  |
+| `src/hooks/useMLTrainingLoop.ts` | React hook for automated ML reset → baseline → wait → inject → stabilise workflow                                         |
+| `src/pages/`                     | React page components (Landing, Connection, Services, Setup, Ship)                                                        |
+| `installer/`                     | CLI installers and asset JSON (496 dashboards, 778 ML jobs, 243 rules, pipelines)                                         |
+| `workflows/`                     | Elastic Workflow YAML definitions (alert enrichment automation)                                                           |
 
 ## Documentation index
 

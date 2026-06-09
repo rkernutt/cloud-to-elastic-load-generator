@@ -214,7 +214,7 @@ Plus security-themed incidents:
 | Attack Discovery shows no patterns   | Fewer than 50 alerts                 | Ship data longer; check Security → Alerts for count  |
 | Detection rules not firing           | Data not in correct index patterns   | Verify `logs-aws.cloudtrail*` has documents          |
 | Workflow enrichment fields are blank | CMDB data not shipped                | Enable the `cmdb` generator                          |
-| Agent Builder SOC analyst missing    | Agent Builder not available           | Verify your deployment includes Agent Builder        |
+| Agent Builder SOC analyst missing    | Agent Builder not available          | Verify your deployment includes Agent Builder        |
 | Workflow not running                 | Not attached to rules or not enabled | See workflow deployment guide                        |
 | KB search returns no results         | Index not populated                  | Run `npm run setup:knowledge-base` or re-run wizard  |
 | Agent gives generic advice           | KB tool not registered               | Ensure `soc-knowledge-base` tool is in Agent Builder |
