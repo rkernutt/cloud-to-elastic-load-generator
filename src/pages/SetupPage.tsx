@@ -2699,8 +2699,8 @@ export function SetupPage({
               ) : cspBlockedByProjectType ? (
                 <>
                   The <strong>cloud_security_posture</strong> integration requires a{" "}
-                  <strong>Security</strong> Serverless project. Switch project type on the Start page
-                  or use a Cloud Hosted / self-managed deployment.
+                  <strong>Security</strong> Serverless project. Switch project type on the Start
+                  page or use a Cloud Hosted / self-managed deployment.
                 </>
               ) : (
                 <>
@@ -2746,516 +2746,532 @@ export function SetupPage({
 
           <InstallerRow
             label="Alert-enrichment Workflows (×3)"
-        badge="Kibana"
-        description={
-          removeMode ? (
-            <>
-              <strong>Removes</strong> the three bundled alert-enrichment Kibana Workflows:{" "}
-              <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode>,{" "}
-              <EuiCode>{"security-alert-enrichment"}</EuiCode>, and{" "}
-              <EuiCode>{"dns-alert-enrichment"}</EuiCode>.
-            </>
-          ) : (
-            <>
-              Install alert-enrichment workflows for data pipeline, security, and DNS alerts.
-              Requires Stack 9.3+ with an Enterprise or Trial license.
-            </>
-          )
-        }
-        enabled={enableWorkflow}
-        onToggle={setEnableWorkflow}
-      >
-        {enableWorkflow && !removeMode && (
-          <>
-            <EuiSpacer size="s" />
-            <EuiFlexGroup gutterSize="s" responsive={false}>
-              <EuiFlexItem>
-                <EuiFormRow
-                  label="Email connector ID"
-                  helpText={
-                    emailConnectorProbeStatus === "probing" ? (
-                      <>Checking this cluster for a preconfigured email connector…</>
-                    ) : emailConnectorProbeStatus === "auto" && emailConnectorDetected ? (
-                      <>
-                        Auto-detected <EuiCode>{emailConnectorDetected.id}</EuiCode>
-                        {emailConnectorDetected.name &&
-                        emailConnectorDetected.name !== emailConnectorDetected.id
-                          ? ` (display name: ${emailConnectorDetected.name})`
-                          : ""}
-                        . Override below if you want a different connector.
-                      </>
-                    ) : emailConnectorProbeStatus === "missing" ? (
-                      <>
-                        No preconfigured email connector found on this cluster — typical for
-                        self-managed Stack. Either preconfigure one in <EuiCode>kibana.yml</EuiCode>{" "}
-                        or paste a connector ID you've already created under{" "}
-                        <em>Stack Management → Connectors</em>. The workflow will still install (it
-                        ships DISABLED) but its first run will abort at the pre-flight step until a
-                        valid connector exists.
-                      </>
-                    ) : emailConnectorProbeStatus === "error" ? (
-                      <>
-                        Couldn't read <EuiCode>/api/actions/connectors</EuiCode>; leaving the
-                        default. Install will retry the probe at install time.
-                      </>
-                    ) : (
-                      "ID of the Kibana action connector used by notify_email. Defaults to elastic-cloud-email (auto-provisioned on Cloud Hosted / Serverless)."
-                    )
-                  }
-                >
-                  <EuiFieldText
-                    value={workflowEmailConnector}
-                    onChange={(e) => {
-                      setWorkflowEmailConnector(e.target.value);
-                      setEmailConnectorUserEdited(true);
-                    }}
-                    placeholder="elastic-cloud-email"
-                  />
-                </EuiFormRow>
-              </EuiFlexItem>
-              <EuiFlexItem>
-                <EuiFormRow
-                  label="Notify recipient"
-                  helpText="Email address that receives the enriched alert."
-                >
-                  <EuiFieldText
-                    value={workflowNotifyTo}
-                    onChange={(e) => setWorkflowNotifyTo(e.target.value)}
-                    placeholder="data-platform-oncall@example.com"
-                  />
-                </EuiFormRow>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </>
-        )}
-      </InstallerRow>
-
-      <EuiSpacer size="m" />
-
-      <InstallerRow
-        label="Cloud Loadgen Integrations"
-        badge="Elasticsearch"
-        description={descIntegrations}
-        enabled={enableLoadgenIntegrations}
-        onToggle={(v) => {
-          setEnableLoadgenIntegrations(v);
-          if (v) setExpandedSetupSections(new Set());
-        }}
-      >
-        <EuiSpacer size="s" />
-
-        <EuiPanel paddingSize="s" hasBorder color="subdued">
-          <EuiFieldSearch
-            placeholder="Filter services…"
-            value={assetFilterQuery}
-            onChange={(e) => setAssetFilterQuery(e.target.value)}
-            isClearable
-            fullWidth
-          />
-          <EuiSpacer size="s" />
-          <EuiFlexGroup gutterSize="s" alignItems="center" wrap responsive={false}>
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                size="s"
-                iconType="aggregate"
-                onClick={() => {
-                  const sel = new Set(selectedShipServiceIds.map((s) => s.trim()).filter(Boolean));
-                  if (sel.size === 0) {
-                    addLog("Choose at least one service on the Services step first.", "warn");
-                    return;
-                  }
-                  const matching = servicePackIndex
-                    .filter(
-                      (p) =>
-                        sel.has(p.serviceId) ||
-                        [...sel].some((s) => p.serviceId.includes(s) || s.includes(p.serviceId))
-                    )
-                    .map((p) => p.serviceId);
-                  setSelectedServiceIds(new Set(matching));
-                  addLog(
-                    `Aligned to Services step: ${matching.length} integration pack(s) selected.`,
-                    "ok"
-                  );
-                }}
-                disabled={selectedShipServiceIds.length === 0 || !enableLoadgenIntegrations}
-              >
-                Align with Services step
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiText size="xs" color="subdued">
-                {selectedShipServiceIds.length} service(s) on Services page
-              </EuiText>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                size="xs"
-                onClick={() =>
-                  setSelectedServiceIds(new Set(visibleServicePacks.map((p) => p.serviceId)))
-                }
-                disabled={!enableLoadgenIntegrations}
-              >
-                Select all visible
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                size="xs"
-                onClick={() => {
-                  const vis = new Set(visibleServicePacks.map((p) => p.serviceId));
-                  setSelectedServiceIds((prev) => new Set([...prev].filter((id) => !vis.has(id))));
-                }}
-                disabled={!enableLoadgenIntegrations}
-              >
-                Clear visible
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty
-                size="xs"
-                onClick={() => {
-                  const keys = new Set<string>();
-                  for (const g of categoryGroups) {
-                    keys.add(`cat:${g.category}:${uid}`);
-                    for (const p of g.packs) keys.add(`svc:${p.serviceId}:${uid}`);
-                  }
-                  setExpandedSetupSections(keys);
-                }}
-              >
-                Expand all
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty size="xs" onClick={() => setExpandedSetupSections(new Set())}>
-                Collapse all
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiPanel>
-
-        <EuiSpacer size="s" />
-        <EuiText size="xs" color="subdued">
-          <strong>{selectedServiceIds.size}</strong> of {servicePackIndex.length} services selected
-          {" across "}
-          {categoryGroups.length} categories
-          {assetFilterQuery.trim() ? <> ({visibleServicePacks.length} visible)</> : null}
-          {" — "}
-          {derivedPipelineIds.size} pipeline(s), {derivedDashboardKeys.size} dashboard(s),{" "}
-          {derivedMlJobIds.size} ML job(s), {derivedAlertRuleIds.size} alert rule(s)
-        </EuiText>
-        <EuiSpacer size="s" />
-
-        {categoryGroups.map((group) => {
-          const catKey = `cat:${group.category}:${uid}`;
-          const catServiceIds = group.packs.map((p) => p.serviceId);
-          const allCatSelected = catServiceIds.every((id) => selectedServiceIds.has(id));
-          const someCatSelected =
-            !allCatSelected && catServiceIds.some((id) => selectedServiceIds.has(id));
-
-          return (
-            <SetupCollapsible
-              key={catKey}
-              sectionKey={catKey}
-              expandedSections={expandedSetupSections}
-              setExpandedSections={setExpandedSetupSections}
-              variant="category"
-              header={
-                <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
-                  <EuiFlexItem grow={false} style={{ minWidth: 28 }}>
-                    <EuiCheckbox
-                      id={`cat-check-${group.category}-${uid}`}
-                      checked={allCatSelected}
-                      indeterminate={someCatSelected}
-                      disabled={!enableLoadgenIntegrations}
-                      onChange={() => {
-                        setSelectedServiceIds((prev) => {
-                          const next = new Set(prev);
-                          if (allCatSelected) {
-                            for (const id of catServiceIds) next.delete(id);
-                          } else {
-                            for (const id of catServiceIds) next.add(id);
-                          }
-                          return next;
-                        });
-                      }}
-                      label=""
-                      aria-label={`Select all ${group.category}`}
-                      onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                    />
+            badge="Kibana"
+            description={
+              removeMode ? (
+                <>
+                  <strong>Removes</strong> the three bundled alert-enrichment Kibana Workflows:{" "}
+                  <EuiCode>{"data-pipeline-alert-enrichment"}</EuiCode>,{" "}
+                  <EuiCode>{"security-alert-enrichment"}</EuiCode>, and{" "}
+                  <EuiCode>{"dns-alert-enrichment"}</EuiCode>.
+                </>
+              ) : (
+                <>
+                  Install alert-enrichment workflows for data pipeline, security, and DNS alerts.
+                  Requires Stack 9.3+ with an Enterprise or Trial license.
+                </>
+              )
+            }
+            enabled={enableWorkflow}
+            onToggle={setEnableWorkflow}
+          >
+            {enableWorkflow && !removeMode && (
+              <>
+                <EuiSpacer size="s" />
+                <EuiFlexGroup gutterSize="s" responsive={false}>
+                  <EuiFlexItem>
+                    <EuiFormRow
+                      label="Email connector ID"
+                      helpText={
+                        emailConnectorProbeStatus === "probing" ? (
+                          <>Checking this cluster for a preconfigured email connector…</>
+                        ) : emailConnectorProbeStatus === "auto" && emailConnectorDetected ? (
+                          <>
+                            Auto-detected <EuiCode>{emailConnectorDetected.id}</EuiCode>
+                            {emailConnectorDetected.name &&
+                            emailConnectorDetected.name !== emailConnectorDetected.id
+                              ? ` (display name: ${emailConnectorDetected.name})`
+                              : ""}
+                            . Override below if you want a different connector.
+                          </>
+                        ) : emailConnectorProbeStatus === "missing" ? (
+                          <>
+                            No preconfigured email connector found on this cluster — typical for
+                            self-managed Stack. Either preconfigure one in{" "}
+                            <EuiCode>kibana.yml</EuiCode> or paste a connector ID you've already
+                            created under <em>Stack Management → Connectors</em>. The workflow will
+                            still install (it ships DISABLED) but its first run will abort at the
+                            pre-flight step until a valid connector exists.
+                          </>
+                        ) : emailConnectorProbeStatus === "error" ? (
+                          <>
+                            Couldn't read <EuiCode>/api/actions/connectors</EuiCode>; leaving the
+                            default. Install will retry the probe at install time.
+                          </>
+                        ) : (
+                          "ID of the Kibana action connector used by notify_email. Defaults to elastic-cloud-email (auto-provisioned on Cloud Hosted / Serverless)."
+                        )
+                      }
+                    >
+                      <EuiFieldText
+                        value={workflowEmailConnector}
+                        onChange={(e) => {
+                          setWorkflowEmailConnector(e.target.value);
+                          setEmailConnectorUserEdited(true);
+                        }}
+                        placeholder="elastic-cloud-email"
+                      />
+                    </EuiFormRow>
                   </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <EuiText size="s">
-                      <strong>{group.category}</strong>
-                    </EuiText>
+                  <EuiFlexItem>
+                    <EuiFormRow
+                      label="Notify recipient"
+                      helpText="Email address that receives the enriched alert."
+                    >
+                      <EuiFieldText
+                        value={workflowNotifyTo}
+                        onChange={(e) => setWorkflowNotifyTo(e.target.value)}
+                        placeholder="data-platform-oncall@example.com"
+                      />
+                    </EuiFormRow>
                   </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <EuiBadge color="default">
-                      {group.packs.length} service{group.packs.length > 1 ? "s" : ""}
-                    </EuiBadge>
-                  </EuiFlexItem>
-                  {group.totalPipelines > 0 && (
-                    <EuiFlexItem grow={false}>
-                      <EuiBadge color="hollow">
-                        {group.totalPipelines} pipeline{group.totalPipelines > 1 ? "s" : ""}
-                      </EuiBadge>
-                    </EuiFlexItem>
-                  )}
-                  {group.totalDashboards > 0 && (
-                    <EuiFlexItem grow={false}>
-                      <EuiBadge color="primary">
-                        {group.totalDashboards} dashboard{group.totalDashboards > 1 ? "s" : ""}
-                      </EuiBadge>
-                    </EuiFlexItem>
-                  )}
-                  {group.totalMlJobs > 0 && (
-                    <EuiFlexItem grow={false}>
-                      <EuiBadge color="accent">
-                        {group.totalMlJobs} ML job{group.totalMlJobs > 1 ? "s" : ""}
-                      </EuiBadge>
-                    </EuiFlexItem>
-                  )}
-                  {group.totalAlertRules > 0 && (
-                    <EuiFlexItem grow={false}>
-                      <EuiBadge color="warning">
-                        {group.totalAlertRules} rule{group.totalAlertRules > 1 ? "s" : ""}
-                      </EuiBadge>
-                    </EuiFlexItem>
-                  )}
                 </EuiFlexGroup>
-              }
-            >
-              {group.packs.map((pack) => {
-                const isSelected = selectedServiceIds.has(pack.serviceId);
-                const nPipelines = pack.pipelines.length;
-                const nDashboards = pack.dashboardIndices.length;
-                const nMlJobs = pack.mlJobs.length;
-                const nAlertRules = pack.alertRules.length;
-                return (
-                  <SetupCollapsible
-                    key={`svc-${pack.serviceId}-${uid}`}
-                    sectionKey={`svc:${pack.serviceId}:${uid}`}
-                    expandedSections={expandedSetupSections}
-                    setExpandedSections={setExpandedSetupSections}
-                    header={
-                      <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
-                        <EuiFlexItem grow={false} style={{ minWidth: 28 }}>
-                          <EuiCheckbox
-                            id={`svc-check-${pack.serviceId}-${uid}`}
-                            checked={isSelected}
-                            disabled={!enableLoadgenIntegrations}
-                            onChange={() =>
-                              setSelectedServiceIds((prev) => toggleGroup(prev, pack.serviceId))
-                            }
-                            label=""
-                            aria-label={`Select ${pack.label}`}
-                            onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                          />
-                        </EuiFlexItem>
+              </>
+            )}
+          </InstallerRow>
+
+          <EuiSpacer size="m" />
+
+          <InstallerRow
+            label="Cloud Loadgen Integrations"
+            badge="Elasticsearch"
+            description={descIntegrations}
+            enabled={enableLoadgenIntegrations}
+            onToggle={(v) => {
+              setEnableLoadgenIntegrations(v);
+              if (v) setExpandedSetupSections(new Set());
+            }}
+          >
+            <EuiSpacer size="s" />
+
+            <EuiPanel paddingSize="s" hasBorder color="subdued">
+              <EuiFieldSearch
+                placeholder="Filter services…"
+                value={assetFilterQuery}
+                onChange={(e) => setAssetFilterQuery(e.target.value)}
+                isClearable
+                fullWidth
+              />
+              <EuiSpacer size="s" />
+              <EuiFlexGroup gutterSize="s" alignItems="center" wrap responsive={false}>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="s"
+                    iconType="aggregate"
+                    onClick={() => {
+                      const sel = new Set(
+                        selectedShipServiceIds.map((s) => s.trim()).filter(Boolean)
+                      );
+                      if (sel.size === 0) {
+                        addLog("Choose at least one service on the Services step first.", "warn");
+                        return;
+                      }
+                      const matching = servicePackIndex
+                        .filter(
+                          (p) =>
+                            sel.has(p.serviceId) ||
+                            [...sel].some((s) => p.serviceId.includes(s) || s.includes(p.serviceId))
+                        )
+                        .map((p) => p.serviceId);
+                      setSelectedServiceIds(new Set(matching));
+                      addLog(
+                        `Aligned to Services step: ${matching.length} integration pack(s) selected.`,
+                        "ok"
+                      );
+                    }}
+                    disabled={selectedShipServiceIds.length === 0 || !enableLoadgenIntegrations}
+                  >
+                    Align with Services step
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiText size="xs" color="subdued">
+                    {selectedShipServiceIds.length} service(s) on Services page
+                  </EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() =>
+                      setSelectedServiceIds(new Set(visibleServicePacks.map((p) => p.serviceId)))
+                    }
+                    disabled={!enableLoadgenIntegrations}
+                  >
+                    Select all visible
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() => {
+                      const vis = new Set(visibleServicePacks.map((p) => p.serviceId));
+                      setSelectedServiceIds(
+                        (prev) => new Set([...prev].filter((id) => !vis.has(id)))
+                      );
+                    }}
+                    disabled={!enableLoadgenIntegrations}
+                  >
+                    Clear visible
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    size="xs"
+                    onClick={() => {
+                      const keys = new Set<string>();
+                      for (const g of categoryGroups) {
+                        keys.add(`cat:${g.category}:${uid}`);
+                        for (const p of g.packs) keys.add(`svc:${p.serviceId}:${uid}`);
+                      }
+                      setExpandedSetupSections(keys);
+                    }}
+                  >
+                    Expand all
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty size="xs" onClick={() => setExpandedSetupSections(new Set())}>
+                    Collapse all
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiPanel>
+
+            <EuiSpacer size="s" />
+            <EuiText size="xs" color="subdued">
+              <strong>{selectedServiceIds.size}</strong> of {servicePackIndex.length} services
+              selected
+              {" across "}
+              {categoryGroups.length} categories
+              {assetFilterQuery.trim() ? <> ({visibleServicePacks.length} visible)</> : null}
+              {" — "}
+              {derivedPipelineIds.size} pipeline(s), {derivedDashboardKeys.size} dashboard(s),{" "}
+              {derivedMlJobIds.size} ML job(s), {derivedAlertRuleIds.size} alert rule(s)
+            </EuiText>
+            <EuiSpacer size="s" />
+
+            {categoryGroups.map((group) => {
+              const catKey = `cat:${group.category}:${uid}`;
+              const catServiceIds = group.packs.map((p) => p.serviceId);
+              const allCatSelected = catServiceIds.every((id) => selectedServiceIds.has(id));
+              const someCatSelected =
+                !allCatSelected && catServiceIds.some((id) => selectedServiceIds.has(id));
+
+              return (
+                <SetupCollapsible
+                  key={catKey}
+                  sectionKey={catKey}
+                  expandedSections={expandedSetupSections}
+                  setExpandedSections={setExpandedSetupSections}
+                  variant="category"
+                  header={
+                    <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
+                      <EuiFlexItem grow={false} style={{ minWidth: 28 }}>
+                        <EuiCheckbox
+                          id={`cat-check-${group.category}-${uid}`}
+                          checked={allCatSelected}
+                          indeterminate={someCatSelected}
+                          disabled={!enableLoadgenIntegrations}
+                          onChange={() => {
+                            setSelectedServiceIds((prev) => {
+                              const next = new Set(prev);
+                              if (allCatSelected) {
+                                for (const id of catServiceIds) next.delete(id);
+                              } else {
+                                for (const id of catServiceIds) next.add(id);
+                              }
+                              return next;
+                            });
+                          }}
+                          label=""
+                          aria-label={`Select all ${group.category}`}
+                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                        />
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiText size="s">
+                          <strong>{group.category}</strong>
+                        </EuiText>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiBadge color="default">
+                          {group.packs.length} service{group.packs.length > 1 ? "s" : ""}
+                        </EuiBadge>
+                      </EuiFlexItem>
+                      {group.totalPipelines > 0 && (
                         <EuiFlexItem grow={false}>
-                          <EuiText size="s">
-                            <strong>{pack.label}</strong>
-                          </EuiText>
+                          <EuiBadge color="hollow">
+                            {group.totalPipelines} pipeline{group.totalPipelines > 1 ? "s" : ""}
+                          </EuiBadge>
                         </EuiFlexItem>
+                      )}
+                      {group.totalDashboards > 0 && (
+                        <EuiFlexItem grow={false}>
+                          <EuiBadge color="primary">
+                            {group.totalDashboards} dashboard{group.totalDashboards > 1 ? "s" : ""}
+                          </EuiBadge>
+                        </EuiFlexItem>
+                      )}
+                      {group.totalMlJobs > 0 && (
+                        <EuiFlexItem grow={false}>
+                          <EuiBadge color="accent">
+                            {group.totalMlJobs} ML job{group.totalMlJobs > 1 ? "s" : ""}
+                          </EuiBadge>
+                        </EuiFlexItem>
+                      )}
+                      {group.totalAlertRules > 0 && (
+                        <EuiFlexItem grow={false}>
+                          <EuiBadge color="warning">
+                            {group.totalAlertRules} rule{group.totalAlertRules > 1 ? "s" : ""}
+                          </EuiBadge>
+                        </EuiFlexItem>
+                      )}
+                    </EuiFlexGroup>
+                  }
+                >
+                  {group.packs.map((pack) => {
+                    const isSelected = selectedServiceIds.has(pack.serviceId);
+                    const nPipelines = pack.pipelines.length;
+                    const nDashboards = pack.dashboardIndices.length;
+                    const nMlJobs = pack.mlJobs.length;
+                    const nAlertRules = pack.alertRules.length;
+                    return (
+                      <SetupCollapsible
+                        key={`svc-${pack.serviceId}-${uid}`}
+                        sectionKey={`svc:${pack.serviceId}:${uid}`}
+                        expandedSections={expandedSetupSections}
+                        setExpandedSections={setExpandedSetupSections}
+                        header={
+                          <EuiFlexGroup alignItems="center" gutterSize="s" responsive={false}>
+                            <EuiFlexItem grow={false} style={{ minWidth: 28 }}>
+                              <EuiCheckbox
+                                id={`svc-check-${pack.serviceId}-${uid}`}
+                                checked={isSelected}
+                                disabled={!enableLoadgenIntegrations}
+                                onChange={() =>
+                                  setSelectedServiceIds((prev) => toggleGroup(prev, pack.serviceId))
+                                }
+                                label=""
+                                aria-label={`Select ${pack.label}`}
+                                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                              />
+                            </EuiFlexItem>
+                            <EuiFlexItem grow={false}>
+                              <EuiText size="s">
+                                <strong>{pack.label}</strong>
+                              </EuiText>
+                            </EuiFlexItem>
+                            {nPipelines > 0 && (
+                              <EuiFlexItem grow={false}>
+                                <EuiBadge color="hollow">
+                                  {nPipelines} pipeline{nPipelines > 1 ? "s" : ""}
+                                </EuiBadge>
+                              </EuiFlexItem>
+                            )}
+                            {nDashboards > 0 && (
+                              <EuiFlexItem grow={false}>
+                                <EuiBadge color="primary">
+                                  {nDashboards} dashboard{nDashboards > 1 ? "s" : ""}
+                                </EuiBadge>
+                              </EuiFlexItem>
+                            )}
+                            {nMlJobs > 0 && (
+                              <EuiFlexItem grow={false}>
+                                <EuiBadge color="accent">
+                                  {nMlJobs} ML job{nMlJobs > 1 ? "s" : ""}
+                                </EuiBadge>
+                              </EuiFlexItem>
+                            )}
+                            {nAlertRules > 0 && (
+                              <EuiFlexItem grow={false}>
+                                <EuiBadge color="warning">
+                                  {nAlertRules} rule{nAlertRules > 1 ? "s" : ""}
+                                </EuiBadge>
+                              </EuiFlexItem>
+                            )}
+                          </EuiFlexGroup>
+                        }
+                      >
                         {nPipelines > 0 && (
-                          <EuiFlexItem grow={false}>
-                            <EuiBadge color="hollow">
-                              {nPipelines} pipeline{nPipelines > 1 ? "s" : ""}
-                            </EuiBadge>
-                          </EuiFlexItem>
+                          <>
+                            <EuiText size="xs">
+                              <strong>Ingest Pipelines</strong>
+                            </EuiText>
+                            <EuiSpacer size="xs" />
+                            {pack.pipelines.map((p) => (
+                              <div key={p.id} style={{ marginLeft: 8, marginBottom: 4 }}>
+                                <EuiText size="xs">
+                                  <EuiCode>{p.id}</EuiCode>
+                                  <span
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "var(--euiColorSubdued, #69707d)",
+                                    }}
+                                  >
+                                    {p.description}
+                                  </span>
+                                </EuiText>
+                              </div>
+                            ))}
+                            <EuiSpacer size="s" />
+                          </>
                         )}
                         {nDashboards > 0 && (
-                          <EuiFlexItem grow={false}>
-                            <EuiBadge color="primary">
-                              {nDashboards} dashboard{nDashboards > 1 ? "s" : ""}
-                            </EuiBadge>
-                          </EuiFlexItem>
+                          <>
+                            <EuiText size="xs">
+                              <strong>Dashboards</strong>
+                            </EuiText>
+                            <EuiSpacer size="xs" />
+                            {pack.dashboardIndices.map((i) => {
+                              const d = DASHBOARDS[i];
+                              const title = polishSetupDashboardTitle(
+                                d.title ?? `Dashboard ${i + 1}`,
+                                cloudId
+                              );
+                              return (
+                                <div key={`dash-${i}`} style={{ marginLeft: 8, marginBottom: 4 }}>
+                                  <EuiText size="xs">
+                                    <EuiCode>{title}</EuiCode>
+                                  </EuiText>
+                                </div>
+                              );
+                            })}
+                            <EuiSpacer size="s" />
+                          </>
                         )}
                         {nMlJobs > 0 && (
-                          <EuiFlexItem grow={false}>
-                            <EuiBadge color="accent">
-                              {nMlJobs} ML job{nMlJobs > 1 ? "s" : ""}
-                            </EuiBadge>
-                          </EuiFlexItem>
+                          <>
+                            <EuiText size="xs">
+                              <strong>ML Anomaly Detection Jobs</strong>
+                            </EuiText>
+                            <EuiSpacer size="xs" />
+                            {pack.mlJobs.map((j) => (
+                              <div key={j.id} style={{ marginLeft: 8, marginBottom: 4 }}>
+                                <EuiText size="xs">
+                                  <EuiCode>{j.id}</EuiCode>
+                                  <span
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "var(--euiColorSubdued, #69707d)",
+                                    }}
+                                  >
+                                    {j.description}
+                                  </span>
+                                </EuiText>
+                              </div>
+                            ))}
+                          </>
                         )}
                         {nAlertRules > 0 && (
-                          <EuiFlexItem grow={false}>
-                            <EuiBadge color="warning">
-                              {nAlertRules} rule{nAlertRules > 1 ? "s" : ""}
-                            </EuiBadge>
-                          </EuiFlexItem>
+                          <>
+                            <EuiText size="xs">
+                              <strong>Alerting Rules</strong>
+                            </EuiText>
+                            <EuiSpacer size="xs" />
+                            {pack.alertRules.map((r) => (
+                              <div key={r.id} style={{ marginLeft: 8, marginBottom: 4 }}>
+                                <EuiText size="xs">
+                                  <EuiCode>{r.name}</EuiCode>
+                                  <span
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "var(--euiColorSubdued, #69707d)",
+                                    }}
+                                  >
+                                    {r.enabled ? "enabled" : "disabled by default"} ·{" "}
+                                    {r.schedule.interval}
+                                  </span>
+                                </EuiText>
+                              </div>
+                            ))}
+                          </>
                         )}
-                      </EuiFlexGroup>
+                      </SetupCollapsible>
+                    );
+                  })}
+                </SetupCollapsible>
+              );
+            })}
+            {servicePackIndex.length === 0 ? (
+              <EuiText size="s" color="danger">
+                <p>No integration packs are available for this cloud in this build.</p>
+              </EuiText>
+            ) : visibleServicePacks.length === 0 ? (
+              <EuiText size="s" color="subdued">
+                <p>No services match the current filter — clear the search box.</p>
+              </EuiText>
+            ) : null}
+          </InstallerRow>
+
+          <EuiSpacer size="m" />
+
+          <EuiPanel paddingSize="m" hasBorder color="subdued">
+            <EuiTitle size="xxs">
+              <h4>{removeMode ? "Uninstall options" : "Post-install options"}</h4>
+            </EuiTitle>
+            <EuiSpacer size="s" />
+            <EuiFlexGroup gutterSize="l" wrap responsive={false}>
+              <EuiFlexItem grow={false}>
+                <EuiSwitch
+                  label={
+                    removeMode
+                      ? "Disable alerting rules before uninstall"
+                      : "Enable alerting rules after install"
+                  }
+                  checked={activateAlertRules}
+                  onChange={(e) => setActivateAlertRules(e.target.checked)}
+                  disabled={!enableLoadgenIntegrations}
+                />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiSwitch
+                  label={
+                    removeMode ? "Stop ML jobs before uninstall" : "Start ML jobs after install"
+                  }
+                  checked={startMlJobs}
+                  onChange={(e) => setStartMlJobs(e.target.checked)}
+                  disabled={!enableLoadgenIntegrations}
+                />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiSwitch
+                  label={removeMode ? "Uninstall SLOs" : "Install SLOs"}
+                  checked={enableSlos}
+                  onChange={(e) => setEnableSlos(e.target.checked)}
+                />
+              </EuiFlexItem>
+              {SECURITY_DETECTION_RULE_FILES.length > 0 && (
+                <EuiFlexItem grow={false}>
+                  <EuiSwitch
+                    label={
+                      removeMode
+                        ? `Uninstall security detection rules (${SECURITY_DETECTION_RULE_FILES.reduce((n, f) => n + f.rules.length, 0)})`
+                        : `Install security detection rules (${SECURITY_DETECTION_RULE_FILES.reduce((n, f) => n + f.rules.length, 0)}) for Attack Discovery`
                     }
-                  >
-                    {nPipelines > 0 && (
-                      <>
-                        <EuiText size="xs">
-                          <strong>Ingest Pipelines</strong>
-                        </EuiText>
-                        <EuiSpacer size="xs" />
-                        {pack.pipelines.map((p) => (
-                          <div key={p.id} style={{ marginLeft: 8, marginBottom: 4 }}>
-                            <EuiText size="xs">
-                              <EuiCode>{p.id}</EuiCode>
-                              <span
-                                style={{ marginLeft: 8, color: "var(--euiColorSubdued, #69707d)" }}
-                              >
-                                {p.description}
-                              </span>
-                            </EuiText>
-                          </div>
-                        ))}
-                        <EuiSpacer size="s" />
-                      </>
-                    )}
-                    {nDashboards > 0 && (
-                      <>
-                        <EuiText size="xs">
-                          <strong>Dashboards</strong>
-                        </EuiText>
-                        <EuiSpacer size="xs" />
-                        {pack.dashboardIndices.map((i) => {
-                          const d = DASHBOARDS[i];
-                          const title = polishSetupDashboardTitle(
-                            d.title ?? `Dashboard ${i + 1}`,
-                            cloudId
-                          );
-                          return (
-                            <div key={`dash-${i}`} style={{ marginLeft: 8, marginBottom: 4 }}>
-                              <EuiText size="xs">
-                                <EuiCode>{title}</EuiCode>
-                              </EuiText>
-                            </div>
-                          );
-                        })}
-                        <EuiSpacer size="s" />
-                      </>
-                    )}
-                    {nMlJobs > 0 && (
-                      <>
-                        <EuiText size="xs">
-                          <strong>ML Anomaly Detection Jobs</strong>
-                        </EuiText>
-                        <EuiSpacer size="xs" />
-                        {pack.mlJobs.map((j) => (
-                          <div key={j.id} style={{ marginLeft: 8, marginBottom: 4 }}>
-                            <EuiText size="xs">
-                              <EuiCode>{j.id}</EuiCode>
-                              <span
-                                style={{ marginLeft: 8, color: "var(--euiColorSubdued, #69707d)" }}
-                              >
-                                {j.description}
-                              </span>
-                            </EuiText>
-                          </div>
-                        ))}
-                      </>
-                    )}
-                    {nAlertRules > 0 && (
-                      <>
-                        <EuiText size="xs">
-                          <strong>Alerting Rules</strong>
-                        </EuiText>
-                        <EuiSpacer size="xs" />
-                        {pack.alertRules.map((r) => (
-                          <div key={r.id} style={{ marginLeft: 8, marginBottom: 4 }}>
-                            <EuiText size="xs">
-                              <EuiCode>{r.name}</EuiCode>
-                              <span
-                                style={{ marginLeft: 8, color: "var(--euiColorSubdued, #69707d)" }}
-                              >
-                                {r.enabled ? "enabled" : "disabled by default"} ·{" "}
-                                {r.schedule.interval}
-                              </span>
-                            </EuiText>
-                          </div>
-                        ))}
-                      </>
-                    )}
-                  </SetupCollapsible>
-                );
-              })}
-            </SetupCollapsible>
-          );
-        })}
-        {servicePackIndex.length === 0 ? (
-          <EuiText size="s" color="danger">
-            <p>No integration packs are available for this cloud in this build.</p>
-          </EuiText>
-        ) : visibleServicePacks.length === 0 ? (
-          <EuiText size="s" color="subdued">
-            <p>No services match the current filter — clear the search box.</p>
-          </EuiText>
-        ) : null}
-      </InstallerRow>
-
-      <EuiSpacer size="m" />
-
-      <EuiPanel paddingSize="m" hasBorder color="subdued">
-        <EuiTitle size="xxs">
-          <h4>{removeMode ? "Uninstall options" : "Post-install options"}</h4>
-        </EuiTitle>
-        <EuiSpacer size="s" />
-        <EuiFlexGroup gutterSize="l" wrap responsive={false}>
-          <EuiFlexItem grow={false}>
-            <EuiSwitch
-              label={
-                removeMode
-                  ? "Disable alerting rules before uninstall"
-                  : "Enable alerting rules after install"
-              }
-              checked={activateAlertRules}
-              onChange={(e) => setActivateAlertRules(e.target.checked)}
-              disabled={!enableLoadgenIntegrations}
-            />
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiSwitch
-              label={removeMode ? "Stop ML jobs before uninstall" : "Start ML jobs after install"}
-              checked={startMlJobs}
-              onChange={(e) => setStartMlJobs(e.target.checked)}
-              disabled={!enableLoadgenIntegrations}
-            />
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiSwitch
-              label={removeMode ? "Uninstall SLOs" : "Install SLOs"}
-              checked={enableSlos}
-              onChange={(e) => setEnableSlos(e.target.checked)}
-            />
-          </EuiFlexItem>
-          {SECURITY_DETECTION_RULE_FILES.length > 0 && (
-            <EuiFlexItem grow={false}>
-              <EuiSwitch
-                label={
-                  removeMode
-                    ? `Uninstall security detection rules (${SECURITY_DETECTION_RULE_FILES.reduce((n, f) => n + f.rules.length, 0)})`
-                    : `Install security detection rules (${SECURITY_DETECTION_RULE_FILES.reduce((n, f) => n + f.rules.length, 0)}) for Attack Discovery`
-                }
-                checked={enableSecurityDetectionRules}
-                onChange={(e) => setEnableSecurityDetectionRules(e.target.checked)}
-              />
-            </EuiFlexItem>
-          )}
-        </EuiFlexGroup>
-        <EuiSpacer size="xs" />
-        <EuiText size="xs" color="subdued">
-          {removeMode ? (
-            <p>
-              Toggle these to include them in the uninstall. Alerting rules will be disabled and ML
-              jobs will be stopped before removal when selected.
-            </p>
-          ) : (
-            <p>
-              Rules are created disabled and ML jobs are created closed by default. Enable these to
-              activate them immediately after installation. SLOs require the Observability SLO API
-              (skipped automatically if unavailable). Security detection rules are installed via the
-              Detection Engine API and generate alerts in{" "}
-              <EuiCode>.alerts-security.alerts-*</EuiCode> for Attack Discovery.
-            </p>
-          )}
-        </EuiText>
-      </EuiPanel>
+                    checked={enableSecurityDetectionRules}
+                    onChange={(e) => setEnableSecurityDetectionRules(e.target.checked)}
+                  />
+                </EuiFlexItem>
+              )}
+            </EuiFlexGroup>
+            <EuiSpacer size="xs" />
+            <EuiText size="xs" color="subdued">
+              {removeMode ? (
+                <p>
+                  Toggle these to include them in the uninstall. Alerting rules will be disabled and
+                  ML jobs will be stopped before removal when selected.
+                </p>
+              ) : (
+                <p>
+                  Rules are created disabled and ML jobs are created closed by default. Enable these
+                  to activate them immediately after installation. SLOs require the Observability
+                  SLO API (skipped automatically if unavailable). Security detection rules are
+                  installed via the Detection Engine API and generate alerts in{" "}
+                  <EuiCode>.alerts-security.alerts-*</EuiCode> for Attack Discovery.
+                </p>
+              )}
+            </EuiText>
+          </EuiPanel>
         </>
       )}
 
