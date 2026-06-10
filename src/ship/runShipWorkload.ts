@@ -457,7 +457,7 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
         }
       };
 
-      const flushDocSubBatch = async (batch: LooseDoc[]) => {
+      const flushDocSubBatch = async (batch: LooseDoc[]): Promise<void> => {
         if (!batch.length || abortRef.current) return;
         batchNum++;
         const ndjsonParts: string[] = [];
@@ -521,9 +521,17 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
             }
           }
         } catch (e: unknown) {
+          const msg = errMsg(e);
+          if (msg.includes("413") && batch.length > 1) {
+            addLog(`  ⚠ batch too large (${batch.length} docs) — halving and retrying`, "warn");
+            const mid = Math.ceil(batch.length / 2);
+            await flushDocSubBatch(batch.slice(0, mid));
+            await flushDocSubBatch(batch.slice(mid));
+            return;
+          }
           svcErrors += batch.length;
           errDelta = batch.length;
-          addLog(`  ✗ network error: ${errMsg(e)}`, "error");
+          addLog(`  ✗ network error: ${msg}`, "error");
         }
         svcProgress.add(sentDelta, errDelta);
         if (batchDelayMs > 0) await new Promise((r) => setTimeout(r, batchDelayMs));

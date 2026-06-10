@@ -1151,8 +1151,10 @@ async function installAgentBuilderForVendor(opts: {
         id: agent.id,
         name: agent.name,
         description: agent.description,
-        instructions: agent.instructions,
-        tool_ids: agent.toolIds,
+        configuration: {
+          instructions: agent.instructions,
+          tools: [{ tool_ids: agent.toolIds }],
+        },
       },
     });
     addLog(`  ✓ Agent "${agent.name}" (${agent.id})`, "ok");
@@ -1227,8 +1229,10 @@ async function installSecurityAgentBuilder(opts: {
         id: agent.id,
         name: agent.name,
         description: agent.description,
-        instructions: agent.instructions,
-        tool_ids: agent.toolIds,
+        configuration: {
+          instructions: agent.instructions,
+          tools: [{ tool_ids: agent.toolIds }],
+        },
       },
     });
     addLog(`  ✓ Agent "${agent.name}" (${agent.id})`, "ok");

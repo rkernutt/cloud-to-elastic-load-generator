@@ -26,13 +26,9 @@ describe("bulk helpers", () => {
       mockFetch.mockReset();
     });
 
-    it("returns 4xx with JSON body without retrying", async () => {
-      const jsonHeaders = {
-        get: (k: string) => (k === "content-type" ? "application/json" : null),
-      };
-      mockFetch.mockResolvedValueOnce({ ok: false, status: 400, headers: jsonHeaders });
-      const res = await fetchWithRetry("http://x", {});
-      expect(res.status).toBe(400);
+    it("throws on 4xx without retrying", async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 400 });
+      await expect(fetchWithRetry("http://x", {})).rejects.toThrow("HTTP 400");
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
@@ -61,16 +57,28 @@ describe("bulk helpers", () => {
       expect(mockFetch).toHaveBeenCalledTimes(2);
     });
 
-    it("retries when proxy returns 4xx with HTML body", async () => {
+    it("does not retry on 413 (payload too large)", async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 413 });
+      await expect(fetchWithRetry("http://x", {}, 2)).rejects.toThrow("HTTP 413");
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not retry on 400 (bad request)", async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 400 });
+      await expect(fetchWithRetry("http://x", {}, 2)).rejects.toThrow("HTTP 400");
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("retries when proxy returns non-4xx with HTML body", async () => {
       const htmlHeaders = { get: (k: string) => (k === "content-type" ? "text/html" : null) };
       const jsonHeaders = {
         get: (k: string) => (k === "content-type" ? "application/json" : null),
       };
       mockFetch
-        .mockResolvedValueOnce({ ok: false, status: 413, headers: htmlHeaders })
-        .mockResolvedValueOnce({ ok: false, status: 400, headers: jsonHeaders });
+        .mockResolvedValueOnce({ ok: true, status: 200, headers: htmlHeaders })
+        .mockResolvedValueOnce({ ok: true, status: 200, headers: jsonHeaders });
       const res = await fetchWithRetry("http://x", {}, 2);
-      expect(res.status).toBe(400);
+      expect(res.ok).toBe(true);
       expect(mockFetch).toHaveBeenCalledTimes(2);
     });
   });

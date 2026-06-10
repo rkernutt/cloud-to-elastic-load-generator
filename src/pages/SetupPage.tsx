@@ -208,6 +208,9 @@ export function SetupPage({
   const [enableApm, setEnableApm] = useState(false);
   const [enableCsp, setEnableCsp] = useState(false);
   const [enableServiceNow, setEnableServiceNow] = useState(false);
+  const [enableEntraId, setEnableEntraId] = useState(false);
+  const [enableM365Defender, setEnableM365Defender] = useState(false);
+  const [enableO365Metrics, setEnableO365Metrics] = useState(false);
   const [enablePipelines, setEnablePipelines] = useState(false);
   const [enableDashboards, setEnableDashboards] = useState(false);
   const [enableMlJobs, setEnableMlJobs] = useState(false);
@@ -268,6 +271,23 @@ export function SetupPage({
   }, [cloudId, setupBundle.fleetPackage]); // eslint-disable-line react-hooks/exhaustive-deps -- reset only on vendor switch
 
   const isSupporting = cloudId === "supporting";
+
+  const effEnableIntegration = isSupporting ? false : enableIntegration;
+  const effEnableApm = isSupporting ? false : enableApm;
+  const effEnableCsp = isSupporting ? false : enableCsp;
+  const effEnableServiceNow = isSupporting ? enableServiceNow : false;
+  const effEnableEntraId = isSupporting ? enableEntraId : false;
+  const effEnableM365Defender = isSupporting ? enableM365Defender : false;
+  const effEnableO365Metrics = isSupporting ? enableO365Metrics : false;
+  const effEnableLoadgenIntegrations = isSupporting ? false : enableLoadgenIntegrations;
+  const effEnableWorkflow = isSupporting ? false : enableWorkflow;
+  const effEnableAgentBuilder = isSupporting ? false : enableAgentBuilder;
+  const effEnableSlos = isSupporting ? false : enableSlos;
+  const effActivateAlertRules = isSupporting ? false : activateAlertRules;
+  const effStartMlJobs = isSupporting ? false : startMlJobs;
+  const effEnableSecurityDetectionRules = isSupporting
+    ? false
+    : enableSecurityDetectionRules;
 
   const [isRunning, setIsRunning] = useState(false);
   const [isDone, setIsDone] = useState(false);
@@ -434,25 +454,31 @@ export function SetupPage({
   const hasEs = !!elasticUrl.trim() && !!apiKey.trim();
   const hasKb = !!kibanaUrl.trim() && !!apiKey.trim();
   const needsKb =
-    enableIntegration ||
-    enableApm ||
-    enableCsp ||
-    enableServiceNow ||
-    enableLoadgenIntegrations ||
-    enableWorkflow ||
-    enableAgentBuilder ||
-    enableSlos ||
-    enableSecurityDetectionRules;
+    effEnableIntegration ||
+    effEnableApm ||
+    effEnableCsp ||
+    effEnableServiceNow ||
+    effEnableEntraId ||
+    effEnableM365Defender ||
+    effEnableO365Metrics ||
+    effEnableLoadgenIntegrations ||
+    effEnableWorkflow ||
+    effEnableAgentBuilder ||
+    effEnableSlos ||
+    effEnableSecurityDetectionRules;
   const anyEnabled =
-    enableIntegration ||
-    enableApm ||
-    enableCsp ||
-    enableServiceNow ||
-    enableLoadgenIntegrations ||
-    enableWorkflow ||
-    enableAgentBuilder ||
-    enableSlos ||
-    enableSecurityDetectionRules;
+    effEnableIntegration ||
+    effEnableApm ||
+    effEnableCsp ||
+    effEnableServiceNow ||
+    effEnableEntraId ||
+    effEnableM365Defender ||
+    effEnableO365Metrics ||
+    effEnableLoadgenIntegrations ||
+    effEnableWorkflow ||
+    effEnableAgentBuilder ||
+    effEnableSlos ||
+    effEnableSecurityDetectionRules;
   const canRun = anyEnabled && hasEs && (!needsKb || hasKb);
 
   function toggleGroup<T>(set: Set<T>, val: T): Set<T> {
@@ -1861,11 +1887,24 @@ export function SetupPage({
     isServerless && serverlessProjectType !== undefined && serverlessProjectType !== "security";
   const extraFleetPackages = useMemo(() => {
     const pkgs: { name: string; label: string }[] = [];
-    if (enableCsp && !cspBlockedByProjectType)
+    if (effEnableCsp && !cspBlockedByProjectType)
       pkgs.push({ name: "cloud_security_posture", label: "Cloud Security Posture (CSPM/KSPM)" });
-    if (enableServiceNow) pkgs.push({ name: "servicenow", label: "ServiceNow" });
+    if (effEnableServiceNow) pkgs.push({ name: "servicenow", label: "ServiceNow" });
+    if (effEnableEntraId)
+      pkgs.push({ name: "entityanalytics_entra_id", label: "Microsoft Entra ID (Entity Analytics)" });
+    if (effEnableM365Defender)
+      pkgs.push({ name: "m365_defender", label: "Microsoft 365 Defender (XDR)" });
+    if (effEnableO365Metrics)
+      pkgs.push({ name: "o365_metrics", label: "Microsoft Office 365 Metrics" });
     return pkgs;
-  }, [enableCsp, cspBlockedByProjectType, enableServiceNow]);
+  }, [
+    effEnableCsp,
+    cspBlockedByProjectType,
+    effEnableServiceNow,
+    effEnableEntraId,
+    effEnableM365Defender,
+    effEnableO365Metrics,
+  ]);
 
   // Derive which pipelines/dashboards/ML jobs are selected from service selection
   const derivedPipelineIds = useMemo(() => {
@@ -2005,18 +2044,18 @@ export function SetupPage({
         kibanaUrl,
         apiKey,
         isServerless,
-        enableIntegration,
-        enableApm,
+        enableIntegration: effEnableIntegration,
+        enableApm: effEnableApm,
         enablePipelines,
         enableDashboards,
         enableMlJobs,
-        enableAlertRules: enableLoadgenIntegrations,
-        activateAlertRules,
-        startMlJobs,
-        enableWorkflow,
-        enableAgentBuilder,
-        enableSlos,
-        enableSecurityDetectionRules,
+        enableAlertRules: effEnableLoadgenIntegrations,
+        activateAlertRules: effActivateAlertRules,
+        startMlJobs: effStartMlJobs,
+        enableWorkflow: effEnableWorkflow,
+        enableAgentBuilder: effEnableAgentBuilder,
+        enableSlos: effEnableSlos,
+        enableSecurityDetectionRules: effEnableSecurityDetectionRules,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -2303,14 +2342,14 @@ export function SetupPage({
   }
 
   async function performUninstallSteps() {
-    if (enableIntegration) await uninstallIntegration();
-    if (enableApm) await uninstallApm();
-    if (enableCsp) await uninstallCsp();
+    if (effEnableIntegration) await uninstallIntegration();
+    if (effEnableApm) await uninstallApm();
+    if (effEnableCsp) await uninstallCsp();
     if (enablePipelines) await uninstallPipelines();
     if (enableDashboards) await uninstallDashboards();
     if (enableMlJobs) await uninstallMlJobs();
-    if (enableLoadgenIntegrations) await uninstallAlertRules();
-    if (enableSecurityDetectionRules) {
+    if (effEnableLoadgenIntegrations) await uninstallAlertRules();
+    if (effEnableSecurityDetectionRules) {
       await uninstallSecurityDetectionRules({
         kibanaUrl,
         apiKey,
@@ -2318,10 +2357,10 @@ export function SetupPage({
         addLog,
       });
     }
-    if (enableWorkflow) {
+    if (effEnableWorkflow) {
       await uninstallSetupWorkflow({ kibanaUrl, apiKey, addLog });
     }
-    if (enableAgentBuilder) {
+    if (effEnableAgentBuilder) {
       await uninstallAgentBuilder({
         kibanaUrl,
         apiKey,
@@ -2330,7 +2369,7 @@ export function SetupPage({
       });
       await uninstallKnowledgeBase({ elasticUrl, apiKey, addLog });
     }
-    if (enableSlos) {
+    if (effEnableSlos) {
       await uninstallSlos({
         kibanaUrl,
         apiKey,
@@ -2384,18 +2423,18 @@ export function SetupPage({
         kibanaUrl,
         apiKey,
         isServerless,
-        enableIntegration,
-        enableApm,
+        enableIntegration: effEnableIntegration,
+        enableApm: effEnableApm,
         enablePipelines,
         enableDashboards,
         enableMlJobs,
-        enableAlertRules: enableLoadgenIntegrations,
-        activateAlertRules,
-        startMlJobs,
-        enableWorkflow,
-        enableAgentBuilder,
-        enableSlos,
-        enableSecurityDetectionRules,
+        enableAlertRules: effEnableLoadgenIntegrations,
+        activateAlertRules: effActivateAlertRules,
+        startMlJobs: effStartMlJobs,
+        enableWorkflow: effEnableWorkflow,
+        enableAgentBuilder: effEnableAgentBuilder,
+        enableSlos: effEnableSlos,
+        enableSecurityDetectionRules: effEnableSecurityDetectionRules,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -2453,18 +2492,18 @@ export function SetupPage({
         kibanaUrl,
         apiKey,
         isServerless,
-        enableIntegration,
-        enableApm,
+        enableIntegration: effEnableIntegration,
+        enableApm: effEnableApm,
         enablePipelines,
         enableDashboards,
         enableMlJobs,
-        enableAlertRules: enableLoadgenIntegrations,
-        activateAlertRules,
-        startMlJobs,
-        enableWorkflow,
-        enableAgentBuilder,
-        enableSlos,
-        enableSecurityDetectionRules,
+        enableAlertRules: effEnableLoadgenIntegrations,
+        activateAlertRules: effActivateAlertRules,
+        startMlJobs: effStartMlJobs,
+        enableWorkflow: effEnableWorkflow,
+        enableAgentBuilder: effEnableAgentBuilder,
+        enableSlos: effEnableSlos,
+        enableSecurityDetectionRules: effEnableSecurityDetectionRules,
         workflowOverrides: {
           notifyTo: workflowNotifyTo,
           emailConnector: workflowEmailConnector,
@@ -2732,13 +2771,44 @@ export function SetupPage({
         </>
       )}
 
-      <InstallerRow
-        label="ServiceNow CMDB Integration"
-        badge="Kibana"
-        description="Install the Elastic ServiceNow integration to ingest CMDB, incident, and change request data. This enables asset enrichment for alerts — look up CI owners, support groups, and related incidents when a pipeline failure is detected."
-        enabled={enableServiceNow}
-        onToggle={setEnableServiceNow}
-      />
+      {isSupporting && (
+        <InstallerRow
+          label="ServiceNow CMDB Integration"
+          badge="Kibana"
+          description="Install the Elastic ServiceNow integration to ingest CMDB, incident, and change request data. This enables asset enrichment for alerts — look up CI owners, support groups, and related incidents when a pipeline failure is detected."
+          enabled={enableServiceNow}
+          onToggle={setEnableServiceNow}
+        />
+      )}
+
+      {isSupporting && (
+        <>
+          <EuiSpacer size="m" />
+          <InstallerRow
+            label="Microsoft Entra ID (Entity Analytics)"
+            badge="Kibana"
+            description="Install the Elastic Entity Analytics for Entra ID integration to ingest user and device entities from Microsoft Entra ID (formerly Azure AD). Enables identity context enrichment for security alerts."
+            enabled={enableEntraId}
+            onToggle={setEnableEntraId}
+          />
+          <EuiSpacer size="m" />
+          <InstallerRow
+            label="Microsoft 365 Defender (XDR)"
+            badge="Kibana"
+            description="Install the Elastic Microsoft Defender XDR integration to collect alerts, incidents, and streaming events from Microsoft 365 Defender. Covers identity, endpoint, email, and cloud app events."
+            enabled={enableM365Defender}
+            onToggle={setEnableM365Defender}
+          />
+          <EuiSpacer size="m" />
+          <InstallerRow
+            label="Microsoft Office 365 Metrics"
+            badge="Kibana"
+            description="Install the Elastic Office 365 Metrics integration to collect user activity metrics from the Microsoft Graph API — active users by workload, Teams activity, Outlook activity, and OneDrive usage."
+            enabled={enableO365Metrics}
+            onToggle={setEnableO365Metrics}
+          />
+        </>
+      )}
 
       {!isSupporting && (
         <>

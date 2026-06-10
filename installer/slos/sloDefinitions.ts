@@ -3,8 +3,8 @@ export interface SloDefinition {
   name: string;
   description: string;
   indicator: Record<string, unknown>;
-  time_window: { duration: string; type: string };
-  budgeting_method: string;
+  timeWindow: { duration: string; type: string };
+  budgetingMethod: string;
   objective: { target: number };
   tags: string[];
 }
@@ -23,11 +23,11 @@ export function getSloDefinitions(vendor: string): SloDefinition[] {
           good: "event.outcome: success",
           total: "*",
           filter: "",
-          timestamp_field: "@timestamp",
+          timestampField: "@timestamp",
         },
       },
-      time_window: { duration: "30d", type: "rolling" },
-      budgeting_method: "occurrences",
+      timeWindow: { duration: "30d", type: "rolling" },
+      budgetingMethod: "occurrences",
       objective: { target: 0.995 },
       tags: ["cloudloadgen", vendor],
     },
@@ -42,11 +42,11 @@ export function getSloDefinitions(vendor: string): SloDefinition[] {
           good: "event.outcome: success AND event.category: database",
           total: "event.category: database",
           filter: "",
-          timestamp_field: "@timestamp",
+          timestampField: "@timestamp",
         },
       },
-      time_window: { duration: "30d", type: "rolling" },
-      budgeting_method: "occurrences",
+      timeWindow: { duration: "30d", type: "rolling" },
+      budgetingMethod: "occurrences",
       objective: { target: 0.99 },
       tags: ["cloudloadgen", vendor],
     },
