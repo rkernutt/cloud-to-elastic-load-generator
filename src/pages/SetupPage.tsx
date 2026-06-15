@@ -285,9 +285,7 @@ export function SetupPage({
   const effEnableSlos = isSupporting ? false : enableSlos;
   const effActivateAlertRules = isSupporting ? false : activateAlertRules;
   const effStartMlJobs = isSupporting ? false : startMlJobs;
-  const effEnableSecurityDetectionRules = isSupporting
-    ? false
-    : enableSecurityDetectionRules;
+  const effEnableSecurityDetectionRules = isSupporting ? false : enableSecurityDetectionRules;
 
   const [isRunning, setIsRunning] = useState(false);
   const [isDone, setIsDone] = useState(false);
@@ -1866,6 +1864,7 @@ export function SetupPage({
           p.alertRules.length > 0
       )
       .sort((a, b) => a.label.localeCompare(b.label));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- SERVICE_CATEGORY is a static lookup map (stable content); excluded to preserve memoization
   }, [PIPELINES, DASHBOARDS, ML_JOB_FILES, ALERT_RULE_FILES, cloudId]);
 
   const [selectedServiceIds, setSelectedServiceIds] = useState<Set<string>>(
@@ -1891,7 +1890,10 @@ export function SetupPage({
       pkgs.push({ name: "cloud_security_posture", label: "Cloud Security Posture (CSPM/KSPM)" });
     if (effEnableServiceNow) pkgs.push({ name: "servicenow", label: "ServiceNow" });
     if (effEnableEntraId)
-      pkgs.push({ name: "entityanalytics_entra_id", label: "Microsoft Entra ID (Entity Analytics)" });
+      pkgs.push({
+        name: "entityanalytics_entra_id",
+        label: "Microsoft Entra ID (Entity Analytics)",
+      });
     if (effEnableM365Defender)
       pkgs.push({ name: "m365_defender", label: "Microsoft 365 Defender (XDR)" });
     if (effEnableO365Metrics)
@@ -1918,7 +1920,7 @@ export function SetupPage({
       if (p.group === "reroute") ids.add(p.id);
     }
     return ids;
-  }, [servicePackIndex, selectedServiceIds]);
+  }, [servicePackIndex, selectedServiceIds, PIPELINES]);
 
   const derivedDashboardKeys = useMemo(() => {
     const keys = new Set<string>();
@@ -1999,6 +2001,7 @@ export function SetupPage({
         totalAlertRules: packs.reduce((n, p) => n + p.alertRules.length, 0),
       };
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- CATEGORY_ORDER is a static ordering array (stable content); excluded to preserve memoization
   }, [visibleServicePacks]);
 
   const descIntegrations: ReactNode = removeMode ? (
@@ -2031,6 +2034,40 @@ export function SetupPage({
       rules: f.rules.filter((r) => derivedAlertRuleIds.has(r.id)),
     })).filter((f) => f.rules.length > 0);
 
+  // Single source of truth for the runSetupInstall options. Install, reinstall,
+  // and reset all share the same effective toggles and filtered payloads, so the
+  // vendor-gating (eff*) and asset filtering only need to be correct in one place.
+  const buildInstallOptions = (): Parameters<typeof runSetupInstall>[0] => ({
+    setupBundle,
+    elasticUrl,
+    kibanaUrl,
+    apiKey,
+    isServerless,
+    enableIntegration: effEnableIntegration,
+    enableApm: effEnableApm,
+    enablePipelines,
+    enableDashboards,
+    enableMlJobs,
+    enableAlertRules: effEnableLoadgenIntegrations,
+    activateAlertRules: effActivateAlertRules,
+    startMlJobs: effStartMlJobs,
+    enableWorkflow: effEnableWorkflow,
+    enableAgentBuilder: effEnableAgentBuilder,
+    enableSlos: effEnableSlos,
+    enableSecurityDetectionRules: effEnableSecurityDetectionRules,
+    workflowOverrides: {
+      notifyTo: workflowNotifyTo,
+      emailConnector: workflowEmailConnector,
+    },
+    extraFleetPackages,
+    pipelines: filteredPipelines(),
+    dashboards: filteredDashboards(),
+    mlJobFiles: filteredMlJobPayload(),
+    alertRuleFiles: filteredAlertRulePayload(),
+    securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
+    addLog,
+  });
+
   const handleInstall = async () => {
     setIsRunning(true);
     setIsDone(false);
@@ -2038,36 +2075,7 @@ export function SetupPage({
     installRunActiveRef.current = true;
     addLog(`── Install run started ${new Date().toLocaleString()} ──`, "info");
     try {
-      await runSetupInstall({
-        setupBundle,
-        elasticUrl,
-        kibanaUrl,
-        apiKey,
-        isServerless,
-        enableIntegration: effEnableIntegration,
-        enableApm: effEnableApm,
-        enablePipelines,
-        enableDashboards,
-        enableMlJobs,
-        enableAlertRules: effEnableLoadgenIntegrations,
-        activateAlertRules: effActivateAlertRules,
-        startMlJobs: effStartMlJobs,
-        enableWorkflow: effEnableWorkflow,
-        enableAgentBuilder: effEnableAgentBuilder,
-        enableSlos: effEnableSlos,
-        enableSecurityDetectionRules: effEnableSecurityDetectionRules,
-        workflowOverrides: {
-          notifyTo: workflowNotifyTo,
-          emailConnector: workflowEmailConnector,
-        },
-        extraFleetPackages,
-        pipelines: filteredPipelines(),
-        dashboards: filteredDashboards(),
-        mlJobFiles: filteredMlJobPayload(),
-        alertRuleFiles: filteredAlertRulePayload(),
-        securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
-        addLog,
-      });
+      await runSetupInstall(buildInstallOptions());
       addLog("All selected installers complete.", "ok");
       setIsDone(true);
       onInstallComplete();
@@ -2417,36 +2425,7 @@ export function SetupPage({
     }
     try {
       addLog(`── Reinstall run started ${new Date().toLocaleString()} ──`, "info");
-      await runSetupInstall({
-        setupBundle,
-        elasticUrl,
-        kibanaUrl,
-        apiKey,
-        isServerless,
-        enableIntegration: effEnableIntegration,
-        enableApm: effEnableApm,
-        enablePipelines,
-        enableDashboards,
-        enableMlJobs,
-        enableAlertRules: effEnableLoadgenIntegrations,
-        activateAlertRules: effActivateAlertRules,
-        startMlJobs: effStartMlJobs,
-        enableWorkflow: effEnableWorkflow,
-        enableAgentBuilder: effEnableAgentBuilder,
-        enableSlos: effEnableSlos,
-        enableSecurityDetectionRules: effEnableSecurityDetectionRules,
-        workflowOverrides: {
-          notifyTo: workflowNotifyTo,
-          emailConnector: workflowEmailConnector,
-        },
-        extraFleetPackages,
-        pipelines: filteredPipelines(),
-        dashboards: filteredDashboards(),
-        mlJobFiles: filteredMlJobPayload(),
-        alertRuleFiles: filteredAlertRulePayload(),
-        securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
-        addLog,
-      });
+      await runSetupInstall(buildInstallOptions());
       addLog("Reinstall finished.", "ok");
       setIsDone(true);
       onReinstallComplete?.();
@@ -2486,36 +2465,7 @@ export function SetupPage({
     try {
       await performUninstallSteps();
       addLog("--- Reinstalling selected components ---", "info");
-      await runSetupInstall({
-        setupBundle,
-        elasticUrl,
-        kibanaUrl,
-        apiKey,
-        isServerless,
-        enableIntegration: effEnableIntegration,
-        enableApm: effEnableApm,
-        enablePipelines,
-        enableDashboards,
-        enableMlJobs,
-        enableAlertRules: effEnableLoadgenIntegrations,
-        activateAlertRules: effActivateAlertRules,
-        startMlJobs: effStartMlJobs,
-        enableWorkflow: effEnableWorkflow,
-        enableAgentBuilder: effEnableAgentBuilder,
-        enableSlos: effEnableSlos,
-        enableSecurityDetectionRules: effEnableSecurityDetectionRules,
-        workflowOverrides: {
-          notifyTo: workflowNotifyTo,
-          emailConnector: workflowEmailConnector,
-        },
-        extraFleetPackages,
-        pipelines: filteredPipelines(),
-        dashboards: filteredDashboards(),
-        mlJobFiles: filteredMlJobPayload(),
-        alertRuleFiles: filteredAlertRulePayload(),
-        securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
-        addLog,
-      });
+      await runSetupInstall(buildInstallOptions());
       addLog("Uninstall and reinstall finished.", "ok");
       setIsDone(true);
       onReinstallComplete?.();

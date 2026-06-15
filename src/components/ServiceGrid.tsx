@@ -5,6 +5,7 @@ import { serviceIdsInGroup } from "../data/serviceGroups";
 import type { ServiceIconMode } from "../cloud/types";
 import { SimpleBrandIcon } from "./SimpleBrandIcon";
 import { Card, QuickBtn } from "./Card";
+import { serviceIconPublicUrl } from "../utils/serviceIcon";
 
 interface ServiceGridProps {
   eventType: string;
@@ -27,16 +28,6 @@ interface ServiceGridProps {
   getEffectiveSource: (id: string) => string;
   /** Expands every category (clears collapsed state). */
   expandAllGroups?: () => void;
-}
-
-/** Public URL for a file under `iconBaseUrl` (flat names under public/, paths URL-encoded). */
-export function serviceIconPublicUrl(base: string, file: string): string {
-  const b = base.replace(/\/$/, "");
-  if (file.includes("/")) {
-    return `${b}/${file.split("/").map(encodeURIComponent).join("/")}`;
-  }
-  const name = file.includes(".") ? file : `${file}.svg`;
-  return `${b}/${encodeURIComponent(name)}`;
 }
 
 const ServiceGrid = memo(function ServiceGrid({

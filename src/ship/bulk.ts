@@ -47,7 +47,11 @@ export async function fetchWithRetry(
         }
       }
     } catch (e) {
-      if (e instanceof Error && e.message.startsWith("HTTP ") && NON_RETRYABLE_STATUS.has(Number(e.message.slice(5)))) {
+      if (
+        e instanceof Error &&
+        e.message.startsWith("HTTP ") &&
+        NON_RETRYABLE_STATUS.has(Number(e.message.slice(5)))
+      ) {
         throw e;
       }
       lastErr = e;

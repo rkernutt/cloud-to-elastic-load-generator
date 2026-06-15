@@ -1,5 +1,6 @@
 import { EuiPanel, EuiTitle, EuiSpacer, EuiFieldSearch } from "@elastic/eui";
-import { ServiceGrid, serviceIconPublicUrl } from "../components/ServiceGrid";
+import { ServiceGrid } from "../components/ServiceGrid";
+import { serviceIconPublicUrl } from "../utils/serviceIcon";
 import { Card, QuickBtn } from "../components/Card";
 import K from "../theme";
 import { SimpleBrandIcon } from "../components/SimpleBrandIcon";

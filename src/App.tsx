@@ -848,6 +848,7 @@ export function LoadGeneratorApp({
       dryRun,
       config,
       addLog,
+      pipelineOrchestration,
     ]
   );
 

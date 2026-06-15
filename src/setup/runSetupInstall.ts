@@ -43,6 +43,7 @@ import {
   getSecurityAgentDef,
   getSecurityTools,
 } from "../../installer/agent-builder/agentDefinitions";
+import type { AgentDef, AgentToolDef } from "../../installer/agent-builder/agentDefinitions";
 import { getSloDefinitions } from "../../installer/slos/sloDefinitions";
 
 export type SetupLogFn = (text: string, type?: "info" | "ok" | "error" | "warn") => void;
@@ -1097,15 +1098,33 @@ export async function runSetupInstall(opts: {
   if (enableSlos) await installSlos();
 }
 
-async function installAgentBuilderForVendor(opts: {
+/** Request body for the Kibana Agent Builder "create agent" API (9.x contract). */
+export function buildAgentBuilderBody(agent: AgentDef): Record<string, unknown> {
+  return {
+    id: agent.id,
+    name: agent.name,
+    description: agent.description,
+    configuration: {
+      instructions: agent.instructions,
+      tools: [{ tool_ids: agent.toolIds }],
+    },
+  };
+}
+
+/**
+ * Installs a set of Agent Builder tools followed by the agent that uses them.
+ * Shared by the per-vendor analyst and the SOC analyst installers so the API
+ * payload shape (tools then agent, camelCase `configuration.tools`) lives in one place.
+ */
+async function installAgentBuilderBundle(opts: {
   kb: string;
   apiKey: string;
-  vendor: string;
+  tools: AgentToolDef[];
+  agent: AgentDef;
+  toolsLabel: string;
   addLog: SetupLogFn;
 }): Promise<"ok" | "unavailable" | "partial"> {
-  const { kb, apiKey, vendor, addLog } = opts;
-  const tools = getAgentTools(vendor);
-  const agent = getAgentDef(vendor);
+  const { kb, apiKey, tools, agent, toolsLabel, addLog } = opts;
 
   let toolsOk = 0;
   let toolsSkipped = 0;
@@ -1147,15 +1166,7 @@ async function installAgentBuilderForVendor(opts: {
       apiKey,
       path: "/api/agent_builder/agents",
       method: "POST",
-      body: {
-        id: agent.id,
-        name: agent.name,
-        description: agent.description,
-        configuration: {
-          instructions: agent.instructions,
-          tools: [{ tool_ids: agent.toolIds }],
-        },
-      },
+      body: buildAgentBuilderBody(agent),
     });
     addLog(`  ✓ Agent "${agent.name}" (${agent.id})`, "ok");
   } catch (e) {
@@ -1170,10 +1181,27 @@ async function installAgentBuilderForVendor(opts: {
   }
 
   addLog(
-    `  ✓ Agent Builder tools: ${toolsOk} created${toolsSkipped > 0 ? `, ${toolsSkipped} already existed` : ""}${toolsFail > 0 ? `, ${toolsFail} failed` : ""}`,
+    `  ✓ ${toolsLabel}: ${toolsOk} created${toolsSkipped > 0 ? `, ${toolsSkipped} already existed` : ""}${toolsFail > 0 ? `, ${toolsFail} failed` : ""}`,
     toolsFail > 0 ? "warn" : "ok"
   );
   return toolsFail > 0 ? "partial" : "ok";
+}
+
+async function installAgentBuilderForVendor(opts: {
+  kb: string;
+  apiKey: string;
+  vendor: string;
+  addLog: SetupLogFn;
+}): Promise<"ok" | "unavailable" | "partial"> {
+  const { kb, apiKey, vendor, addLog } = opts;
+  return installAgentBuilderBundle({
+    kb,
+    apiKey,
+    tools: getAgentTools(vendor),
+    agent: getAgentDef(vendor),
+    toolsLabel: "Agent Builder tools",
+    addLog,
+  });
 }
 
 async function installSecurityAgentBuilder(opts: {
@@ -1182,76 +1210,14 @@ async function installSecurityAgentBuilder(opts: {
   addLog: SetupLogFn;
 }): Promise<"ok" | "unavailable" | "partial"> {
   const { kb, apiKey, addLog } = opts;
-  const tools = getSecurityTools();
-  const agent = getSecurityAgentDef();
-
-  let toolsOk = 0;
-  let toolsSkipped = 0;
-  let toolsFail = 0;
-
-  for (const tool of tools) {
-    try {
-      await proxyCall({
-        baseUrl: kb,
-        apiKey,
-        path: "/api/agent_builder/tools",
-        method: "POST",
-        body: {
-          id: tool.id,
-          type: tool.type,
-          description: tool.description,
-          configuration: tool.configuration,
-          tags: tool.tags,
-        },
-      });
-      toolsOk++;
-      addLog(`  ✓ Tool ${tool.id}`, "ok");
-    } catch (e) {
-      const msg = String(e);
-      if (isKibanaApiUnavailable(msg)) return "unavailable";
-      if (isHttpConflict(msg)) {
-        toolsSkipped++;
-        addLog(`  — Tool ${tool.id}: already exists, skipping`, "info");
-      } else {
-        toolsFail++;
-        addLog(`  ✗ Tool ${tool.id}: ${msg}`, "error");
-      }
-    }
-  }
-
-  try {
-    await proxyCall({
-      baseUrl: kb,
-      apiKey,
-      path: "/api/agent_builder/agents",
-      method: "POST",
-      body: {
-        id: agent.id,
-        name: agent.name,
-        description: agent.description,
-        configuration: {
-          instructions: agent.instructions,
-          tools: [{ tool_ids: agent.toolIds }],
-        },
-      },
-    });
-    addLog(`  ✓ Agent "${agent.name}" (${agent.id})`, "ok");
-  } catch (e) {
-    const msg = String(e);
-    if (isKibanaApiUnavailable(msg)) return "unavailable";
-    if (isHttpConflict(msg)) {
-      addLog(`  — Agent ${agent.id}: already exists, skipping`, "info");
-    } else {
-      addLog(`  ✗ Agent ${agent.id}: ${msg}`, "error");
-      return "partial";
-    }
-  }
-
-  addLog(
-    `  ✓ SOC Analyst tools: ${toolsOk} created${toolsSkipped > 0 ? `, ${toolsSkipped} already existed` : ""}${toolsFail > 0 ? `, ${toolsFail} failed` : ""}`,
-    toolsFail > 0 ? "warn" : "ok"
-  );
-  return toolsFail > 0 ? "partial" : "ok";
+  return installAgentBuilderBundle({
+    kb,
+    apiKey,
+    tools: getSecurityTools(),
+    agent: getSecurityAgentDef(),
+    toolsLabel: "SOC Analyst tools",
+    addLog,
+  });
 }
 
 async function installAgentBuilderInner(opts: {
