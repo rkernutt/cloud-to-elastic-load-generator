@@ -69,7 +69,7 @@ import {
 import { dashboardTitleServiceFragment } from "../setup/setupAssetMatch";
 import { polishSetupCategoryLabel, polishSetupDashboardTitle } from "../setup/setupDisplayPolish";
 
-interface SetupPageProps {
+export interface SetupPageProps {
   setupBundle: CloudSetupBundle;
   /** Resets asset lists when switching vendor (AWS / GCP / Azure). */
   cloudId: CloudId;

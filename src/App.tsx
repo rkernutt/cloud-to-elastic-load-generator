@@ -73,7 +73,9 @@ const AnomaliesPage = lazy(() =>
 const ActivityPage = lazy(() =>
   import("./pages/ActivityPage").then((m) => ({ default: m.ActivityPage }))
 );
-const SetupPage = lazy(() => import("./pages/SetupPage").then((m) => ({ default: m.SetupPage })));
+const SetupPage = lazy(() =>
+  import("./pages/SetupPageLoader").then((m) => ({ default: m.SetupPageLoader }))
+);
 
 type LogEntry = { id: number; msg: string; type: string; ts: string; at?: string };
 type ShipStatus = "running" | "done" | "aborted" | null;
@@ -1253,7 +1255,7 @@ export function LoadGeneratorApp({
         {activePage === "setup" && (
           <SetupPage
             key={config.id}
-            setupBundle={config.setupBundle}
+            loadSetupBundle={config.loadSetupBundle}
             cloudId={config.id}
             serviceGroups={config.serviceGroups}
             selectedShipServiceIds={isTracesMode ? selectedTraceServices : selectedServices}

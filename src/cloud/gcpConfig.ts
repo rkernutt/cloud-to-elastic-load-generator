@@ -7,7 +7,6 @@ import { GCP_SERVICE_INGESTION_DEFAULTS, GCP_INGESTION_META } from "../gcp/data/
 import { GCP_SERVICE_GROUPS, GCP_ALL_SERVICE_IDS } from "../gcp/data/serviceGroups";
 import { GCP_TRACE_SERVICES } from "../gcp/generators/traces/services";
 import { GCP_REGIONS } from "../gcp/generators/helpers.js";
-import { GCP_SETUP_BUNDLE } from "../setup/gcpAssets";
 import type { CloudAppConfig, TraceServiceMeta } from "./types";
 import type { ServiceGroup } from "../data/serviceGroups";
 import { genericVendorBulkIndex, genericVendorDocDataset } from "./indexNaming";
@@ -77,7 +76,7 @@ export const GCP_CONFIG: CloudAppConfig = {
       defaultIngestion: "cloud-logging",
     },
   },
-  setupBundle: GCP_SETUP_BUNDLE,
+  loadSetupBundle: () => import("../setup/gcpAssets").then((m) => m.GCP_SETUP_BUNDLE),
   serviceIcons: {
     mode: "file-icons",
     serviceFiles: gcpVendorServiceFiles,

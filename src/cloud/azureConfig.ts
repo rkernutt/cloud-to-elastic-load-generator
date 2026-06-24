@@ -7,7 +7,6 @@ import { AZURE_SERVICE_INGESTION_DEFAULTS, AZURE_INGESTION_META } from "../azure
 import { AZURE_SERVICE_GROUPS, AZURE_ALL_SERVICE_IDS } from "../azure/data/serviceGroups";
 import { AZURE_TRACE_SERVICES } from "../azure/generators/traces/services.js";
 import { AZURE_REGIONS } from "../azure/generators/helpers.js";
-import { AZURE_SETUP_BUNDLE } from "../setup/azureAssets";
 import type { CloudAppConfig, TraceServiceMeta } from "./types";
 import type { ServiceGroup } from "../data/serviceGroups";
 import {
@@ -101,7 +100,7 @@ export const AZURE_CONFIG: CloudAppConfig = {
       metricsIntegrationByServiceId: { ...M365_AZURE_METRICS_INTEGRATION_BY_SERVICE_ID },
     },
   },
-  setupBundle: AZURE_SETUP_BUNDLE,
+  loadSetupBundle: () => import("../setup/azureAssets").then((m) => m.AZURE_SETUP_BUNDLE),
   serviceIcons: {
     mode: "file-icons",
     serviceFiles: azureVendorServiceFiles,

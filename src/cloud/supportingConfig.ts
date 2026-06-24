@@ -59,7 +59,9 @@ export const SUPPORTING_CONFIG: CloudAppConfig = {
     import("../supporting/generators/metrics").then((m) => m.SUPPORTING_METRICS_GENERATORS),
   loadTraceGenerators: () => Promise.resolve({}),
   enrichContext: { kind: "supporting" },
-  setupBundle: SUPPORTING_SETUP_BUNDLE,
+  // Supporting Services ships no heavy install assets, so the bundle is tiny and
+  // can resolve synchronously — no separate chunk needed.
+  loadSetupBundle: () => Promise.resolve(SUPPORTING_SETUP_BUNDLE),
   serviceIcons: {
     mode: "file-icons",
     serviceFiles: {},

@@ -59,7 +59,13 @@ export interface CloudAppConfig {
     Record<string, (ts: string, er: number) => Record<string, unknown>[]>
   >;
   enrichContext: CloudEnrichContext;
-  setupBundle: CloudSetupBundle;
+  /**
+   * Lazily loads the heavy Setup asset bundle (ingest pipelines registry,
+   * dashboards, ML jobs, alert + detection rules). Kept out of the eager
+   * vendor-config chunk so selecting a cloud doesn't download ~MBs of
+   * install-only JSON until the Setup page actually needs it.
+   */
+  loadSetupBundle: () => Promise<CloudSetupBundle>;
   serviceIcons: ServiceIconMode;
   formatBulkIndexName: (indexPrefix: string, dataset: string) => string;
   formatDocDatasetIndex: (indexPrefix: string, __dataset: string) => string;

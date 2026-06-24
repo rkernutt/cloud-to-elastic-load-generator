@@ -60,8 +60,10 @@ RUN npm run copy-icons && npm run build
 # ── Stage 2: Serve ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 
-# Install nginx and supervisor
-RUN apk add --no-cache nginx supervisor
+# Install nginx (+ Brotli filter module) and supervisor.
+# nginx-mod-http-brotli drops /etc/nginx/modules/*.conf which Alpine's main
+# nginx.conf auto-includes, so the module is loaded without editing nginx.conf.
+RUN apk add --no-cache nginx nginx-mod-http-brotli supervisor
 
 # Nginx config
 COPY nginx.conf /etc/nginx/http.d/default.conf

@@ -1,4 +1,3 @@
-import { AWS_SETUP_BUNDLE } from "../setup/awsAssets";
 import {
   ELASTIC_DATASET_MAP,
   ELASTIC_METRICS_DATASET_MAP,
@@ -50,7 +49,7 @@ export const AWS_CONFIG: CloudAppConfig = {
     import("../aws/generators/metrics").then((m) => m.METRICS_GENERATORS),
   loadTraceGenerators: () => import("../aws/generators/traces").then((m) => m.TRACE_GENERATORS),
   enrichContext: { kind: "aws" },
-  setupBundle: AWS_SETUP_BUNDLE,
+  loadSetupBundle: () => import("../setup/awsAssets").then((m) => m.AWS_SETUP_BUNDLE),
   serviceIcons: {
     mode: "file-icons",
     serviceFiles: AWS_SERVICE_ICON_MAP,
