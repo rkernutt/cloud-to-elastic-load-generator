@@ -63,7 +63,7 @@ Each pipeline run produces **6-8 correlated log documents** plus **1 APM trace**
 2. **GCS GetObject** — `gcp.gcs` dataset (source Avro file)
 3. **Dataproc Spark job** — `gcp.dataproc` dataset (processing)
 4. **GCS PutObject** — `gcp.gcs` dataset (output Parquet)
-5. **Data Catalog update** — `gcp.data_catalog` dataset
+5. **Data Catalog update** — `gcp.datacatalog` dataset
 6. **BigQuery query** — `gcp.bigquery` dataset
 7. **Composer DAG completed** — `gcp.composer` dataset (with quality check)
 

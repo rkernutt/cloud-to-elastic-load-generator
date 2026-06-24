@@ -198,6 +198,7 @@ The complete list of Elasticsearch and Kibana API operations the tool performs, 
 ### Setup — Kibana
 
 - `GET /api/status` — Kibana connectivity check
+- `GET /api/spaces/space` — discover Kibana spaces for the multitenancy target selector (Test Connection)
 - `POST /api/dashboards` — create dashboards (primary method)
 - `GET /api/saved_objects/dashboard/{id}` — check dashboard existence
 - `PUT /api/saved_objects/dashboard/{id}` — create/update dashboard (fallback)
@@ -217,3 +218,5 @@ The complete list of Elasticsearch and Kibana API operations the tool performs, 
 - `GET /api/fleet/epm/packages/{name}` — resolve Fleet package version
 - `POST /api/fleet/epm/packages/{name}/{version}` — install Fleet package
 - `DELETE /api/fleet/epm/packages/{name}/{version}` — remove Fleet package
+
+> When a non-default Kibana space is selected on the Start page, the space-aware paths above (saved objects, data views, alerting, detection engine, observability/slos, workflows, agent_builder) are prefixed with `/s/<space-id>`. The API key therefore needs its Kibana feature privileges granted on that space (or `space:*`). Fleet/EPM package installs and all Elasticsearch endpoints (ingest pipelines, ML) remain cluster-global.

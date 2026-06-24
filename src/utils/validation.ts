@@ -153,6 +153,73 @@ export async function testConnection(
   }
 }
 
+export interface KibanaSpace {
+  id: string;
+  name: string;
+}
+
+/** The space that always exists; used as the fallback when discovery is unavailable. */
+export const DEFAULT_KIBANA_SPACE: KibanaSpace = { id: "default", name: "Default" };
+
+/**
+ * Discovers Kibana spaces via `GET /api/spaces/space` (multitenancy support).
+ *
+ * Runs against the Kibana URL through the same `/proxy` forwarder used for
+ * installs. Spaces are a Kibana concept, so this is separate from the
+ * Elasticsearch `GET /` connection test. Failures (missing privileges, Spaces
+ * disabled, older proxy) degrade gracefully to just the `default` space so the
+ * UI can always offer at least the default target.
+ */
+export async function discoverKibanaSpaces(
+  kibanaUrl: string,
+  apiKey: string
+): Promise<{ ok: boolean; spaces: KibanaSpace[]; message?: string }> {
+  const trimmed = (kibanaUrl ?? "").trim();
+  if (!trimmed) {
+    return { ok: false, spaces: [DEFAULT_KIBANA_SPACE], message: "No Kibana URL provided." };
+  }
+  try {
+    const res = await fetch(`/proxy`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-elastic-url": trimmed.replace(/\/$/, ""),
+        "x-elastic-key": apiKey,
+        "x-elastic-path": "/api/spaces/space",
+        "x-elastic-method": "GET",
+      },
+      body: "{}",
+    });
+    if (!res.ok) {
+      return {
+        ok: false,
+        spaces: [DEFAULT_KIBANA_SPACE],
+        message: `Could not list spaces (HTTP ${res.status}). Defaulting to the Default space.`,
+      };
+    }
+    const data = (await res.json().catch(() => null)) as Array<{
+      id?: string;
+      name?: string;
+    }> | null;
+    if (!Array.isArray(data) || data.length === 0) {
+      return { ok: false, spaces: [DEFAULT_KIBANA_SPACE] };
+    }
+    const spaces: KibanaSpace[] = data
+      .filter((s) => typeof s?.id === "string" && s.id.length > 0)
+      .map((s) => ({ id: s.id as string, name: s.name || (s.id as string) }));
+    if (spaces.length === 0) return { ok: false, spaces: [DEFAULT_KIBANA_SPACE] };
+    // Keep `default` first for a predictable selection order.
+    spaces.sort((a, b) => (a.id === "default" ? -1 : b.id === "default" ? 1 : 0));
+    return { ok: true, spaces };
+  } catch (e) {
+    return {
+      ok: false,
+      spaces: [DEFAULT_KIBANA_SPACE],
+      message: `Space discovery failed — ${e instanceof Error ? e.message : String(e)}`,
+    };
+  }
+}
+
 /**
  * Validates index prefix (data stream / index name prefix).
  */

@@ -184,6 +184,74 @@ function resolveLogDatasetForSource(serviceId: string, source: string): string {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// REAL ELASTIC LOG DATASET VALUES
+// The set of dataset *values* that correspond to a real Elastic integration
+// data stream (dedicated AWS parsers + the generic catch-alls + Cloud Security
+// Posture). Any other `aws.<service>` value is a project-specific dataset that
+// the project ships custom pipelines/dashboards for.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const REAL_LOG_DATASET_VALUES = new Set<string>([
+  ...Object.values(DEDICATED_LOG_DATASETS),
+  // Security Hub also has an insights stream; posture is a separate integration
+  "aws.securityhub_insights",
+  "cloud_security_posture.findings",
+  // Generic catch-alls (must pass through unchanged)
+  "aws.cloudwatch_logs",
+  "aws_logs.generic",
+  "awsfirehose",
+]);
+
+/**
+ * Generator log datasets that contradict the project's own dataset map / ingest
+ * pipeline for a service that has a real Elastic integration data stream. These
+ * are stale inline values emitted by generators — the docs were landing in an
+ * index with no parser. Correcting them aligns the data with the real Elastic
+ * dataset (and the matching ingest pipeline), and the per-service dashboards
+ * use `logs-aws.<service>*` wildcards so they keep matching.
+ */
+const LOG_DATASET_MISMATCH_FIX: Record<string, string> = {
+  "aws.ec2": "aws.ec2_logs",
+  "aws.s3": "aws.s3access",
+  "aws.inspector2": "aws.inspector",
+  "aws.route53": "aws.route53_public_logs",
+};
+
+/**
+ * Normalize a log dataset *value* against the real Elastic data streams,
+ * honoring the chosen ingestion method.
+ *
+ * - Known generator/map mismatches are corrected to the real Elastic dataset.
+ * - Real dedicated/posture/generic values pass through unchanged.
+ * - Project-specific `aws.<service>` values (which ship with custom ingest
+ *   pipelines + dashboards) are kept as-is on each service's native path so the
+ *   per-service custom assets keep working. Only when the user *explicitly*
+ *   overrides the ingestion method are they switched to that method's generic
+ *   stream (S3 → `aws_logs.generic`, Firehose → `awsfirehose`), mirroring how
+ *   those logs would really land in Elastic when shipped via S3 or Firehose.
+ *
+ * @param ingestionOverridden true when the user explicitly selected a global
+ *   ingestion method (vs the service's native default). The generic switch only
+ *   fires on an explicit override so native bespoke datasets are preserved.
+ */
+function normalizeAwsLogDataset(
+  dataset: string | undefined,
+  source: string,
+  ingestionOverridden = false
+): string {
+  if (!dataset) return GENERIC_DATASET_BY_SOURCE[source] || "aws.cloudwatch_logs";
+  const corrected = LOG_DATASET_MISMATCH_FIX[dataset] ?? dataset;
+  if (REAL_LOG_DATASET_VALUES.has(corrected)) return corrected;
+  if (ingestionOverridden) {
+    const generic = GENERIC_DATASET_BY_SOURCE[source];
+    // Only override bespoke datasets when the chosen method routes somewhere
+    // other than the CloudWatch catch-all (i.e. S3 or Firehose).
+    if (generic && generic !== "aws.cloudwatch_logs") return generic;
+  }
+  return corrected;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // REAL-WORLD CLOUDWATCH LOG GROUP PATTERNS
 // When ingesting via CloudWatch, the log_group identifies the service.
 // ═══════════════════════════════════════════════════════════════════════════
@@ -515,4 +583,6 @@ export {
   GENERIC_DATASET_BY_SOURCE,
   CLOUDWATCH_LOG_GROUPS,
   resolveLogDatasetForSource,
+  REAL_LOG_DATASET_VALUES,
+  normalizeAwsLogDataset,
 };

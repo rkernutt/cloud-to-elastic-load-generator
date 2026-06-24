@@ -20,6 +20,7 @@ import {
   isKibanaFeatureUnavailable,
   isMlResourceAlreadyExists,
   kibanaFeatureBlockedExplanation,
+  kibanaSpacePath,
   resolveFleetPackageVersion,
   shouldUseSavedObjectDashboardInstall,
 } from "./setupProxy";
@@ -113,8 +114,10 @@ async function putDashboardSavedObject(
   encId: string,
   attributes: Record<string, unknown>,
   references: unknown[],
-  versionHint?: string | null
+  versionHint?: string | null,
+  spaceId?: string
 ): Promise<void> {
+  const soPath = kibanaSpacePath(spaceId, `/api/saved_objects/dashboard/${encId}`);
   let version =
     versionHint !== undefined && versionHint !== null && String(versionHint).length > 0
       ? String(versionHint)
@@ -126,7 +129,7 @@ async function putDashboardSavedObject(
       const raw = await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: `/api/saved_objects/dashboard/${encId}`,
+        path: soPath,
         method: "GET",
         allow404: true,
       });
@@ -150,7 +153,7 @@ async function putDashboardSavedObject(
     await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/saved_objects/dashboard/${encId}`,
+      path: soPath,
       method: "PUT",
       body,
     });
@@ -160,7 +163,7 @@ async function putDashboardSavedObject(
     const again = (await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/saved_objects/dashboard/${encId}`,
+      path: soPath,
       method: "GET",
       allow404: true,
     })) as { version?: string | number } | null;
@@ -169,7 +172,7 @@ async function putDashboardSavedObject(
     await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/saved_objects/dashboard/${encId}`,
+      path: soPath,
       method: "PUT",
       body: { attributes, references, version: v2 },
     });
@@ -180,6 +183,8 @@ export async function runSetupInstall(opts: {
   setupBundle: CloudSetupBundle;
   elasticUrl: string;
   kibanaUrl: string;
+  /** Target Kibana space for space-aware assets (dashboards, rules, SLOs, workflows, Agent Builder). */
+  kibanaSpaceId?: string;
   apiKey: string;
   isServerless?: boolean;
   enableIntegration: boolean;
@@ -212,6 +217,7 @@ export async function runSetupInstall(opts: {
     setupBundle,
     elasticUrl,
     kibanaUrl,
+    kibanaSpaceId,
     apiKey,
     isServerless = false,
     enableIntegration,
@@ -235,6 +241,9 @@ export async function runSetupInstall(opts: {
     securityDetectionRuleFiles = [],
     addLog,
   } = opts;
+
+  /** Prefix space-aware Kibana paths with `/s/<space>` (no-op for the default space). */
+  const sp = (path: string) => kibanaSpacePath(kibanaSpaceId, path);
 
   // ─── Plan summary ────────────────────────────────────────────────────────
   // Emit a single "what will / won't run" line at the start of the install
@@ -267,6 +276,12 @@ export async function runSetupInstall(opts: {
     (enableSlos ? planRun : planSkip).push("SLO definitions");
     if (planRun.length) addLog(`Plan: install ${planRun.join(", ")}.`, "info");
     if (planSkip.length) addLog(`Skipping (toggles off): ${planSkip.join(", ")}.`, "info");
+    if (kibanaSpaceId && kibanaSpaceId !== "default") {
+      addLog(
+        `Target Kibana space: ${kibanaSpaceId} (dashboards, rules, SLOs, workflows & Agent Builder install here; ingest pipelines and ML jobs stay global).`,
+        "info"
+      );
+    }
   }
 
   const installIntegration = async (pkgName: string, labelOverride?: string) => {
@@ -342,7 +357,7 @@ export async function runSetupInstall(opts: {
       const existing = await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: `/api/saved_objects/tag/${encTagId}`,
+        path: sp(`/api/saved_objects/tag/${encTagId}`),
         method: "GET",
         allow404: true,
       });
@@ -354,7 +369,7 @@ export async function runSetupInstall(opts: {
       await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: `/api/saved_objects/tag/${encTagId}`,
+        path: sp(`/api/saved_objects/tag/${encTagId}`),
         method: "POST",
         body: {
           attributes: {
@@ -396,7 +411,7 @@ export async function runSetupInstall(opts: {
         await proxyCall({
           baseUrl: kb,
           apiKey,
-          path: "/api/dashboards",
+          path: sp("/api/dashboards"),
           method: "POST",
           body,
         });
@@ -434,7 +449,7 @@ export async function runSetupInstall(opts: {
           const got = await proxyCall({
             baseUrl: kb,
             apiKey,
-            path: `/api/saved_objects/dashboard/${encId}`,
+            path: sp(`/api/saved_objects/dashboard/${encId}`),
             method: "GET",
             allow404: true,
           });
@@ -455,7 +470,8 @@ export async function runSetupInstall(opts: {
             encId,
             payload.attributes,
             payload.references,
-            existingVersion
+            existingVersion,
+            kibanaSpaceId
           );
           ok++;
           continue;
@@ -466,7 +482,7 @@ export async function runSetupInstall(opts: {
             await proxyCall({
               baseUrl: kb,
               apiKey,
-              path: `/api/saved_objects/dashboard/${encId}`,
+              path: sp(`/api/saved_objects/dashboard/${encId}`),
               method: "POST",
               body: soBody,
             });
@@ -481,7 +497,8 @@ export async function runSetupInstall(opts: {
                 encId,
                 payload.attributes,
                 payload.references,
-                undefined
+                undefined,
+                kibanaSpaceId
               );
               ok++;
               continue;
@@ -495,7 +512,7 @@ export async function runSetupInstall(opts: {
         const raw = (await proxyCall({
           baseUrl: kb,
           apiKey,
-          path: `/api/saved_objects/_import?overwrite=true`,
+          path: sp(`/api/saved_objects/_import?overwrite=true`),
           method: "POST",
           kibanaSavedObjectsNdjson: ndjson,
         })) as { success?: boolean; successCount?: number; errors?: unknown[] };
@@ -510,7 +527,8 @@ export async function runSetupInstall(opts: {
             encId,
             payload.attributes,
             payload.references,
-            undefined
+            undefined,
+            kibanaSpaceId
           );
           ok++;
         } else {
@@ -714,7 +732,7 @@ export async function runSetupInstall(opts: {
     }
 
     for (const rule of entries) {
-      const rulePath = `/api/alerting/rule/${encodeURIComponent(rule.id)}`;
+      const rulePath = sp(`/api/alerting/rule/${encodeURIComponent(rule.id)}`);
       try {
         const existing = await proxyCall({
           baseUrl: kb,
@@ -807,7 +825,7 @@ export async function runSetupInstall(opts: {
         await proxyCall({
           baseUrl: kb,
           apiKey,
-          path: `/api/alerting/rule/${encodeURIComponent(rule.id)}/_enable`,
+          path: sp(`/api/alerting/rule/${encodeURIComponent(rule.id)}/_enable`),
           method: "POST",
           body: {},
         });
@@ -905,7 +923,7 @@ export async function runSetupInstall(opts: {
       const conn = (await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: `/api/actions/connector/${encodeURIComponent(connectorId)}`,
+        path: sp(`/api/actions/connector/${encodeURIComponent(connectorId)}`),
         method: "GET",
         allow404: true,
       })) as Record<string, unknown> | null;
@@ -920,7 +938,7 @@ export async function runSetupInstall(opts: {
           const list = (await proxyCall({
             baseUrl: kb,
             apiKey,
-            path: `/api/actions/connectors`,
+            path: sp(`/api/actions/connectors`),
             method: "GET",
             allow404: true,
           })) as Array<Record<string, unknown>> | null;
@@ -956,7 +974,7 @@ export async function runSetupInstall(opts: {
     const yaml = applyWorkflowOverrides(ALERT_ENRICHMENT_WORKFLOW_YAML, merged);
 
     try {
-      const result = await installWorkflow({ kibanaUrl: kb, apiKey, yaml });
+      const result = await installWorkflow({ kibanaUrl: kb, apiKey, yaml, spaceId: kibanaSpaceId });
       const verb = result.outcome === "created" ? "created" : "updated";
       addLog(`  ✓ Workflow ${verb} (id=${result.id}, DISABLED).`, "ok");
       addLog(
@@ -978,7 +996,12 @@ export async function runSetupInstall(opts: {
     addLog("Installing Security Alert Enrichment workflow (SOC demo)…");
     try {
       const secYaml = applyWorkflowOverrides(SECURITY_ALERT_ENRICHMENT_WORKFLOW_YAML, merged);
-      const secResult = await installWorkflow({ kibanaUrl: kb, apiKey, yaml: secYaml });
+      const secResult = await installWorkflow({
+        kibanaUrl: kb,
+        apiKey,
+        yaml: secYaml,
+        spaceId: kibanaSpaceId,
+      });
       const secVerb = secResult.outcome === "created" ? "created" : "updated";
       addLog(`  ✓ Security workflow ${secVerb} (id=${secResult.id}, DISABLED).`, "ok");
     } catch (e) {
@@ -993,7 +1016,12 @@ export async function runSetupInstall(opts: {
     addLog("Installing DNS Alert Enrichment workflow…");
     try {
       const dnsYaml = applyWorkflowOverrides(DNS_ALERT_ENRICHMENT_WORKFLOW_YAML, merged);
-      const dnsResult = await installWorkflow({ kibanaUrl: kb, apiKey, yaml: dnsYaml });
+      const dnsResult = await installWorkflow({
+        kibanaUrl: kb,
+        apiKey,
+        yaml: dnsYaml,
+        spaceId: kibanaSpaceId,
+      });
       const dnsVerb = dnsResult.outcome === "created" ? "created" : "updated";
       addLog(`  ✓ DNS workflow ${dnsVerb} (id=${dnsResult.id}, DISABLED).`, "ok");
     } catch (e) {
@@ -1012,6 +1040,7 @@ export async function runSetupInstall(opts: {
       apiKey,
       vendor: setupBundle.fleetPackage,
       addLog,
+      spaceId: kibanaSpaceId,
     });
   };
 
@@ -1021,6 +1050,7 @@ export async function runSetupInstall(opts: {
       apiKey,
       vendor: setupBundle.fleetPackage,
       addLog,
+      spaceId: kibanaSpaceId,
     });
   };
 
@@ -1039,7 +1069,7 @@ export async function runSetupInstall(opts: {
         await proxyCall({
           baseUrl: kb,
           apiKey,
-          path: "/api/detection_engine/rules",
+          path: sp("/api/detection_engine/rules"),
           method: "POST",
           body: rule as unknown as Record<string, unknown>,
         });
@@ -1123,8 +1153,9 @@ async function installAgentBuilderBundle(opts: {
   agent: AgentDef;
   toolsLabel: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<"ok" | "unavailable" | "partial"> {
-  const { kb, apiKey, tools, agent, toolsLabel, addLog } = opts;
+  const { kb, apiKey, tools, agent, toolsLabel, addLog, spaceId } = opts;
 
   let toolsOk = 0;
   let toolsSkipped = 0;
@@ -1135,7 +1166,7 @@ async function installAgentBuilderBundle(opts: {
       await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: "/api/agent_builder/tools",
+        path: kibanaSpacePath(spaceId, "/api/agent_builder/tools"),
         method: "POST",
         body: {
           id: tool.id,
@@ -1164,7 +1195,7 @@ async function installAgentBuilderBundle(opts: {
     await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: "/api/agent_builder/agents",
+      path: kibanaSpacePath(spaceId, "/api/agent_builder/agents"),
       method: "POST",
       body: buildAgentBuilderBody(agent),
     });
@@ -1192,8 +1223,9 @@ async function installAgentBuilderForVendor(opts: {
   apiKey: string;
   vendor: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<"ok" | "unavailable" | "partial"> {
-  const { kb, apiKey, vendor, addLog } = opts;
+  const { kb, apiKey, vendor, addLog, spaceId } = opts;
   return installAgentBuilderBundle({
     kb,
     apiKey,
@@ -1201,6 +1233,7 @@ async function installAgentBuilderForVendor(opts: {
     agent: getAgentDef(vendor),
     toolsLabel: "Agent Builder tools",
     addLog,
+    spaceId,
   });
 }
 
@@ -1208,8 +1241,9 @@ async function installSecurityAgentBuilder(opts: {
   kb: string;
   apiKey: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<"ok" | "unavailable" | "partial"> {
-  const { kb, apiKey, addLog } = opts;
+  const { kb, apiKey, addLog, spaceId } = opts;
   return installAgentBuilderBundle({
     kb,
     apiKey,
@@ -1217,6 +1251,7 @@ async function installSecurityAgentBuilder(opts: {
     agent: getSecurityAgentDef(),
     toolsLabel: "SOC Analyst tools",
     addLog,
+    spaceId,
   });
 }
 
@@ -1225,12 +1260,13 @@ async function installAgentBuilderInner(opts: {
   apiKey: string;
   vendor: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<void> {
-  const { kibanaUrl, apiKey, vendor, addLog } = opts;
+  const { kibanaUrl, apiKey, vendor, addLog, spaceId } = opts;
   const kb = kibanaUrl.replace(/\/$/, "");
   addLog(`Installing Agent Builder analyst for ${vendor.toUpperCase()}…`);
   try {
-    const result = await installAgentBuilderForVendor({ kb, apiKey, vendor, addLog });
+    const result = await installAgentBuilderForVendor({ kb, apiKey, vendor, addLog, spaceId });
     if (result === "unavailable") {
       addLog(
         "  ⚠ Agent Builder API is not available on this deployment (HTTP 404 or blocked). Skipping.",
@@ -1253,7 +1289,7 @@ async function installAgentBuilderInner(opts: {
 
   addLog(`Installing SOC Analyst agent (security investigation)…`);
   try {
-    const result = await installSecurityAgentBuilder({ kb, apiKey, addLog });
+    const result = await installSecurityAgentBuilder({ kb, apiKey, addLog, spaceId });
     if (result === "unavailable") {
       addLog("  ⚠ Agent Builder API unavailable for SOC agent. Skipping.", "warn");
     } else {
@@ -1272,8 +1308,9 @@ async function installSlosForVendor(opts: {
   apiKey: string;
   vendor: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<"ok" | "unavailable" | "partial"> {
-  const { kb, apiKey, vendor, addLog } = opts;
+  const { kb, apiKey, vendor, addLog, spaceId } = opts;
   const slos = getSloDefinitions(vendor);
   let ok = 0;
   let skipped = 0;
@@ -1284,7 +1321,7 @@ async function installSlosForVendor(opts: {
       await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: "/api/observability/slos",
+        path: kibanaSpacePath(spaceId, "/api/observability/slos"),
         method: "POST",
         body: { ...slo } as Record<string, unknown>,
       });
@@ -1315,14 +1352,15 @@ async function installSlosInner(opts: {
   apiKey: string;
   vendor: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<void> {
-  const { kibanaUrl, apiKey, vendor, addLog } = opts;
+  const { kibanaUrl, apiKey, vendor, addLog, spaceId } = opts;
   const kb = kibanaUrl.replace(/\/$/, "");
   addLog(
     `Installing ${getSloDefinitions(vendor).length} SLO definitions for ${vendor.toUpperCase()}…`
   );
   try {
-    const result = await installSlosForVendor({ kb, apiKey, vendor, addLog });
+    const result = await installSlosForVendor({ kb, apiKey, vendor, addLog, spaceId });
     if (result === "unavailable") {
       addLog(
         "  ⚠ Observability SLO API is not available on this deployment (HTTP 404 or blocked). Skipping.",
@@ -1384,13 +1422,14 @@ export async function uninstallSetupWorkflow(opts: {
   kibanaUrl: string;
   apiKey: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<void> {
-  const { kibanaUrl, apiKey, addLog } = opts;
+  const { kibanaUrl, apiKey, addLog, spaceId } = opts;
   const workflows = [DEFAULT_WORKFLOW_NAME, SECURITY_WORKFLOW_NAME, DNS_WORKFLOW_NAME];
   addLog("Removing alert-enrichment Workflows…");
   for (const name of workflows) {
     try {
-      const result = await uninstallWorkflow({ kibanaUrl, apiKey, name });
+      const result = await uninstallWorkflow({ kibanaUrl, apiKey, name, spaceId });
       if (result.outcome === "deleted") {
         addLog(`  ✓ Workflow "${name}" deleted.`, "ok");
       } else if (result.outcome === "not_found") {
@@ -1424,8 +1463,9 @@ export async function uninstallAgentBuilder(opts: {
   apiKey: string;
   vendor: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<void> {
-  const { kibanaUrl, apiKey, vendor, addLog } = opts;
+  const { kibanaUrl, apiKey, vendor, addLog, spaceId } = opts;
   const kb = kibanaUrl.replace(/\/$/, "");
   const agent = getAgentDef(vendor);
   const socAgent = getSecurityAgentDef();
@@ -1437,7 +1477,7 @@ export async function uninstallAgentBuilder(opts: {
       const deleted = await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: `/api/agent_builder/agents/${encodeURIComponent(a.id)}`,
+        path: kibanaSpacePath(spaceId, `/api/agent_builder/agents/${encodeURIComponent(a.id)}`),
         method: "DELETE",
         allow404: true,
       });
@@ -1463,7 +1503,7 @@ export async function uninstallAgentBuilder(opts: {
     const listed = await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: "/api/agent_builder/tools",
+      path: kibanaSpacePath(spaceId, "/api/agent_builder/tools"),
       method: "GET",
       allow404: true,
     });
@@ -1501,7 +1541,7 @@ export async function uninstallAgentBuilder(opts: {
       const deleted = await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: `/api/agent_builder/tools/${encodeURIComponent(toolId)}`,
+        path: kibanaSpacePath(spaceId, `/api/agent_builder/tools/${encodeURIComponent(toolId)}`),
         method: "DELETE",
         allow404: true,
       });
@@ -1536,8 +1576,9 @@ export async function uninstallSlos(opts: {
   apiKey: string;
   vendor: string;
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<void> {
-  const { kibanaUrl, apiKey, vendor, addLog } = opts;
+  const { kibanaUrl, apiKey, vendor, addLog, spaceId } = opts;
   const kb = kibanaUrl.replace(/\/$/, "");
   const slos = getSloDefinitions(vendor);
 
@@ -1551,7 +1592,7 @@ export async function uninstallSlos(opts: {
       const deleted = await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: `/api/observability/slos/${encodeURIComponent(slo.id)}`,
+        path: kibanaSpacePath(spaceId, `/api/observability/slos/${encodeURIComponent(slo.id)}`),
         method: "DELETE",
         allow404: true,
       });
@@ -1588,8 +1629,9 @@ export async function uninstallSecurityDetectionRules(opts: {
   apiKey: string;
   securityDetectionRuleFiles: SecurityDetectionRuleFile[];
   addLog: SetupLogFn;
+  spaceId?: string;
 }): Promise<void> {
-  const { kibanaUrl, apiKey, securityDetectionRuleFiles, addLog } = opts;
+  const { kibanaUrl, apiKey, securityDetectionRuleFiles, addLog, spaceId } = opts;
   const kb = kibanaUrl.replace(/\/$/, "");
   const allRules = securityDetectionRuleFiles.flatMap((f) => f.rules);
   if (allRules.length === 0) return;
@@ -1604,7 +1646,10 @@ export async function uninstallSecurityDetectionRules(opts: {
       const deleted = await proxyCall({
         baseUrl: kb,
         apiKey,
-        path: `/api/detection_engine/rules?rule_id=${encodeURIComponent(rule.rule_id)}`,
+        path: kibanaSpacePath(
+          spaceId,
+          `/api/detection_engine/rules?rule_id=${encodeURIComponent(rule.rule_id)}`
+        ),
         method: "DELETE",
         allow404: true,
       });

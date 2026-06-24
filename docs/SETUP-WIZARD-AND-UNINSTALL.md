@@ -51,6 +51,32 @@ Categories are collapsible, making it easy to navigate large catalogs (**217** A
 
 ---
 
+## Installing into a Kibana space (multitenancy)
+
+Customers who use [Kibana spaces](https://www.elastic.co/guide/en/kibana/current/xpack-spaces.html) to separate tenants/teams can install Cloud Loadgen assets into a non-default space.
+
+**Discovery.** When you click **Test Connection** on the **Start** page, the wizard also calls Kibana `GET /api/spaces/space` and populates a **Kibana Space** dropdown. The list reflects exactly the spaces your API key can see. If the API isn't reachable (missing privileges, Spaces feature disabled), it degrades gracefully to just the **Default** space — the connection itself still succeeds.
+
+**What honours the selected space.** Picking a non-default space routes the space-aware Kibana APIs through the `/s/<space-id>` prefix, on both install and uninstall:
+
+| Asset                             | Space-aware?       | Notes                                                           |
+| --------------------------------- | ------------------ | --------------------------------------------------------------- |
+| Dashboards / saved objects / tags | **Yes**            | `/s/<space>/api/saved_objects/...`, `/s/<space>/api/dashboards` |
+| Alerting rules                    | **Yes**            | `/s/<space>/api/alerting/...`                                   |
+| Security detection rules          | **Yes**            | `/s/<space>/api/detection_engine/...`                           |
+| SLO definitions                   | **Yes**            | `/s/<space>/api/observability/slos`                             |
+| Workflows                         | **Yes**            | `/s/<space>/api/workflows`                                      |
+| Agent Builder tools/agents        | **Yes**            | `/s/<space>/api/agent_builder/...`                              |
+| Fleet / APM / CSPM integrations   | No — global        | Package install is cluster-wide regardless of space             |
+| Ingest pipelines                  | No — Elasticsearch | Cluster object, not space-scoped                                |
+| ML anomaly detection jobs         | No — Elasticsearch | Created globally; visible in every space's ML app               |
+
+The install log prints a `Target Kibana space:` line whenever a non-default space is selected, so you can confirm where assets landed.
+
+> **Scope.** The dropdown only offers **discovered** spaces — the wizard never creates spaces. Create the space in Kibana first (**Stack Management → Spaces**), then re-run **Test Connection** to pick it up. The selector is offered on all deployment types (self-managed, Cloud Hosted, and Serverless).
+
+---
+
 ## Installing from the CLI
 
 **Per-service bundles (AWS CLI):**

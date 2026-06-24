@@ -45,7 +45,7 @@ For a manual `docker build`, local dev with the Vite + proxy combo, env vars, an
 
 Every Elastic asset is bundled **per service** as a **Cloud Loadgen Integration** and tagged with the `cloudloadgen` saved-object tag so you can filter, bulk-edit, or bulk-delete load-generator assets without touching production objects. Each service integration includes an ingest pipeline (TSDS for metrics), data stream templates, a Kibana ES|QL dashboard, ML anomaly jobs, and `.es-query` alerting rules.
 
-The wizard opens on the **Start** step, where you pick cloud vendor, deployment type, event type, and Elastic connection details. Subsequent steps install integrations (Setup), pick services, configure advanced data types, tune volume, and ship traffic.
+The wizard opens on the **Start** step, where you pick cloud vendor, deployment type, event type, and Elastic connection details. **Test Connection** also discovers your Kibana spaces, so you can install dashboards, rules, SLOs, workflows, and Agent Builder assets into a non-default space for multitenancy (ingest pipelines and ML jobs stay cluster-global). Subsequent steps install integrations (Setup), pick services, configure advanced data types, tune volume, and ship traffic.
 
 ![Start step of the wizard: cloud vendor, deployment type, serverless project type, event type, Elasticsearch + Kibana URL, API key, and ingestion source](docs/images/start-page.png)
 

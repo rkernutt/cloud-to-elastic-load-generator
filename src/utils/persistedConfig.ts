@@ -31,6 +31,7 @@ export const PERSISTED_CONFIG_KEYS = [
   "scheduleIntervalMin",
   "deploymentType",
   "serverlessProjectType",
+  "kibanaSpaceId",
 ] as const;
 
 export type PersistedConfigKey = (typeof PERSISTED_CONFIG_KEYS)[number];
@@ -53,6 +54,7 @@ export type PersistedConfigShape = Partial<{
   scheduleIntervalMin: number;
   deploymentType: string;
   serverlessProjectType: string;
+  kibanaSpaceId: string;
 }>;
 
 /** Live React state shape — same keys as persisted (for save effect). */
@@ -72,6 +74,7 @@ export type PersistedStateSlice = {
   scheduleIntervalMin: number;
   deploymentType: string;
   serverlessProjectType: string;
+  kibanaSpaceId: string;
 };
 
 /** Compile-time guard: PersistedStateSlice keys must match PERSISTED_CONFIG_KEYS exactly. */
@@ -165,6 +168,11 @@ export function parsePersistedRecord(raw: Record<string, unknown>): PersistedCon
     const v = raw.serverlessProjectType;
     if (v === "observability" || v === "security" || v === "elasticsearch")
       out.serverlessProjectType = v;
+  }
+  if ("kibanaSpaceId" in raw && typeof raw.kibanaSpaceId === "string") {
+    // Kibana space ids are lowercase alphanumeric with hyphens/underscores (≤1024 chars).
+    const t = raw.kibanaSpaceId.trim();
+    if (t.length > 0 && t.length <= 1024 && /^[a-z0-9_-]+$/.test(t)) out.kibanaSpaceId = t;
   }
   return out;
 }

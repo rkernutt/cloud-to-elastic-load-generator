@@ -54,6 +54,19 @@ describe("parsePersistedRecord", () => {
     expect(out.injectAnomalies).toBeUndefined();
     expect(out.batchSize).toBeUndefined();
   });
+
+  it("accepts a valid Kibana space id", () => {
+    expect(parsePersistedRecord({ kibanaSpaceId: "marketing-team_1" }).kibanaSpaceId).toBe(
+      "marketing-team_1"
+    );
+    expect(parsePersistedRecord({ kibanaSpaceId: "default" }).kibanaSpaceId).toBe("default");
+  });
+
+  it("rejects malformed Kibana space ids", () => {
+    expect(parsePersistedRecord({ kibanaSpaceId: "Has Spaces" }).kibanaSpaceId).toBeUndefined();
+    expect(parsePersistedRecord({ kibanaSpaceId: "UPPER" }).kibanaSpaceId).toBeUndefined();
+    expect(parsePersistedRecord({ kibanaSpaceId: "" }).kibanaSpaceId).toBeUndefined();
+  });
 });
 
 describe("toPersistedStorageObject", () => {
@@ -74,6 +87,7 @@ describe("toPersistedStorageObject", () => {
       scheduleIntervalMin: 15,
       deploymentType: "cloud-hosted",
       serverlessProjectType: "observability",
+      kibanaSpaceId: "default",
     };
     const obj = toPersistedStorageObject(slice);
     const keys = Object.keys(obj).sort();

@@ -8,6 +8,7 @@ import {
   EuiFieldText,
   EuiFieldPassword,
   EuiFormRow,
+  EuiSelect,
   EuiCallOut,
   EuiPanel,
   EuiSpacer,
@@ -17,6 +18,7 @@ import {
   EuiConfirmModal,
 } from "@elastic/eui";
 import type { CloudId } from "../cloud/types";
+import type { KibanaSpace } from "../utils/validation";
 import { UNIFIED_VENDOR_CARDS } from "../cloud/unifiedVendorMeta";
 
 type DeploymentType = "self-managed" | "cloud-hosted" | "serverless";
@@ -56,6 +58,11 @@ interface ConnectionPageProps {
   /** Shown when a non-default override fits every selected service (logs/metrics) */
   ingestionOverrideCompatibleHint?: string | null;
   unifiedCloudPicker?: { vendor: CloudId; onChange: (id: CloudId) => void };
+  /** Kibana spaces discovered during the connection test (multitenancy target). */
+  spaces: KibanaSpace[];
+  spaceId: string;
+  spacesMsg?: string;
+  onSpaceChange: (val: string) => void;
 }
 
 const DEPLOYMENT_OPTIONS = [
@@ -139,6 +146,10 @@ export function ConnectionPage({
   ingestionResetNotice,
   ingestionOverrideCompatibleHint,
   unifiedCloudPicker,
+  spaces,
+  spaceId,
+  spacesMsg,
+  onSpaceChange,
 }: ConnectionPageProps) {
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
 
@@ -354,6 +365,24 @@ export function ConnectionPage({
           <EuiCallOut title="Connection successful" color="success" iconType="check" size="s">
             <p>{connectionMsg}</p>
           </EuiCallOut>
+          <EuiSpacer size="m" />
+          <EuiFormRow
+            label={<ConnectionSubheading>Kibana Space</ConnectionSubheading>}
+            helpText={
+              spacesMsg ||
+              "Install dashboards, rules, SLOs and other Kibana assets into this space. Discovered from your cluster; ingest pipelines and ML jobs remain global."
+            }
+          >
+            <EuiSelect
+              options={spaces.map((s) => ({
+                value: s.id,
+                text: s.id === "default" ? `${s.name} (default)` : `${s.name} (${s.id})`,
+              }))}
+              value={spaceId}
+              onChange={(e) => onSpaceChange(e.target.value)}
+              disabled={spaces.length <= 1}
+            />
+          </EuiFormRow>
         </>
       )}
       {connectionStatus === "fail" && (

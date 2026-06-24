@@ -14,7 +14,7 @@
  * Enterprise licence. Self-hosted clusters must also enable the UI via the
  * `workflows:ui:enabled` advanced setting. See docs/workflow-deployment.md.
  */
-import { proxyCall, isKibanaFeatureUnavailable } from "./setupProxy";
+import { proxyCall, isKibanaFeatureUnavailable, kibanaSpacePath } from "./setupProxy";
 
 /** Workflow names from the bundled YAMLs — keep in sync with the assets. */
 export const DEFAULT_WORKFLOW_NAME = "Data Pipeline Alert — CMDB Enrichment & Notification";
@@ -83,7 +83,8 @@ interface CreateWorkflowResponse {
 export async function findWorkflowIdByName(
   kibanaUrl: string,
   apiKey: string,
-  name: string
+  name: string,
+  spaceId?: string
 ): Promise<string | null> {
   const kb = kibanaUrl.replace(/\/$/, "");
   // GET /api/workflows lists all workflows on this space; we filter by name client-side
@@ -91,7 +92,7 @@ export async function findWorkflowIdByName(
   const raw = (await proxyCall({
     baseUrl: kb,
     apiKey,
-    path: `/api/workflows`,
+    path: kibanaSpacePath(spaceId, `/api/workflows`),
     method: "GET",
     allow404: true,
   })) as ListWorkflowsResponse | null;
@@ -157,15 +158,17 @@ export async function installWorkflow(opts: {
   tags?: string[];
   /** When true, replace any pre-existing workflow with the same name. */
   overwrite?: boolean;
+  /** Target Kibana space (non-default prefixes the API path with `/s/<space>`). */
+  spaceId?: string;
 }): Promise<InstallWorkflowResult> {
-  const { kibanaUrl, apiKey, yaml, overwrite = true } = opts;
+  const { kibanaUrl, apiKey, yaml, overwrite = true, spaceId } = opts;
   const kb = kibanaUrl.replace(/\/$/, "");
 
   const name = opts.name ?? extractYamlField(yaml, "name") ?? DEFAULT_WORKFLOW_NAME;
   const description = opts.description ?? extractYamlField(yaml, "description") ?? "";
   const tags = opts.tags ?? extractTagsFromYaml(yaml) ?? [];
 
-  const existingId = await findWorkflowIdByName(kb, apiKey, name);
+  const existingId = await findWorkflowIdByName(kb, apiKey, name, spaceId);
 
   if (existingId && !overwrite) {
     return { id: existingId, outcome: "already_exists" };
@@ -175,7 +178,7 @@ export async function installWorkflow(opts: {
     await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/workflows/workflow/${encodeURIComponent(existingId)}`,
+      path: kibanaSpacePath(spaceId, `/api/workflows/workflow/${encodeURIComponent(existingId)}`),
       method: "PUT",
       body: { name, description, yaml, tags },
     });
@@ -184,7 +187,7 @@ export async function installWorkflow(opts: {
     // with a partial PUT so the disabled state actually sticks. We always
     // install DISABLED — users must explicitly enable in Kibana after
     // reviewing the notification step and attaching the workflow to rules.
-    await setWorkflowEnabled(kb, apiKey, existingId, false);
+    await setWorkflowEnabled(kb, apiKey, existingId, false, spaceId);
     return { id: existingId, outcome: "updated" };
   }
 
@@ -195,7 +198,7 @@ export async function installWorkflow(opts: {
   const bulk = (await proxyCall({
     baseUrl: kb,
     apiKey,
-    path: "/api/workflows",
+    path: kibanaSpacePath(spaceId, "/api/workflows"),
     method: "POST",
     body: {
       // Install DISABLED — see note on the update branch above. Bulk create
@@ -236,13 +239,14 @@ export async function setWorkflowEnabled(
   kibanaUrl: string,
   apiKey: string,
   workflowId: string,
-  enabled: boolean
+  enabled: boolean,
+  spaceId?: string
 ): Promise<void> {
   const kb = kibanaUrl.replace(/\/$/, "");
   await proxyCall({
     baseUrl: kb,
     apiKey,
-    path: `/api/workflows/workflow/${encodeURIComponent(workflowId)}`,
+    path: kibanaSpacePath(spaceId, `/api/workflows/workflow/${encodeURIComponent(workflowId)}`),
     method: "PUT",
     body: { enabled },
   });
@@ -256,13 +260,15 @@ export async function uninstallWorkflow(opts: {
   /** Either the explicit workflow ID returned by install, or the workflow name to look up. */
   id?: string;
   name?: string;
+  /** Target Kibana space (non-default prefixes the API path with `/s/<space>`). */
+  spaceId?: string;
 }): Promise<{ outcome: UninstallWorkflowOutcome; message?: string }> {
-  const { kibanaUrl, apiKey } = opts;
+  const { kibanaUrl, apiKey, spaceId } = opts;
   const kb = kibanaUrl.replace(/\/$/, "");
 
   let id = opts.id;
   if (!id && opts.name) {
-    id = (await findWorkflowIdByName(kb, apiKey, opts.name)) ?? undefined;
+    id = (await findWorkflowIdByName(kb, apiKey, opts.name, spaceId)) ?? undefined;
   }
   if (!id) return { outcome: "not_found" };
 
@@ -270,7 +276,7 @@ export async function uninstallWorkflow(opts: {
     await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/workflows/workflow/${encodeURIComponent(id)}`,
+      path: kibanaSpacePath(spaceId, `/api/workflows/workflow/${encodeURIComponent(id)}`),
       method: "DELETE",
       allow404: true,
     });

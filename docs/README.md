@@ -4,24 +4,25 @@ Reference material for **Cloud Loadgen for Elastic**. Quick start, Docker, and a
 
 ## What you're probably looking for
 
-| If you want to…                                                                      | Read this                                                                  |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| Run the app locally, understand the proxy, or contribute generators                  | [development.md](./development.md)                                         |
-| Understand generator fidelity rules (ID formats, geo, TLS, billing, etc.)            | [development.md#generator-fidelity](./development.md#generator-fidelity)   |
-| Understand the **Setup wizard**, the `cloudloadgen` tag, and Serverless limits       | [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md)           |
-| Use chained events, CSPM/KSPM, ServiceNow, and the alert-enrichment workflow         | [advanced-data-types.md](./advanced-data-types.md)                         |
-| Install / customise the alert-enrichment workflow (Cloud, Serverless, on-prem)       | [workflow-deployment.md](./workflow-deployment.md)                         |
-| Triage an alert that just fired (per-rule investigation guides)                      | [runbooks/](./runbooks/)                                                   |
-| Drive ML jobs through reset → baseline → inject → freeze                             | [ml-training-mode.md](./ml-training-mode.md)                               |
-| Create least-privilege Elasticsearch API keys                                        | [api-key-permissions.md](./api-key-permissions.md)                         |
-| Install Elastic assets from the CLI                                                  | [../installer/README.md](../installer/README.md)                           |
-| Deploy a single pipeline / dashboard / ML job / rule by hand                         | [../assets/README.md](../assets/README.md)                                 |
-| Per-scenario timing, correlation, and failure modes                                  | [chained-events/](./chained-events/)                                       |
-| Route AWS CloudWatch logs into Elastic; Fluent Bit (FireLens/EKS); OAM cross-account | [CLOUDWATCH-TO-INDEX-ROUTING.md](./CLOUDWATCH-TO-INDEX-ROUTING.md)         |
-| Set up OpenTelemetry traces                                                          | [otel-traces-setup.md](./otel-traces-setup.md)                             |
-| Customise an AWS ingest pipeline                                                     | [INGEST-PIPELINE-REFERENCE.md](./INGEST-PIPELINE-REFERENCE.md)             |
-| Customise a GCP ingest pipeline                                                      | [GCP-INGEST-PIPELINE-REFERENCE.md](./GCP-INGEST-PIPELINE-REFERENCE.md)     |
-| Customise an Azure ingest pipeline                                                   | [AZURE-INGEST-PIPELINE-REFERENCE.md](./AZURE-INGEST-PIPELINE-REFERENCE.md) |
+| If you want to…                                                                      | Read this                                                                                                                                                |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Run the app locally, understand the proxy, or contribute generators                  | [development.md](./development.md)                                                                                                                       |
+| Understand generator fidelity rules (ID formats, geo, TLS, billing, etc.)            | [development.md#generator-fidelity](./development.md#generator-fidelity)                                                                                 |
+| Understand the **Setup wizard**, the `cloudloadgen` tag, and Serverless limits       | [SETUP-WIZARD-AND-UNINSTALL.md](./SETUP-WIZARD-AND-UNINSTALL.md)                                                                                         |
+| Install assets into a non-default **Kibana space** (multitenancy)                    | [SETUP-WIZARD-AND-UNINSTALL.md#installing-into-a-kibana-space-multitenancy](./SETUP-WIZARD-AND-UNINSTALL.md#installing-into-a-kibana-space-multitenancy) |
+| Use chained events, CSPM/KSPM, ServiceNow, and the alert-enrichment workflow         | [advanced-data-types.md](./advanced-data-types.md)                                                                                                       |
+| Install / customise the alert-enrichment workflow (Cloud, Serverless, on-prem)       | [workflow-deployment.md](./workflow-deployment.md)                                                                                                       |
+| Triage an alert that just fired (per-rule investigation guides)                      | [runbooks/](./runbooks/)                                                                                                                                 |
+| Drive ML jobs through reset → baseline → inject → freeze                             | [ml-training-mode.md](./ml-training-mode.md)                                                                                                             |
+| Create least-privilege Elasticsearch API keys                                        | [api-key-permissions.md](./api-key-permissions.md)                                                                                                       |
+| Install Elastic assets from the CLI                                                  | [../installer/README.md](../installer/README.md)                                                                                                         |
+| Deploy a single pipeline / dashboard / ML job / rule by hand                         | [../assets/README.md](../assets/README.md)                                                                                                               |
+| Per-scenario timing, correlation, and failure modes                                  | [chained-events/](./chained-events/)                                                                                                                     |
+| Route AWS CloudWatch logs into Elastic; Fluent Bit (FireLens/EKS); OAM cross-account | [CLOUDWATCH-TO-INDEX-ROUTING.md](./CLOUDWATCH-TO-INDEX-ROUTING.md)                                                                                       |
+| Set up OpenTelemetry traces                                                          | [otel-traces-setup.md](./otel-traces-setup.md)                                                                                                           |
+| Customise an AWS ingest pipeline                                                     | [INGEST-PIPELINE-REFERENCE.md](./INGEST-PIPELINE-REFERENCE.md)                                                                                           |
+| Customise a GCP ingest pipeline                                                      | [GCP-INGEST-PIPELINE-REFERENCE.md](./GCP-INGEST-PIPELINE-REFERENCE.md)                                                                                   |
+| Customise an Azure ingest pipeline                                                   | [AZURE-INGEST-PIPELINE-REFERENCE.md](./AZURE-INGEST-PIPELINE-REFERENCE.md)                                                                               |
 
 ## Cloud Loadgen Integrations (TL;DR)
 

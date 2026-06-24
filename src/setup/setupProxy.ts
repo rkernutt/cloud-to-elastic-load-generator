@@ -2,6 +2,20 @@
  * Shared Kibana/Elasticsearch calls via POST /proxy (see proxy.cjs).
  */
 
+/**
+ * Prefixes a Kibana API path with the space route (`/s/<spaceId>`) when a
+ * non-default space is selected. The `default` space (and empty/undefined)
+ * uses the bare path. Only apply to space-aware Kibana APIs (saved objects,
+ * alerting, detection_engine, observability/slos, workflows, agent_builder) —
+ * never to Fleet/EPM package installs or Elasticsearch endpoints, which are
+ * cluster-global.
+ */
+export function kibanaSpacePath(spaceId: string | undefined, path: string): string {
+  if (!spaceId || spaceId === "default") return path;
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return `/s/${encodeURIComponent(spaceId)}${p}`;
+}
+
 export function isKibanaFeatureUnavailable(msg: string): boolean {
   return (
     msg.includes("HTTP 400") && (msg.includes("not available") || msg.includes("configuration"))
@@ -134,7 +148,8 @@ export type DeleteKibanaDashboardOutcome =
 export async function deleteKibanaDashboard(
   baseUrl: string,
   apiKey: string,
-  dashboardId: string
+  dashboardId: string,
+  spaceId?: string
 ): Promise<DeleteKibanaDashboardOutcome> {
   const kb = baseUrl.replace(/\/$/, "");
   const enc = encodeURIComponent(dashboardId);
@@ -143,7 +158,7 @@ export async function deleteKibanaDashboard(
     const r = await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/saved_objects/dashboard/${enc}?force=true`,
+      path: kibanaSpacePath(spaceId, `/api/saved_objects/dashboard/${enc}?force=true`),
       method: "DELETE",
       allow404: true,
     });
@@ -160,7 +175,7 @@ export async function deleteKibanaDashboard(
     const raw = (await proxyCall({
       baseUrl: kb,
       apiKey,
-      path: `/api/saved_objects/_bulk_delete?force=true`,
+      path: kibanaSpacePath(spaceId, `/api/saved_objects/_bulk_delete?force=true`),
       method: "POST",
       body: [{ type: "dashboard", id: dashboardId }],
     })) as { statuses?: BulkDeleteStatus[] };

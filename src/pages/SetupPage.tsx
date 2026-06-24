@@ -56,6 +56,7 @@ import {
   proxyCall,
   resolveFleetPackageVersion,
   deleteKibanaDashboard,
+  kibanaSpacePath,
   SAVED_OBJECT_DELETE_UNSUPPORTED_HINT,
 } from "../setup/setupProxy";
 import { InstallerRow } from "../components/InstallerRow";
@@ -76,6 +77,8 @@ interface SetupPageProps {
   selectedShipServiceIds: string[];
   elasticUrl: string;
   kibanaUrl: string;
+  /** Kibana space for space-aware assets (dashboards, rules, SLOs, workflows, Agent Builder). */
+  kibanaSpaceId?: string;
   apiKey: string;
   /** True when the connected cluster is an Elastic Cloud Serverless project. */
   isServerless?: boolean;
@@ -185,6 +188,7 @@ export function SetupPage({
   selectedShipServiceIds,
   elasticUrl,
   kibanaUrl,
+  kibanaSpaceId = "default",
   apiKey,
   isServerless = false,
   serverlessProjectType,
@@ -353,7 +357,7 @@ export function SetupPage({
         const list = (await proxyCall({
           baseUrl: kb,
           apiKey,
-          path: `/api/actions/connectors`,
+          path: kibanaSpacePath(kibanaSpaceId, `/api/actions/connectors`),
           method: "GET",
           allow404: true,
         })) as Array<Record<string, unknown>> | null;
@@ -392,6 +396,7 @@ export function SetupPage({
     enableWorkflow,
     removeMode,
     kibanaUrl,
+    kibanaSpaceId,
     apiKey,
     emailConnectorProbeStatus,
     emailConnectorUserEdited,
@@ -2041,6 +2046,7 @@ export function SetupPage({
     setupBundle,
     elasticUrl,
     kibanaUrl,
+    kibanaSpaceId,
     apiKey,
     isServerless,
     enableIntegration: effEnableIntegration,
@@ -2175,7 +2181,7 @@ export function SetupPage({
       const dash = toRemove[idx];
       try {
         const dashId = await dashboardDefToSavedObjectId(dash);
-        const outcome = await deleteKibanaDashboard(kb, apiKey, dashId);
+        const outcome = await deleteKibanaDashboard(kb, apiKey, dashId, kibanaSpaceId);
         if (outcome.result === "not_found") {
           addLog(
             `  – Dashboard "${dash.title}" — not found (may use a different id if created via Dashboards API only)`,
@@ -2309,7 +2315,10 @@ export function SetupPage({
     let missing = 0;
 
     for (const rule of entries) {
-      const rulePath = `/api/alerting/rule/${encodeURIComponent(rule.id)}`;
+      const rulePath = kibanaSpacePath(
+        kibanaSpaceId,
+        `/api/alerting/rule/${encodeURIComponent(rule.id)}`
+      );
       try {
         const existing = await proxyCall({
           baseUrl: kb,
@@ -2363,10 +2372,11 @@ export function SetupPage({
         apiKey,
         securityDetectionRuleFiles: SECURITY_DETECTION_RULE_FILES,
         addLog,
+        spaceId: kibanaSpaceId,
       });
     }
     if (effEnableWorkflow) {
-      await uninstallSetupWorkflow({ kibanaUrl, apiKey, addLog });
+      await uninstallSetupWorkflow({ kibanaUrl, apiKey, addLog, spaceId: kibanaSpaceId });
     }
     if (effEnableAgentBuilder) {
       await uninstallAgentBuilder({
@@ -2374,6 +2384,7 @@ export function SetupPage({
         apiKey,
         vendor: setupBundle.fleetPackage,
         addLog,
+        spaceId: kibanaSpaceId,
       });
       await uninstallKnowledgeBase({ elasticUrl, apiKey, addLog });
     }
@@ -2383,6 +2394,7 @@ export function SetupPage({
         apiKey,
         vendor: setupBundle.fleetPackage,
         addLog,
+        spaceId: kibanaSpaceId,
       });
     }
   }

@@ -159,6 +159,7 @@ export function LoadGeneratorApp({
   const [elasticUrl, setElasticUrl] = useState("");
   const [kibanaUrl, setKibanaUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
+  const [kibanaSpaceId, setKibanaSpaceId] = useState(savedConfig.kibanaSpaceId ?? "default");
   const [setupHasInstalled, setSetupHasInstalled] = useState(false);
   const [logsIndexPrefix, setLogsIndexPrefix] = useState(
     savedConfig.logsIndexPrefix ?? config.defaultLogsIndexPrefix
@@ -211,15 +212,32 @@ export function LoadGeneratorApp({
   const indexPrefix = eventType === "metrics" ? metricsIndexPrefix : logsIndexPrefix;
   const setIndexPrefix = eventType === "metrics" ? setMetricsIndexPrefix : setLogsIndexPrefix;
 
+  // Auto-derive Kibana URL from ES URL for cloud deployments (.es. → .kb.)
+  const effectiveKibanaUrl =
+    kibanaUrl ||
+    (deploymentType !== "self-managed" && elasticUrl.includes(".es.")
+      ? elasticUrl.replace(".es.", ".kb.")
+      : "");
+
   const {
     validationErrors,
     setValidationErrors,
     connectionStatus,
     connectionMsg,
     isServerless,
+    spaces: discoveredSpaces,
+    spacesMsg,
     runConnectionValidation,
     handleTestConnection,
-  } = useConnectionValidation(elasticUrl, apiKey, indexPrefix);
+  } = useConnectionValidation(elasticUrl, apiKey, indexPrefix, effectiveKibanaUrl);
+
+  // If the discovered space list no longer contains the persisted selection
+  // (e.g. switching clusters), fall back to the always-present default space.
+  useEffect(() => {
+    if (!discoveredSpaces.some((s) => s.id === kibanaSpaceId)) {
+      setKibanaSpaceId("default");
+    }
+  }, [discoveredSpaces, kibanaSpaceId]);
 
   const connectionStepComplete = useMemo(() => {
     const urlOk = validateElasticUrl(elasticUrl).valid;
@@ -227,13 +245,6 @@ export function LoadGeneratorApp({
     const prefixOk = isTracesMode || validateIndexPrefix(indexPrefix).valid;
     return urlOk && keyOk && prefixOk && connectionStatus === "ok";
   }, [elasticUrl, apiKey, indexPrefix, isTracesMode, connectionStatus]);
-
-  // Auto-derive Kibana URL from ES URL for cloud deployments (.es. → .kb.)
-  const effectiveKibanaUrl =
-    kibanaUrl ||
-    (deploymentType !== "self-managed" && elasticUrl.includes(".es.")
-      ? elasticUrl.replace(".es.", ".kb.")
-      : "");
 
   /** Must be declared before `log` state initializer (restores seq from activity log). */
   const logSeqRef = useRef(0);
@@ -400,6 +411,7 @@ export function LoadGeneratorApp({
             scheduleIntervalMin,
             deploymentType,
             serverlessProjectType,
+            kibanaSpaceId,
           })
         )
       );
@@ -423,6 +435,7 @@ export function LoadGeneratorApp({
     scheduleIntervalMin,
     deploymentType,
     serverlessProjectType,
+    kibanaSpaceId,
   ]);
 
   const clearSavedConfig = () => {
@@ -1230,6 +1243,10 @@ export function LoadGeneratorApp({
             ingestionOverrideOptions={config.ingestionOverrideOptions}
             ingestionResetNotice={ingestionResetNotice}
             ingestionOverrideCompatibleHint={ingestionOverrideCompatibleHint}
+            spaces={discoveredSpaces}
+            spaceId={kibanaSpaceId}
+            spacesMsg={spacesMsg}
+            onSpaceChange={setKibanaSpaceId}
           />
         )}
 
@@ -1242,6 +1259,7 @@ export function LoadGeneratorApp({
             selectedShipServiceIds={isTracesMode ? selectedTraceServices : selectedServices}
             elasticUrl={elasticUrl}
             kibanaUrl={effectiveKibanaUrl}
+            kibanaSpaceId={kibanaSpaceId}
             apiKey={apiKey}
             isServerless={deploymentType === "serverless" || isServerless}
             serverlessProjectType={

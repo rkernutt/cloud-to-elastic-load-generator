@@ -12,6 +12,7 @@ import {
   ELASTIC_METRICS_DATASET_MAP,
   CLOUDWATCH_LOG_GROUPS,
   resolveLogDatasetForSource,
+  normalizeAwsLogDataset,
 } from "../data/elasticMaps";
 import { INGESTION_META } from "../data/ingestion";
 import { clampGlobalIngestionOverride } from "./ingestionCompatibility";
@@ -205,18 +206,49 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
   const source = resolveSource(serviceId, opts.ingestionSource);
   const region = doc.cloud?.region || rand(REGIONS);
   const accountId = doc.cloud?.account?.id || "814726593401";
-  const dataset = doc.__dataset || resolveDataset(serviceId, eventType, source);
+
+  // Resolve the dataset. For logs this is authoritative: known generator/map
+  // mismatches are corrected to the real Elastic dataset, and project-specific
+  // datasets are kept on the CloudWatch default but switched to the
+  // ingestion-method generic stream (S3 → aws_logs.generic, Firehose →
+  // awsfirehose). Metrics/traces keep the historic fill-don't-overwrite behavior.
+  // The dynamic generic-stream switch (S3 → aws_logs.generic, Firehose →
+  // awsfirehose) only applies when the user explicitly overrode the ingestion
+  // method — native bespoke datasets are preserved otherwise.
+  const ingestionOverridden = opts.ingestionSource != null;
+  let dataset: string;
+  if (eventType === "logs") {
+    if (doc.__dataset) {
+      // Multi-dataset generators (chains, sub-datasets) route per doc via __dataset.
+      dataset = normalizeAwsLogDataset(doc.__dataset, source, ingestionOverridden);
+    } else if (doc.event?.dataset) {
+      dataset = normalizeAwsLogDataset(doc.event.dataset, source, ingestionOverridden);
+    } else {
+      // No inline dataset — derive from the service + ingestion source
+      // (dedicated services → their real dataset, otherwise generic-by-source).
+      dataset = resolveLogDatasetForSource(serviceId, source);
+    }
+  } else {
+    dataset = doc.__dataset || resolveDataset(serviceId, eventType, source);
+  }
 
   // ── ecs.version ────────────────────────────────────────────────────────────
   const ecs = doc.ecs ?? { version: ECS_VERSION };
 
   // ── data_stream ────────────────────────────────────────────────────────────
   const dsType = eventType === "metrics" ? "metrics" : eventType === "traces" ? "traces" : "logs";
-  const dataStream = doc.data_stream ?? {
-    type: dsType,
-    dataset,
-    namespace: "default",
-  };
+  const dataStream =
+    eventType === "logs"
+      ? {
+          type: dsType,
+          dataset,
+          namespace: doc.data_stream?.namespace ?? "default",
+        }
+      : (doc.data_stream ?? {
+          type: dsType,
+          dataset,
+          namespace: "default",
+        });
 
   // ── agent ──────────────────────────────────────────────────────────────────
   const agentMeta = doc.agent ?? buildAgentMeta(source, eventType, region);
@@ -235,7 +267,7 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
   const event: LooseDoc = {
     ...doc.event,
     module: doc.event?.module || "aws",
-    dataset: doc.event?.dataset || dataset,
+    dataset: eventType === "logs" ? dataset : doc.event?.dataset || dataset,
   };
 
   // ── S3 / CloudWatch / Firehose context (logs only) — skip synthetic pull-path fields for OTLP pipelines
@@ -371,6 +403,10 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
     data_stream: dataStream,
     event,
   };
+
+  // Keep per-doc index routing (__dataset) consistent with the normalized log
+  // dataset so chain / sub-dataset docs land in the stream matching their fields.
+  if (eventType === "logs" && doc.__dataset) enriched.__dataset = dataset;
 
   if (Object.keys(agentMeta).length > 0) enriched.agent = agentMeta;
   if (input) enriched.input = input;

@@ -404,7 +404,7 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
     const catalogTs = advance(2000, 8000);
     const tablesUpdated = isNullFile ? 0 : randInt(1, 5);
     docs.push({
-      __dataset: "gcp.data_catalog",
+      __dataset: "gcp.datacatalog",
       "@timestamp": catalogTs,
       cloud: gcpCloud(region, project, "data-catalog"),
       gcp: {
@@ -422,7 +422,7 @@ export function generateGcpDataPipelineChain(ts: string, er: number): EcsDocumen
         outcome: "success",
         category: ["database"],
         type: ["info"],
-        dataset: "gcp.data_catalog",
+        dataset: "gcp.datacatalog",
         provider: "datacatalog.googleapis.com",
       },
       message: `Data Catalog [${crawlerName}]: SUCCEEDED — ${tablesUpdated} entries updated`,

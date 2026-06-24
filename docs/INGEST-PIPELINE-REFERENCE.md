@@ -36,12 +36,12 @@ Attach the reroute pipeline matching your ingestion method at the generic data s
 | Service           | Pipeline ID                           | Target field              | Index pattern                |
 | ----------------- | ------------------------------------- | ------------------------- | ---------------------------- |
 | Glue              | `glue-parse-json-message`             | `glue.parsed`             | `logs-aws.glue*`             |
-| S3                | `s3-parse-json-message`               | `s3.parsed`               | `logs-aws.s3*`               |
+| S3                | `s3-parse-json-message`               | `s3.parsed`               | `logs-aws.s3access*`         |
 | Lambda            | `lambda-parse-json-message`           | `lambda.parsed`           | `logs-aws.lambda*`           |
 | API Gateway       | `apigateway-parse-json-message`       | `apigateway.parsed`       | `logs-aws.apigateway*`       |
 | RDS               | `rds-parse-json-message`              | `rds.parsed`              | `logs-aws.rds*`              |
 | ECS               | `ecs-parse-json-message`              | `ecs.parsed`              | `logs-aws.ecs*`              |
-| EC2               | `ec2-parse-json-message`              | `ec2.parsed`              | `logs-aws.ec2*`              |
+| EC2               | `ec2-parse-json-message`              | `ec2.parsed`              | `logs-aws.ec2_logs*`         |
 | EKS               | `eks-parse-json-message`              | `eks.parsed`              | `logs-aws.eks*`              |
 | App Runner        | `apprunner-parse-json-message`        | `apprunner.parsed`        | `logs-aws.apprunner*`        |
 | Batch             | `batch-parse-json-message`            | `batch.parsed`            | `logs-aws.batch*`            |
