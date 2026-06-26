@@ -9,6 +9,9 @@ export default tseslint.config(
   {
     ignores: [
       ".claude/**",
+      ".agents/**",
+      ".hive-mind/**",
+      "hive-mind/**",
       ".vite/**",
       "dist/**",
       "node_modules/**",

@@ -2,7 +2,7 @@ import { EuiPanel, EuiTitle, EuiSpacer, EuiFieldSearch } from "@elastic/eui";
 import { ServiceGrid } from "../components/ServiceGrid";
 import { serviceIconPublicUrl } from "../utils/serviceIcon";
 import { Card, QuickBtn } from "../components/Card";
-import K from "../theme";
+import { useTheme } from "../theme/themeContext";
 import { SimpleBrandIcon } from "../components/SimpleBrandIcon";
 import { useMemo, useState, type ReactNode } from "react";
 import { serviceIdsInGroup, type ServiceGroup } from "../data/serviceGroups";
@@ -121,6 +121,7 @@ export function ServicesPage({
   gridHeading = "Select services",
   pageCallout,
 }: ServicesPageProps) {
+  const K = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
 
   const traceServiceGroups = useMemo(() => {

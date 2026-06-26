@@ -1,11 +1,12 @@
 import React from "react";
 import packageJson from "../../package.json";
-import K from "../theme";
+import { useTheme, useColorMode } from "../theme/themeContext";
 import {
   EuiPageTemplate,
   EuiSideNav,
   EuiIcon,
   EuiBadge,
+  EuiButtonIcon,
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
@@ -68,6 +69,8 @@ export function AppLayout({
   hasServicesSelected,
   isSetupDone,
 }: AppLayoutProps) {
+  const K = useTheme();
+  const { mode, toggle } = useColorMode();
   const stepIds = wizardSteps.map((s) => s.id);
   /** Determine step status for the horizontal stepper */
   const activeStepIdx = stepIds.indexOf(activePage);
@@ -250,6 +253,17 @@ export function AppLayout({
                   )}
                   <EuiFlexItem grow={false}>
                     <EuiBadge color="hollow">v{packageJson.version}</EuiBadge>
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <EuiButtonIcon
+                      iconType={mode === "dark" ? "sun" : "moon"}
+                      color="text"
+                      display="empty"
+                      aria-label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                      title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                      onClick={toggle}
+                      style={{ color: K.headerText }}
+                    />
                   </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiHeaderSectionItem>,

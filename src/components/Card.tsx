@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
-import K from "../theme";
+import { useTheme } from "../theme/themeContext";
 
 export function Card({ children, style = {} }: { children?: ReactNode; style?: CSSProperties }) {
+  const K = useTheme();
   return (
     <div
       style={{
@@ -29,6 +30,7 @@ export function CardHeader({
   badgeColor?: string;
   children?: ReactNode;
 }) {
+  const K = useTheme();
   const bc = badgeColor || K.primary;
   return (
     <div
@@ -63,6 +65,7 @@ export function CardHeader({
 }
 
 export function QuickBtn({ children, onClick }: { children?: ReactNode; onClick?: () => void }) {
+  const K = useTheme();
   return (
     <button
       onClick={onClick}
@@ -84,6 +87,7 @@ export function QuickBtn({ children, onClick }: { children?: ReactNode; onClick?
 }
 
 export function Field({ label, children }: { label: ReactNode; children?: ReactNode }) {
+  const K = useTheme();
   return (
     <div>
       <div style={{ fontSize: 12, fontWeight: 500, color: K.textSubdued, marginBottom: 6 }}>
@@ -113,6 +117,7 @@ export function SliderField({
   display: ReactNode;
   sublabel?: ReactNode;
 }) {
+  const K = useTheme();
   return (
     <div>
       <div
@@ -163,6 +168,7 @@ export function StatCard({
   value: ReactNode;
   color: string;
 }) {
+  const K = useTheme();
   return (
     <div
       style={{

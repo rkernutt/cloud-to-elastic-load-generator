@@ -10,7 +10,7 @@ import {
   EuiFlexItem,
   EuiText,
 } from "@elastic/eui";
-import K from "../theme";
+import { useTheme } from "../theme/themeContext";
 
 interface LogEntry {
   id: number;
@@ -26,13 +26,6 @@ interface ActivityPageProps {
   preview: string | null;
   onDownloadLog: () => void;
 }
-
-const TYPE_COLORS: Record<string, string> = {
-  ok: K.success,
-  error: K.danger,
-  warn: K.warning,
-  info: K.textSubdued,
-};
 
 type LogTypeFilter = "all" | "error" | "warn" | "ok";
 
@@ -51,6 +44,13 @@ function formatIsoTimestamp(entry: LogEntry): string {
 }
 
 export function ActivityPage({ log, preview, onDownloadLog }: ActivityPageProps) {
+  const K = useTheme();
+  const TYPE_COLORS: Record<string, string> = {
+    ok: K.success,
+    error: K.danger,
+    warn: K.warning,
+    info: K.textSubdued,
+  };
   const [typeFilter, setTypeFilter] = useState<LogTypeFilter>("all");
 
   const filteredLog = useMemo(() => {

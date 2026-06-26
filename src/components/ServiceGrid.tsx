@@ -1,5 +1,5 @@
 import { memo } from "react";
-import K from "../theme";
+import { useTheme } from "../theme/themeContext";
 import type { ServiceGroup } from "../data/serviceGroups";
 import { serviceIdsInGroup } from "../data/serviceGroups";
 import type { ServiceIconMode } from "../cloud/types";
@@ -50,6 +50,7 @@ const ServiceGrid = memo(function ServiceGrid({
   getEffectiveSource,
   expandAllGroups,
 }: ServiceGridProps) {
+  const K = useTheme();
   return (
     <Card>
       <div

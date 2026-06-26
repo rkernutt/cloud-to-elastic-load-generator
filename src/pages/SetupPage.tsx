@@ -31,7 +31,7 @@ import {
 } from "@elastic/eui";
 
 import type { CloudId } from "../cloud/types";
-import K from "../theme";
+import { useTheme } from "../theme/themeContext";
 import type { ServiceGroup } from "../data/serviceGroups";
 import type {
   AlertRuleEntry,
@@ -198,6 +198,7 @@ export function SetupPage({
   setupLogPersistenceKey,
   serviceGroups: _serviceGroups = [],
 }: SetupPageProps) {
+  const K = useTheme();
   void _serviceGroups;
   const PIPELINES: PipelineEntry[] = setupBundle.pipelines;
   const ML_JOB_FILES: MlJobFile[] = setupBundle.mlJobFiles;
