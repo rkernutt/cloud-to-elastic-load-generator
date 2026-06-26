@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
 import { EuiProvider } from "@elastic/eui";
 import { themes, type ColorMode, type ThemeTokens } from "./index";
 import { ThemeContext, type ThemeContextValue } from "./themeContext";
