@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <p
             style={{
               fontSize: 14,
-              color: "#64748b",
+              color: "#516381",
               marginBottom: 16,
               maxWidth: 480,
               textAlign: "center",

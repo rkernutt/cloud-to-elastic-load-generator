@@ -5,6 +5,14 @@ import { ThemeContext, type ThemeContextValue } from "./themeContext";
 
 const STORAGE_KEY = "loadgen:colorMode";
 
+// Align EUI typography with the official Elastic brand: Inter for body and
+// headlines, Space Mono for code and numerals. Matches the fonts loaded in
+// index.html; falls back to Arial only as a last resort per the brand guide.
+const BRAND_FONT = {
+  family: "'Inter', Arial, sans-serif",
+  familyCode: "'Space Mono', monospace",
+} as const;
+
 function readStoredMode(): ColorMode {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -69,7 +77,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <EuiProvider colorMode={mode === "dark" ? "DARK" : "LIGHT"}>{children}</EuiProvider>
+      <EuiProvider colorMode={mode === "dark" ? "DARK" : "LIGHT"} modify={{ font: BRAND_FONT }}>
+        {children}
+      </EuiProvider>
     </ThemeContext.Provider>
   );
 }

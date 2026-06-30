@@ -198,7 +198,7 @@ const ServiceGrid = memo(function ServiceGrid({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: selCount > 0 ? group.color : "#475569",
+                    color: selCount > 0 ? group.color : K.text,
                     flex: 1,
                   }}
                 >
@@ -244,7 +244,7 @@ const ServiceGrid = memo(function ServiceGrid({
                 >
                   {allSel ? "Deselect all" : "Select all"}
                 </button>
-                <span style={{ color: "#94a3b8", fontSize: 10, marginLeft: 2 }}>
+                <span style={{ color: K.textMuted, fontSize: 10, marginLeft: 2 }}>
                   {collapsed ? "▶" : "▼"}
                 </span>
               </div>
@@ -320,7 +320,7 @@ const ServiceGrid = memo(function ServiceGrid({
                           style={{
                             fontSize: 11,
                             fontWeight: 700,
-                            color: sel ? group.color : svcDisabled ? "#94a3b8" : "#475569",
+                            color: sel ? group.color : svcDisabled ? K.textMuted : K.text,
                             marginBottom: 2,
                           }}
                         >
@@ -329,7 +329,7 @@ const ServiceGrid = memo(function ServiceGrid({
                         <div
                           style={{
                             fontSize: 10,
-                            color: svcDisabled ? "#94a3b8" : "#64748b",
+                            color: svcDisabled ? K.textMuted : K.textSubdued,
                             lineHeight: 1.3,
                             marginBottom: 5,
                           }}
@@ -337,7 +337,7 @@ const ServiceGrid = memo(function ServiceGrid({
                           {svc.desc}
                         </div>
                         {metricsDisabled ? (
-                          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>
+                          <div style={{ fontSize: 10, color: K.textMuted, fontWeight: 600 }}>
                             No metrics
                           </div>
                         ) : (
@@ -353,9 +353,9 @@ const ServiceGrid = memo(function ServiceGrid({
                               style={{
                                 fontSize: 10,
                                 fontWeight: 600,
-                                color: meta?.color || "#64748b",
-                                background: `${meta?.color || "#64748b"}18`,
-                                border: `1px solid ${meta?.color || "#64748b"}44`,
+                                color: meta?.color || K.textSubdued,
+                                background: `${meta?.color || K.textSubdued}18`,
+                                border: `1px solid ${meta?.color || K.textSubdued}44`,
                                 borderRadius: 4,
                                 padding: "1px 5px",
                                 display: "inline-block",
@@ -368,9 +368,9 @@ const ServiceGrid = memo(function ServiceGrid({
                                 style={{
                                   fontSize: 10,
                                   fontWeight: 600,
-                                  color: "#7c3aed",
-                                  background: "#7c3aed18",
-                                  border: "1px solid #7c3aed44",
+                                  color: K.accent,
+                                  background: `${K.accent}18`,
+                                  border: `1px solid ${K.accent}44`,
                                   borderRadius: 4,
                                   padding: "1px 5px",
                                   display: "inline-block",

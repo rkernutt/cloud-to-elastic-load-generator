@@ -383,7 +383,7 @@ export function ServicesPage({
                         style={{
                           fontSize: 12,
                           fontWeight: 600,
-                          color: selCount > 0 ? accent.color : "#475569",
+                          color: selCount > 0 ? accent.color : K.text,
                           flex: 1,
                         }}
                       >
@@ -491,7 +491,7 @@ export function ServicesPage({
                               style={{
                                 fontSize: 11,
                                 fontWeight: 700,
-                                color: sel ? accent.color : "#475569",
+                                color: sel ? accent.color : K.text,
                                 marginBottom: 2,
                               }}
                             >
@@ -500,7 +500,7 @@ export function ServicesPage({
                             <div
                               style={{
                                 fontSize: 10,
-                                color: "#64748b",
+                                color: K.textSubdued,
                                 lineHeight: 1.3,
                                 marginBottom: 5,
                               }}
