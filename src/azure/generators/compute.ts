@@ -293,7 +293,7 @@ export function generateVirtualMachinesLog(ts: string, er: number): EcsDocument 
         resource_group: resourceGroup,
         operation: extName,
         vm_size: rand(VM_SIZES),
-        status: props.ProvisioningState as string,
+        status: props.ProvisioningState,
         correlation_id: correlationId,
         category: "VMExtensionProvisioning",
         properties: props,

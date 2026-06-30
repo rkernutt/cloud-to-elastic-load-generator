@@ -221,7 +221,7 @@ export function generateFileStorageLog(ts: string, er: number): EcsDocument {
       "@timestamp": ts,
       time,
       resourceId,
-      operationName: props.operationName as string,
+      operationName: props.operationName,
       category: "StorageFileReadWrite",
       resultType: isErr ? "Failure" : "Success",
       resultSignature: String(props.statusCode),
@@ -244,7 +244,7 @@ export function generateFileStorageLog(ts: string, er: number): EcsDocument {
         kind: "event",
         category: ["database"],
         type: isErr ? ["error"] : ["access"],
-        action: String(props.operationName as string),
+        action: String(props.operationName),
         outcome: isErr ? "failure" : "success",
         duration: randInt(1e6, 5e8),
       },
@@ -2252,7 +2252,7 @@ export function generateSqlManagedInstanceLog(ts: string, er: number): EcsDocume
       operationName: "AUTOMATIC_TUNING",
       category: "AutomaticTuning",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: props.state as string,
+      resultSignature: props.state,
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Warning" : "Information",
@@ -2829,7 +2829,7 @@ export function generateDatabaseForPostgresqlLog(ts: string, er: number): EcsDoc
       operationName: "pg_stat_statements_sample",
       category: "PostgreSQLLogs",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: props.waitEvent as string,
+      resultSignature: props.waitEvent,
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Warning" : "Information",
@@ -3116,7 +3116,7 @@ export function generateDatabaseForMysqlLog(ts: string, er: number): EcsDocument
       operationName: "slow_query",
       category: "MySqlSlowLogs",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: String(Math.round((props.queryTimeSec as number) * 1000)),
+      resultSignature: String(Math.round(props.queryTimeSec * 1000)),
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Warning" : "Information",
@@ -3984,7 +3984,7 @@ export function generateDataFactoryLog(ts: string, er: number): EcsDocument {
       },
       event: {
         outcome: isErr ? "failure" : "success",
-        duration: (props.durationMs as number) * 1e6,
+        duration: props.durationMs * 1e6,
       },
       message: isErr
         ? `ADF ${factory}: pipeline ${props.pipelineName} failed (${runId})`
@@ -4245,7 +4245,7 @@ export function generateStreamAnalyticsLog(ts: string, er: number): EcsDocument 
       operationName: `Microsoft.StreamAnalytics/streamingjobs/${props.operation === "StartJob" ? "start" : "stop"}`,
       category: "StreamingJobLifecycle",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: props.state as string,
+      resultSignature: props.state,
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Error" : "Information",
@@ -4919,7 +4919,7 @@ export function generateHdinsightLog(ts: string, er: number): EcsDocument {
       },
       event: {
         outcome: isErr ? "failure" : "success",
-        duration: (props.durationSec as number) * 1e9,
+        duration: props.durationSec * 1e9,
       },
       message: isErr
         ? `HDInsight ${props.engine} app ${props.appId} ${props.status}: ${props.detail}`
@@ -5114,7 +5114,7 @@ export function generateAnalysisServicesLog(ts: string, er: number): EcsDocument
       },
       event: {
         outcome: isErr ? "failure" : "success",
-        duration: (props.durationMs as number) * 1e6,
+        duration: props.durationMs * 1e6,
       },
       message: isErr
         ? `AAS ${server}: query error — ${props.error}`
@@ -5156,7 +5156,7 @@ export function generateAnalysisServicesLog(ts: string, er: number): EcsDocument
       },
       event: {
         outcome: isErr ? "failure" : "success",
-        duration: (props.durationSec as number) * 1e9,
+        duration: props.durationSec * 1e9,
       },
       message: isErr
         ? `AAS ${server}: model refresh ${props.model} failed`
@@ -5180,7 +5180,7 @@ export function generateAnalysisServicesLog(ts: string, er: number): EcsDocument
       operationName: `Microsoft.AnalysisServices/servers/${props.operation}`,
       category: "Resource",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: props.state as string,
+      resultSignature: props.state,
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Warning" : "Information",
@@ -5445,7 +5445,7 @@ export function generatePowerBiEmbeddedLog(ts: string, er: number): EcsDocument 
       },
       event: {
         outcome: isErr ? "failure" : "success",
-        duration: (props.durationSec as number) * 1e9,
+        duration: props.durationSec * 1e9,
       },
       message: isErr
         ? `PBI dataset ${props.datasetName} refresh failed: ${props.detail}`
@@ -5624,7 +5624,7 @@ export function generatePowerBiEmbeddedLog(ts: string, er: number): EcsDocument 
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      duration: (props.daxCompilationMs as number) * 1e6,
+      duration: props.daxCompilationMs * 1e6,
     },
     message: isErr
       ? `PBI semantic compile error line ${props.errorLine}`

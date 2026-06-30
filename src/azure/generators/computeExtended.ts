@@ -284,7 +284,7 @@ export function generateContainerAppsLog(ts: string, er: number): EcsDocument {
       ClientIP: callerIp,
       RevisionName: rev,
     };
-    const code = props.StatusCode as number;
+    const code = props.StatusCode;
     const { properties: ingProps, error: ingErr } = withComputeAzureErrors(
       isErr,
       variant,
@@ -746,7 +746,7 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
       },
       message: isErr
         ? `ACI image pull failed for ${group}/${container}: ${props.criMessage}`
-        : `ACI pulled ${props.image} (${(props.cachedLayersHitRatio as number).toFixed(2)} cache hit)`,
+        : `ACI pulled ${props.image} (${props.cachedLayersHitRatio.toFixed(2)} cache hit)`,
     };
   }
 
@@ -825,7 +825,7 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
     operationName: "Microsoft.ContainerInstance/containerGroups/events/write",
     category: "ContainerInstanceLog",
     resultType: isErr ? "Failure" : "Success",
-    resultSignature: props.reason as string,
+    resultSignature: props.reason,
     callerIpAddress: "127.0.0.1",
     correlationId,
     level: isErr ? "Warning" : "Information",
@@ -895,7 +895,7 @@ export function generateKubernetesFleetLog(ts: string, er: number): EcsDocument 
         : "Microsoft.ContainerService/fleets/members/join/action",
       category: "FleetMemberUpdate",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: props.joinState as string,
+      resultSignature: props.joinState,
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Error" : "Information",
@@ -950,7 +950,7 @@ export function generateKubernetesFleetLog(ts: string, er: number): EcsDocument 
         : "Microsoft.ContainerService/fleets/updateRuns/start/action",
       category: "FleetDeployment",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: props.stage as string,
+      resultSignature: props.stage,
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Error" : "Information",
@@ -1237,7 +1237,7 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
         : `Microsoft.ContainerRegistry/registries/${action.toLowerCase()}Manifest/write`,
       category: "ContainerRegistryRepositoryEvents",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: props.result as string,
+      resultSignature: props.result,
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Warning" : "Information",
@@ -1378,7 +1378,7 @@ export function generateAcrLog(ts: string, er: number): EcsDocument {
       },
       message: isErr
         ? `ACR geo-replicate to ${tgt} failed for ${repo}:${tag}`
-        : `ACR ${registry}: synced ${(props.commitManifestDigest as string).slice(0, 22)}... to ${tgt}`,
+        : `ACR ${registry}: synced ${props.commitManifestDigest.slice(0, 22)}... to ${tgt}`,
     };
   }
 
@@ -2468,7 +2468,7 @@ export function generateDedicatedHostLog(ts: string, er: number): EcsDocument {
       operationName: "Microsoft.Compute/hostGroups/hosts/instanceView/read",
       category: "DedicatedHostPlacementAnalytics",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: String(Math.round((props.fragmentationScore as number) * 100)),
+      resultSignature: String(Math.round(props.fragmentationScore * 100)),
       callerIpAddress: "169.254.169.254",
       correlationId,
       level: isErr ? "Information" : "Information",
@@ -2591,7 +2591,7 @@ export function generateCapacityReservationLog(ts: string, er: number): EcsDocum
         "Microsoft.Compute/capacityReservationGroups/capacityReservations/metrics/write",
       category: "CapacityReservationUtilization",
       resultType: isErr ? "Failure" : "Success",
-      resultSignature: String(Math.round(props.utilizationPercent as number)),
+      resultSignature: String(Math.round(props.utilizationPercent)),
       callerIpAddress: callerIp,
       correlationId,
       level: isErr ? "Warning" : "Information",
@@ -3227,7 +3227,7 @@ export function generateProximityPlacementLog(ts: string, er: number): EcsDocume
       outcome: isErr ? "failure" : "success",
       duration: randInt(1e8, 2e9),
     },
-    message: props.message as string,
+    message: props.message,
   };
 }
 

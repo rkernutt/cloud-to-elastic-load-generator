@@ -698,7 +698,7 @@ export function generateServiceBusLog(ts: string, er: number): EcsDocument {
         resource_group: resourceGroup,
         entity: ent,
         operation: op,
-        delivery_count: props.DeliveryCount as number,
+        delivery_count: props.DeliveryCount,
         dead_letter: Boolean(props.DeadLetterReason),
         category: "OperationalLogs",
         correlation_id: correlationId,
@@ -795,15 +795,19 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
     "CertificateCreate",
   ] as const);
   const useSp = Math.random() > 0.45;
-  const identity = useSp
-    ? { claim: { appid: randUUID(), oid: randUUID(), tid: subscription.id } }
-    : {
-        claim: {
-          upn: `svc-${randId(4)}@${rand(["meridiantech", "cascadeops"])}.com`,
-          oid: randUUID(),
-          tid: subscription.id,
-        },
-      };
+  let identity:
+    | { claim: { appid: string; oid: string; tid: string } }
+    | { claim: { upn: string; oid: string; tid: string } };
+  let callerLabel: string;
+  if (useSp) {
+    const appid = randUUID();
+    identity = { claim: { appid, oid: randUUID(), tid: subscription.id } };
+    callerLabel = appid;
+  } else {
+    const upn = `svc-${randId(4)}@${rand(["meridiantech", "cascadeops"])}.com`;
+    identity = { claim: { upn, oid: randUUID(), tid: subscription.id } };
+    callerLabel = upn;
+  }
   const httpStatus = isErr ? rand([401, 403]) : 200;
   const resultDesc = isErr ? rand(["Forbidden", "Unauthorized", "Caller is not authorized"]) : "OK";
   const resourceKind = op.startsWith("Secret")
@@ -828,9 +832,6 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
     requestUri,
     clientInfo: `Azure-SDK-For-${rand(["NET", "Python", "Java"])}`,
   };
-  const callerLabel = useSp
-    ? (identity.claim as { appid: string }).appid
-    : (identity.claim as { upn: string }).upn;
   const operationName = `Microsoft.KeyVault/vaults/${op.toLowerCase()}/action`;
   return {
     "@timestamp": ts,
@@ -1076,6 +1077,9 @@ export function generateEntraIdLog(ts: string, er: number): EcsDocument {
   let operationName: string;
   let eventCategory: string[];
   let eventType: string[];
+  let conditionalAccess: string;
+  let appId: string | undefined = undefined;
+  let appDisplayName: string | undefined = undefined;
 
   if (cat === "SignInLogs") {
     const app = rand(ENTRA_WELL_KNOWN_APPS);
@@ -1154,6 +1158,9 @@ export function generateEntraIdLog(ts: string, er: number): EcsDocument {
     operationName = "Sign-in activity";
     eventCategory = ["authentication"];
     eventType = ["info"];
+    conditionalAccess = caStatus;
+    appId = app.id;
+    appDisplayName = app.name;
   } else if (cat === "AuditLogs") {
     const act = rand(ENTRA_AUDIT_ACTIVITIES);
     const targetName =
@@ -1207,6 +1214,7 @@ export function generateEntraIdLog(ts: string, er: number): EcsDocument {
               ? "creation"
               : "change",
         ];
+    conditionalAccess = isErr ? "failure" : "success";
   } else {
     const riskType = rand(ENTRA_RISK_TYPES);
     const loc = rand(ENTRA_LOCATIONS);
@@ -1242,15 +1250,10 @@ export function generateEntraIdLog(ts: string, er: number): EcsDocument {
     operationName = "Risk detection";
     eventCategory = ["intrusion_detection"];
     eventType = ["info"];
+    conditionalAccess = isErr ? "atRisk" : "remediated";
   }
 
   const resultType = isErr ? "Failure" : "Success";
-  const caStatus =
-    cat === "SignInLogs"
-      ? (props.conditionalAccessStatus as string)
-      : cat === "AuditLogs"
-        ? (props.result as string)
-        : (props.riskState as string);
 
   return {
     "@timestamp": ts,
@@ -1273,11 +1276,11 @@ export function generateEntraIdLog(ts: string, er: number): EcsDocument {
         user,
         user_display_name: userDisplayName,
         user_id: userId,
-        app_id: cat === "SignInLogs" ? (props.appId as string) : undefined,
-        app_display_name: cat === "SignInLogs" ? (props.appDisplayName as string) : undefined,
+        app_id: appId,
+        app_display_name: appDisplayName,
         ip_address: callerIp,
         result: resultType,
-        conditional_access: caStatus,
+        conditional_access: conditionalAccess,
         tenant_id: tenantId,
         correlation_id: correlationId,
         properties: props,
