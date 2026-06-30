@@ -14,20 +14,9 @@ import {
   randPublicIp,
   randAzureOrgEmail,
   randAzureOnMicrosoftEmail,
+  azureDiagnosticTime,
+  azureLogEvent,
 } from "./helpers.js";
-
-function azureDiagnosticTime(ts: string): string {
-  const d = new Date(ts);
-  if (Number.isNaN(d.getTime())) {
-    const base = ts.replace(/Z$/i, "").split(".")[0] ?? ts;
-    return `${base}.0000000Z`;
-  }
-  const iso = d.toISOString();
-  const m = /^(.+)T(.+)\.(\d+)Z$/.exec(iso);
-  if (!m) return `${iso.slice(0, 19)}.0000000Z`;
-  const frac = m[3]!.padEnd(7, "0").slice(0, 7);
-  return `${m[1]}T${m[2]}.${frac}Z`;
-}
 
 function armSite(subId: string, rg: string, app: string): string {
   return `/subscriptions/${subId}/resourceGroups/${rg}/providers/Microsoft.Web/sites/${app}`;
@@ -112,14 +101,13 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["process"],
-        type: isErr ? ["error"] : ["start"],
-        action: "Microsoft.Web/sites/log",
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 1e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 1e9),
+        "Microsoft.Web/sites/log",
+        ["process"],
+        isErr ? ["error"] : ["start"]
+      ),
       message: `${method} ${path} ${sc} ${(timeTaken * 1000) | 0}ms ${callerIp} ${ua}`,
     };
   }
@@ -184,14 +172,13 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["process"],
-        type: isErr ? ["error"] : ["start"],
-        action: "Microsoft.Web/sites/log",
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 1e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 1e9),
+        "Microsoft.Web/sites/log",
+        ["process"],
+        isErr ? ["error"] : ["start"]
+      ),
       message: `[${level}] ${msg}`,
     };
   }
@@ -241,14 +228,13 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["process"],
-        type: isErr ? ["error"] : ["start"],
-        action: "Microsoft.Web/sites/log",
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 1e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 1e9),
+        "Microsoft.Web/sites/log",
+        ["process"],
+        isErr ? ["error"] : ["start"]
+      ),
       message: `${evt}: ${msg}`,
     };
   }
@@ -285,14 +271,13 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["process"],
-      type: isErr ? ["error"] : ["start"],
-      action: String(armOp),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e6, 1e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e6, 1e9),
+      String(armOp),
+      ["process"],
+      isErr ? ["error"] : ["start"]
+    ),
     message: isErr
       ? `Activity failed: ${armOp} on ${app}`
       : `Activity succeeded: ${armOp} on ${app}`,
@@ -367,14 +352,13 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["process"],
-        type: isErr ? ["error"] : ["start"],
-        action: String(armOp),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 9e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 9e9),
+        String(armOp),
+        ["process"],
+        isErr ? ["error"] : ["start"]
+      ),
       message: String(props.Message),
     };
   }
@@ -440,14 +424,7 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["process"],
-        type: ["error"],
-        action: String(kind),
-        outcome: "failure",
-        duration: randInt(1e6, 9e9),
-      },
+      event: azureLogEvent(true, randInt(1e6, 9e9), String(kind), ["process"], ["error"]),
       error: {
         code: kind === "timeout" ? "TimeoutException" : "OutOfMemoryException",
         message: String(props.Message),
@@ -536,14 +513,13 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["process"],
-        type: isErr ? ["error"] : ["start"],
-        action: String(armOp),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 9e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 9e9),
+        String(armOp),
+        ["process"],
+        isErr ? ["error"] : ["start"]
+      ),
       message: String(props.Message),
     };
   }
@@ -622,14 +598,13 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["process"],
-        type: isErr ? ["error"] : ["start"],
-        action: String(armOp),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 9e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 9e9),
+        String(armOp),
+        ["process"],
+        isErr ? ["error"] : ["start"]
+      ),
       message: `Trigger ${trigger} for ${fnName}`,
     };
   }
@@ -670,14 +645,13 @@ export function generateFunctionsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["process"],
-      type: isErr ? ["error"] : ["start"],
-      action: String(armOp),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e6, 9e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e6, 9e9),
+      String(armOp),
+      ["process"],
+      isErr ? ["error"] : ["start"]
+    ),
     message: String(props.Message),
   };
 }
@@ -731,14 +705,13 @@ export function generateServiceBusLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["process"],
-      type: isErr ? ["error"] : ["start"],
-      action: operationName,
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e6, 5e8),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e6, 5e8),
+      operationName,
+      ["process"],
+      isErr ? ["error"] : ["start"]
+    ),
     message: isErr
       ? `Service Bus namespace ${nsFqdn}: ${op} failed on entity '${ent}' (deliveryCount=${props.DeliveryCount})`
       : `Service Bus namespace ${nsFqdn}: ${op} succeeded for '${ent}'`,
@@ -794,14 +767,13 @@ export function generateEventHubsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["process"],
-      type: isErr ? ["error"] : ["start"],
-      action: operationName,
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5e5, 4e8),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e5, 4e8),
+      operationName,
+      ["process"],
+      isErr ? ["error"] : ["start"]
+    ),
     message: isErr
       ? `Event Hubs '${hub}' throttling detected on ${partition}`
       : `Event Hubs '${hub}' ingress healthy (${incoming} bytes)`,
@@ -888,14 +860,13 @@ export function generateKeyVaultLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["process"],
-      type: isErr ? ["error"] : ["start"],
-      action: operationName,
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5e5, 4e7),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e5, 4e7),
+      operationName,
+      ["process"],
+      isErr ? ["error"] : ["start"]
+    ),
     message: isErr
       ? `KeyVault audit: ${op} denied (${httpStatus}) caller=${callerLabel}`
       : `KeyVault audit: ${op} succeeded vault=${vault}`,
@@ -1390,14 +1361,13 @@ export function generateM365Log(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["process"],
-      type: isErr ? ["error"] : ["start"],
-      action: operationName,
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5e5, 2e8),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e5, 2e8),
+      operationName,
+      ["process"],
+      isErr ? ["error"] : ["start"]
+    ),
     message: isErr
       ? `Microsoft 365 ${workload}: ${recordType} failed for ${user}`
       : `Microsoft 365 ${workload}: ${recordType} by ${user}`,

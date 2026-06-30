@@ -11,6 +11,7 @@ import {
   randSourceIp,
   USER_AGENTS,
   azureLogEvent,
+  azureDiagnosticTime,
 } from "./helpers.js";
 
 const VM_SIZES = [
@@ -19,19 +20,6 @@ const VM_SIZES = [
   "Standard_B2ms",
   "Standard_F4s_v2",
 ] as const;
-
-function azureDiagnosticTime(ts: string): string {
-  const d = new Date(ts);
-  if (Number.isNaN(d.getTime())) {
-    const base = ts.replace(/Z$/i, "").split(".")[0] ?? ts;
-    return `${base}.0000000Z`;
-  }
-  const iso = d.toISOString();
-  const m = /^(.+)T(.+)\.(\d+)Z$/.exec(iso);
-  if (!m) return `${iso.slice(0, 19)}.0000000Z`;
-  const frac = m[3]!.padEnd(7, "0").slice(0, 7);
-  return `${m[1]}T${m[2]}.${frac}Z`;
-}
 
 function armVm(subId: string, rg: string, vm: string): string {
   return `/subscriptions/${subId}/resourceGroups/${rg}/providers/Microsoft.Compute/virtualMachines/${vm}`;

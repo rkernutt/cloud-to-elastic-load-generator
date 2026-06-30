@@ -146,6 +146,24 @@ export function makeAzureSetup(er: number) {
   };
 }
 
+/**
+ * Format an ISO timestamp as an Azure diagnostic-log `time` string with a
+ * 7-digit fractional second (e.g. `2024-01-01T00:00:00.0000000Z`), matching
+ * what Azure Monitor emits. Falls back gracefully for unparseable input.
+ */
+export function azureDiagnosticTime(ts: string): string {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) {
+    const base = ts.replace(/Z$/i, "").split(".")[0] ?? ts;
+    return `${base}.0000000Z`;
+  }
+  const iso = d.toISOString();
+  const m = /^(.+)T(.+)\.(\d+)Z$/.exec(iso);
+  if (!m) return `${iso.slice(0, 19)}.0000000Z`;
+  const frac = m[3]!.padEnd(7, "0").slice(0, 7);
+  return `${m[1]}T${m[2]}.${frac}Z`;
+}
+
 export function randCorrelationId(): string {
   return randId(32).toLowerCase();
 }
