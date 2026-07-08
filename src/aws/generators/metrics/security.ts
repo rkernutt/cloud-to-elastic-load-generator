@@ -606,6 +606,38 @@ export function generateRoute53Metrics(ts: string, er: number) {
   });
 }
 
+// ─── Route 53 Resolver ──────────────────────────────────────────────────────
+
+/**
+ * Route 53 Resolver endpoint metrics (CloudWatch namespace AWS/Route53Resolver):
+ * InboundQueryVolume / OutboundQueryVolume plus endpoint ENI health, keyed by
+ * resolver EndpointId. Bespoke dataset `aws.route53resolver` (no dedicated
+ * Elastic integration metrics stream exists) — routed like the other CloudWatch
+ * metric generators.
+ */
+export function generateRoute53ResolverMetrics(ts: string, er: number) {
+  const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
+  return (["inbound", "outbound"] as const).map((direction) => {
+    const endpointId = `rslvr-${direction === "inbound" ? "in" : "out"}-${randId(17).toLowerCase()}`;
+    const queries = randInt(1_000, 20_000_000);
+    return metricDoc(
+      ts,
+      "route53resolver",
+      "aws.route53resolver",
+      region,
+      account,
+      { EndpointId: endpointId },
+      {
+        ...(direction === "inbound"
+          ? { InboundQueryVolume: counter(queries) }
+          : { OutboundQueryVolume: counter(queries) }),
+        EndpointHealthyENICount: stat(randInt(2, 6)),
+        EndpointUnhealthyENICount: stat(Math.random() < er ? randInt(1, 2) : 0),
+      }
+    );
+  });
+}
+
 // ─── Billing ──────────────────────────────────────────────────────────────────
 
 export function generateBillingMetrics(ts: string, _er: number) {

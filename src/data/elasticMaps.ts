@@ -543,7 +543,7 @@ const ELASTIC_METRICS_DATASET_MAP = {
   storagelens: "aws.s3_storage_lens",
   vpc: "aws.vpcflow",
   route53: "aws.route53_public_logs",
-  route53resolver: "aws.route53_resolver_logs",
+  route53resolver: "aws.route53resolver",
   // Security services
   guardduty: "aws.guardduty",
   cloudtrail: "aws.cloudtrail",
