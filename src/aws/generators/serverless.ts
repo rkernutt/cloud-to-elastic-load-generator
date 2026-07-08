@@ -70,7 +70,6 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
   const memUsed = randInt(Math.floor(memSize * 0.2), memSize);
   const invocations = randInt(1, 500);
   const errors = isErr ? randInt(1, Math.max(1, Math.floor(invocations * er))) : 0;
-  const throttles = Math.random() < 0.05 ? randInt(1, 10) : 0;
   // EventSourceMappings only exist for SQS/Kinesis/DynamoDB Stream triggers, not HTTP/S3/scheduled
   const esqTriggerFns = ["data-pipeline", "order-validator", "inventory-sync"];
   const hasMapping = esqTriggerFns.includes(fn) && Math.random() > 0.3;
@@ -291,34 +290,6 @@ export function generateLambdaLog(ts: string, er: number): EcsDocument {
               },
             }
           : {}),
-        metrics: {
-          Invocations: { sum: 1, avg: 1 },
-          Errors: { sum: isErr ? 1 : 0, avg: isErr ? 1 : 0 },
-          Throttles: { sum: throttles, avg: throttles },
-          Duration: { avg: dur, max: dur * 1.2 },
-          ConcurrentExecutions: { avg: randInt(1, 500) },
-          UnreservedConcurrentExecutions: { avg: randInt(1, 1000) },
-          DeadLetterErrors: { sum: Math.random() < 0.02 ? randInt(1, 5) : 0, avg: 0 },
-          IteratorAge: { avg: isErr ? randInt(10000, 3600000) : 0 },
-          AsyncEventsReceived: { sum: randInt(0, 100) },
-          AsyncEventAge: { avg: randInt(0, 5000) },
-          duration_ms: logEventType === "report" ? dur : null,
-          billed_duration_ms: logEventType === "report" ? billedDur : null,
-          init_duration_ms: logEventType === "report" && isColdStart ? initDur : null,
-          memory_size_mb: memSize,
-          max_memory_used_mb: memUsed,
-          instance_max_memory: memSize,
-          ...(hasMapping
-            ? {
-                PolledEventCount: { sum: randInt(0, 1000) },
-                InvokedEventCount: { sum: randInt(0, 1000) },
-                FilteredOutEventCount: { sum: randInt(0, 50) },
-                FailedInvokeEventCount: { sum: isErr ? randInt(1, 10) : 0 },
-                DeletedEventCount: { sum: randInt(0, 10) },
-                OnFailureDestinationDeliveredEventCount: { sum: isErr ? randInt(0, 5) : 0 },
-              }
-            : {}),
-        },
       },
     },
     log: { level: level.toLowerCase() },
@@ -538,19 +509,6 @@ export function generateApiGatewayLog(ts: string, er: number): EcsDocument {
         integration_latency: integrationLat,
         ...(isWebSocket ? { websocket_route_key: wsRouteKey, connection_id: randId(20) } : {}),
         ...(cacheEnabled ? { cache_hit: cacheHit, cache_miss: !cacheHit } : {}),
-        metrics: {
-          Count: { sum: 1 },
-          Latency: { avg: lat, p99: lat * 3 },
-          IntegrationLatency: { avg: integrationLat },
-          "4XXError": { sum: status >= 400 && status < 500 ? 1 : 0 },
-          "5XXError": { sum: status >= 500 ? 1 : 0 },
-          ...(cacheEnabled
-            ? {
-                CacheHitCount: { sum: cacheHit ? 1 : 0 },
-                CacheMissCount: { sum: !cacheHit ? 1 : 0 },
-              }
-            : {}),
-        },
       },
     },
     http: {
@@ -834,22 +792,6 @@ export function generateAppRunnerLog(ts: string, er: number): EcsDocument {
           scale_from_zero: Math.random() < 0.1,
         },
         structured_logging: true,
-        metrics: {
-          Requests: { sum: eventKind === "application_http" ? 1 : 0 },
-          "2xxStatusResponses": { sum: status < 300 && eventKind === "application_http" ? 1 : 0 },
-          "4xxStatusResponses": {
-            sum: status >= 400 && status < 500 && eventKind === "application_http" ? 1 : 0,
-          },
-          "5xxStatusResponses": { sum: status >= 500 && eventKind === "application_http" ? 1 : 0 },
-          HttpStatusCode2XX: { sum: status < 300 && eventKind === "application_http" ? 1 : 0 },
-          RequestLatency: { avg: latMs, p99: latMs * 3 },
-          ActiveInstances: { avg: randInt(1, 10) },
-          ConcurrentRequests: { avg: randInt(1, 50) },
-          CPUUtilization: { avg: Number(randFloat(5, isErr ? 95 : 60)) },
-          MemoryUtilization: { avg: Number(randFloat(10, isErr ? 90 : 70)) },
-          HealthyHostCount: { avg: eventKind === "health_check" && !isErr ? randInt(1, 6) : 0 },
-          UnHealthyHostCount: { avg: eventKind === "health_check" && isErr ? randInt(1, 3) : 0 },
-        },
       },
     },
     http: {
@@ -939,9 +881,6 @@ export function generateFargateLog(ts: string, er: number): EcsDocument {
         }
       : {}),
   });
-  const cpuPct = level === "error" ? randInt(90, 100) : randInt(10, 80);
-  const fargateMemReservation = Number(randFloat(20, 70));
-  const memPct = randFloat(10, Math.min(fargateMemReservation, level === "error" ? 99 : 80));
   const svc = task;
   return {
     "@timestamp": ts,
@@ -953,15 +892,7 @@ export function generateFargateLog(ts: string, er: number): EcsDocument {
     },
     aws: {
       dimensions: { ServiceName: svc, ClusterName: clusterName, TaskDefinitionFamily: task },
-      ecs: {
-        metrics: {
-          CPUUtilization: { avg: cpuPct },
-          CPUReservation: { avg: Number(randFloat(10, 80)) },
-          MemoryUtilization: { avg: memPct },
-          MemoryReservation: { avg: fargateMemReservation },
-          GPUReservation: { avg: 0 },
-        },
-      },
+      ecs: {},
     },
     container: {
       id: randId(12).toLowerCase(),

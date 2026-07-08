@@ -302,15 +302,6 @@ function generateSsmLog(ts: string, er: number): EcsDocument {
         maintenance_window_id: scenario === "maintenance_window_exec" ? maintenanceWindowId : null,
         maintenance_execution_id:
           scenario === "maintenance_window_exec" ? maintenanceWindowExecId : null,
-        metrics: {
-          CommandsSucceeded: { sum: isErr ? 0 : 1 },
-          CommandsFailed: { sum: isErr ? 1 : 0 },
-          CommandsTimedOut: { sum: isErr && Math.random() > 0.7 ? 1 : 0 },
-          CommandsDeliveryTimedOut: { sum: 0 },
-          SessionsStarted: { sum: 1 },
-          SessionDuration: { avg: randInt(1, isErr ? 3600 : 600) },
-          PatchComplianceCount: { avg: randInt(50, 500) },
-        },
       },
     },
     event: {
@@ -1034,10 +1025,6 @@ function generateBillingLog(ts: string, er: number): EcsDocument {
         period_start: period.toISOString().slice(0, 10),
         linked_account_id: acct.id,
         dimensions: { Service: service, LinkedAccount: acct.id, UsageType: usageType },
-        metrics: {
-          EstimatedCharges: { sum: amount },
-          NumberOfRequests: { sum: randInt(1, 1000000) },
-        },
       },
     },
     event: {

@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sqs* | STATS avg_v = AVG(`aws.sqs.metrics.ApproximateNumberOfMessagesVisible.avg`) | EVAL `Avg Visible Msgs` = ROUND(avg_v, 0)"
+            "query": "FROM metrics-aws.sqs* | STATS avg_v = AVG(`aws.sqs.metrics.ApproximateNumberOfMessagesVisible.avg`) | EVAL `Avg Visible Msgs` = ROUND(avg_v, 0)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sqs* | STATS `Messages Sent` = SUM(`aws.sqs.metrics.NumberOfMessagesSent.sum`)"
+            "query": "FROM metrics-aws.sqs* | STATS `Messages Sent` = SUM(`aws.sqs.metrics.NumberOfMessagesSent.sum`)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.sqs* | STATS sent = SUM(`aws.sqs.metrics.NumberOfMessagesSent.sum`), received = SUM(`aws.sqs.metrics.NumberOfMessagesReceived.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.sqs* | STATS sent = SUM(`aws.sqs.metrics.NumberOfMessagesSent.sum`), received = SUM(`aws.sqs.metrics.NumberOfMessagesReceived.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -437,7 +437,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sqs* | KEEP `@timestamp``@timestamp`, `aws.sqs.queue_name`, `aws.sqs.operation`, `aws.sqs.metrics.ApproximateNumberOfMessagesVisible.avg`, `aws.sqs.metrics.NumberOfMessagesSent.sum`, `aws.sqs.metrics.ApproximateAgeOfOldestMessage.max`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.sqs* | KEEP `@timestamp``@timestamp`, `aws.sqs.queue_name`, `aws.sqs.operation`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

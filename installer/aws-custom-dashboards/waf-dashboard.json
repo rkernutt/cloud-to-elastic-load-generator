@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.waf* | STATS avg_m = AVG(`aws.waf.metrics.CountedRequests.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.waf* | STATS avg_m = AVG(`aws.waf.metrics.CountedRequests.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.waf* | STATS `Metric sum` = ROUND(SUM(`aws.waf.metrics.CountedRequests.sum`), 0)"
+            "query": "FROM metrics-aws.waf* | STATS `Metric sum` = ROUND(SUM(`aws.waf.metrics.CountedRequests.sum`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.waf* | STATS avg_m = AVG(`aws.waf.metrics.CountedRequests.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.waf* | STATS avg_m = AVG(`aws.waf.metrics.CountedRequests.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.waf* | KEEP `@timestamp``@timestamp`, `aws.waf.action`, `aws.waf.id`, `aws.waf.metrics.CountedRequests.sum`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.waf* | KEEP `@timestamp``@timestamp`, `aws.waf.action`, `aws.waf.id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

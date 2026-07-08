@@ -70,14 +70,14 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(aws.lambda.metrics.Duration.avg) partitionfield=aws.lambda.function.name",
+              "detector_description": "high_mean(aws.lambda.metrics.Duration.avg) partitionfield=aws.lambda.dimensions.FunctionName",
               "function": "high_mean",
               "field_name": "aws.lambda.metrics.Duration.avg",
-              "partition_field_name": "aws.lambda.function.name",
+              "partition_field_name": "aws.lambda.dimensions.FunctionName",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.lambda.function.name", "cloud.region"]
+          "influencers": ["aws.lambda.dimensions.FunctionName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -92,14 +92,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.lambda_logs"
+                  "event.dataset": "aws.lambda"
                 }
               }
             ]
@@ -124,14 +124,14 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(aws.lambda.metrics.Throttles.avg) partitionfield=aws.lambda.function.name",
+              "detector_description": "high_mean(aws.lambda.metrics.Throttles.avg) partitionfield=aws.lambda.dimensions.FunctionName",
               "function": "high_mean",
               "field_name": "aws.lambda.metrics.Throttles.avg",
-              "partition_field_name": "aws.lambda.function.name",
+              "partition_field_name": "aws.lambda.dimensions.FunctionName",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.lambda.function.name", "cloud.region"]
+          "influencers": ["aws.lambda.dimensions.FunctionName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -146,14 +146,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.lambda_logs"
+                  "event.dataset": "aws.lambda"
                 }
               }
             ]

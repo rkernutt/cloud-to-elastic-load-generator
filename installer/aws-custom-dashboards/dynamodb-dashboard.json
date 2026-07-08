@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.dynamodb* | STATS `Read Throttles` = SUM(`aws.dynamodb.metrics.ReadThrottleEvents.sum`)"
+            "query": "FROM metrics-aws.dynamodb* | STATS `Read Throttles` = SUM(`aws.dynamodb.metrics.ReadThrottleEvents.sum`)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.dynamodb* | STATS rcu = SUM(`aws.dynamodb.metrics.ConsumedReadCapacityUnits.sum`), wcu = SUM(`aws.dynamodb.metrics.ConsumedWriteCapacityUnits.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.dynamodb* | STATS rcu = SUM(`aws.dynamodb.metrics.ConsumedReadCapacityUnits.sum`), wcu = SUM(`aws.dynamodb.metrics.ConsumedWriteCapacityUnits.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -437,7 +437,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.dynamodb* | KEEP `@timestamp``@timestamp`, `aws.dynamodb.table_name`, `aws.dynamodb.operation`, `aws.dynamodb.consumed_read_capacity_units`, `aws.dynamodb.consumed_write_capacity_units`, `aws.dynamodb.latency_ms`, `aws.dynamodb.metrics.ReadThrottleEvents.sum`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.dynamodb* | KEEP `@timestamp``@timestamp`, `aws.dynamodb.table_name`, `aws.dynamodb.operation`, `aws.dynamodb.consumed_read_capacity_units`, `aws.dynamodb.consumed_write_capacity_units`, `aws.dynamodb.latency_ms`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

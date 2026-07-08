@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.codebuild* | STATS avg_m = AVG(`aws.codebuild.metrics.FailedBuilds.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.codebuild* | STATS avg_m = AVG(`aws.codebuild.metrics.FailedBuilds.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.codebuild* | STATS `Metric sum` = ROUND(SUM(`aws.codebuild.metrics.FailedBuilds.sum`), 0)"
+            "query": "FROM metrics-aws.codebuild* | STATS `Metric sum` = ROUND(SUM(`aws.codebuild.metrics.FailedBuilds.sum`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.codebuild* | STATS avg_m = AVG(`aws.codebuild.metrics.FailedBuilds.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.codebuild* | STATS avg_m = AVG(`aws.codebuild.metrics.FailedBuilds.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.codebuild* | KEEP `@timestamp``@timestamp`, `aws.codebuild.project_name`, `aws.codebuild.build_id`, `aws.codebuild.metrics.FailedBuilds.sum`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.codebuild* | KEEP `@timestamp``@timestamp`, `aws.codebuild.project_name`, `aws.codebuild.build_id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

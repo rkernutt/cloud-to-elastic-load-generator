@@ -165,7 +165,6 @@ function generateCodeBuildLog(ts: string, er: number): EcsDocument {
   }
   const plainMessage = lines.join("\n");
   const useStructuredLogging = Math.random() < 0.55;
-  const durationMs = dur * 1000;
   const message = useStructuredLogging
     ? JSON.stringify({
         buildId,
@@ -200,14 +199,6 @@ function generateCodeBuildLog(ts: string, er: number): EcsDocument {
         initiator: rand(["codepipeline", "github-webhook", "manual"]),
         source_version: commit,
         structured_logging: useStructuredLogging,
-        metrics: {
-          Builds: { sum: 1 },
-          SucceededBuilds: { sum: isErr ? 0 : 1 },
-          FailedBuilds: { sum: isErr ? 1 : 0 },
-          Duration: { avg: durationMs },
-          QueuedDuration: { avg: queuedSec * 1000 },
-          BuildDuration: { avg: durationMs },
-        },
       },
     },
     event: {
@@ -419,15 +410,6 @@ function generateCodeDeployLog(ts: string, er: number): EcsDocument {
           : null,
         instances_succeeded: isErr ? randInt(0, 5) : randInt(1, 10),
         instances_failed: isErr ? randInt(1, 3) : 0,
-        metrics: {
-          DeploymentAttempts: { sum: 1 },
-          DeploymentSuccesses: { sum: isErr ? 0 : 1 },
-          DeploymentFailures: { sum: isErr ? 1 : 0 },
-          RollbackAttempts: { sum: isErr && Math.random() > 0.5 ? 1 : 0 },
-          DeploymentDuration: { avg: dur },
-          InstanceSuccesses: { sum: isErr ? randInt(0, 5) : randInt(1, 10) },
-          InstanceFailures: { sum: isErr ? randInt(1, 3) : 0 },
-        },
       },
     },
     event: {

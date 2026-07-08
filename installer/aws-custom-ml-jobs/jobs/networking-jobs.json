@@ -183,11 +183,11 @@
               "detector_description": "High mean API Gateway latency by stage",
               "function": "high_mean",
               "field_name": "aws.apigateway.metrics.Latency.avg",
-              "partition_field_name": "aws.apigateway.stage",
+              "partition_field_name": "aws.apigateway.dimensions.Stage",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.apigateway.stage", "cloud.region"]
+          "influencers": ["aws.apigateway.dimensions.Stage", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -202,14 +202,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.apigateway_logs"
+                  "event.dataset": "aws.apigateway_metrics"
                 }
               }
             ]

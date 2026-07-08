@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sns* | STATS `Published` = SUM(`aws.sns.metrics.NumberOfMessagesPublished.sum`)"
+            "query": "FROM metrics-aws.sns* | STATS `Published` = SUM(`aws.sns.metrics.NumberOfMessagesPublished.sum`)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sns* | STATS `Failed Deliveries` = SUM(`aws.sns.metrics.NumberOfNotificationsFailed.sum`)"
+            "query": "FROM metrics-aws.sns* | STATS `Failed Deliveries` = SUM(`aws.sns.metrics.NumberOfNotificationsFailed.sum`)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.sns* | STATS pub = SUM(`aws.sns.metrics.NumberOfMessagesPublished.sum`), del = SUM(`aws.sns.metrics.NumberOfNotificationsDelivered.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.sns* | STATS pub = SUM(`aws.sns.metrics.NumberOfMessagesPublished.sum`), del = SUM(`aws.sns.metrics.NumberOfNotificationsDelivered.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -437,7 +437,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sns* | KEEP `@timestamp``@timestamp`, `aws.sns.topic_name`, `aws.sns.operation`, `aws.sns.protocol`, `aws.sns.metrics.NumberOfMessagesPublished.sum`, `aws.sns.metrics.NumberOfNotificationsFailed.sum`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.sns* | KEEP `@timestamp``@timestamp`, `aws.sns.topic_name`, `aws.sns.operation`, `aws.sns.protocol`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

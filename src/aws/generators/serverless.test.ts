@@ -19,11 +19,9 @@ describe("generateLambdaLog", () => {
     expect(doc.event).toHaveProperty("dataset", "aws.lambda_logs");
   });
 
-  it("includes metrics when present", () => {
+  it("does not embed CloudWatch metrics in logs (metrics ship via lambda_metrics)", () => {
     const doc: any = generateLambdaLog(new Date().toISOString(), 0);
-    expect(doc.aws.lambda).toHaveProperty("metrics");
-    expect(doc.aws.lambda.metrics).toHaveProperty("Invocations");
-    expect(doc.aws.lambda.metrics).toHaveProperty("Duration");
+    expect(doc.aws.lambda).not.toHaveProperty("metrics");
   });
 });
 

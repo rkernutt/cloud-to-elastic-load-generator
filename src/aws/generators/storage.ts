@@ -616,29 +616,6 @@ function generateEbsLog(ts: string, er: number): EcsDocument {
       ebs: {
         ...eventData,
         event_type: eventType,
-        metrics: {
-          VolumeReadOps: { avg: randInt(0, 10000) },
-          VolumeWriteOps: { avg: randInt(0, 10000) },
-          VolumeReadBytes: { avg: randInt(0, 536870912) },
-          VolumeWriteBytes: { avg: randInt(0, 536870912) },
-          VolumeTotalReadTime: { sum: Number(randFloat(0, 10)) },
-          VolumeTotalWriteTime: { sum: Number(randFloat(0, 10)) },
-          VolumeIdleTime: { sum: Number(randFloat(0, 60)) },
-          VolumeQueueLength: { avg: randInt(0, isErr ? 64 : 8) },
-          VolumeThroughputPercentage: { avg: Number(randFloat(10, isErr ? 100 : 80)) },
-          VolumeConsumedReadWriteOps: {
-            avg: randInt(
-              100,
-              isErr ? (provisionedIops || 16000) * 1.1 : (provisionedIops || 3000) * 0.8
-            ),
-          },
-          BurstBalance: {
-            avg:
-              volType === "gp2" || volType === "st1" || volType === "sc1"
-                ? randInt(isErr ? 0 : 50, 100)
-                : null,
-          },
-        },
       },
     },
     event: {
@@ -758,20 +735,6 @@ function generateEfsLog(ts: string, er: number): EcsDocument {
         percent_io_limit: isErr ? randInt(90, 100) : randInt(10, 80),
         error_code: isErr ? rand(["ThroughputLimitExceeded", "FileLimitExceeded"]) : null,
         ...extra,
-        metrics: {
-          BurstCreditBalance: { avg: randInt(0, 2e12) },
-          ClientConnections: { avg: randInt(1, 500) },
-          DataReadIOBytes: { sum: randInt(1000, 1e9) },
-          DataWriteIOBytes: { sum: randInt(1000, 1e9) },
-          MetadataIOBytes: { sum: randInt(100, 1e7) },
-          TotalIOBytes: { sum: randInt(1000, 1e9) },
-          PermittedThroughput: { avg: Number(randFloat(1, 3000)) },
-          MeteredIOBytes: { sum: randInt(1000, 1e9) },
-          StorageBytes: { avg: randInt(1e6, 1e12) },
-          PercentIOLimit: { avg: Number(randFloat(1, isErr ? 95 : 40)) },
-          DataReadIOBytesWithQuota: { sum: randInt(1000, 1e9) },
-          DataWriteIOBytesWithQuota: { sum: randInt(1000, 1e9) },
-        },
       },
     },
     event: {

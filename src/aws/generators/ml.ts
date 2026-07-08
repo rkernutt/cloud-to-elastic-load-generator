@@ -892,12 +892,6 @@ function generateBedrockAgentLog(ts: string, er: number): EcsDocument {
         error_code: isErr
           ? rand(["ValidationException", "ThrottlingException", "ServiceQuotaExceededException"])
           : null,
-        metrics: {
-          Invocations: { sum: randInt(1, 200) },
-          InvocationLatency: { avg: latencyMs, p99: latencyMs * 2 },
-          InputTokenCount: { sum: inputTokens },
-          OutputTokenCount: { sum: outputTokens },
-        },
       },
     },
     event: {
@@ -1062,13 +1056,6 @@ function generateRekognitionLog(ts: string, er: number): EcsDocument {
               "ImageTooLargeException",
             ])
           : null,
-        metrics: {
-          SuccessfulRequestCount: { sum: 1 },
-          ThrottledCount: { sum: isErr ? 1 : 0 },
-          UserErrorCount: { sum: isErr ? randInt(1, 5) : 0 },
-          ServerErrorCount: { sum: 0 },
-          ResponseTime: { avg: Number(randFloat(100, isErr ? 5000 : 1000)) },
-        },
       },
     },
     event: {
@@ -1413,14 +1400,6 @@ function generateTranslateLog(ts: string, er: number): EcsDocument {
         error_code: isErr
           ? rand(["DetectedLanguageLowConfidenceException", "UnsupportedLanguagePairException"])
           : null,
-        metrics: {
-          SuccessfulRequestCount: { sum: 1 },
-          ThrottledCount: { sum: isErr ? 1 : 0 },
-          UserErrorCount: { sum: isErr ? randInt(1, 5) : 0 },
-          ServerErrorCount: { sum: 0 },
-          CharacterCount: { sum: randInt(1, 5000) },
-          ResponseTime: { avg: Number(randFloat(100, isErr ? 2000 : 300)) },
-        },
       },
     },
     event: {
@@ -1560,13 +1539,6 @@ function generatePollyLog(ts: string, er: number): EcsDocument {
               "LanguageNotSupportedException",
             ])
           : null,
-        metrics: {
-          RequestCharacters: { sum: randInt(1, 3000) },
-          ResponseLatency: { avg: Number(randFloat(100, isErr ? 2000 : 500)) },
-          "2XXCount": { sum: isErr ? 0 : 1 },
-          "4XXCount": { sum: isErr ? randInt(1, 5) : 0 },
-          "5XXCount": { sum: 0 },
-        },
       },
     },
     event: {
@@ -1793,15 +1765,6 @@ function generateQBusinessLog(ts: string, er: number): EcsDocument {
               },
             }
           : {}),
-        metrics: {
-          ConversationCount: { sum: 1 },
-          MessageCount: { sum: 1 },
-          InputTokenCount: { sum: inputTokens },
-          OutputTokenCount: { sum: outputTokens },
-          FailedResponses: { sum: isErr ? 1 : 0 },
-          GuardrailIntervened: { sum: guardrailBlocked ? 1 : 0 },
-          DocumentsRetrieved: { sum: retrievedDocs },
-        },
       },
     },
     user: { name: user },

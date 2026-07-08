@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ecs* | STATS avg_c = AVG(`aws.ecs.metrics.CPUUtilization.avg`) | EVAL `Avg CPU %` = ROUND(avg_c, 1)"
+            "query": "FROM metrics-aws.ecs_metrics* | STATS avg_c = AVG(`aws.ecs.metrics.CPUUtilization.avg`) | EVAL `Avg CPU %` = ROUND(avg_c, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ecs* | STATS avg_m = AVG(`aws.ecs.metrics.MemoryUtilization.avg`) | EVAL `Avg Memory %` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.ecs_metrics* | STATS avg_m = AVG(`aws.ecs.metrics.MemoryUtilization.avg`) | EVAL `Avg Memory %` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ecs* | STATS tasks = AVG(`aws.ecs.metrics.RunningTaskCount.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.ecs_metrics* | STATS tasks = AVG(`aws.ecs.metrics.RunningTaskCount.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ecs* | KEEP `@timestamp``@timestamp`, `aws.ecs.cluster`, `aws.ecs.task_arn`, `aws.ecs.container_name`, `aws.ecs.health_status`, `aws.ecs.metrics.CPUUtilization.avg`, `aws.ecs.metrics.MemoryUtilization.avg`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.ecs* | KEEP `@timestamp``@timestamp`, `aws.ecs.cluster`, `aws.ecs.task_arn`, `aws.ecs.container_name`, `aws.ecs.health_status`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

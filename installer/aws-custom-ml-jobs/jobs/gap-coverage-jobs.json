@@ -3263,10 +3263,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.ecs.metrics.CPUUtilization.avg",
-              "partition_field_name": "aws.ecs.cluster_arn"
+              "partition_field_name": "aws.ecs.dimensions.ClusterName"
             }
           ],
-          "influencers": ["aws.ecs.cluster_arn", "aws.ecs.task_definition", "cloud.region"]
+          "influencers": ["aws.ecs.dimensions.ClusterName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -3281,14 +3281,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.fargate*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.fargate"
+                  "event.dataset": "aws.ecs_metrics"
                 }
               }
             ]
@@ -3723,14 +3723,10 @@
               "function": "high_sum",
               "detector_index": 0,
               "field_name": "aws.globalaccelerator.metrics.ProcessedBytesIn.sum",
-              "partition_field_name": "aws.globalaccelerator.accelerator_arn"
+              "partition_field_name": "aws.globalaccelerator.dimensions.Accelerator"
             }
           ],
-          "influencers": [
-            "aws.globalaccelerator.accelerator_arn",
-            "aws.globalaccelerator.listener_arn",
-            "cloud.region"
-          ]
+          "influencers": ["aws.globalaccelerator.dimensions.Accelerator", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -3745,7 +3741,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.globalaccelerator*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -4989,10 +4985,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.lightsail.metrics.CPUUtilization.avg",
-              "partition_field_name": "aws.lightsail.instance_name"
+              "partition_field_name": "aws.lightsail.dimensions.InstanceName"
             }
           ],
-          "influencers": ["aws.lightsail.instance_name", "cloud.region"]
+          "influencers": ["aws.lightsail.dimensions.InstanceName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -5007,7 +5003,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.lightsail*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -6248,14 +6244,10 @@
               "function": "high_sum",
               "detector_index": 0,
               "field_name": "aws.privatelink.metrics.BytesProcessed.sum",
-              "partition_field_name": "aws.privatelink.endpoint_id"
+              "partition_field_name": "aws.privatelink.dimensions.ServiceName"
             }
           ],
-          "influencers": [
-            "aws.privatelink.endpoint_id",
-            "aws.privatelink.service_name",
-            "cloud.region"
-          ]
+          "influencers": ["aws.privatelink.dimensions.ServiceName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -6270,7 +6262,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.privatelink*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -7281,10 +7273,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.ses.metrics.Send.sum",
-              "partition_field_name": "aws.ses.configuration_set"
+              "partition_field_name": "aws.ses.dimensions.Region"
             }
           ],
-          "influencers": ["aws.ses.configuration_set", "aws.ses.identity", "cloud.region"]
+          "influencers": ["aws.ses.dimensions.Region", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -7299,7 +7291,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.ses*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -7393,10 +7385,10 @@
               "function": "high_sum",
               "detector_index": 0,
               "field_name": "aws.shield.metrics.DDoSDetected.sum",
-              "partition_field_name": "aws.shield.resource_arn"
+              "partition_field_name": "aws.shield.dimensions.ResourceArn"
             }
           ],
-          "influencers": ["aws.shield.resource_arn", "aws.shield.attack_vector", "cloud.region"]
+          "influencers": ["aws.shield.dimensions.ResourceArn", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -7411,7 +7403,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.shield*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {

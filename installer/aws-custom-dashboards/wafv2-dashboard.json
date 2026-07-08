@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.wafv2* | STATS `Blocked` = SUM(`aws.waf.metrics.BlockedRequests.sum`)"
+            "query": "FROM metrics-aws.waf* | STATS `Blocked` = SUM(`aws.waf.metrics.BlockedRequests.sum`)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.wafv2* | STATS `Allowed` = SUM(`aws.waf.metrics.AllowedRequests.sum`)"
+            "query": "FROM metrics-aws.waf* | STATS `Allowed` = SUM(`aws.waf.metrics.AllowedRequests.sum`)"
           },
           "metrics": [
             {
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.wafv2* | STATS al = SUM(`aws.waf.metrics.AllowedRequests.sum`), bl = SUM(`aws.waf.metrics.BlockedRequests.sum`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM metrics-aws.waf* | STATS al = SUM(`aws.waf.metrics.AllowedRequests.sum`), bl = SUM(`aws.waf.metrics.BlockedRequests.sum`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.wafv2* | STATS cnt = SUM(`aws.waf.metrics.CountedRequests.sum`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM metrics-aws.waf* | STATS cnt = SUM(`aws.waf.metrics.CountedRequests.sum`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
               },
               "x": {
                 "operation": "value",

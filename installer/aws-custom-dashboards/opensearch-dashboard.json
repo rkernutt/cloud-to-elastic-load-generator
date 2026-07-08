@@ -20,7 +20,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.opensearch* | STATS avg_sr = AVG(`aws.opensearch.metrics.SearchRate.avg`) | EVAL `Avg Search Rate` = ROUND(avg_sr, 1)"
+            "query": "FROM metrics-aws.opensearch* | STATS avg_sr = AVG(`aws.opensearch.metrics.SearchRate.avg`) | EVAL `Avg Search Rate` = ROUND(avg_sr, 1)"
           },
           "metrics": [
             {
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.opensearch* | STATS avg_ir = AVG(`aws.opensearch.metrics.IndexingRate.avg`) | EVAL `Avg Indexing Rate` = ROUND(avg_ir, 1)"
+            "query": "FROM metrics-aws.opensearch* | STATS avg_ir = AVG(`aws.opensearch.metrics.IndexingRate.avg`) | EVAL `Avg Indexing Rate` = ROUND(avg_ir, 1)"
           },
           "metrics": [
             {
@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.opensearch* | STATS avg_jvm = AVG(`aws.opensearch.metrics.JVMMemoryPressure.avg`) | EVAL `Avg JVM Memory %` = ROUND(avg_jvm, 1)"
+            "query": "FROM metrics-aws.opensearch* | STATS avg_jvm = AVG(`aws.opensearch.metrics.JVMMemoryPressure.avg`) | EVAL `Avg JVM Memory %` = ROUND(avg_jvm, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.opensearch* | STATS `Write Rejections` = SUM(`aws.opensearch.metrics.CoordinatingWriteRejected.sum`) + SUM(`aws.opensearch.metrics.PrimaryWriteRejected.sum`) + SUM(`aws.opensearch.metrics.ReplicaWriteRejected.sum`)"
+            "query": "FROM metrics-aws.opensearch* | STATS `Write Rejections` = SUM(`aws.opensearch.metrics.CoordinatingWriteRejected.sum`) + SUM(`aws.opensearch.metrics.PrimaryWriteRejected.sum`) + SUM(`aws.opensearch.metrics.ReplicaWriteRejected.sum`)"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.opensearch* | STATS search_r = AVG(`aws.opensearch.metrics.SearchRate.avg`), index_r = AVG(`aws.opensearch.metrics.IndexingRate.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.opensearch* | STATS search_r = AVG(`aws.opensearch.metrics.SearchRate.avg`), index_r = AVG(`aws.opensearch.metrics.IndexingRate.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -292,7 +292,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.opensearch* | STATS s_lat = AVG(`aws.opensearch.metrics.SearchLatency.avg`), i_lat = AVG(`aws.opensearch.metrics.IndexingLatency.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.opensearch* | STATS s_lat = AVG(`aws.opensearch.metrics.SearchLatency.avg`), i_lat = AVG(`aws.opensearch.metrics.IndexingLatency.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -345,7 +345,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.opensearch* | STATS jvm = AVG(`aws.opensearch.metrics.JVMMemoryPressure.avg`), cpu = AVG(`aws.opensearch.metrics.CPUUtilization.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.opensearch* | STATS jvm = AVG(`aws.opensearch.metrics.JVMMemoryPressure.avg`), cpu = AVG(`aws.opensearch.metrics.CPUUtilization.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -446,7 +446,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.opensearch* | STATS coord_rej = SUM(`aws.opensearch.metrics.CoordinatingWriteRejected.sum`), prim_rej = SUM(`aws.opensearch.metrics.PrimaryWriteRejected.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.opensearch* | STATS coord_rej = SUM(`aws.opensearch.metrics.CoordinatingWriteRejected.sum`), prim_rej = SUM(`aws.opensearch.metrics.PrimaryWriteRejected.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",

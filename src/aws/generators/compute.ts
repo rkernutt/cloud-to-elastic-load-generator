@@ -219,9 +219,6 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
   const cluster = rand(["prod-cluster", "staging", "workers"]);
   const level = Math.random() < er ? "error" : Math.random() < 0.15 ? "warn" : "info";
   const isErr = level === "error";
-  const cpuPct = Number(randFloat(1, isErr ? 99 : 70));
-  const memReservation = Number(randFloat(20, 70));
-  const memPct = Number(randFloat(10, Math.min(memReservation, isErr ? 99 : 80)));
   const taskDefFamily = `${svc}-td`;
   const taskDefRev = randInt(1, 42);
   const taskArn = `arn:aws:ecs:${region}:${acct.id}:task/${cluster}/${randId(32).toLowerCase()}`;
@@ -293,13 +290,6 @@ function generateEcsLog(ts: string, er: number): EcsDocument {
         ecs_cluster: ecsCluster,
         ecs_task_definition: ecsTaskDefinition,
         ecs_task_arn: ecsTaskArn,
-        metrics: {
-          CPUUtilization: { avg: cpuPct },
-          CPUReservation: { avg: Number(randFloat(10, 80)) },
-          MemoryUtilization: { avg: memPct },
-          MemoryReservation: { avg: memReservation },
-          GPUReservation: { avg: 0 },
-        },
       },
     },
     container: {
@@ -679,17 +669,6 @@ function generateBatchLog(ts: string, er: number): EcsDocument {
         job_attempt: attempt,
         container_exit_code: exitCode,
         structured_logging: useStructuredLogging,
-        metrics: {
-          PendingJobCount: { avg: randInt(0, 100) },
-          RunnableJobCount: { avg: randInt(0, 50) },
-          StartingJobCount: { avg: randInt(0, 20) },
-          RunningJobCount: { avg: randInt(0, 200) },
-          SucceededJobCount: { sum: isErr ? 0 : 1 },
-          FailedJobCount: { sum: isErr ? 1 : 0 },
-          CPUReserved: { avg: randFloat(10, 80) },
-          GPUReserved: { avg: 0 },
-          MemoryReserved: { avg: randFloat(10, 90) },
-        },
       },
     },
     process: {

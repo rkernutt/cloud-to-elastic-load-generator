@@ -798,8 +798,6 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
     "deployment-events",
   ]);
   const protocol = rand(["email", "sqs", "lambda", "http", "sms", "application"]);
-  const published = randInt(1, 10000);
-  const delivered = isErr ? randInt(0, Math.floor(published * 0.9)) : published;
   const deliveryLatencyMs = Number(randFloat(5, isErr ? 30000 : 500));
   const snsOperation =
     scenario === "platform_endpoint_create"
@@ -909,19 +907,6 @@ function generateSnsLog(ts: string, er: number): EcsDocument {
                 region: [{ prefix: "us-" }],
               })
             : null,
-        metrics: {
-          NumberOfMessagesPublished: { sum: published },
-          NumberOfNotificationsDelivered: { sum: delivered },
-          NumberOfNotificationsFailed: { sum: published - delivered },
-          NumberOfNotificationsFilteredOut: { sum: Math.random() < 0.1 ? 1 : 0 },
-          "NumberOfNotificationsFilteredOut-InvalidAttributes": { sum: 0 },
-          "NumberOfNotificationsFilteredOut-NoMessageAttributes": { sum: 0 },
-          NumberOfNotificationsRedrivenToDlq: { sum: isErr ? randInt(0, 5) : 0 },
-          NumberOfNotificationsFailedToRedriveToDlq: { sum: 0 },
-          PublishSize: { avg: randInt(1, 256000) },
-          SMSSuccessRate: { avg: protocol === "sms" ? (Math.random() > 0.05 ? 1 : 0) : null },
-          SMSMonthToDateSpentUSD: { sum: protocol === "sms" ? Number(randFloat(0, 50)) : 0 },
-        },
       },
     },
     event: {
@@ -1013,23 +998,6 @@ function generateAmazonMqLog(ts: string, er: number): EcsDocument {
         messages_out: messagesOut,
         queue_depth: queueDepth,
         broker_memory_percent: brokerMemPct,
-        metrics: {
-          ConsumerCount: { avg: randInt(1, 100) },
-          ProducerCount: { avg: randInt(1, 50) },
-          QueueSize: { avg: randInt(0, 10000) },
-          EnqueueCount: { sum: randInt(1, 10000) },
-          DequeueCount: { sum: randInt(1, 10000) },
-          InFlightCount: { avg: randInt(0, 500) },
-          DispatchCount: { sum: randInt(1, 10000) },
-          ExpiredCount: { sum: randInt(0, 100) },
-          NetworkConnectorStarted: { sum: Math.random() > 0.9 ? 1 : 0 },
-          HeapUsage: { avg: randFloat(10, 80) },
-          StorePercentUsage: { avg: randFloat(5, 70) },
-          TotalEnqueueCount: { sum: randInt(1000, 1e6) },
-          TotalDequeueCount: { sum: randInt(1000, 1e6) },
-          TotalConsumerCount: { avg: randInt(1, 100) },
-          TotalProducerCount: { avg: randInt(1, 50) },
-        },
       },
     },
     event: {

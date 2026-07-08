@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ec2* | STATS avg_c = AVG(`aws.ec2.metrics.CPUUtilization.avg`) | EVAL `Avg CPU %` = ROUND(avg_c, 1)"
+            "query": "FROM metrics-aws.ec2* | STATS avg_c = AVG(`aws.ec2.metrics.CPUUtilization.avg`) | EVAL `Avg CPU %` = ROUND(avg_c, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ec2* | STATS `Status Check Failures` = SUM(`aws.ec2.metrics.StatusCheckFailed.sum`)"
+            "query": "FROM metrics-aws.ec2* | STATS `Status Check Failures` = SUM(`aws.ec2.metrics.StatusCheckFailed.sum`)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ec2* | STATS net_in = SUM(`aws.ec2.metrics.NetworkIn.sum`), net_out = SUM(`aws.ec2.metrics.NetworkOut.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.ec2* | STATS net_in = SUM(`aws.ec2.metrics.NetworkIn.sum`), net_out = SUM(`aws.ec2.metrics.NetworkOut.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -437,7 +437,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ec2* | KEEP `@timestamp``@timestamp`, host.id, `aws.ec2.instance.type`, `aws.ec2.state`, `aws.ec2.source`, `aws.ec2.metrics.CPUUtilization.avg`, `aws.ec2.metrics.StatusCheckFailed.sum`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.ec2* | KEEP `@timestamp``@timestamp`, host.id, `aws.ec2.instance.type`, `aws.ec2.state`, `aws.ec2.source`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

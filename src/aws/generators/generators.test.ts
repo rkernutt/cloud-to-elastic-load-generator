@@ -127,7 +127,7 @@ describe("Serverless generators", () => {
     expect(["start", "app", "end", "report"]).toContain(doc.aws.lambda.event_type);
   });
 
-  it("Lambda - REPORT event includes billed_duration_ms", () => {
+  it("Lambda - REPORT event carries billing data in the raw message", () => {
     // Run enough times to likely get a REPORT event
     let reportDoc: any = null;
     for (let i = 0; i < 100; i++) {
@@ -138,8 +138,12 @@ describe("Serverless generators", () => {
       }
     }
     if (reportDoc) {
-      expect(reportDoc.aws.lambda.metrics).toHaveProperty("billed_duration_ms");
+      // Metrics are no longer embedded in logs; the REPORT line preserves
+      // billing data in the raw message (parsed by the aws.lambda pipeline),
+      // while numeric aggregates ship via metrics-aws.lambda_metrics.
+      expect(reportDoc.aws.lambda).not.toHaveProperty("metrics");
       expect(reportDoc.message).toMatch(/^REPORT RequestId:/);
+      expect(reportDoc.message).toMatch(/Billed Duration:/);
     }
   });
 

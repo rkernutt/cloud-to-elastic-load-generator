@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.amazonmq* | STATS avg_m = AVG(`aws.amazonmq.metrics.ConsumerCount.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.amazonmq* | STATS avg_m = AVG(`aws.amazonmq.metrics.ConsumerCount.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.amazonmq* | STATS `Metric sum` = ROUND(SUM(`aws.amazonmq.metrics.ConsumerCount.avg`), 0)"
+            "query": "FROM metrics-aws.amazonmq* | STATS `Metric sum` = ROUND(SUM(`aws.amazonmq.metrics.ConsumerCount.avg`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.amazonmq* | STATS avg_m = AVG(`aws.amazonmq.metrics.ConsumerCount.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.amazonmq* | STATS avg_m = AVG(`aws.amazonmq.metrics.ConsumerCount.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.amazonmq* | KEEP `@timestamp``@timestamp`, `aws.amazonmq.queue_name`, `aws.amazonmq.broker_id`, `aws.amazonmq.metrics.ConsumerCount.avg`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.amazonmq* | KEEP `@timestamp``@timestamp`, `aws.amazonmq.queue_name`, `aws.amazonmq.broker_id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
