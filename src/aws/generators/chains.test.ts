@@ -71,6 +71,26 @@ describe("AWS data pipeline chain — orchestration modes", () => {
     expect(traceIds.size).toBe(1);
   });
 
+  it("co-emits correlated CloudWatch metrics routed to metrics-aws.*", () => {
+    const docs = generateDataPipelineChain(TS, 0.3) as Doc[];
+    const metricDocs = docs.filter(
+      (d) => (d.data_stream as Record<string, unknown>)?.type === "metrics"
+    );
+    expect(metricDocs.length).toBeGreaterThan(0);
+    for (const m of metricDocs) {
+      // Routed to a fully-qualified metrics stream so it lands in metrics-aws.*
+      // even though the scenario ships over the logs path.
+      expect(String(m.__dataset)).toMatch(/^metrics-aws\./);
+      // Correlated with the rest of the run.
+      expect((m.labels as Record<string, unknown>)?.pipeline_run_id).toBeTruthy();
+    }
+    // Metric docs share the single run id used by logs + traces.
+    const runIds = new Set(
+      docs.map((d) => (d.labels as Record<string, unknown>)?.pipeline_run_id).filter(Boolean)
+    );
+    expect(runIds.size).toBe(1);
+  });
+
   it("error mode produces at least one failure or error doc", () => {
     let found = false;
     for (let attempt = 0; attempt < 10; attempt++) {

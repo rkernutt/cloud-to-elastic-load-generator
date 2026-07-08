@@ -21,6 +21,11 @@ export function awsBulkIndexName(indexPrefix: string, dataset: string): string {
 
 export function awsDocDatasetIndex(indexPrefix: string, __dataset: string): string {
   if (__dataset === "apm") return "traces-apm-default";
+  // Fully-qualified stream targets (e.g. "metrics-aws.emr", "traces-aws.xray")
+  // carry their own stream prefix. Scenario generators that emit several
+  // data_stream types in a single run tag cross-stream docs this way so they
+  // route to the right index regardless of the run's logs/metrics prefix.
+  if (/^(logs|metrics|traces)-/.test(__dataset)) return `${__dataset}-default`;
   if (__dataset.startsWith("aws.")) {
     return awsBulkIndexName(indexPrefix, __dataset);
   }
@@ -53,5 +58,7 @@ export function genericVendorDocDataset(
 ): string {
   if (__dataset === "apm") return "traces-apm-default";
   if (vendor === "aws") return awsDocDatasetIndex(indexPrefix, __dataset);
+  // Fully-qualified stream targets carry their own stream prefix (see aws variant).
+  if (/^(logs|metrics|traces)-/.test(__dataset)) return `${__dataset}-default`;
   return `logs-${__dataset}-default`;
 }

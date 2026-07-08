@@ -9,9 +9,16 @@ import { enrichDocument } from "../../helpers/enrich.js";
 function rawDocs(gen: (t: string, e: number) => unknown, ts: string): Record<string, unknown>[] {
   const raw = gen(ts, 0) as unknown;
   const arr = Array.isArray(raw) ? raw : [raw];
-  return (arr as Record<string, unknown>[]).filter(
-    (d) => (d as { __dataset?: string }).__dataset !== "apm"
-  );
+  // Only log docs are subject to the log contract. Scenario generators (chains)
+  // also emit correlated APM traces and CloudWatch metrics, routed via a
+  // stream-prefixed __dataset ("apm", "metrics-*", "traces-*") / data_stream.type.
+  return (arr as Record<string, unknown>[]).filter((d) => {
+    const ds = (d as { __dataset?: string }).__dataset;
+    const dsType = (d as { data_stream?: { type?: string } }).data_stream?.type;
+    if (ds === "apm") return false;
+    if (typeof ds === "string" && /^(metrics|traces)-/.test(ds)) return false;
+    return dsType !== "metrics" && dsType !== "traces";
+  });
 }
 
 describe("AWS log native / integration contract (generator + enrich)", () => {

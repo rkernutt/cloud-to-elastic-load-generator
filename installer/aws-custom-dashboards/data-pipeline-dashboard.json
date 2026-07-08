@@ -320,6 +320,93 @@
           "rows": []
         }
       }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-m1",
+      "grid": { "x": 0, "y": 91, "w": 16, "h": 10 },
+      "config": {
+        "title": "EMR cluster utilization — CloudWatch (metrics)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-aws.emr_metrics* | STATS yarn_mem_avail = ROUND(AVG(`aws.emr.metrics.YARNMemoryAvailablePercentage.avg`), 1), hdfs_util = ROUND(AVG(`aws.emr.metrics.HDFSUtilization.avg`), 1) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "yarn_mem_avail",
+                  "label": "YARN mem available %"
+                },
+                { "operation": "value", "column": "hdfs_util", "label": "HDFS utilization %" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-m2",
+      "grid": { "x": 16, "y": 91, "w": 16, "h": 10 },
+      "config": {
+        "title": "Glue driver JVM heap usage — CloudWatch (metrics)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-aws.glue* | STATS heap_usage = ROUND(AVG(`aws.glue.metrics.glue.driver.jvm.heap.usage.avg`), 3) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                { "operation": "value", "column": "heap_usage", "label": "Driver JVM heap usage" }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-m3",
+      "grid": { "x": 32, "y": 91, "w": 16, "h": 10 },
+      "config": {
+        "title": "Athena data scanned — CloudWatch (metrics)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "bar_stacked",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-aws.athena* | STATS scanned = SUM(`aws.athena.metrics.DataScannedInBytes.avg`) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "scanned", "label": "Bytes scanned (CW)" }]
+            }
+          ]
+        }
+      }
     }
   ]
 }

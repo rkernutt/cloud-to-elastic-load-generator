@@ -45,6 +45,52 @@ import {
   otelBlocks,
 } from "./traces/helpers.js";
 import type { EcsDocument } from "./types.js";
+import { METRICS_GENERATORS } from "./metrics/index.js";
+
+/**
+ * Co-emit correlated CloudWatch metrics for the services this pipeline run
+ * touches, so the per-service metric dashboards/ML jobs (which read from
+ * metrics-aws.*) light up during the same window as the scenario's logs +
+ * traces + CloudTrail audit. Each metric doc is tagged with a fully-qualified
+ * `__dataset` (e.g. "metrics-aws.emr") so it routes to the metrics stream even
+ * though the scenario is shipped over the logs path, and is stamped with the
+ * run's region/account/pipeline_run_id for correlation.
+ */
+function pipelineMetricDocs(
+  orchestration: OrchestrationMode,
+  ts: string,
+  er: number,
+  region: string,
+  acct: { id: string; name: string },
+  pipelineRunId: string
+): EcsDocument[] {
+  const keys = ["s3", "emr", "glue", "athena"];
+  if (orchestration === "mwaa") keys.push("mwaa");
+  if (orchestration === "eventbridge") keys.push("eventbridge", "stepfunctions");
+
+  const out: EcsDocument[] = [];
+  for (const key of keys) {
+    const gen = METRICS_GENERATORS[key as keyof typeof METRICS_GENERATORS];
+    if (!gen) continue;
+    // Cap per service to keep the scenario's metric volume representative but light.
+    for (const raw of gen(ts, er).slice(0, 4)) {
+      const doc = raw as Record<string, unknown>;
+      const dataset = (doc.data_stream as { dataset?: string })?.dataset ?? `aws.${key}`;
+      doc.__dataset = `metrics-${dataset}`;
+      doc.cloud = {
+        ...(doc.cloud as Record<string, unknown> | undefined),
+        region,
+        account: { id: acct.id, name: acct.name },
+      };
+      doc.labels = {
+        ...((doc.labels as Record<string, unknown> | undefined) ?? {}),
+        pipeline_run_id: pipelineRunId,
+      };
+      out.push(doc as EcsDocument);
+    }
+  }
+  return out;
+}
 
 // ── Pipeline configuration templates ────────────────────────────────────────
 
@@ -1333,5 +1379,7 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
     (td as Record<string, unknown>).__dataset = "apm";
   }
 
-  return [...docs, ...traceDocs];
+  const metricDocs = pipelineMetricDocs(orchestration, ts, er, region, acct, pipelineRunId);
+
+  return [...docs, ...traceDocs, ...metricDocs];
 }
