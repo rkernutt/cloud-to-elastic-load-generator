@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.databrew* | STATS avg_m = AVG(`aws.databrew.metrics.DurationSeconds.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.databrew* | STATS avg_m = AVG(`aws.databrew.metrics.DurationSeconds.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.databrew* | STATS `Metric sum` = ROUND(SUM(`aws.databrew.metrics.DurationSeconds.avg`), 0)"
+            "query": "FROM metrics-aws.databrew* | STATS `Metric sum` = ROUND(SUM(`aws.databrew.metrics.DurationSeconds.avg`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.databrew* | STATS avg_m = AVG(`aws.databrew.metrics.DurationSeconds.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.databrew* | STATS avg_m = AVG(`aws.databrew.metrics.DurationSeconds.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.databrew* | KEEP `@timestamp`, `aws.databrew.project_name`, `aws.databrew.recipe_name`, `aws.databrew.metrics.DurationSeconds.avg`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.databrew* | KEEP `@timestamp`, `aws.databrew.project_name`, `aws.databrew.recipe_name`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.storagelens* | STATS avg_m = AVG(`aws.s3storagelens.metrics.BucketCount.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.s3_storage_lens* | STATS avg_m = AVG(`aws.s3_storage_lens.metrics.ActiveBucketCount.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.storagelens* | STATS `Metric sum` = ROUND(SUM(`aws.s3storagelens.metrics.BucketCount.avg`), 0)"
+            "query": "FROM metrics-aws.s3_storage_lens* | STATS `Metric sum` = ROUND(SUM(`aws.s3_storage_lens.metrics.ActiveBucketCount.avg`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.storagelens* | STATS avg_m = AVG(`aws.s3storagelens.metrics.BucketCount.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.s3_storage_lens* | STATS avg_m = AVG(`aws.s3_storage_lens.metrics.ActiveBucketCount.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.storagelens* | KEEP `@timestamp`, `aws.s3storagelens.storage_type`, `aws.s3storagelens.config_id`, `aws.s3storagelens.metrics.BucketCount.avg`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.storagelens* | KEEP `@timestamp`, `aws.s3storagelens.storage_type`, `aws.s3storagelens.config_id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

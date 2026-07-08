@@ -20,7 +20,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cognito* | STATS `Total Sign-Ins` = SUM(`aws.cognito.metrics.SignInSuccesses.sum`)"
+            "query": "FROM metrics-aws.cognito* | STATS `Total Sign-Ins` = SUM(`aws.cognito.metrics.SignInSuccesses.sum`)"
           },
           "metrics": [
             {
@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cognito* | STATS `Throttle Count` = SUM(`aws.cognito.metrics.ThrottleCount.sum`)"
+            "query": "FROM metrics-aws.cognito* | STATS `Throttle Count` = SUM(`aws.cognito.metrics.ThrottleCount.sum`)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cognito* | STATS `Risk Events` = SUM(`aws.cognito.metrics.AccountTakeoverRisk.sum`) + SUM(`aws.cognito.metrics.CompromisedCredentialsRisk.sum`)"
+            "query": "FROM metrics-aws.cognito* | STATS `Risk Events` = SUM(`aws.cognito.metrics.AccountTakeoverRisk.sum`) + SUM(`aws.cognito.metrics.CompromisedCredentialsRisk.sum`)"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | STATS sign_ins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`), sign_ups = SUM(`aws.cognito.metrics.SignUpSuccesses.sum`), refreshes = SUM(`aws.cognito.metrics.TokenRefreshSuccesses.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.cognito* | STATS sign_ins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`), sign_ups = SUM(`aws.cognito.metrics.SignUpSuccesses.sum`), refreshes = SUM(`aws.cognito.metrics.TokenRefreshSuccesses.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -297,7 +297,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | STATS throttles = SUM(`aws.cognito.metrics.ThrottleCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.cognito* | STATS throttles = SUM(`aws.cognito.metrics.ThrottleCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -345,7 +345,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | STATS takeover = SUM(`aws.cognito.metrics.AccountTakeoverRisk.sum`), compromised = SUM(`aws.cognito.metrics.CompromisedCredentialsRisk.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.cognito* | STATS takeover = SUM(`aws.cognito.metrics.AccountTakeoverRisk.sum`), compromised = SUM(`aws.cognito.metrics.CompromisedCredentialsRisk.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -446,7 +446,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cognito* | STATS signins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`) BY pool = `aws.cognito.user_pool_name` | SORT signins DESC | LIMIT 10"
+                "query": "FROM metrics-aws.cognito* | STATS signins = SUM(`aws.cognito.metrics.SignInSuccesses.sum`) BY pool = `aws.cognito.dimensions.UserPool` | SORT signins DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",

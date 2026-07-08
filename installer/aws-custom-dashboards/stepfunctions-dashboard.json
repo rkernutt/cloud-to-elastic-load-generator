@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.stepfunctions* | STATS `Failed Executions` = SUM(`aws.stepfunctions.metrics.ExecutionsFailed.sum`)"
+            "query": "FROM metrics-aws.states* | STATS `Failed Executions` = SUM(`aws.states.metrics.ExecutionsFailed.sum`)"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS started = SUM(`aws.stepfunctions.metrics.ExecutionsStarted.sum`), succeeded = SUM(`aws.stepfunctions.metrics.ExecutionsSucceeded.sum`), failed = SUM(`aws.stepfunctions.metrics.ExecutionsFailed.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.states* | STATS started = SUM(`aws.states.metrics.ExecutionsStarted.sum`), succeeded = SUM(`aws.states.metrics.ExecutionsSucceeded.sum`), failed = SUM(`aws.states.metrics.ExecutionsFailed.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -297,7 +297,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS avg_d = AVG(`aws.stepfunctions.metrics.ExecutionTime.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.states* | STATS avg_d = AVG(`aws.states.metrics.ExecutionTime.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -345,7 +345,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS p99_d = AVG(`aws.stepfunctions.metrics.ExecutionTime.p99`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.states* | STATS p99_d = AVG(`aws.states.metrics.ExecutionTime.p99`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -441,7 +441,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS throttled = SUM(`aws.stepfunctions.metrics.ExecutionThrottled.sum`), timedout = SUM(`aws.stepfunctions.metrics.ExecutionsTimedOut.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.states* | STATS throttled = SUM(`aws.states.metrics.ExecutionThrottled.sum`), timedout = SUM(`aws.states.metrics.ExecutionsTimedOut.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",

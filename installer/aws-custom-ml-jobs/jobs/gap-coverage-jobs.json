@@ -81,11 +81,7 @@
               "partition_field_name": "aws.accessanalyzer.dimensions.AnalyzerName"
             }
           ],
-          "influencers": [
-            "aws.accessanalyzer.dimensions.AnalyzerName",
-            "aws.access_analyzer.finding_type",
-            "cloud.region"
-          ]
+          "influencers": ["aws.accessanalyzer.dimensions.AnalyzerName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -306,10 +302,14 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.amazonmq.metrics.QueueSize.avg",
-              "partition_field_name": "aws.amazonmq.broker_id"
+              "partition_field_name": "aws.amazonmq.dimensions.Broker"
             }
           ],
-          "influencers": ["aws.amazonmq.broker_id", "aws.amazonmq.queue_name", "cloud.region"]
+          "influencers": [
+            "aws.amazonmq.dimensions.Broker",
+            "aws.amazonmq.dimensions.Queue",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -530,10 +530,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.appflow.metrics.FlowExecutionsFailed.sum",
-              "partition_field_name": "aws.appflow.flow_name"
+              "partition_field_name": "aws.appflow.dimensions.FlowName"
             }
           ],
-          "influencers": ["aws.appflow.flow_name", "aws.appflow.connector_type", "cloud.region"]
+          "influencers": ["aws.appflow.dimensions.FlowName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -754,10 +754,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.appstream.metrics.ActiveSessions.avg",
-              "partition_field_name": "aws.appstream.fleet_name"
+              "partition_field_name": "aws.appstream.dimensions.FleetName"
             }
           ],
-          "influencers": ["aws.appstream.fleet_name", "aws.appstream.stack_name", "cloud.region"]
+          "influencers": ["aws.appstream.dimensions.FleetName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -772,7 +772,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.appstream*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -1785,10 +1785,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.cognito.metrics.ThrottleCount.sum",
-              "partition_field_name": "aws.cognito.user_pool_id"
+              "partition_field_name": "aws.cognito.dimensions.UserPool"
             }
           ],
-          "influencers": ["aws.cognito.user_pool_id", "aws.cognito.client_id", "cloud.region"]
+          "influencers": ["aws.cognito.dimensions.UserPool", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -1803,7 +1803,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.cognito*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -2576,10 +2576,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.detective.metrics.TotalFindingCount.avg",
-              "partition_field_name": "aws.detective.graph_arn"
+              "partition_field_name": "aws.detective.dimensions.GraphArn"
             }
           ],
-          "influencers": ["aws.detective.graph_arn", "cloud.account.id", "cloud.region"]
+          "influencers": ["aws.detective.dimensions.GraphArn", "cloud.account.id", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -2594,7 +2594,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.detective*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -2803,14 +2803,10 @@
               "function": "high_sum",
               "detector_index": 0,
               "field_name": "aws.directconnect.metrics.ConnectionBpsEgress.sum",
-              "partition_field_name": "aws.directconnect.connection_id"
+              "partition_field_name": "aws.directconnect.dimensions.ConnectionId"
             }
           ],
-          "influencers": [
-            "aws.directconnect.connection_id",
-            "aws.directconnect.virtual_interface_id",
-            "cloud.region"
-          ]
+          "influencers": ["aws.directconnect.dimensions.ConnectionId", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -3151,10 +3147,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.efs.metrics.PercentIOLimit.avg",
-              "partition_field_name": "aws.efs.file_system_id"
+              "partition_field_name": "aws.efs.dimensions.FileSystemId"
             }
           ],
-          "influencers": ["aws.efs.file_system_id", "cloud.region"]
+          "influencers": ["aws.efs.dimensions.FileSystemId", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -3495,10 +3491,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.fsx.metrics.DataReadBytes.avg",
-              "partition_field_name": "aws.fsx.file_system_id"
+              "partition_field_name": "aws.fsx.dimensions.FileSystemId"
             }
           ],
-          "influencers": ["aws.fsx.file_system_id", "aws.fsx.storage_type", "cloud.region"]
+          "influencers": ["aws.fsx.dimensions.FileSystemId", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -3607,10 +3603,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.gamelift.metrics.PlacementsStarted.avg",
-              "partition_field_name": "aws.gamelift.fleet_id"
+              "partition_field_name": "aws.gamelift.dimensions.FleetId"
             }
           ],
-          "influencers": ["aws.gamelift.fleet_id", "aws.gamelift.build_id", "cloud.region"]
+          "influencers": ["aws.gamelift.dimensions.FleetId", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -3625,7 +3621,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.gamelift*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -5321,10 +5317,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.medialive.metrics.ActiveAlerts.avg",
-              "partition_field_name": "aws.medialive.channel_id"
+              "partition_field_name": "aws.medialive.dimensions.ChannelId"
             }
           ],
-          "influencers": ["aws.medialive.channel_id", "aws.medialive.pipeline", "cloud.region"]
+          "influencers": ["aws.medialive.dimensions.ChannelId", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -5339,7 +5335,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.medialive*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -5433,10 +5429,14 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.memorydb.metrics.EngineCPUUtilization.avg",
-              "partition_field_name": "aws.memorydb.cluster_name"
+              "partition_field_name": "aws.memorydb.dimensions.ClusterName"
             }
           ],
-          "influencers": ["aws.memorydb.cluster_name", "aws.memorydb.node_name", "cloud.region"]
+          "influencers": [
+            "aws.memorydb.dimensions.ClusterName",
+            "aws.memorydb.dimensions.NodeName",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -6016,10 +6016,10 @@
               "function": "high_mean",
               "detector_index": 0,
               "field_name": "aws.pinpoint.metrics.DeliveryAttempts.sum",
-              "partition_field_name": "aws.pinpoint.application_id"
+              "partition_field_name": "aws.pinpoint.dimensions.ApplicationId"
             }
           ],
-          "influencers": ["aws.pinpoint.application_id", "aws.pinpoint.campaign_id", "cloud.region"]
+          "influencers": ["aws.pinpoint.dimensions.ApplicationId", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -6034,7 +6034,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.pinpoint*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {

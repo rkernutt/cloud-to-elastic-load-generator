@@ -15,11 +15,11 @@
               "detector_description": "high_mean(aws.glue.metrics.driver.aggregate.elapsedTime) partitionfield=aws.glue.job.name",
               "function": "high_mean",
               "field_name": "aws.glue.metrics.driver.aggregate.elapsedTime",
-              "partition_field_name": "aws.glue.job.name",
+              "partition_field_name": "aws.glue.dimensions.JobName",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.glue.job.name", "cloud.region"]
+          "influencers": ["aws.glue.dimensions.JobName", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -34,7 +34,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -181,11 +181,11 @@
               "detector_description": "high_mean(aws.athena.metrics.EngineExecutionTimeInMillis.avg) partitionfield=aws.athena.workgroup",
               "function": "high_mean",
               "field_name": "aws.athena.metrics.EngineExecutionTimeInMillis.avg",
-              "partition_field_name": "aws.athena.workgroup",
+              "partition_field_name": "aws.athena.dimensions.WorkGroup",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.athena.workgroup", "aws.athena.database"]
+          "influencers": ["aws.athena.dimensions.WorkGroup"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -200,7 +200,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -208,60 +208,6 @@
               {
                 "term": {
                   "event.dataset": "aws.athena"
-                }
-              }
-            ]
-          }
-        },
-        "chunking_config": {
-          "mode": "auto"
-        },
-        "query_delay": "60s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
-      }
-    },
-    {
-      "id": "aws-emr-task-failure-spike",
-      "description": "Detects unusual task failure rates in Amazon EMR clusters",
-      "job": {
-        "description": "Detects unusual task failure rates in EMR clusters",
-        "groups": ["aws", "analytics", "cloudloadgen"],
-        "analysis_config": {
-          "bucket_span": "15m",
-          "detectors": [
-            {
-              "detector_description": "high_mean(aws.emr.metrics.numFailedTasks) partitionfield=aws.emr.cluster.id",
-              "function": "high_mean",
-              "field_name": "aws.emr.metrics.numFailedTasks",
-              "partition_field_name": "aws.emr.cluster_id",
-              "detector_index": 0
-            }
-          ],
-          "influencers": ["aws.emr.cluster_id", "aws.emr.application"]
-        },
-        "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "aws-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
-      },
-      "datafeed": {
-        "indices": ["logs-aws.*"],
-        "max_empty_searches": 10,
-        "query": {
-          "bool": {
-            "filter": [
-              {
-                "term": {
-                  "event.dataset": "aws.emr_logs"
                 }
               }
             ]
@@ -296,9 +242,16 @@
           "influencers": ["aws.emr.cluster_id", "spark.component_short", "spark.app.name"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -306,14 +259,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.emr_logs" } },
-              { "exists": { "field": "spark.stage.duration_s" } }
+              {
+                "term": {
+                  "event.dataset": "aws.emr_logs"
+                }
+              },
+              {
+                "exists": {
+                  "field": "spark.stage.duration_s"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -335,9 +300,16 @@
           "influencers": ["aws.emr.cluster_id", "spark.executor.id", "spark.executor.host"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -345,14 +317,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.emr_logs" } },
-              { "exists": { "field": "spark.executor.loss_reason" } }
+              {
+                "term": {
+                  "event.dataset": "aws.emr_logs"
+                }
+              },
+              {
+                "exists": {
+                  "field": "spark.executor.loss_reason"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -375,9 +359,16 @@
           "influencers": ["aws.emr.cluster_id", "spark.app.name", "spark.executor.id"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -385,14 +376,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.emr_logs" } },
-              { "exists": { "field": "spark.gc.time_ms" } }
+              {
+                "term": {
+                  "event.dataset": "aws.emr_logs"
+                }
+              },
+              {
+                "exists": {
+                  "field": "spark.gc.time_ms"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -415,9 +418,16 @@
           "influencers": ["aws.emr.cluster_id", "spark.app.name"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -425,14 +435,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.emr_logs" } },
-              { "exists": { "field": "spark.shuffle.write_bytes" } }
+              {
+                "term": {
+                  "event.dataset": "aws.emr_logs"
+                }
+              },
+              {
+                "exists": {
+                  "field": "spark.shuffle.write_bytes"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -455,9 +477,16 @@
           "influencers": ["aws.emr.cluster_id", "spark.task.executor_id", "spark.task.host"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -465,14 +494,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.emr_logs" } },
-              { "exists": { "field": "spark.task.duration_ms" } }
+              {
+                "term": {
+                  "event.dataset": "aws.emr_logs"
+                }
+              },
+              {
+                "exists": {
+                  "field": "spark.task.duration_ms"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -494,9 +535,16 @@
           "influencers": ["aws.emr.serverless.application_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -504,15 +552,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.emr_logs" } },
-              { "term": { "event.outcome": "failure" } },
-              { "exists": { "field": "aws.emr.serverless.application_name" } }
+              {
+                "term": {
+                  "event.dataset": "aws.emr_logs"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              },
+              {
+                "exists": {
+                  "field": "aws.emr.serverless.application_name"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -535,9 +599,16 @@
           "influencers": ["aws.emr.serverless.application_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "aws-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-aws.*"],
@@ -545,14 +616,26 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "aws.emr_logs" } },
-              { "exists": { "field": "aws.emr.serverless.application_name" } }
+              {
+                "term": {
+                  "event.dataset": "aws.emr_logs"
+                }
+              },
+              {
+                "exists": {
+                  "field": "aws.emr.serverless.application_name"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "60s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

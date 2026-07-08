@@ -445,59 +445,6 @@
     },
     {
       "type": "lens",
-      "uid": "sm-training-metrics",
-      "grid": {
-        "x": 24,
-        "y": 35,
-        "w": 24,
-        "h": 10
-      },
-      "config": {
-        "title": "Training Loss & Accuracy",
-        "attributes": {
-          "type": "xy",
-          "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
-          },
-          "layers": [
-            {
-              "type": "line",
-              "dataset": {
-                "type": "esql",
-                "query": "FROM logs-aws.sagemaker* | WHERE `aws.sagemaker.job.type` == \"Training\" | STATS avg_loss = AVG(`aws.sagemaker.metrics.training_loss`), avg_acc = AVG(`aws.sagemaker.metrics.accuracy`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
-              },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "avg_loss",
-                  "label": "Avg Loss"
-                },
-                {
-                  "operation": "value",
-                  "column": "avg_acc",
-                  "label": "Avg Accuracy"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
       "uid": "sm-log-table",
       "grid": {
         "x": 0,

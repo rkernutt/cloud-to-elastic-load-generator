@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.firehose* | STATS avg_m = AVG(`aws.firehose.metrics.ExecuteProcessing.Duration.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.firehose* | STATS avg_m = AVG(`aws.firehose.metrics.ExecuteProcessing.Duration.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.firehose* | STATS `Metric sum` = ROUND(SUM(`aws.firehose.metrics.ExecuteProcessing.Duration.avg`), 0)"
+            "query": "FROM metrics-aws.firehose* | STATS `Metric sum` = ROUND(SUM(`aws.firehose.metrics.ExecuteProcessing.Duration.avg`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.firehose* | STATS avg_m = AVG(`aws.firehose.metrics.ExecuteProcessing.Duration.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.firehose* | STATS avg_m = AVG(`aws.firehose.metrics.ExecuteProcessing.Duration.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.firehose* | KEEP `@timestamp`, `aws.firehose.operation`, `aws.firehose.transformation.lambda_arn`, `aws.firehose.metrics.ExecuteProcessing.Duration.avg`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.firehose* | KEEP `@timestamp`, `aws.firehose.operation`, `aws.firehose.transformation.lambda_arn`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

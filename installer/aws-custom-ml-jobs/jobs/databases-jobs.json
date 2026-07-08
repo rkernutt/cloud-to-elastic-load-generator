@@ -123,11 +123,11 @@
               "detector_description": "High mean Aurora binlog replica lag by cluster",
               "function": "high_mean",
               "field_name": "aws.aurora.metrics.AuroraBinlogReplicaLag.avg",
-              "partition_field_name": "aws.aurora.cluster_id",
+              "partition_field_name": "aws.aurora.dimensions.DBClusterIdentifier",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.aurora.cluster_id", "cloud.region"]
+          "influencers": ["aws.aurora.dimensions.DBClusterIdentifier", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -142,14 +142,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.aurora"
+                  "event.dataset": "aws.rds"
                 }
               }
             ]
@@ -180,7 +180,7 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.aurora.cluster_id", "cloud.region"]
+          "influencers": ["aws.aurora.dimensions.DBClusterIdentifier", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -195,14 +195,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.aurora"
+                  "event.dataset": "aws.rds"
                 }
               }
             ]
@@ -230,11 +230,11 @@
               "detector_description": "Low mean ElastiCache cache hit rate by cluster",
               "function": "low_mean",
               "field_name": "aws.elasticache.metrics.CacheHitRate.avg",
-              "partition_field_name": "aws.elasticache.cluster_id",
+              "partition_field_name": "aws.elasticache.dimensions.CacheClusterId",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.elasticache.cluster_id", "cloud.region"]
+          "influencers": ["aws.elasticache.dimensions.CacheClusterId", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -249,7 +249,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -284,11 +284,11 @@
               "detector_description": "High mean ElastiCache traffic-based command latency by cluster",
               "function": "high_mean",
               "field_name": "aws.elasticache.metrics.TrafficBasedCmdsLatency.avg",
-              "partition_field_name": "aws.elasticache.cluster_id",
+              "partition_field_name": "aws.elasticache.dimensions.CacheClusterId",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.elasticache.cluster_id", "cloud.region"]
+          "influencers": ["aws.elasticache.dimensions.CacheClusterId", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -303,7 +303,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {

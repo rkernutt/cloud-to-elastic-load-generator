@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.firewall_logs* | STATS `Dropped pkts` = SUM(`aws.network_firewall.metrics.DroppedPackets.sum`)"
+            "query": "FROM metrics-aws.firewall_metrics* | STATS `Dropped pkts` = SUM(`aws.firewall.metrics.DroppedPackets.sum`)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.firewall_logs* | STATS `Passed pkts` = SUM(`aws.network_firewall.metrics.PassedPackets.sum`)"
+            "query": "FROM metrics-aws.firewall_metrics* | STATS `Passed pkts` = SUM(`aws.firewall.metrics.PassedPackets.sum`)"
           },
           "metrics": [
             {
@@ -250,59 +250,6 @@
                   "operation": "value",
                   "column": "c",
                   "label": "Events"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
-      "uid": "nfw-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
-      "config": {
-        "title": "Dropped vs passed bytes",
-        "attributes": {
-          "type": "xy",
-          "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
-          },
-          "layers": [
-            {
-              "type": "line",
-              "dataset": {
-                "type": "esql",
-                "query": "FROM logs-aws.firewall_logs* | STATS db = SUM(`aws.network_firewall.metrics.DroppedBytes.sum`), pb = SUM(`network.bytes`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
-              },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "db",
-                  "label": "Dropped bytes"
-                },
-                {
-                  "operation": "value",
-                  "column": "pb",
-                  "label": "Flow bytes"
                 }
               ]
             }

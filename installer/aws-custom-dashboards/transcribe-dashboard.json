@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.transcribe* | STATS avg_m = AVG(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.transcribe* | STATS avg_m = AVG(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.transcribe* | STATS `Metric sum` = ROUND(SUM(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`), 0)"
+            "query": "FROM metrics-aws.transcribe* | STATS `Metric sum` = ROUND(SUM(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.transcribe* | STATS avg_m = AVG(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.transcribe* | STATS avg_m = AVG(`aws.transcribe.metrics.TranscriptionJobsFailed.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.transcribe* | KEEP `@timestamp`, `aws.transcribe.transcription_job_name`, `aws.transcribe.TranscriptionJobName`, `aws.transcribe.metrics.TranscriptionJobsFailed.sum`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.transcribe* | KEEP `@timestamp`, `aws.transcribe.transcription_job_name`, `aws.transcribe.TranscriptionJobName`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

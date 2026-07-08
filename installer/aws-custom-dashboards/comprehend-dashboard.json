@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.comprehend* | STATS avg_m = AVG(`aws.comprehend.metrics.NumberOfFailedRequest.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.comprehend* | STATS avg_m = AVG(`aws.comprehend.metrics.NumberOfFailedRequest.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.comprehend* | STATS `Metric sum` = ROUND(SUM(`aws.comprehend.metrics.NumberOfFailedRequest.sum`), 0)"
+            "query": "FROM metrics-aws.comprehend* | STATS `Metric sum` = ROUND(SUM(`aws.comprehend.metrics.NumberOfFailedRequest.sum`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.comprehend* | STATS avg_m = AVG(`aws.comprehend.metrics.NumberOfFailedRequest.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.comprehend* | STATS avg_m = AVG(`aws.comprehend.metrics.NumberOfFailedRequest.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.comprehend* | KEEP `@timestamp`, `aws.comprehend.operation`, `aws.comprehend.LanguageCode`, `aws.comprehend.metrics.NumberOfFailedRequest.sum`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.comprehend* | KEEP `@timestamp`, `aws.comprehend.operation`, `aws.comprehend.LanguageCode`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

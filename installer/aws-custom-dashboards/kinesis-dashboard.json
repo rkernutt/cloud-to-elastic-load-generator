@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS `Incoming Records` = SUM(`aws.kinesis.metrics.IncomingRecords.sum`)"
+            "query": "FROM metrics-aws.kinesis* | STATS `Incoming Records` = SUM(`aws.kinesis.metrics.IncomingRecords.sum`)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | STATS `Incoming Bytes` = SUM(`aws.kinesis.metrics.IncomingBytes.sum`)"
+            "query": "FROM metrics-aws.kinesis* | STATS `Incoming Bytes` = SUM(`aws.kinesis.metrics.IncomingBytes.sum`)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesis* | STATS get_lat = AVG(`aws.kinesis.metrics.GetRecords.Latency.avg`), put_lat = AVG(`aws.kinesis.metrics.PutRecords.Latency.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.kinesis* | STATS get_lat = AVG(`aws.kinesis.metrics.GetRecords.Latency.avg`), put_lat = AVG(`aws.kinesis.metrics.PutRecords.Latency.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -437,7 +437,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesis* | KEEP `@timestamp`, `aws.kinesis.stream_name`, `aws.kinesis.shard_id`, `aws.kinesis.operation`, `aws.kinesis.metrics.IncomingRecords.sum`, `aws.kinesis.metrics.ReadProvisionedThroughputExceeded.sum`, `aws.kinesis.metrics.WriteProvisionedThroughputExceeded.sum`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.kinesis* | KEEP `@timestamp`, `aws.kinesis.stream_name`, `aws.kinesis.shard_id`, `aws.kinesis.operation`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

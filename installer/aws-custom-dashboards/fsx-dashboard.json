@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.fsx* | STATS avg_m = AVG(`aws.fsx.metrics.CPUUtilization.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.fsx* | STATS avg_m = AVG(`aws.fsx.metrics.CPUUtilization.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.fsx* | STATS `Metric sum` = ROUND(SUM(`aws.fsx.metrics.CPUUtilization.avg`), 0)"
+            "query": "FROM metrics-aws.fsx* | STATS `Metric sum` = ROUND(SUM(`aws.fsx.metrics.CPUUtilization.avg`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.fsx* | STATS avg_m = AVG(`aws.fsx.metrics.CPUUtilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.fsx* | STATS avg_m = AVG(`aws.fsx.metrics.CPUUtilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.fsx* | KEEP `@timestamp`, `aws.fsx.file_system_type`, `aws.fsx.file_system_id`, `aws.fsx.metrics.CPUUtilization.avg`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.fsx* | KEEP `@timestamp`, `aws.fsx.file_system_type`, `aws.fsx.file_system_id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

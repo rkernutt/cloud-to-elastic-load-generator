@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.msk* | STATS avg_m = AVG(`aws.msk.metrics.UnderMinIsrPartitionCount.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
+            "query": "FROM metrics-aws.kafka_metrics* | STATS avg_m = AVG(`aws.kafka.metrics.UnderMinIsrPartitionCount.avg`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.msk* | STATS `Metric sum` = ROUND(SUM(`aws.msk.metrics.UnderMinIsrPartitionCount.avg`), 0)"
+            "query": "FROM metrics-aws.kafka_metrics* | STATS `Metric sum` = ROUND(SUM(`aws.kafka.metrics.UnderMinIsrPartitionCount.avg`), 0)"
           },
           "metrics": [
             {
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.msk* | STATS avg_m = AVG(`aws.msk.metrics.UnderMinIsrPartitionCount.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.kafka_metrics* | STATS avg_m = AVG(`aws.kafka.metrics.UnderMinIsrPartitionCount.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.msk* | KEEP `@timestamp`, `aws.msk.cluster_name`, `aws.msk.broker_id`, `aws.msk.metrics.UnderMinIsrPartitionCount.avg`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.msk* | KEEP `@timestamp`, `aws.msk.cluster_name`, `aws.msk.broker_id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

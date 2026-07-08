@@ -88,33 +88,6 @@
     },
     {
       "type": "lens",
-      "uid": "kda-kpi-avg-kpu-utilization",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
-      "config": {
-        "title": "",
-        "attributes": {
-          "type": "metric",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-aws.kinesisanalytics* | STATS avg_kpu = AVG(`aws.kinesisanalytics.metrics.kpu_utilization_pct`) | EVAL `Avg KPU Utilization (%)` = ROUND(avg_kpu, 1)"
-          },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg KPU Utilization (%)"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
       "uid": "kda-donut-by-application",
       "grid": {
         "x": 0,
@@ -303,54 +276,6 @@
                   "operation": "value",
                   "column": "chk_ms",
                   "label": "Avg Checkpoint Duration (ms)"
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "lens",
-      "uid": "kda-kpu-utilization-over-time",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
-      "config": {
-        "title": "KPU Utilization Over Time (%)",
-        "attributes": {
-          "type": "xy",
-          "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
-          },
-          "layers": [
-            {
-              "type": "line",
-              "dataset": {
-                "type": "esql",
-                "query": "FROM logs-aws.kinesisanalytics* | STATS kpu_pct = AVG(`aws.kinesisanalytics.metrics.kpu_utilization_pct`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
-              },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "kpu_pct",
-                  "label": "KPU Utilization (%)"
                 }
               ]
             }

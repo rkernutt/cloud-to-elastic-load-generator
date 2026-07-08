@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.bedrock* | STATS `Total Input Tokens` = SUM(`aws.bedrock.metrics.InputTokenCount.sum`)"
+            "query": "FROM metrics-aws.bedrock* | STATS `Total Input Tokens` = SUM(`aws.bedrock.metrics.InputTokenCount.sum`)"
           },
           "metrics": [
             {
@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.bedrock* | STATS `Total Output Tokens` = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`)"
+            "query": "FROM metrics-aws.bedrock* | STATS `Total Output Tokens` = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`)"
           },
           "metrics": [
             {
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS input_t = SUM(`aws.bedrock.metrics.InputTokenCount.sum`), output_t = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.bedrock* | STATS input_t = SUM(`aws.bedrock.metrics.InputTokenCount.sum`), output_t = SUM(`aws.bedrock.metrics.OutputTokenCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS avg_lat = AVG(`aws.bedrock.metrics.InvocationLatency.avg`), p99_lat = AVG(`aws.bedrock.metrics.InvocationLatency.p99`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.bedrock* | STATS avg_lat = AVG(`aws.bedrock.metrics.InvocationLatency.avg`), p99_lat = AVG(`aws.bedrock.metrics.InvocationLatency.p99`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -441,7 +441,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.bedrock* | STATS throttles = SUM(`aws.bedrock.metrics.Throttles.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws.bedrock* | STATS throttles = SUM(`aws.bedrock.metrics.Throttles.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
