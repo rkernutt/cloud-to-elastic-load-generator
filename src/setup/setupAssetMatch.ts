@@ -176,12 +176,16 @@ const AWS_ML_DATASET_SEGMENT_ALIASES: Record<string, string[]> = {
   kafka_metrics: ["msk"],
   /** WAF v2 logs align with classic WAF under Networking & CDN */
   wafv2: ["waf"],
-  /** Classic ELB / ALB access logs (`aws.elb_logs`) */
-  elb_logs: ["alb"],
+  /** Classic ELB / ALB / NLB access logs (`aws.elb_logs`) */
+  elb_logs: ["alb", "nlb", "elb"],
+  /** ALB / NLB CloudWatch metrics (`aws.elb_metrics`) */
+  elb_metrics: ["alb", "nlb", "elb"],
   /** ECS CloudWatch metrics (`aws.ecs_metrics`) — ECS lives under Serverless & Core */
   ecs_metrics: ["ecs"],
-  /** Network Firewall (`aws.firewall_logs`) */
+  /** Network Firewall logs (`aws.firewall_logs`) */
   firewall_logs: ["networkfirewall"],
+  /** Network Firewall CloudWatch metrics (`aws.firewall_metrics`) */
+  firewall_metrics: ["networkfirewall"],
 };
 
 function addKeysFromAwsMlSegment(seg: string, keys: Set<string>): void {

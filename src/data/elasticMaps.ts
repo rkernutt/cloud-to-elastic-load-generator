@@ -533,9 +533,9 @@ const ELASTIC_METRICS_DATASET_MAP = {
   emr: "aws.emr_metrics",
   s3: "aws.s3_daily_storage",
   cloudwatch: "aws.cloudwatch_metrics",
-  alb: "aws.elb",
-  nlb: "aws.elb",
-  networkfirewall: "aws.firewall",
+  alb: "aws.elb_metrics",
+  nlb: "aws.elb_metrics",
+  networkfirewall: "aws.firewall_metrics",
   billing: "aws.billing",
   sagemaker: "aws.sagemaker",
   bedrock: "aws.bedrock",
@@ -572,7 +572,7 @@ const ELASTIC_METRICS_DATASET_MAP = {
   proton: "aws.proton",
   securityir: "aws.securityir",
   supplychain: "aws.supplychain",
-  elb: "aws.elb",
+  elb: "aws.elb_metrics",
 };
 
 export {

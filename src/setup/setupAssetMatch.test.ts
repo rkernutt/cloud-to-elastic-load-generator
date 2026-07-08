@@ -202,7 +202,7 @@ describe("setupAssetMatch", () => {
     expect(mlJobEntryMatchesSelectedServices(j, "aws", new Set(["bedrock"]))).toBe(true);
   });
 
-  it("maps aws-nlb ML jobs to nlb despite shared aws.elb metrics dataset", () => {
+  it("maps aws-nlb ML jobs to nlb despite shared aws.elb_metrics dataset", () => {
     const j = {
       id: "aws-nlb-unhealthy-host-spike",
       description: "NLB unhealthy targets",
@@ -211,7 +211,7 @@ describe("setupAssetMatch", () => {
         query: {
           bool: {
             filter: [
-              { term: { "event.dataset": "aws.elb" } },
+              { term: { "event.dataset": "aws.elb_metrics" } },
               { prefix: { "aws.elb.dimensions.LoadBalancer": "net/" } },
             ],
           },

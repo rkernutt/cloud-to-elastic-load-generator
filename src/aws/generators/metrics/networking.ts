@@ -52,7 +52,7 @@ export function generateAlbMetrics(ts: string, er: number) {
     return metricDoc(
       ts,
       "elb",
-      "aws.elb",
+      "aws.elb_metrics",
       region,
       account,
       { LoadBalancer: `app/${name}/${randId(12).toLowerCase()}` },
@@ -97,7 +97,7 @@ export function generateNlbMetrics(ts: string, er: number) {
     return metricDoc(
       ts,
       "elb",
-      "aws.elb",
+      "aws.elb_metrics",
       region,
       account,
       { LoadBalancer: `net/${name}/xyz789uvw012` },
@@ -331,7 +331,7 @@ export function generateNetworkfirewallMetrics(ts: string, er: number) {
     metricDoc(
       ts,
       "firewall",
-      "aws.firewall",
+      "aws.firewall_metrics",
       region,
       account,
       { FirewallName: fwName, AvailabilityZone: `${region}${rand(["a", "b", "c"])}` },
