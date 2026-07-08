@@ -23,6 +23,7 @@ import {
   otelCollectorAgentName,
   otelCollectorAgentVersion,
   patchOtelIngestionLabels,
+  setOtelSpanKind,
 } from "./otelPipeline";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -416,8 +417,11 @@ export function enrichDocument(doc: LooseDoc, opts: EnrichOptions): LooseDoc {
     patchOtelIngestionLabels(enriched, "aws", source);
   }
 
-  if (eventType === "traces" && isOtelPipelineSource(source)) {
-    applyOtelTraceIngestionPatch(enriched, "aws", source, AGENT_VERSION);
+  if (eventType === "traces") {
+    setOtelSpanKind(enriched);
+    if (isOtelPipelineSource(source)) {
+      applyOtelTraceIngestionPatch(enriched, "aws", source, AGENT_VERSION);
+    }
   }
 
   populateRelatedFields(enriched);

@@ -204,6 +204,31 @@ export function patchOtelIngestionLabels(
 }
 
 /**
+ * Set OpenTelemetry `span.kind` on span docs from the APM span type/subtype so
+ * OTel-native views and the OTLP wire export carry the correct kind:
+ *   CLIENT   — outbound db / http / external / aws / storage calls
+ *   PRODUCER — messaging publish
+ *   CONSUMER — messaging receive / process
+ *   INTERNAL — in-process work
+ * Server/consumer entry spans are represented by the transaction doc and are
+ * implicitly SERVER, so we only annotate span docs. Mutates `doc` in place.
+ */
+export function setOtelSpanKind(doc: LooseDoc): void {
+  if (!doc || typeof doc !== "object") return;
+  if (!doc.span || typeof doc.span !== "object" || doc.span.kind != null) return;
+  const type = typeof doc.span.type === "string" ? doc.span.type : "";
+  const subtype = typeof doc.span.subtype === "string" ? doc.span.subtype : "";
+  const action = typeof doc.span.action === "string" ? doc.span.action : "";
+  let kind = "INTERNAL";
+  if (type === "messaging" || ["sns", "sqs", "kafka", "kinesis", "eventbridge"].includes(subtype)) {
+    kind = /receiv|consume|process|poll/i.test(action) ? "CONSUMER" : "PRODUCER";
+  } else if (["db", "external", "http", "storage", "aws"].includes(type) || subtype) {
+    kind = "CLIENT";
+  }
+  doc.span.kind = kind;
+}
+
+/**
  * After APM/OTel trace docs are assembled, align `telemetry`, `input`, and CSP correlation
  * (`labels`) with the selected OTel ingestion mode. Mutates `doc` in place.
  */
@@ -217,6 +242,26 @@ export function applyOtelTraceIngestionPatch(
 
   doc.telemetry = buildOtelLogTelemetry(doc, cloud, ingestionSource, elasticStackVersion);
   patchOtelIngestionLabels(doc, cloud, ingestionSource);
+
+  // Drive the app's instrumentation distro (and derived agent.name) from the
+  // selected ingestion path so ADOT→EDOT is modelled consistently: the CSP
+  // managed collector path implies an ADOT-instrumented app (aws-otel) exporting
+  // to the EDOT gateway, while the EDOT collector / generic OTel paths imply an
+  // EDOT-instrumented app.
+  if (cloud === "aws") {
+    const lang = typeof doc.service?.language?.name === "string" ? doc.service.language.name : "go";
+    const adotApp = ingestionSource === "otel-csp-edot-gateway";
+    const distroName = adotApp ? "aws-otel" : "elastic";
+    const distroVersion = adotApp ? "0.41.1" : elasticStackVersion;
+    if (doc.telemetry && typeof doc.telemetry === "object") {
+      doc.telemetry.distro = { name: distroName, version: distroVersion };
+    }
+    doc.agent = {
+      ...(doc.agent && typeof doc.agent === "object" ? doc.agent : {}),
+      name: `opentelemetry/${lang}/${distroName}`,
+      version: distroVersion,
+    };
+  }
 
   doc.input =
     doc.input && typeof doc.input === "object"

@@ -158,14 +158,22 @@ export function otelBlocks(language: string, distro: string = "elastic") {
   } as const;
   const d: OtelDistro = distro === "aws" ? "aws" : "elastic";
   const lang = language as OtelLang;
+  const distroName = d === "elastic" ? "elastic" : "aws-otel";
   return {
     ecs: { version: "8.11.0" },
-    agent: { name: "otlp", version: distroVersions[d][lang] ?? "1.0.0" },
+    // Elastic derives agent.name from the OTLP resource as
+    // `${telemetry.sdk.name}/${language}/${telemetry.distro.name}` for a distro'd
+    // SDK (e.g. opentelemetry/java/elastic for EDOT, opentelemetry/java/aws-otel
+    // for ADOT) — matches how EDOT/ADOT spans actually land in Elastic APM.
+    agent: {
+      name: `opentelemetry/${lang}/${distroName}`,
+      version: distroVersions[d][lang] ?? "1.0.0",
+    },
     input: { type: "opentelemetry" },
     telemetry: {
       sdk: { name: "opentelemetry", language, version: sdkVersions[lang] ?? "1.0.0" },
       distro: {
-        name: d === "elastic" ? "elastic" : "aws-otel",
+        name: distroName,
         version: distroVersions[d][lang] ?? "1.0.0",
       },
     },
