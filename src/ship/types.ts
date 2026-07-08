@@ -36,6 +36,10 @@ export type RunShipWorkloadDeps = {
   indexPrefix: string;
   eventType: "logs" | "metrics" | "traces";
   traceIngestionSource: string;
+  /** When true, traces ship over the real OTLP/HTTP wire (POST /v1/traces) instead of ES _bulk. */
+  otlpWireMode: boolean;
+  /** APM/OTLP intake base URL (e.g. https://<apm-host>:8200). Required when otlpWireMode is on. */
+  apmEndpointUrl: string;
   dryRun: boolean;
   injectAnomalies: boolean;
   enrichDoc: EnrichDocFn;

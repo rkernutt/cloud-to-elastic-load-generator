@@ -161,6 +161,11 @@ export function LoadGeneratorApp({
   const [elasticUrl, setElasticUrl] = useState("");
   const [kibanaUrl, setKibanaUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
+  // Real OTLP wire mode for traces: ship OTLP/HTTP JSON to <apmEndpointUrl>/v1/traces
+  // instead of ES-bulk-indexing APM docs. Endpoint is session-only (like URLs); the
+  // toggle is a persisted preference.
+  const [apmEndpointUrl, setApmEndpointUrl] = useState("");
+  const [otlpWireMode, setOtlpWireMode] = useState(savedConfig.otlpWireMode ?? false);
   const [kibanaSpaceId, setKibanaSpaceId] = useState(savedConfig.kibanaSpaceId ?? "default");
   const [setupHasInstalled, setSetupHasInstalled] = useState(false);
   const [logsIndexPrefix, setLogsIndexPrefix] = useState(
@@ -414,6 +419,7 @@ export function LoadGeneratorApp({
             deploymentType,
             serverlessProjectType,
             kibanaSpaceId,
+            otlpWireMode,
           })
         )
       );
@@ -438,6 +444,7 @@ export function LoadGeneratorApp({
     deploymentType,
     serverlessProjectType,
     kibanaSpaceId,
+    otlpWireMode,
   ]);
 
   const clearSavedConfig = () => {
@@ -461,6 +468,8 @@ export function LoadGeneratorApp({
     setScheduleIntervalMin(15);
     setDeploymentType("serverless");
     setServerlessProjectType("observability");
+    setOtlpWireMode(false);
+    setApmEndpointUrl("");
   };
 
   // toggleTraceService, selectAllTraces, selectNoneTraces moved to ServicesPage inline handlers
@@ -760,6 +769,8 @@ export function LoadGeneratorApp({
       indexPrefix,
       eventType,
       traceIngestionSource,
+      otlpWireMode,
+      apmEndpointUrl,
       dryRun,
       injectAnomalies,
       enrichDoc,
@@ -789,6 +800,8 @@ export function LoadGeneratorApp({
     eventType,
     isTracesMode,
     traceIngestionSource,
+    otlpWireMode,
+    apmEndpointUrl,
     runConnectionValidation,
     injectAnomalies,
     pipelineOrchestration,
@@ -829,6 +842,8 @@ export function LoadGeneratorApp({
         indexPrefix,
         eventType,
         traceIngestionSource,
+        otlpWireMode,
+        apmEndpointUrl,
         dryRun,
         injectAnomalies: inject,
         enrichDoc,
@@ -859,6 +874,8 @@ export function LoadGeneratorApp({
       eventType,
       isTracesMode,
       traceIngestionSource,
+      otlpWireMode,
+      apmEndpointUrl,
       runConnectionValidation,
       dryRun,
       config,
@@ -1199,6 +1216,10 @@ export function LoadGeneratorApp({
             connectionMsg={connectionMsg}
             validationErrors={validationErrors}
             ingestionSource={ingestionSource}
+            otlpWireMode={otlpWireMode}
+            apmEndpointUrl={apmEndpointUrl}
+            onOtlpWireModeChange={setOtlpWireMode}
+            onApmEndpointUrlChange={setApmEndpointUrl}
             onDeploymentTypeChange={setDeploymentType}
             onServerlessProjectTypeChange={handleServerlessProjectTypeChange}
             onElasticUrlChange={(val) => {

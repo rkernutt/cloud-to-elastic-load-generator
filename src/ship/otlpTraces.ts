@@ -151,7 +151,15 @@ function spanAttributes(doc: LooseDoc): OtlpAttribute[] {
     }
   }
   const tx = doc.transaction;
-  if (tx?.result) map["http.response.status_code"] = map["http.response.status_code"] ?? tx.result;
+  // transaction.result is only an HTTP status when it is a numeric code (e.g. "200",
+  // "503"); APM also uses non-HTTP results like "success"/"failure" which must not be
+  // emitted as http.response.status_code.
+  if (tx?.result != null) {
+    const httpCode = /^[1-5]\d{2}$/.test(String(tx.result)) ? Number(tx.result) : undefined;
+    if (httpCode !== undefined) {
+      map["http.response.status_code"] = map["http.response.status_code"] ?? httpCode;
+    }
+  }
   return attrs(map);
 }
 

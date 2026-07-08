@@ -103,6 +103,25 @@ describe("apmDocToOtlpSpan", () => {
     );
     expect(s.kind).toBe(5); // CONSUMER
   });
+
+  it("maps a numeric transaction.result to http.response.status_code", () => {
+    const s = apmDocToOtlpSpan(
+      txDoc({
+        transaction: { id: SPAN_ID, name: "GET /cart", type: "request", result: "503" },
+      })
+    );
+    const code = s.attributes.find((a) => a.key === "http.response.status_code");
+    expect(code?.value).toEqual({ intValue: "503" });
+  });
+
+  it("does not emit http.response.status_code for non-HTTP results", () => {
+    const s = apmDocToOtlpSpan(
+      txDoc({
+        transaction: { id: SPAN_ID, name: "job", type: "request", result: "success" },
+      })
+    );
+    expect(s.attributes.find((a) => a.key === "http.response.status_code")).toBeUndefined();
+  });
 });
 
 describe("apmDocsToOtlp", () => {

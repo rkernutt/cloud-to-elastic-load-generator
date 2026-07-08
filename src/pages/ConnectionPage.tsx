@@ -16,6 +16,7 @@ import {
   EuiText,
   EuiCheckableCard,
   EuiConfirmModal,
+  EuiSwitch,
 } from "@elastic/eui";
 import type { CloudId } from "../cloud/types";
 import type { KibanaSpace } from "../utils/validation";
@@ -37,6 +38,12 @@ interface ConnectionPageProps {
   connectionMsg: string;
   validationErrors: { elasticUrl: string; apiKey: string; indexPrefix: string };
   ingestionSource: string;
+  /** Traces only: ship over the real OTLP wire (POST /v1/traces) instead of ES _bulk. */
+  otlpWireMode: boolean;
+  /** APM/OTLP intake base URL used when otlpWireMode is on. */
+  apmEndpointUrl: string;
+  onOtlpWireModeChange: (val: boolean) => void;
+  onApmEndpointUrlChange: (val: string) => void;
   onDeploymentTypeChange: (val: DeploymentType) => void;
   onServerlessProjectTypeChange: (val: ServerlessProjectType) => void;
   onElasticUrlChange: (val: string) => void;
@@ -127,6 +134,10 @@ export function ConnectionPage({
   connectionMsg,
   validationErrors,
   ingestionSource,
+  otlpWireMode,
+  apmEndpointUrl,
+  onOtlpWireModeChange,
+  onApmEndpointUrlChange,
   onDeploymentTypeChange,
   onServerlessProjectTypeChange,
   onElasticUrlChange,
@@ -465,6 +476,47 @@ export function ConnectionPage({
           <EuiCallOut title="Ingestion source adjusted" color="warning" iconType="alert" size="s">
             <p>{ingestionResetNotice}</p>
           </EuiCallOut>
+        </>
+      )}
+
+      {/* Traces only: real OTLP wire mode (POST OTLP/HTTP JSON to <apm>/v1/traces) */}
+      {isTracesMode && (
+        <>
+          <EuiSpacer size="l" />
+          <EuiFormRow
+            label={<ConnectionSubheading>Trace transport</ConnectionSubheading>}
+            helpText="Bulk-index APM docs into traces-apm-*, or ship over the real OTLP wire to APM/EDOT intake."
+            fullWidth
+          >
+            <EuiSwitch
+              label="Ship over real OTLP wire (POST /v1/traces)"
+              checked={otlpWireMode}
+              onChange={(e) => onOtlpWireModeChange(e.target.checked)}
+            />
+          </EuiFormRow>
+
+          {otlpWireMode && (
+            <>
+              <EuiSpacer size="m" />
+              <EuiFormRow
+                label={<ConnectionSubheading>APM / OTLP endpoint URL</ConnectionSubheading>}
+                helpText="OTLP/HTTP intake base URL, e.g. https://my-deployment.apm.us-east-1.aws.elastic-cloud.com:443 (Cloud) or https://apm-server:8200 (self-managed). The /v1/traces path is appended automatically; the API Key above is reused for auth."
+                isInvalid={!apmEndpointUrl.trim()}
+                error={
+                  !apmEndpointUrl.trim()
+                    ? "An APM/OTLP endpoint is required for OTLP wire mode."
+                    : undefined
+                }
+              >
+                <EuiFieldText
+                  value={apmEndpointUrl}
+                  onChange={(e) => onApmEndpointUrlChange(e.target.value)}
+                  isInvalid={!apmEndpointUrl.trim()}
+                  placeholder="https://my-deployment.apm.us-east-1.aws.elastic-cloud.com:443"
+                />
+              </EuiFormRow>
+            </>
+          )}
         </>
       )}
 

@@ -1,5 +1,6 @@
 import { randTs, stripNulls } from "../helpers";
 import { dryRunResponse, errMsg, fetchWithRetry } from "./bulk";
+import { apmDocsToOtlp } from "./otlpTraces";
 import type { LooseDoc, RunShipWorkloadDeps, ShipProgressPhase } from "./types";
 
 type BulkRespItem = {
@@ -82,6 +83,8 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
     indexPrefix,
     eventType,
     traceIngestionSource,
+    otlpWireMode,
+    apmEndpointUrl,
     dryRun,
     injectAnomalies,
     enrichDoc,
@@ -174,16 +177,98 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
     if (isTracesMode) {
       const TRACE_GENERATORS = await config.loadTraceGenerators();
       const APM_INDEX = "traces-apm-default";
+      // Real OTLP wire mode: POST OTLP/HTTP JSON to <apm-endpoint>/v1/traces via the
+      // proxy passthrough, instead of ES-bulk-indexing APM-schema docs into traces-apm-*.
+      if (otlpWireMode && !apmEndpointUrl.trim()) {
+        addLog(
+          "OTLP wire mode is enabled but no APM/OTLP endpoint URL is set — add it on the Start page.",
+          "error"
+        );
+        setStatus("done");
+        return;
+      }
+      const otlpWire = otlpWireMode && !!apmEndpointUrl.trim();
+      const otlpBase = (apmEndpointUrl || "").replace(/\/$/, "");
+      const otlpHeaders = {
+        "Content-Type": "application/json",
+        "x-elastic-url": otlpBase,
+        "x-elastic-key": apiKey,
+        "x-elastic-path": "/v1/traces",
+        "x-elastic-method": "POST",
+      };
+      const traceTarget = otlpWire ? `${otlpBase}/v1/traces` : APM_INDEX;
+
+      /**
+       * Ship one batch of span/transaction docs. In OTLP wire mode the batch is
+       * converted to an ExportTraceServiceRequest and POSTed to /v1/traces; the
+       * APM/OTLP intake reports rejections via `partialSuccess.rejectedSpans`.
+       * Otherwise docs are ES-bulk-indexed. Returns errored-doc count + a sample.
+       */
+      const shipSpanDocs = async (
+        batch: LooseDoc[],
+        metaLine: string
+      ): Promise<{ errors: number; reason?: string }> => {
+        if (!batch.length) return { errors: 0 };
+        if (otlpWire) {
+          const res = dryRun
+            ? dryRunResponse()
+            : await fetchWithRetry(`/proxy`, {
+                method: "POST",
+                headers: otlpHeaders,
+                body: JSON.stringify(apmDocsToOtlp(batch)),
+              });
+          const json = (await res.json()) as {
+            error?: { reason?: string } | string;
+            partialSuccess?: { rejectedSpans?: number | string; errorMessage?: string };
+          };
+          if (!res.ok) {
+            const reason =
+              typeof json.error === "string"
+                ? json.error
+                : json.error?.reason || `HTTP ${res.status}`;
+            return { errors: batch.length, reason };
+          }
+          const rejected = Number(json.partialSuccess?.rejectedSpans ?? 0) || 0;
+          return rejected > 0
+            ? { errors: rejected, reason: json.partialSuccess?.errorMessage }
+            : { errors: 0 };
+        }
+        const ndjsonParts: string[] = [];
+        for (const doc of batch) ndjsonParts.push(metaLine, "\n", JSON.stringify(doc), "\n");
+        const res = dryRun
+          ? dryRunResponse()
+          : await fetchWithRetry(`/proxy/_bulk`, {
+              method: "POST",
+              headers,
+              body: ndjsonParts.join(""),
+            });
+        const json = (await res.json()) as { error?: { reason?: string }; items?: BulkRespItem[] };
+        if (!res.ok)
+          return { errors: batch.length, reason: json.error?.reason || String(res.status) };
+        const failedItems =
+          json.items?.filter((it: BulkRespItem) => it.create?.error || it.index?.error) || [];
+        const firstErr = failedItems[0]?.create?.error || failedItems[0]?.index?.error;
+        return failedItems.length > 0
+          ? {
+              errors: failedItems.length,
+              reason: firstErr ? `${firstErr.type}: ${firstErr.reason}` : undefined,
+            }
+          : { errors: 0 };
+      };
+
       const totalTraces = activeServices.length * tracesPerService;
       setProgress({ sent: 0, total: totalTraces, errors: 0, phase: "main" });
       addLog(
-        `Starting: ${totalTraces.toLocaleString()} traces across ${activeServices.length} service(s) → ${APM_INDEX}`
+        `Starting: ${totalTraces.toLocaleString()} traces across ${activeServices.length} service(s) → ${traceTarget}${otlpWire ? " [real OTLP wire]" : ""}`
       );
       let totalSent = 0,
         totalErrors = 0;
 
       const shipTraceService = async (svc: string, _svcIndex: number) => {
-        addLog(`▶ ${svc} → ${APM_INDEX} [OTel / OTLP]`, "info");
+        addLog(
+          `▶ ${svc} → ${traceTarget} [${otlpWire ? "OTLP /v1/traces" : "OTel / _bulk"}]`,
+          "info"
+        );
         const prefixEnd: number[] = [];
         let traceAccDocs = 0;
         const pendingDocs: LooseDoc[] = [];
@@ -208,40 +293,22 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
         const shipTraceSubBatch = async (batch: LooseDoc[]) => {
           if (!batch.length || abortRef.current) return;
           batchNum++;
-          const ndjsonParts: string[] = [];
-          for (const doc of batch) {
-            ndjsonParts.push(apmMeta, "\n", JSON.stringify(doc), "\n");
-          }
-          const ndjson = ndjsonParts.join("");
           let errDelta = 0;
           try {
-            const res = dryRun
-              ? dryRunResponse()
-              : await fetchWithRetry(`/proxy/_bulk`, { method: "POST", headers, body: ndjson });
-            const json = (await res.json()) as {
-              error?: { reason?: string };
-              items?: BulkRespItem[];
-            };
-            if (!res.ok) {
-              svcErrors += batch.length;
-              errDelta = batch.length;
-              addLog(`  ✗ batch ${batchNum} failed: ${json.error?.reason || res.status}`, "error");
+            const { errors: errs, reason } = await shipSpanDocs(batch, apmMeta);
+            svcErrors += errs;
+            errDelta = errs;
+            svcSent += batch.length - errs;
+            if (errs > 0) {
+              addLog(
+                `  ✗ batch ${batchNum}: ${errs} errors — ${reason?.substring(0, 140) || "rejected"}`,
+                "warn"
+              );
             } else {
-              const failedItems =
-                json.items?.filter((it: BulkRespItem) => it.create?.error || it.index?.error) || [];
-              const errs = failedItems.length;
-              svcErrors += errs;
-              errDelta = errs;
-              svcSent += batch.length - errs;
-              if (errs > 0) {
-                const firstErr = failedItems[0]?.create?.error || failedItems[0]?.index?.error;
-                addLog(
-                  `  ✗ batch ${batchNum}: ${errs} errors — ${firstErr?.type}: ${firstErr?.reason?.substring(0, 120)}`,
-                  "warn"
-                );
-              } else {
-                addLog(`  ✓ batch ${batchNum}: ${batch.length} span docs indexed`, "ok");
-              }
+              addLog(
+                `  ✓ batch ${batchNum}: ${batch.length} span docs ${otlpWire ? "accepted (OTLP)" : "indexed"}`,
+                "ok"
+              );
             }
           } catch (e: unknown) {
             svcErrors += batch.length;
@@ -326,40 +393,19 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
             const traceInjSubBatches = splitBySize(injDocs, () => apmMetaInj);
             for (const batch of traceInjSubBatches) {
               if (abortRef.current) break;
-              const ndjsonPartsInj: string[] = [];
-              for (const doc of batch) {
-                ndjsonPartsInj.push(apmMetaInj, "\n", JSON.stringify(doc), "\n");
-              }
-              const ndjsonInj = ndjsonPartsInj.join("");
               let sentDelta = 0;
               let errDelta = 0;
               try {
-                const res = dryRun
-                  ? dryRunResponse()
-                  : await fetchWithRetry(`/proxy/_bulk`, {
-                      method: "POST",
-                      headers,
-                      body: ndjsonInj,
-                    });
-                const json = (await res.json()) as {
-                  error?: { reason?: string };
-                  items?: BulkRespItem[];
-                };
-                if (!res.ok) {
-                  injErrs += batch.length;
-                  errDelta = batch.length;
+                const { errors: bErrs, reason } = await shipSpanDocs(batch, apmMetaInj);
+                injIndexed += batch.length - bErrs;
+                injErrs += bErrs;
+                sentDelta = batch.length - bErrs;
+                errDelta = bErrs;
+                if (bErrs > 0) {
                   addLog(
-                    `  ✗ anomaly injection batch failed (${svc}): ${json.error?.reason || res.status}`,
-                    "error"
+                    `  ✗ anomaly injection (${svc}): ${bErrs} errors — ${reason?.substring(0, 140) || "rejected"}`,
+                    "warn"
                   );
-                } else {
-                  const bErrs =
-                    json.items?.filter((it: BulkRespItem) => it.create?.error || it.index?.error)
-                      .length ?? 0;
-                  injIndexed += batch.length - bErrs;
-                  injErrs += bErrs;
-                  sentDelta = batch.length - bErrs;
-                  errDelta = bErrs;
                 }
               } catch (e: unknown) {
                 addLog(`  ✗ anomaly injection network error (${svc}): ${errMsg(e)}`, "error");

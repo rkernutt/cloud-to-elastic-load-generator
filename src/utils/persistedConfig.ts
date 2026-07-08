@@ -32,6 +32,7 @@ export const PERSISTED_CONFIG_KEYS = [
   "deploymentType",
   "serverlessProjectType",
   "kibanaSpaceId",
+  "otlpWireMode",
 ] as const;
 
 export type PersistedConfigKey = (typeof PERSISTED_CONFIG_KEYS)[number];
@@ -55,6 +56,7 @@ export type PersistedConfigShape = Partial<{
   deploymentType: string;
   serverlessProjectType: string;
   kibanaSpaceId: string;
+  otlpWireMode: boolean;
 }>;
 
 /** Live React state shape — same keys as persisted (for save effect). */
@@ -75,6 +77,7 @@ export type PersistedStateSlice = {
   deploymentType: string;
   serverlessProjectType: string;
   kibanaSpaceId: string;
+  otlpWireMode: boolean;
 };
 
 /** Compile-time guard: PersistedStateSlice keys must match PERSISTED_CONFIG_KEYS exactly. */
@@ -173,6 +176,9 @@ export function parsePersistedRecord(raw: Record<string, unknown>): PersistedCon
     // Kibana space ids are lowercase alphanumeric with hyphens/underscores (≤1024 chars).
     const t = raw.kibanaSpaceId.trim();
     if (t.length > 0 && t.length <= 1024 && /^[a-z0-9_-]+$/.test(t)) out.kibanaSpaceId = t;
+  }
+  if ("otlpWireMode" in raw && typeof raw.otlpWireMode === "boolean") {
+    out.otlpWireMode = raw.otlpWireMode;
   }
   return out;
 }

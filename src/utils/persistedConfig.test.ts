@@ -88,6 +88,7 @@ describe("toPersistedStorageObject", () => {
       deploymentType: "cloud-hosted",
       serverlessProjectType: "observability",
       kibanaSpaceId: "default",
+      otlpWireMode: false,
     };
     const obj = toPersistedStorageObject(slice);
     const keys = Object.keys(obj).sort();
