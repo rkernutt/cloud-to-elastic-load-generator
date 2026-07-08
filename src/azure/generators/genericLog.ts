@@ -10,6 +10,7 @@ import {
   randCorrelationId,
   randAzurePersonEmail,
   randEmail,
+  azureLogEvent,
 } from "./helpers.js";
 import { AZURE_ELASTIC_DATASET_MAP } from "../data/elasticMaps.js";
 
@@ -949,14 +950,13 @@ export function makeGenericAzureLog(serviceId: string): (ts: string, er: number)
           properties,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["denied"] : ["change"],
-        action: String(operationName),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(50_000, isErr ? 90_000_000 : 8_000_000),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(50_000, isErr ? 90_000_000 : 8_000_000),
+        String(operationName),
+        ["configuration"],
+        isErr ? ["denied"] : ["change"]
+      ),
       message,
     };
   };

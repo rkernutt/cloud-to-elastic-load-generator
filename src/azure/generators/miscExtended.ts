@@ -12,6 +12,7 @@ import {
   USER_AGENTS,
   randAzureOnMicrosoftEmail,
   azureDiagnosticTime,
+  azureLogEvent,
 } from "./helpers.js";
 
 const MISC_EXTENDED_ERR_CODES = [
@@ -124,14 +125,13 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("AzureFrontDoorAccessLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 8e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 8e8),
+        String("AzureFrontDoorAccessLog"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Front Door ${profile}/${ep}: ${props.httpMethod} ${props.requestUri} ${sc}`
         : `Front Door ${profile}: edge ${props.edgePop} served ${props.requestUri} (${sc})`,
@@ -175,14 +175,13 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("AzureFrontDoorWebApplicationFirewallLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e5, 2e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e5, 2e8),
+        String("AzureFrontDoorWebApplicationFirewallLog"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Front Door WAF ${profile}: evaluation error on ${props.ruleName}`
         : `Front Door WAF ${profile}: ${props.action} ${props.ruleName}`,
@@ -226,14 +225,13 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("FrontDoorRouteConfigurationChanged"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 4e8),
+        String("FrontDoorRouteConfigurationChanged"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Front Door ${profile}: route ${props.routeName} config rejected`
         : `Front Door ${profile}: applied ${props.changeType} on ${props.routeName}`,
@@ -274,14 +272,13 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.Cdn/profiles/endpoints/purge"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e9, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e9, 4e11),
+        String("Microsoft.Cdn/profiles/endpoints/purge"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Front Door ${profile}: purge stalled op=${props.purgeOperationId}`
         : `Front Door ${profile}: purge ${props.urlsPurged} paths`,
@@ -323,14 +320,13 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("FrontDoorTlsHandshakeDiagnostic"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e7, 5e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e7, 5e8),
+        String("FrontDoorTlsHandshakeDiagnostic"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Front Door ${profile}: TLS ${props.sniHostname} failed`
         : `Front Door ${profile}: cert ${props.certVersion} OK`,
@@ -379,14 +375,13 @@ export function generateFrontDoorLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 6e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 6e9),
+      String(op),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr
       ? `Front Door profile ${profile}: ARM ${op} failed`
       : `Front Door profile ${profile}: ${op} ok`,
@@ -443,14 +438,13 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.Cdn/profiles/endpoints/GetEndpointLogs"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(8e5, 5e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(8e5, 5e8),
+        String("Microsoft.Cdn/profiles/endpoints/GetEndpointLogs"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `CDN ${profile}/${ep}: origin error (${sc})`
         : `CDN ${profile}: edge cache hit ratio event for ${props.Endpoint}`,
@@ -494,14 +488,13 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.Cdn/profiles/endpoints/health"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 3e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 3e8),
+        String("Microsoft.Cdn/profiles/endpoints/health"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `CDN ${profile}/${ep}: origin ${props.OriginHost} ${props.HealthProbeStatus}`
         : `CDN ${profile}: origin probe OK (${props.HttpLatencyMs}ms)`,
@@ -542,14 +535,13 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.Cdn/profiles/endpoints/PurgeContent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e8, 2e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e8, 2e10),
+        String("Microsoft.Cdn/profiles/endpoints/PurgeContent"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `CDN ${profile}: purge bottleneck paths=${props.pathsRequested}`
         : `CDN ${profile}: purge propagated`,
@@ -590,14 +582,13 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.Cdn/profiles/endpoints/metricsBandwidth"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(9e11, 2e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(9e11, 2e11),
+        String("Microsoft.Cdn/profiles/endpoints/metricsBandwidth"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `CDN ${profile}: qos ${props.throttleReason}`
         : `CDN ${profile}: qos healthy`,
@@ -639,14 +630,13 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.Cdn/profiles/endpoints/rules/diagnostic"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e9, 2e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e9, 2e10),
+        String("Microsoft.Cdn/profiles/endpoints/rules/diagnostic"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr ? `CDN ${profile}: rule conflict` : `CDN ${profile}: rules ok`,
     };
   }
@@ -693,14 +683,13 @@ export function generateCdnLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 5e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 5e9),
+      String(op),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr
       ? `CDN profile ${profile}: ${op} failed`
       : `CDN profile ${profile}: ${op} succeeded`,
@@ -756,14 +745,13 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("TunnelDiagnosticLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 6e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 6e8),
+        String("TunnelDiagnosticLog"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `VPN GW ${gw}: S2S tunnel ${conn} down (peer ${peerIp})`
         : `VPN GW ${gw}: ${conn} ${props.connectionStatus} (${props.ingressBytes}B in)`,
@@ -806,14 +794,13 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("IKEDiagnosticLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 4e8),
+        String("IKEDiagnosticLog"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `VPN GW ${gw}: IKE ${props.saStatus} for ${conn}`
         : `VPN GW ${gw}: IKE ${props.cipherSuite} ${props.saStatus}`,
@@ -855,14 +842,13 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("RouteDiagnosticLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e6, 3e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e6, 3e8),
+        String("RouteDiagnosticLog"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `VPN GW ${gw}: BGP peer ASN ${props.peerAsn} unhealthy`
         : `VPN GW ${gw}: BGP learned ${props.routesLearned} routes for ${conn}`,
@@ -901,14 +887,13 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("VpnGatewayPacketCapture"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e11, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e11, 4e11),
+        String("VpnGatewayPacketCapture"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr ? `VPN GW ${gw}: packet capture loss` : `VPN GW ${gw}: capture balanced`,
     };
   }
@@ -945,14 +930,13 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("OutboundNatDiagnosticLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e9, 2e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e9, 2e10),
+        String("OutboundNatDiagnosticLog"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `VPN GW ${gw}: NAT sessions=${props.sessionsActive}`
         : `VPN GW ${gw}: SNAT OK`,
@@ -1000,14 +984,13 @@ export function generateVpnGatewayLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 6e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 6e9),
+      String(op),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr ? `VPN gateway ${gw}: ${op} failed` : `VPN gateway ${gw}: ${op} succeeded`,
   };
 }
@@ -1083,14 +1066,13 @@ export function generateActiveUsersServicesLog(ts: string, er: number): EcsDocum
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String("Microsoft.Graph/reports/getOffice365ActiveUserDetail"),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5e5, 2e8),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e5, 2e8),
+      String("Microsoft.Graph/reports/getOffice365ActiveUserDetail"),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr
       ? `O365 active users report failed for ${product} (org ${orgId})`
       : `O365 active users: ${props.ActiveUserCount} active on ${product}`,
@@ -1153,14 +1135,13 @@ export function generateTeamsUserActivityLog(ts: string, er: number): EcsDocumen
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String("Microsoft.Graph/reports/getTeamsUserActivityUserDetail"),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5e5, 2e8),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e5, 2e8),
+      String("Microsoft.Graph/reports/getTeamsUserActivityUserDetail"),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr
       ? `Teams activity report row failed for ${user}`
       : `Teams activity: ${user} chat=${props.TeamChatMessageCount} meetings=${props.MeetingsAttendedCount}`,
@@ -1220,14 +1201,13 @@ export function generateOutlookActivityLog(ts: string, er: number): EcsDocument 
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String("Microsoft.Graph/reports/getEmailActivityUserDetail"),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5e5, 2e8),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e5, 2e8),
+      String("Microsoft.Graph/reports/getEmailActivityUserDetail"),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr
       ? `Outlook activity report failed for ${user}`
       : `Outlook activity: ${user} send=${props.SendCount} read=${props.ReadCount}`,
@@ -1289,14 +1269,13 @@ export function generateOnedriveUsageStorageLog(ts: string, er: number): EcsDocu
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String("Microsoft.Graph/reports/getOneDriveUsageStorage"),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5e5, 2e8),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e5, 2e8),
+      String("Microsoft.Graph/reports/getOneDriveUsageStorage"),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr
       ? `OneDrive storage report failed for ${user}`
       : `OneDrive storage: ${user} used ${props.StorageUsedInMB}MB of ${props.StorageAllocatedInMB}MB`,
@@ -1356,14 +1335,13 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("HybridComputeMachineHeartbeat"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 2e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 2e8),
+        String("HybridComputeMachineHeartbeat"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Arc ${machine}: agent heartbeat missed`
         : `Arc ${machine}: heartbeat OK (${props.osType})`,
@@ -1407,14 +1385,13 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.HybridCompute/machines/extensions/write"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e7, 8e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e7, 8e8),
+        String("Microsoft.HybridCompute/machines/extensions/write"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Arc ${machine}: extension ${ext} failed`
         : `Arc ${machine}: ${ext} ${props.provisioningState}`,
@@ -1455,14 +1432,13 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("GuestConfigurationAssignmentCompliance"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e6, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e6, 4e8),
+        String("GuestConfigurationAssignmentCompliance"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Arc ${machine}: guest config ${props.configurationName} non-compliant`
         : `Arc ${machine}: guest config scan ${props.complianceStatus}`,
@@ -1501,14 +1477,13 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.HybridCompute/machines/assessPatches/action"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e11, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e11, 4e11),
+        String("Microsoft.HybridCompute/machines/assessPatches/action"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Arc ${machine}: stale patch assessment`
         : `Arc ${machine}: patch scan fresh`,
@@ -1547,14 +1522,13 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("Microsoft.HybridCompute/machines/identity/sync"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e11, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e11, 4e11),
+        String("Microsoft.HybridCompute/machines/identity/sync"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr ? `Arc ${machine}: identity drift` : `Arc ${machine}: IAM synced`,
     };
   }
@@ -1600,14 +1574,13 @@ export function generateArcLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 5e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 5e9),
+      String(op),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr ? `Arc machine ${machine}: ${op} failed` : `Arc machine ${machine}: ${op} ok`,
   };
 }
@@ -1664,14 +1637,13 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("AzureStackUsageSync"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 3e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 3e9),
+        String("AzureStackUsageSync"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Azure Stack ${reg}: usage sync failed (${props.errorDetail})`
         : `Azure Stack ${reg}: usage sync ${props.syncStatus}`,
@@ -1716,14 +1688,13 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("AzureStackMarketplaceSyndication"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e7, 2e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e7, 2e9),
+        String("AzureStackMarketplaceSyndication"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Azure Stack ${reg}: marketplace item ${props.productName} failed`
         : `Azure Stack ${reg}: syndicated ${props.productName}`,
@@ -1762,14 +1733,13 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("AzureStackCapacityPlanner"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e11, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e11, 4e11),
+        String("AzureStackCapacityPlanner"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Azure Stack ${reg}: capacity skew`
         : `Azure Stack ${reg}: stamps=${props.stampsOnline}`,
@@ -1808,14 +1778,13 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("AzureStackInfraFabricHealth"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e11, 5e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e11, 5e11),
+        String("AzureStackInfraFabricHealth"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Azure Stack ${reg}: ${props.infraRole} nodes=${props.degradedNodes}`
         : `Fabric OK`,
@@ -1854,14 +1823,13 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("AzureStackSoftwareUpdateCompliance"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e11, 6e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e11, 6e11),
+        String("AzureStackSoftwareUpdateCompliance"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `Azure Stack ${reg}: drift want=${props.blueprintVersionDesired} have=${props.actualVersion}`
         : `Azure Stack ${reg}: blueprint aligned`,
@@ -1908,14 +1876,13 @@ export function generateStackLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 5e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 5e9),
+      String(op),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr
       ? `Azure Stack registration ${reg}: ${op} failed`
       : `Azure Stack registration ${reg}: ${op} ok`,
@@ -1975,14 +1942,13 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("ApiCenterInventoryUpdated"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e6, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e6, 4e8),
+        String("ApiCenterInventoryUpdated"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `API Center ${svc}: inventory update rejected for ${apiName}`
         : `API Center ${svc}: indexed ${apiName} (${props.lifecycle})`,
@@ -2024,14 +1990,13 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("ApiCenterLintRun"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 5e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 5e8),
+        String("ApiCenterLintRun"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `API Center ${svc}: lint failed on ${props.specPath}`
         : `API Center ${svc}: lint ${props.violations} issue(s) on ${props.specPath}`,
@@ -2071,14 +2036,13 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("ApiCenterConformanceEvaluate"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e9, 3e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e9, 3e11),
+        String("ApiCenterConformanceEvaluate"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `API Center ${svc}: conformance ${props.profile} ${props.passedRules}/${props.totalRules}`
         : `API Center ${svc}: conformance OK`,
@@ -2117,14 +2081,13 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("ApiCenterExportPortfolio"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e10, 2e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e10, 2e11),
+        String("ApiCenterExportPortfolio"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr ? `API Center ${svc}: export ${props.binderFormat} failed` : `Export zipped`,
     };
   }
@@ -2161,14 +2124,13 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["configuration"],
-        type: isErr ? ["change"] : ["info"],
-        action: String("ApiCenterEventWebhookDelivery"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e11, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e11, 4e11),
+        String("ApiCenterEventWebhookDelivery"),
+        ["configuration"],
+        isErr ? ["change"] : ["info"]
+      ),
       message: isErr
         ? `API Center ${svc}: webhook failures=${props.deliveriesFailed}`
         : `Webhook OK`,
@@ -2216,14 +2178,13 @@ export function generateApiCenterLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["configuration"],
-      type: isErr ? ["change"] : ["info"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 4e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 4e9),
+      String(op),
+      ["configuration"],
+      isErr ? ["change"] : ["info"]
+    ),
     message: isErr ? `API Center ${svc}: ${op} failed` : `API Center ${svc}: ${op} ok`,
   };
 }

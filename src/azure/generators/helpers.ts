@@ -176,29 +176,49 @@ export function randSpanId(): string {
   return Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 }
 
+// Full ECS `event.category` allowed values, so azureLogEvent can be used by
+// every Azure generator (including security categories like intrusion_detection).
 export type AzureEventCategory =
   | "api"
   | "authentication"
   | "configuration"
   | "database"
+  | "driver"
+  | "email"
   | "file"
   | "host"
   | "iam"
+  | "intrusion_detection"
+  | "library"
+  | "malware"
   | "network"
+  | "package"
   | "process"
+  | "registry"
+  | "session"
+  | "threat"
+  | "vulnerability"
   | "web";
 
+// Full ECS `event.type` allowed values.
 export type AzureEventType =
   | "access"
   | "admin"
+  | "allowed"
   | "change"
   | "connection"
   | "creation"
   | "deletion"
+  | "denied"
+  | "end"
   | "error"
+  | "group"
+  | "indicator"
   | "info"
+  | "installation"
+  | "protocol"
   | "start"
-  | "end";
+  | "user";
 
 /** ECS event block for Azure diagnostic / activity log generators. */
 export function azureLogEvent(

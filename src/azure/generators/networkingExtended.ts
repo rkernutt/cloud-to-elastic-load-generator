@@ -13,6 +13,7 @@ import {
   LAST_NAMES,
   EMAIL_DOMAINS,
   azureDiagnosticTime,
+  azureLogEvent,
 } from "./helpers.js";
 
 type NetworkingAzureErr = { code: string; message: string; type: "azure" };
@@ -179,14 +180,13 @@ export function generateNetworkSecurityGroupsLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("Microsoft.Network/networkSecurityGroups/flowlogs/write"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e5, 6e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e5, 6e8),
+        String("Microsoft.Network/networkSecurityGroups/flowlogs/write"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `NSG ${nsg}: flow denied ${props.protocol} ${props.srcAddr}→${props.destAddr}:${props.destPort} (${props.ruleName})`
         : `NSG ${nsg}: flow allowed ${props.direction} ${props.destAddr}:${props.destPort}`,
@@ -228,14 +228,13 @@ export function generateNetworkSecurityGroupsLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NetworkSecurityGroupRuleCounter"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 2e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 2e8),
+        String("NetworkSecurityGroupRuleCounter"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `NSG ${nsg}: rule evaluation dropped traffic (implicit deny)`
         : `NSG ${nsg}: security rule ${props.matchedRule} matched`,
@@ -282,14 +281,13 @@ export function generateNetworkSecurityGroupsLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("Microsoft.Network/networkInterfaces/effectiveRoutes/action"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(8e8, 3e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(8e8, 3e10),
+        String("Microsoft.Network/networkInterfaces/effectiveRoutes/action"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[nsg-er] ${nsg}: ${props.message}`,
     };
   }
@@ -334,14 +332,13 @@ export function generateNetworkSecurityGroupsLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("Microsoft.Network/networkSecurityGroups/write"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e9, 8e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e9, 8e10),
+        String("Microsoft.Network/networkSecurityGroups/write"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[assoc] NSG ${nsg}: ${props.message}`,
     };
   }
@@ -385,14 +382,13 @@ export function generateNetworkSecurityGroupsLog(ts: string, er: number): EcsDoc
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("Microsoft.Insights/diagnosticSettings/write"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e9, 1.2e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e9, 1.2e10),
+        String("Microsoft.Insights/diagnosticSettings/write"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[meter] NSG ${nsg}: ${props.message}`,
     };
   }
@@ -445,14 +441,13 @@ export function generateNetworkSecurityGroupsLog(ts: string, er: number): EcsDoc
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 4e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 4e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `Activity: security rule ${rule} on NSG ${nsg} failed (${String(props.errorCode)})`
       : `Activity: security rule ${rule} updated on ${nsg}`,
@@ -516,14 +511,13 @@ export function generateNatGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NatGatewaySnatUsage"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 3e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 3e8),
+        String("NatGatewaySnatUsage"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `NAT Gateway ${nat}: SNAT port pressure used=${used}/${allocated}`
         : `NAT Gateway ${nat}: SNAT usage healthy (${used}/${allocated})`,
@@ -567,14 +561,13 @@ export function generateNatGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NatGatewayConnectionEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e5, 2e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e5, 2e8),
+        String("NatGatewayConnectionEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `NAT ${nat}: outbound flow dropped (${String(props.dropReason)})`
         : `NAT ${nat}: SNAT ${props.srcPrivateIp}→${props.destPublicIp}:${props.destPort}`,
@@ -621,14 +614,13 @@ export function generateNatGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String(props.requestOperation),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e8, 4e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e8, 4e10),
+        String(props.requestOperation),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[prefix] NAT ${nat}: ${props.message}`,
     };
   }
@@ -675,14 +667,13 @@ export function generateNatGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("Microsoft.Network/natGateways/connectionHealth/read"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e9, 7e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e9, 7e10),
+        String("Microsoft.Network/natGateways/connectionHealth/read"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[zonal] NAT ${nat}: ILB linkage ${props.illbResourceId.split("/").pop()} (${props.zonePair})`,
     };
   }
@@ -727,14 +718,13 @@ export function generateNatGatewayLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NatGatewayTcpResetEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(8e8, 2e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(8e8, 2e10),
+        String("NatGatewayTcpResetEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[idle] NAT ${nat}: ${props.message}`,
     };
   }
@@ -781,14 +771,13 @@ export function generateNatGatewayLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 4e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 4e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `NAT Gateway ${nat}: control-plane operation failed`
       : `NAT Gateway ${nat}: ${op} succeeded`,
@@ -850,14 +839,13 @@ export function generatePrivateLinkLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("PrivateEndpointConnectionEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 9e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 9e8),
+        String("PrivateEndpointConnectionEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Private Link ${pe}: connection ${props.connectionStatus} for ${props.subResource}`
         : `Private Link ${pe}: endpoint linked (${props.privateEndpointIp})`,
@@ -899,14 +887,13 @@ export function generatePrivateLinkLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("PrivateEndpointDnsResolution"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 4e8),
+        String("PrivateEndpointDnsResolution"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Private Endpoint ${pe}: DNS resolution failed for ${props.privateDnsZone}`
         : `Private Endpoint ${pe}: resolved ${props.privateDnsZone} (${props.resolutionResult})`,
@@ -953,14 +940,13 @@ export function generatePrivateLinkLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("PrivateEndpointNicLinkConsistency"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e7, 5e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e7, 5e9),
+        String("PrivateEndpointNicLinkConsistency"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[nic] Private Link ${pe}: ${props.message}`,
     };
   }
@@ -1004,14 +990,13 @@ export function generatePrivateLinkLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("PrivateLinkServiceConsumptionMeter"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e7, 6e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e7, 6e9),
+        String("PrivateLinkServiceConsumptionMeter"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[scale] Private Link ${pe}: PLS alias ${props.privateLinkServiceAlias} saturation ${props.scaleUnitSaturationPct.toFixed(1)}%`,
     };
   }
@@ -1056,14 +1041,13 @@ export function generatePrivateLinkLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("PrivateEndpointDnsChainValidation"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 7e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 7e9),
+        String("PrivateEndpointDnsChainValidation"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[dns-chain] PE ${pe}: ${props.chainOutcome}`,
     };
   }
@@ -1111,14 +1095,13 @@ export function generatePrivateLinkLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 5e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 5e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `Private endpoint ${pe}: ARM operation failed`
       : `Private endpoint ${pe}: provisioning completed`,
@@ -1187,14 +1170,13 @@ export function generatePrivateDnsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String(op),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 3e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 3e9),
+        String(op),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Private DNS ${zone}: record set update failed for ${props.recordSet}`
         : `Private DNS ${zone}: ${props.recordType} record ${props.recordSet} updated`,
@@ -1237,14 +1219,13 @@ export function generatePrivateDnsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("Microsoft.Network/privateDnsZones/virtualNetworkLinks/write"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 4e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 4e9),
+        String("Microsoft.Network/privateDnsZones/virtualNetworkLinks/write"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Private DNS ${zone}: VNet link ${props.virtualNetworkLink} failed`
         : `Private DNS ${zone}: linked to ${props.virtualNetworkLink}`,
@@ -1288,14 +1269,13 @@ export function generatePrivateDnsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("PrivateDnsQueryLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e5, 2e7),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e5, 2e7),
+        String("PrivateDnsQueryLog"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Private DNS query failed: ${props.queryName} (${props.responseCode})`
         : `Private DNS query: ${props.queryName} ${props.queryType} answers=${props.answerCount}`,
@@ -1342,14 +1322,13 @@ export function generatePrivateDnsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("PrivateDnsDelegationIntegrity"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e6, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e6, 4e8),
+        String("PrivateDnsDelegationIntegrity"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[deleg] Private DNS ${zone}: ${props.outcome}`,
     };
   }
@@ -1393,14 +1372,13 @@ export function generatePrivateDnsLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("PrivateDnsAutoRegistrationEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e7, 5e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e7, 5e9),
+        String("PrivateDnsAutoRegistrationEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[autoreg] ${zone}: ${props.message}`,
     };
   }
@@ -1443,14 +1421,13 @@ export function generatePrivateDnsLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 4e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 4e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `Private DNS zone ${zone}: ARM operation failed`
       : `Private DNS zone ${zone}: ${op} completed`,
@@ -1515,14 +1492,13 @@ export function generateTrafficManagerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("TrafficManagerEndpointProbeResult"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e5, 3e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e5, 3e8),
+        String("TrafficManagerEndpointProbeResult"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Traffic Manager ${profile}: probe failed for ${endpoint} (${props.failureReason})`
         : `Traffic Manager ${profile}: endpoint ${endpoint} probe ${props.probeStatus}`,
@@ -1566,14 +1542,13 @@ export function generateTrafficManagerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("TrafficManagerDnsReply"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e5, 8e7),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e5, 8e7),
+        String("TrafficManagerDnsReply"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Traffic Manager ${profile}: routing failure (${props.reasonCode})`
         : `Traffic Manager ${profile}: routed ${props.dnsQuery} → ${props.selectedEndpoint}`,
@@ -1620,14 +1595,13 @@ export function generateTrafficManagerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("TrafficManagerWarmupTelemetry"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(8e6, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(8e6, 4e8),
+        String("TrafficManagerWarmupTelemetry"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[warmup] Traffic Manager ${profile}: ${props.state}`,
     };
   }
@@ -1672,14 +1646,13 @@ export function generateTrafficManagerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("TrafficManagerEndpointDrainStatus"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e7, 5e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e7, 5e9),
+        String("TrafficManagerEndpointDrainStatus"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[drain] Traffic Manager ${profile}: ${endpoint} ${props.message}`,
     };
   }
@@ -1723,14 +1696,13 @@ export function generateTrafficManagerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("TrafficManagerGeoRouteEvaluation"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e6, 3e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e6, 3e8),
+        String("TrafficManagerGeoRouteEvaluation"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[geo] Traffic Manager ${profile}: ${props.rationale}`,
     };
   }
@@ -1776,14 +1748,13 @@ export function generateTrafficManagerLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 4e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 4e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `Traffic Manager ${profile}: profile change failed`
       : `Traffic Manager ${profile}: ${op} ok`,
@@ -1847,14 +1818,13 @@ export function generateDdosProtectionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("DdosAttackDetected"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 6e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 6e8),
+        String("DdosAttackDetected"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `DDoS plan ${plan}: attack telemetry unavailable (${props.attackStatus})`
         : `DDoS plan ${plan}: volumetric attack detected (${props.attackVectors})`,
@@ -1897,14 +1867,13 @@ export function generateDdosProtectionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("DdosAttackMitigation"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 5e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 5e8),
+        String("DdosAttackMitigation"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `DDoS mitigation ${plan}: mitigation degraded (status=${props.mitigationStatus})`
         : `DDoS mitigation ${plan}: dropped ${props.droppedPackets} packets`,
@@ -1951,14 +1920,13 @@ export function generateDdosProtectionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("DdosTelemetryPipelineHealth"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e7, 6e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e7, 6e9),
+        String("DdosTelemetryPipelineHealth"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[tel] DDoS plan ${plan}: ${props.message}`,
     };
   }
@@ -2003,14 +1971,13 @@ export function generateDdosProtectionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("DdosFalsePositiveModelReview"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e7, 5e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e7, 5e9),
+        String("DdosFalsePositiveModelReview"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[fp-cal] DDoS plan ${plan}: heuristic ${props.heuristicId}`,
     };
   }
@@ -2056,14 +2023,13 @@ export function generateDdosProtectionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("DdosSuppressBudgetMeter"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e7, 4e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e7, 4e9),
+        String("DdosSuppressBudgetMeter"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[budget] DDoS plan ${plan}: ${props.message}`,
     };
   }
@@ -2104,14 +2070,13 @@ export function generateDdosProtectionLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 4e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 4e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `DDoS plan ${plan}: update failed`
       : `DDoS plan ${plan}: configuration updated`,
@@ -2174,14 +2139,13 @@ export function generateBastionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("BastionHostSessionEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 3e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 3e10),
+        String("BastionHostSessionEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Bastion ${host}: session failed for ${user} (${String(props.disconnectReason)})`
         : `Bastion ${host}: ${user} ${props.sessionState} ${props.sessionType} session`,
@@ -2225,14 +2189,13 @@ export function generateBastionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("BastionTunnelActivity"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e7, 8e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e7, 8e9),
+        String("BastionTunnelActivity"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Bastion ${host}: tunnel reset for ${user}`
         : `Bastion ${host}: native client tunnel active (${props.nativeClientMode})`,
@@ -2280,14 +2243,13 @@ export function generateBastionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("BastionShareableLinkEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e8, 4e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e8, 4e10),
+        String("BastionShareableLinkEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[link] Bastion ${host}: ${props.message}`,
     };
   }
@@ -2335,14 +2297,13 @@ export function generateBastionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("BastionKerberosDelegationTrace"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e9, 2e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e9, 2e11),
+        String("BastionKerberosDelegationTrace"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[kerb] Bastion ${host}: ${props.targetSpn} ${props.message}`,
     };
   }
@@ -2387,14 +2348,13 @@ export function generateBastionLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("BastionClipboardInspection"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e8, 5e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e8, 5e10),
+        String("BastionClipboardInspection"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[dlp] Bastion ${host}: ${props.verdict}`,
     };
   }
@@ -2437,14 +2397,13 @@ export function generateBastionLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 6e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 6e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr ? `Bastion ${host}: host update failed` : `Bastion ${host}: ${op} completed`,
   };
 }
@@ -2511,14 +2470,13 @@ export function generateWafPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ApplicationGatewayFirewallLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e5, 6e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e5, 6e8),
+        String("ApplicationGatewayFirewallLog"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `WAF policy ${policy}: blocked ${props.clientIp} rule=${props.ruleId}`
         : `WAF policy ${policy}: ${props.action} rule ${props.ruleGroup}`,
@@ -2564,14 +2522,13 @@ export function generateWafPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("AzureBotManagerRule"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 4e8),
+        String("AzureBotManagerRule"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `WAF policy ${policy}: bot challenge failed (${props.botCategory})`
         : `WAF policy ${policy}: bot score=${props.botScore} ${props.challengeResult}`,
@@ -2622,14 +2579,13 @@ export function generateWafPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ApplicationGatewayWafRateLimitEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(8e5, 9e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(8e5, 9e8),
+        String("ApplicationGatewayWafRateLimitEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[ratelimit] WAF ${policy}: ${props.observedHits}/${props.allowedRatePerWindow} in ${props.windowSec}s`,
     };
   }
@@ -2680,14 +2636,13 @@ export function generateWafPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ApplicationGatewayWafExclusionDrift"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e7, 7e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e7, 7e9),
+        String("ApplicationGatewayWafExclusionDrift"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[excl] WAF ${policy}: ${props.exclusionName} ${props.message}`,
     };
   }
@@ -2735,14 +2690,13 @@ export function generateWafPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ApplicationGatewayWafBodyInspection"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e5, 2e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e5, 2e9),
+        String("ApplicationGatewayWafBodyInspection"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[json] WAF ${policy}: ${props.anomalyTag}`,
     };
   }
@@ -2792,14 +2746,13 @@ export function generateWafPolicyLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 4e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 4e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `WAF policy ${policy}: policy update failed`
       : `WAF policy ${policy}: revision applied`,
@@ -2861,14 +2814,13 @@ export function generateVirtualWanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("VirtualWanP2SVpnTunnelStatus"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 4e8),
+        String("VirtualWanP2SVpnTunnelStatus"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Virtual WAN ${vwan}: site ${props.remoteSite} tunnel down on ${hub}`
         : `Virtual WAN ${vwan}: site ${props.remoteSite} ${props.tunnelState}`,
@@ -2912,14 +2864,13 @@ export function generateVirtualWanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("VirtualHubEffectiveRoutesChanged"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 3e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 3e8),
+        String("VirtualHubEffectiveRoutesChanged"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Virtual WAN ${vwan}: route propagation error on ${hub}`
         : `Virtual WAN ${vwan}: ${props.routeOperation} ${props.effectivePrefix} via ${props.routeTable}`,
@@ -2966,14 +2917,13 @@ export function generateVirtualWanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("VirtualWanNVADetachmentTrace"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e9, 8e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e9, 8e10),
+        String("VirtualWanNVADetachmentTrace"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[nva] VWAN ${vwan}: ${hub} ${props.nvaName}`,
     };
   }
@@ -3019,14 +2969,13 @@ export function generateVirtualWanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("VirtualHubSDWANQualityProbe"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e7, 4e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e7, 4e10),
+        String("VirtualHubSDWANQualityProbe"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[qos] VWAN ${vwan}: MOS ${props.mosScoreEstimated.toFixed(2)}`,
     };
   }
@@ -3071,14 +3020,13 @@ export function generateVirtualWanLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("VirtualHubCapacityMeter"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e9, 2e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e9, 2e11),
+        String("VirtualHubCapacityMeter"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[cap] VWAN ${vwan}: ${props.autoscaleRecommendation}`,
     };
   }
@@ -3121,14 +3069,13 @@ export function generateVirtualWanLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 5e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 5e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `Virtual WAN ${vwan}: control-plane update failed`
       : `Virtual WAN ${vwan}: ${op} succeeded`,
@@ -3189,14 +3136,13 @@ export function generateRouteServerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("RouteServerBgpSessionState"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 5e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 5e8),
+        String("RouteServerBgpSessionState"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Route Server ${rs}: BGP session with ${peerIp} down (${props.lastError})`
         : `Route Server ${rs}: BGP ${props.sessionState} peer ${peerIp} (${props.prefixCount} prefixes)`,
@@ -3239,14 +3185,13 @@ export function generateRouteServerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("RouteServerRouteAdvertisement"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e6, 4e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e6, 4e8),
+        String("RouteServerRouteAdvertisement"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Route Server ${rs}: failed to push routes to ${props.propagationTarget}`
         : `Route Server ${rs}: ${props.operation} for ${props.branchName}`,
@@ -3292,14 +3237,13 @@ export function generateRouteServerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("RouteServerPrefixGuardViolation"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e7, 9e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e7, 9e10),
+        String("RouteServerPrefixGuardViolation"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[guard] RS ${rs}: ${props.peerSubnet} prefixes=${props.prefixesReceivedSnapshot}`,
     };
   }
@@ -3343,14 +3287,13 @@ export function generateRouteServerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("RouteServerGracefulRestartTrace"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e9, 3e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e9, 3e11),
+        String("RouteServerGracefulRestartTrace"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[gr] RS ${rs}: ${props.fsmOutcome}`,
     };
   }
@@ -3395,14 +3338,13 @@ export function generateRouteServerLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("RouteServerFilterMapConsistency"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e8, 5e10),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e8, 5e10),
+        String("RouteServerFilterMapConsistency"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[map] RS ${rs}: ${props.mapName} ${props.message}`,
     };
   }
@@ -3445,14 +3387,13 @@ export function generateRouteServerLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 6e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 6e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr ? `Route Server ${rs}: provisioning failed` : `Route Server ${rs}: ${op} ok`,
   };
 }
@@ -3513,14 +3454,13 @@ export function generateNetworkWatcherLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NetworkWatcherFlowLogConfigure"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 4e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 4e9),
+        String("NetworkWatcherFlowLogConfigure"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Network Watcher ${nw}: flow log enable failed for ${nsgId}`
         : `Network Watcher ${nw}: flow logs writing to ${props.storageAccount}`,
@@ -3566,14 +3506,13 @@ export function generateNetworkWatcherLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NetworkWatcherPacketCaptureResult"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 12e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 12e9),
+        String("NetworkWatcherPacketCaptureResult"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Network Watcher ${nw}: packet capture failed on target VM`
         : `Network Watcher ${nw}: capture ${props.totalBytesCaptured} bytes to blob`,
@@ -3619,14 +3558,13 @@ export function generateNetworkWatcherLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NetworkWatcherTopologyRefreshMeter"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(9e9, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(9e9, 4e11),
+        String("NetworkWatcherTopologyRefreshMeter"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[topo] ${nw}: staleMin=${props.resourceGraphStaleMin}`,
     };
   }
@@ -3672,14 +3610,13 @@ export function generateNetworkWatcherLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NetworkWatcherNSGConnectivityMatrix"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e9, 3e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e9, 3e11),
+        String("NetworkWatcherNSGConnectivityMatrix"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[nsg-diff] ${nw}: ${props.dataplaneProbeResult}`,
     };
   }
@@ -3726,14 +3663,13 @@ export function generateNetworkWatcherLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("NetworkWatcherConnectionMonitorResult"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e7, 9e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e7, 9e11),
+        String("NetworkWatcherConnectionMonitorResult"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[cm] ${nw}: ${props.monitorName} RTT=${props.roundTripMs.toFixed(1)}ms`,
     };
   }
@@ -3776,14 +3712,13 @@ export function generateNetworkWatcherLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(5e7, 3e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(5e7, 3e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `Network Watcher ${nw}: operation failed`
       : `Network Watcher ${nw}: topology query completed`,
@@ -3845,14 +3780,13 @@ export function generateVpnClientLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("P2SConnectionLogEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 4e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 4e9),
+        String("P2SConnectionLogEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `P2S VPN ${gw}: client ${clientId.slice(0, 8)}… failed (${props.disconnectReason})`
         : `P2S VPN ${gw}: client connected VIP ${props.assignedVIP} (${props.authentication})`,
@@ -3896,14 +3830,13 @@ export function generateVpnClientLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("IKEDiagnosticLog"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e6, 5e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e6, 5e8),
+        String("IKEDiagnosticLog"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `P2S ${gw}: IKE negotiation failed (${props.failureDetail})`
         : `P2S ${gw}: tunnel ${props.cipherSuite} ${props.saStatus}`,
@@ -3950,14 +3883,13 @@ export function generateVpnClientLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("VpnClientTunnelPolicyAudit"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e8, 3e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e8, 3e11),
+        String("VpnClientTunnelPolicyAudit"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[routecheck] ${gw}: mode=${props.routeModeObserved}`,
     };
   }
@@ -4002,14 +3934,13 @@ export function generateVpnClientLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("VpnClientAADTokenDiag"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e7, 2e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e7, 2e11),
+        String("VpnClientAADTokenDiag"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[aad] ${gw}: skew=${props.expiresOnUtcSkewSec}s`,
     };
   }
@@ -4054,14 +3985,13 @@ export function generateVpnClientLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("VpnClientProfilePublishTrace"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e8, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e8, 4e11),
+        String("VpnClientProfilePublishTrace"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[pkg] ${gw}: ${props.packageFlavor}`,
     };
   }
@@ -4107,14 +4037,13 @@ export function generateVpnClientLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 6e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 6e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr ? `VPN gateway ${gw}: update failed` : `VPN gateway ${gw}: ${op} succeeded`,
   };
 }
@@ -4172,14 +4101,13 @@ export function generateFirewallPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("FirewallPolicyRuleCollectionGroupChanged"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e7, 4e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e7, 4e9),
+        String("FirewallPolicyRuleCollectionGroupChanged"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Firewall policy ${pol}: RCG ${props.ruleCollectionGroup} validation failed`
         : `Firewall policy ${pol}: applied ${props.changeType} on ${props.ruleCollectionGroup}`,
@@ -4223,14 +4151,13 @@ export function generateFirewallPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("FirewallPolicyPropagationStatus"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 8e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 8e9),
+        String("FirewallPolicyPropagationStatus"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `Firewall policy ${pol}: propagation incomplete (${props.propagationStatus})`
         : `Firewall policy ${pol}: committed to ${props.attachedFirewalls.length} firewall(s)`,
@@ -4278,14 +4205,13 @@ export function generateFirewallPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("FirewallPolicyIdpsSignatureMeter"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e8, 5e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e8, 5e11),
+        String("FirewallPolicyIdpsSignatureMeter"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[idps] ${pol}: ${props.signatureId}`,
     };
   }
@@ -4330,14 +4256,13 @@ export function generateFirewallPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("FirewallPolicyThreatIntelSync"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e9, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e9, 4e11),
+        String("FirewallPolicyThreatIntelSync"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[ti] ${pol}: ${props.syncOutcome}`,
     };
   }
@@ -4384,14 +4309,13 @@ export function generateFirewallPolicyLog(ts: string, er: number): EcsDocument {
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("FirewallPolicyDnsInspectTrace"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 4e11),
+        String("FirewallPolicyDnsInspectTrace"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[dns] ${pol}: ${props.queriedFqdn}`,
     };
   }
@@ -4437,14 +4361,13 @@ export function generateFirewallPolicyLog(ts: string, er: number): EcsDocument {
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 5e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 5e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `Firewall policy ${pol}: control-plane update failed`
       : `Firewall policy ${pol}: ${op} ok`,
@@ -4505,14 +4428,13 @@ export function generateExpressRouteCircuitLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteBgpPeeringState"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 6e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 6e8),
+        String("ExpressRouteBgpPeeringState"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `ExpressRoute ${circ}: ${props.peeringType} unhealthy (ARP ${props.arpUnresolved})`
         : `ExpressRoute ${circ}: ${props.peeringState} ${props.peeringType} routes=${props.learnedRoutes}`,
@@ -4555,14 +4477,13 @@ export function generateExpressRouteCircuitLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteCircuitProvisioningState"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e8, 12e9),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e8, 12e9),
+        String("ExpressRouteCircuitProvisioningState"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `ExpressRoute ${circ}: provisioning failed (${props.lastError})`
         : `ExpressRoute ${circ}: ${props.serviceProvider} ${props.bandwidthInMbps}Mbps ${props.provisioningState}`,
@@ -4608,14 +4529,13 @@ export function generateExpressRouteCircuitLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRoutePhysicalLayerDiag"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(3e9, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(3e9, 4e11),
+        String("ExpressRoutePhysicalLayerDiag"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[phy] ExpressRoute ${circ}: ${props.lastOpticalAlarm}`,
     };
   }
@@ -4660,14 +4580,13 @@ export function generateExpressRouteCircuitLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteCarrierHandoffMeter"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e8, 5e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e8, 5e11),
+        String("ExpressRouteCarrierHandoffMeter"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[sla] ExpressRoute ${circ}: ${props.handoffPop}`,
     };
   }
@@ -4712,14 +4631,13 @@ export function generateExpressRouteCircuitLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteVlanTranslateConsistency"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e9, 2e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e9, 2e11),
+        String("ExpressRouteVlanTranslateConsistency"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[vlan] ER ${circ}: cVlan=${props.customerVlan} mux=${props.peeringMux}`,
     };
   }
@@ -4765,14 +4683,13 @@ export function generateExpressRouteCircuitLog(ts: string, er: number): EcsDocum
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 5e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 5e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `ExpressRoute circuit ${circ}: ARM operation failed`
       : `ExpressRoute circuit ${circ}: updated`,
@@ -4833,14 +4750,13 @@ export function generateExpressRouteGatewayLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteGatewayConnectionEvent"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e7, 5e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e7, 5e8),
+        String("ExpressRouteGatewayConnectionEvent"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `ExpressRoute GW ${gw}: lost connectivity to circuit ${circuitId.split("/").pop()}`
         : `ExpressRoute GW ${gw}: ${props.connectionStatus} to circuit (bps in/out ${props.bitsInPerSecond}/${props.bitsOutPerSecond})`,
@@ -4882,14 +4798,13 @@ export function generateExpressRouteGatewayLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteGatewayArpTable"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(5e6, 3e8),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(5e6, 3e8),
+        String("ExpressRouteGatewayArpTable"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: isErr
         ? `ExpressRoute GW ${gw}: ARP resolution failed on ${props.failedPeer} path`
         : `ExpressRoute GW ${gw}: ARP OK primary=${props.onPremPrimaryRouterIp}`,
@@ -4936,14 +4851,13 @@ export function generateExpressRouteGatewayLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteGatewayMseeHealthPulse"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(2e8, 3e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(2e8, 3e11),
+        String("ExpressRouteGatewayMseeHealthPulse"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[msee] ER GW ${gw}: ${props.mseeFacility}`,
     };
   }
@@ -4988,14 +4902,13 @@ export function generateExpressRouteGatewayLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteGatewayIpsecRekeyTrace"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(4e9, 9e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(4e9, 9e11),
+        String("ExpressRouteGatewayIpsecRekeyTrace"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[ipsec] ER GW ${gw}: rekeys failed=${props.rekeyFailures}`,
     };
   }
@@ -5040,14 +4953,13 @@ export function generateExpressRouteGatewayLog(ts: string, er: number): EcsDocum
           properties: props,
         },
       },
-      event: {
-        kind: "event",
-        category: ["network"],
-        type: isErr ? ["denied"] : ["connection"],
-        action: String("ExpressRouteGatewayMacMigrationTrace"),
-        outcome: isErr ? "failure" : "success",
-        duration: randInt(1e10, 4e11),
-      },
+      event: azureLogEvent(
+        isErr,
+        randInt(1e10, 4e11),
+        String("ExpressRouteGatewayMacMigrationTrace"),
+        ["network"],
+        isErr ? ["denied"] : ["connection"]
+      ),
       message: `[mac] ER GW ${gw}: role=${props.failoverRole}`,
     };
   }
@@ -5094,14 +5006,13 @@ export function generateExpressRouteGatewayLog(ts: string, er: number): EcsDocum
         properties: props,
       },
     },
-    event: {
-      kind: "event",
-      category: ["network"],
-      type: isErr ? ["denied"] : ["connection"],
-      action: String(op),
-      outcome: isErr ? "failure" : "success",
-      duration: randInt(1e8, 6e9),
-    },
+    event: azureLogEvent(
+      isErr,
+      randInt(1e8, 6e9),
+      String(op),
+      ["network"],
+      isErr ? ["denied"] : ["connection"]
+    ),
     message: isErr
       ? `ExpressRoute GW ${gw}: link configuration failed`
       : `ExpressRoute GW ${gw}: ${op} completed`,
