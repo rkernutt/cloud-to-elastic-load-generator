@@ -524,19 +524,6 @@ function generateEksLog(ts: string, er: number): EcsDocument {
         log_line_kind: lineKind,
         cluster: { name: clusterName },
         node: { name: nodeName },
-        metrics: {
-          cluster_failed_node_count: { avg: isErr ? randInt(1, 3) : 0 },
-          node_cpu_utilization: { avg: randFloat(10, 80) },
-          node_memory_utilization: { avg: randFloat(20, 80) },
-          node_network_total_bytes: { sum: randInt(1000, 1e9) },
-          node_filesystem_utilization: { avg: randFloat(10, 80) },
-          pod_cpu_utilization: { avg: randFloat(1, 80) },
-          pod_memory_utilization: { avg: randFloat(5, 80) },
-          pod_network_rx_bytes: { sum: randInt(1000, 1e8) },
-          pod_network_tx_bytes: { sum: randInt(1000, 1e8) },
-          node_count: { avg: randInt(2, 50) },
-          pod_count: { avg: randInt(5, 500) },
-        },
       },
     },
     container: {
@@ -742,7 +729,6 @@ function generateBeanstalkLog(ts: string, er: number): EcsDocument {
   const latP90 = Number(randFloat(latP85 * 1.05, latP85 * 1.5));
   const latP95 = Number(randFloat(latP90 * 1.1, latP90 * 2));
   const latP99 = Number(randFloat(latP95 * 1.2, latP95 * 3));
-  const latP999 = Number(randFloat(latP99 * 1.1, latP99 * 2));
   const plainMessage = rand(isErr ? MSGS.error : status >= 400 ? MSGS.warn : MSGS.info);
   const useStructuredLogging = Math.random() < 0.55;
   const logSource = rand(["eb-engine", "nginx", "healthd", "platform-hooks"]);
@@ -788,26 +774,6 @@ function generateBeanstalkLog(ts: string, er: number): EcsDocument {
         structured_logging: useStructuredLogging,
         platform: rand(["Node.js 18", "Python 3.11", "Docker"]),
         version_label: `v${randInt(1, 200)}`,
-        metrics: {
-          ApplicationRequests2xx: { sum: status < 300 ? 1 : 0 },
-          ApplicationRequests3xx: { sum: status >= 300 && status < 400 ? 1 : 0 },
-          ApplicationRequests4xx: { sum: status >= 400 && status < 500 ? 1 : 0 },
-          ApplicationRequests5xx: { sum: status >= 500 ? 1 : 0 },
-          ApplicationLatencyP10: { avg: latP10 },
-          ApplicationLatencyP50: { avg: latP50 },
-          ApplicationLatencyP75: { avg: latP75 },
-          ApplicationLatencyP85: { avg: latP85 },
-          ApplicationLatencyP90: { avg: latP90 },
-          ApplicationLatencyP95: { avg: latP95 },
-          ApplicationLatencyP99: { avg: latP99 },
-          "ApplicationLatencyP99.9": { avg: latP999 },
-          ApplicationRequests: { sum: 1 },
-          InstancesSevere: { avg: isErr ? randInt(1, 3) : 0 },
-          InstancesDegraded: { avg: isErr ? randInt(1, 5) : 0 },
-          InstancesWarning: { avg: isErr ? randInt(1, 3) : 0 },
-          InstancesOk: { avg: randInt(1, 10) },
-          EnvironmentHealth: { avg: isErr ? 15 : 20 }, // 20=Ok, 15=Warning, 10=Degraded, 0=Severe
-        },
       },
     },
     http: { response: { status_code: status } },
@@ -855,7 +821,6 @@ function generateEcrLog(ts: string, er: number): EcsDocument {
   sevRem -= sevCritical;
   const sevHigh = isErr ? randInt(0, Math.min(sevRem, 10)) : 0;
   sevRem -= sevHigh;
-  const sevMedium = isErr ? sevRem : 0;
   const digest = `sha256:${randHexId(40)}`;
   const otherRegions = REGIONS.filter((r) => r !== region);
   const destRegion = rand(otherRegions.length ? otherRegions : REGIONS);
@@ -961,21 +926,6 @@ function generateEcrLog(ts: string, er: number): EcsDocument {
         replication_destination: action === "replication" ? replicationDestination : null,
         lifecycle_policy_rule_id: action === "lifecycle" ? lifecycleRuleId : null,
         layer_count: action === "push" || action === "pull" ? layerCount : null,
-        metrics: {
-          ImageCount: { avg: randInt(1, 1000) },
-          RepositorySizeInBytes: { avg: randInt(1e6, 50e9) },
-          LifecyclePolicyRuleEvaluationCount: {
-            sum:
-              action === "lifecycle" ? randInt(1, 50) : Math.random() > 0.9 ? randInt(1, 100) : 0,
-          },
-          PullCount: { sum: action === "pull" ? randInt(1, 1000) : 0 },
-          PushCount: { sum: action === "push" ? 1 : 0 },
-          ScanFindingsSeverityCritical: { sum: sevCritical },
-          ScanFindingsSeverityHigh: { sum: sevHigh },
-          ScanFindingsSeverityMedium: { sum: sevMedium },
-          ScanFindingsSeverityLow: { sum: randInt(0, 100) },
-          ScanFindingsSeverityInformational: { sum: randInt(0, 200) },
-        },
       },
     },
     event: {
@@ -1068,7 +1018,6 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
         : 0;
   const inService = Math.max(0, pendingSlots - pending);
   const useWarmPool = action === "WarmPoolTransition" || Math.random() < 0.22;
-  const wpMin = useWarmPool ? randInt(0, 2) : 0;
   const wpDesired = useWarmPool ? randInt(2, 10) : 0;
   const wpPending = useWarmPool ? randInt(0, 3) : 0;
   const wpTerm = useWarmPool ? randInt(0, 2) : 0;
@@ -1138,27 +1087,6 @@ function generateAutoScalingLog(ts: string, er: number): EcsDocument {
         lifecycle_hook_name: action === "LifecycleHook" ? hookName : null,
         lifecycle_transition: action === "LifecycleHook" ? lifecycleTransition : null,
         predictive_scaling_forecast: action === "PredictiveScalingForecast",
-        metrics: {
-          GroupMinSize: { avg: 2 },
-          GroupMaxSize: { avg: 50 },
-          GroupDesiredCapacity: { avg: desired },
-          GroupInServiceInstances: { avg: inService },
-          GroupPendingInstances: { avg: pending },
-          GroupStandbyInstances: { avg: standby },
-          GroupTerminatingInstances: { avg: terminating },
-          GroupTotalInstances: { avg: inService + pending + standby + terminating },
-          GroupInServiceCapacity: { avg: inService },
-          GroupPendingCapacity: { avg: pending },
-          GroupStandbyCapacity: { avg: standby },
-          GroupTerminatingCapacity: { avg: terminating },
-          GroupTotalCapacity: { avg: inService + pending + standby + terminating },
-          WarmPoolMinSize: { avg: wpMin },
-          WarmPoolDesiredCapacity: { avg: wpDesired },
-          WarmPoolPendingCapacity: { avg: wpPending },
-          WarmPoolTerminatingCapacity: { avg: wpTerm },
-          WarmPoolTotalCapacity: { avg: wpTotal },
-          WarmPoolWarmedCapacity: { avg: wpWarmed },
-        },
       },
     },
     event: {
@@ -1220,12 +1148,6 @@ function generateImageBuilderLog(ts: string, er: number): EcsDocument {
         os: rand(["Amazon Linux 2023", "Ubuntu 22.04", "Windows Server 2022", "RHEL 9"]),
         recipe_name: rand(["web-server-recipe", "hardened-base", "docker-host"]),
         ami_id: isErr ? null : imageId,
-        metrics: {
-          BuildDuration: { avg: dur },
-          ImageBuildSuccessCount: { sum: isErr ? 0 : 1 },
-          ImageBuildFailureCount: { sum: isErr ? 1 : 0 },
-          ComponentBuildDuration: { avg: randInt(60, Math.min(dur, 1200)) },
-        },
       },
     },
     event: {

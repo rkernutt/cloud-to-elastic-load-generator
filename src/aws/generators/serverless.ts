@@ -567,7 +567,6 @@ export function generateAppSyncLog(ts: string, er: number): EcsDocument {
   ]);
   const dur = Number(randFloat(1, isErr ? 5000 : 500));
   const status = isErr ? rand([400, 401, 403, 500]) : 200;
-  const requestCount = randInt(1, 5000);
   const requestId = randUUID();
   const graphQLAPIId = randId(12) + randId(14);
   const parentType = rand(["Query", "Mutation", "Subscription"]);
@@ -643,17 +642,6 @@ export function generateAppSyncLog(ts: string, er: number): EcsDocument {
               "DatasourceError",
             ])
           : null,
-        metrics: {
-          RequestCount: { sum: requestCount },
-          "4XXError": {
-            sum: status >= 400 && status < 500 ? randInt(1, Math.floor(requestCount * 0.1)) : 0,
-          },
-          "5XXError": { sum: status >= 500 ? randInt(1, Math.floor(requestCount * 0.05)) : 0 },
-          Latency: {
-            avg: dur,
-            p99: parseFloat((dur * Number(randFloat(1.5, 4.0))).toFixed(1)),
-          },
-        },
       },
     },
     http: { response: { status_code: status } },

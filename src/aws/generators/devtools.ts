@@ -300,14 +300,6 @@ function generateCodePipelineLog(ts: string, er: number): EcsDocument {
         state: isErr ? "Failed" : "Succeeded",
         revision_id: revision,
         structured_logging: true,
-        metrics: {
-          PipelineExecutionAttempts: { sum: 1 },
-          PipelineSuccessCount: { sum: isErr ? 0 : 1 },
-          PipelineFailureCount: { sum: isErr ? 1 : 0 },
-          ActionExecutionAttempts: { sum: 1 },
-          ActionSuccessCount: { sum: isErr ? 0 : 1 },
-          ActionFailureCount: { sum: isErr ? 1 : 0 },
-        },
       },
     },
     event: {
@@ -995,27 +987,6 @@ function generateXRayLog(ts: string, er: number): EcsDocument {
         },
         ...(cause ? { cause } : {}),
         subsegments,
-        metrics: {
-          ErrorRate: {
-            avg: isClientErr ? Number(randFloat(1, 20)) : Number(randFloat(0, 1)),
-          },
-          FaultRate: { avg: isErr ? Number(randFloat(1, 15)) : Number(randFloat(0, 0.5)) },
-          ThrottleRate: {
-            avg: isThrottle ? Number(randFloat(1, 10)) : Number(randFloat(0, 0.5)),
-          },
-          TotalCount: { sum: randInt(1, 10000) },
-          Latency: {
-            avg: dur * 1000,
-            p50: dur * 800,
-            p90: dur * 1500,
-            p95: dur * 2000,
-            p99: dur * 3000,
-          },
-          OkCount: { sum: !isErr && !isClientErr && !isThrottle ? randInt(1, 10000) : 0 },
-          ErrorCount: { sum: isClientErr ? randInt(1, 100) : 0 },
-          FaultCount: { sum: isErr ? randInt(1, 50) : 0 },
-          ThrottleCount: { sum: isThrottle ? randInt(1, 20) : 0 },
-        },
       },
     },
     http: {

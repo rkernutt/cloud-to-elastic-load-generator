@@ -139,32 +139,6 @@ function generateKinesisStreamsLog(ts: string, er: number): EcsDocument {
         scenario,
         shard_id: shardId,
         enhanced_fan_out_subscribers: efoConsumers,
-        metrics: {
-          GetRecords_Bytes: { avg: randInt(1000, 1e6) },
-          GetRecords_IteratorAgeMilliseconds: {
-            avg:
-              scenario === "iterator_expired" || scenario === "throughput_exceeded"
-                ? iteratorAgeMs
-                : isErr
-                  ? randInt(10000, 3600000)
-                  : randInt(0, 1000),
-          },
-          GetRecords_Latency: { avg: randInt(1, 50) },
-          GetRecords_Records: { avg: randInt(1, 1000), sum: randInt(1, 1000) },
-          GetRecords_Success: { sum: isErr ? 0 : 1 },
-          IncomingBytes: { avg: randInt(1000, 1e7) },
-          IncomingRecords: { avg: randInt(1, 10000) },
-          PutRecord_Bytes: { avg: randInt(100, 1e6) },
-          PutRecord_Latency: { avg: randInt(1, 100) },
-          PutRecords_Latency: { avg: randInt(1, 200) },
-          PutRecord_Success: { avg: isErr ? 0 : 1 },
-          PutRecords_Bytes: { avg: randInt(1000, 1e7) },
-          PutRecords_FailedRecords: { sum: isErr ? randInt(1, 100) : 0 },
-          PutRecords_SuccessfulRecords: { sum: randInt(1, 1000) },
-          PutRecords_ThrottledRecords: { sum: isErr ? randInt(1, 10) : 0 },
-          ReadProvisionedThroughputExceeded: { avg: isErr ? randInt(1, 10) : 0 },
-          WriteProvisionedThroughputExceeded: { avg: isErr ? randInt(1, 10) : 0 },
-        },
       },
     },
     event: {
@@ -308,35 +282,6 @@ function generateFirehoseLog(ts: string, er: number): EcsDocument {
           error_prefix: scenario === "s3_backup" && isErr ? `errors/${stream}/` : null,
           encryption: rand(["SSE_S3", "SSE_KMS", "NONE"]),
         },
-        metrics: {
-          IncomingBytes: { sum: incomingBytes },
-          IncomingRecords: { sum: recs },
-          "DeliveryToS3.Success": { avg: isErr && scenario !== "s3_backup" ? 0 : 1 },
-          "DeliveryToS3.Bytes": { sum: randInt(1000, Math.max(1000, incomingBytes)) },
-          "DeliveryToS3.DataFreshness": { avg: randInt(30, isErr ? 3600 : 180) },
-          "DeliveryToS3.Records": { sum: isErr ? randInt(0, recs) : recs },
-          "ExecuteProcessing.Duration": { avg: execProcMs, max: execProcMs + randInt(0, 400) },
-          "ExecuteProcessing.Success": {
-            avg:
-              scenario === "format_conversion_error" ||
-              (isErr && scenario === "transformation_lambda_invoke")
-                ? 0
-                : 1,
-          },
-          "BackupToS3.Bytes": {
-            sum: scenario === "s3_backup" ? randInt(1e4, 1e7) : randInt(0, 1e5),
-          },
-          "BackupToS3.Records": {
-            sum: scenario === "s3_backup" ? randInt(10, 5000) : randInt(0, 100),
-          },
-          "BackupToS3.Success": {
-            avg: scenario === "s3_backup" && !isErr ? 1 : scenario === "s3_backup" ? 0 : 1,
-          },
-          "DataReadFromKinesisStream.Bytes": { sum: randInt(1000, 1e8) },
-          "DataReadFromKinesisStream.Records": { sum: randInt(1, 10000) },
-          ThrottledGetRecords: { sum: isErr ? randInt(1, 10) : 0 },
-          ThrottledGetShardIterator: { sum: 0 },
-        },
       },
     },
     event: {
@@ -410,12 +355,6 @@ function generateKinesisAnalyticsLog(ts: string, er: number): EcsDocument {
     timestamp: new Date(ts).toISOString(),
     ...(isErr ? { error: rand(["CheckpointFailure", "OutOfMemory", "KPU_LIMIT_EXCEEDED"]) } : {}),
   });
-  const metrics = {
-    records_in_per_second: rps,
-    input_watermark_lag_ms: lagMs,
-    kpu_utilization_pct: randInt(20, isErr ? 99 : 80),
-    checkpoint_duration_ms: randInt(100, isErr ? 30000 : 2000),
-  };
   return {
     "@timestamp": ts,
     cloud: {
@@ -435,7 +374,6 @@ function generateKinesisAnalyticsLog(ts: string, er: number): EcsDocument {
         last_checkpoint_duration_ms: randInt(100, isErr ? 30000 : 2000),
         kpu_count: randInt(1, 64),
         structured_logging: useStructuredLogging,
-        metrics,
         error: isErr ? rand(["CheckpointFailure", "OutOfMemory", "KPU_LIMIT_EXCEEDED"]) : null,
       },
     },
@@ -537,24 +475,6 @@ function generateMskLog(ts: string, er: number): EcsDocument {
         consumer_group: cg,
         lag: isErr ? randInt(10000, 1000000) : randInt(0, 100),
         under_replicated_partitions: isErr ? randInt(1, 20) : 0,
-        metrics: {
-          BytesInPerSec: { avg: randInt(1000, 1e7) },
-          BytesOutPerSec: { avg: randInt(1000, 1e7) },
-          MessagesInPerSec: { avg: randInt(1, 10000) },
-          FetchConsumerTotalTimeMsMean: { avg: randInt(1, 100) },
-          ProduceTotalTimeMsMean: { avg: randInt(1, 50) },
-          UnderReplicatedPartitions: { avg: isErr ? randInt(1, 5) : 0 },
-          UnderMinIsrPartitionCount: { avg: isErr ? randInt(1, 3) : 0 },
-          OfflinePartitionsCount: { avg: isErr ? randInt(0, 2) : 0 },
-          ActiveControllerCount: { avg: 1 },
-          GlobalPartitionCount: { avg: randInt(10, 1000) },
-          GlobalTopicCount: { avg: randInt(1, 100) },
-          KafkaDataLogsDiskUsed: { avg: randFloat(10, 90) },
-          CPUUser: { avg: randFloat(1, 80) },
-          CPUSystem: { avg: randFloat(1, 20) },
-          NetworkRxDropped: { sum: 0 },
-          NetworkTxDropped: { sum: 0 },
-        },
       },
     },
     kafka: { topic, partition },
@@ -1145,14 +1065,6 @@ function generateEventBridgeLog(ts: string, er: number): EcsDocument {
         enrichment_arn: logKind === "pipe_enrichment" ? enrichmentArn : null,
         pipe_name: logKind === "pipe_enrichment" ? pipeName : null,
         structured_logging: useStructuredLogging,
-        metrics: {
-          Invocations: { sum: 1 },
-          FailedInvocations: { sum: isErr ? 1 : 0 },
-          TriggeredRules: { sum: 1 },
-          MatchedEvents: { sum: randInt(1, 100) },
-          ThrottledRules: { sum: isErr ? randInt(1, 5) : 0 },
-          DeadLetterInvocations: { sum: isErr && Math.random() > 0.5 ? 1 : 0 },
-        },
       },
     },
     event: {
@@ -1344,26 +1256,6 @@ function generateStepFunctionsLog(ts: string, er: number): EcsDocument {
         duration_seconds: dur,
         structured_logging: useStructuredLogging,
         execution_history_event: executionHistoryEvent,
-        metrics: isExpress
-          ? {
-              // Express workflows: high-volume, async, no history retention
-              ExecutionsStarted: { sum: randInt(100, 100000) },
-              ExecutionsSucceeded: { sum: isErr ? 0 : randInt(100, 100000) },
-              ExecutionsFailed: { sum: isErr ? randInt(1, 1000) : 0 },
-              ExecutionThrottled: { sum: isErr ? randInt(0, 500) : 0 },
-              ExecutionTime: { avg: dur * 1000, p99: dur * 3000 },
-              ExecutionsTimedOut: { sum: isErr ? randInt(0, 50) : 0 },
-            }
-          : {
-              // Standard workflows: lower volume, exactly-once, full history
-              ExecutionsStarted: { sum: randInt(1, 1000) },
-              ExecutionsSucceeded: { sum: isErr ? 0 : randInt(1, 1000) },
-              ExecutionsFailed: { sum: isErr ? randInt(1, 50) : 0 },
-              ExecutionsAborted: { sum: randInt(0, 5) },
-              ExecutionsTimedOut: { sum: isErr ? randInt(0, 10) : 0 },
-              ExecutionThrottled: { sum: isErr ? randInt(0, 20) : 0 },
-              ExecutionTime: { avg: dur * 1000, max: dur * 2000 },
-            },
       },
     },
     event: {

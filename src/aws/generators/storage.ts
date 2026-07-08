@@ -294,32 +294,6 @@ function generateS3Log(ts: string, er: number) {
         operation: op,
         request_id: requestId,
         error_code: isErr ? errorCodeStr : null,
-        metrics: {
-          BucketSizeBytes: { avg: randInt(1e6, 1e12) },
-          NumberOfObjects: { avg: randInt(1, 1e6) },
-          AllRequests: { sum: randInt(1, 100000) },
-          GetRequests: { sum: randInt(1, 50000) },
-          PutRequests: { sum: randInt(1, 10000) },
-          DeleteRequests: { sum: randInt(0, 1000) },
-          HeadRequests: { sum: randInt(1, 5000) },
-          PostRequests: { sum: randInt(0, 1000) },
-          ListRequests: { sum: randInt(1, 5000) },
-          SelectRequests: { sum: randInt(0, 500) },
-          SelectScannedBytes: { sum: randInt(0, 1e9) },
-          SelectReturnedBytes: { sum: randInt(0, 1e8) },
-          BytesDownloaded: { sum: randInt(1000, 1e10) },
-          BytesUploaded: { sum: randInt(1000, 1e9) },
-          "4xxErrors": { sum: isErr ? randInt(1, 100) : 0 },
-          "5xxErrors": { sum: isErr ? randInt(1, 10) : 0 },
-          FirstByteLatency: {
-            avg: Number(randFloat(1, isErr ? 2000 : 100)),
-            p99: Number(randFloat(10, isErr ? 5000 : 500)),
-          },
-          TotalRequestLatency: {
-            avg: Number(randFloat(5, isErr ? 5000 : 500)),
-            p99: Number(randFloat(50, isErr ? 10000 : 2000)),
-          },
-        },
       },
       s3_request: {
         uploaded: { bytes: randInt(0, 1e9) },
@@ -346,17 +320,7 @@ function generateS3Log(ts: string, er: number) {
         bucket: { size: { bytes: randInt(1e6, 1e12) } },
         number_of_objects: randInt(1, 1e6),
       },
-      s3_storage_lens: {
-        metrics: {
-          StorageBytes: { avg: randInt(1e6, 1e12) },
-          ObjectCount: { avg: randInt(1, 1e6) },
-          DeleteMarkerObjectCount: { avg: randInt(0, 1000) },
-          CurrentVersionStorageBytes: { avg: randInt(1e6, 1e11) },
-          NonCurrentVersionStorageBytes: { avg: randInt(0, 1e10) },
-          EncryptedStorageBytes: { avg: randInt(1e6, 1e12) },
-          IncompleteMultipartUploadStorageBytes: { avg: randInt(0, 1e8) },
-        },
-      },
+      s3_storage_lens: {},
     },
     http: { response: { status_code: status, bytes: bytesSent } },
     client: { ip: remoteIp },
@@ -805,17 +769,6 @@ function generateFsxLog(ts: string, er: number): EcsDocument {
         storage_capacity_gb: rand([1200, 2400, 4800, 9600]),
         throughput_capacity_mbps: rand([128, 256, 512, 1024, 2048]),
         storage_used_percent: isErr ? randInt(90, 100) : randInt(10, 80),
-        metrics: {
-          DataReadBytes: { sum: randInt(1000, 1e9) },
-          DataWriteBytes: { sum: randInt(1000, 1e9) },
-          DataReadOperations: { sum: randInt(1, 10000) },
-          DataWriteOperations: { sum: randInt(1, 10000) },
-          MetadataOperations: { sum: randInt(1, 5000) },
-          FreeStorageCapacity: { avg: randInt(1e9, 100e9) },
-          StorageCapacity: { avg: randInt(10e9, 1000e9) },
-          CPUUtilization: { avg: Number(randFloat(1, 80)) },
-          NetworkThroughputUtilization: { avg: Number(randFloat(1, 80)) },
-        },
       },
     },
     event: {
@@ -1077,8 +1030,6 @@ function generateStorageGatewayLog(ts: string, er: number): EcsDocument {
     ],
   };
   const level = isErr ? "error" : Math.random() < 0.1 ? "warn" : "info";
-  const cacheHitPct = Number(randFloat(60, 99));
-  const cacheMissPct = parseFloat((100 - cacheHitPct).toFixed(2));
   return {
     "@timestamp": ts,
     cloud: {
@@ -1096,23 +1047,6 @@ function generateStorageGatewayLog(ts: string, er: number): EcsDocument {
         cache_used_percent: isErr ? randInt(90, 100) : randInt(10, 70),
         upload_buffer_used_percent: isErr ? randInt(85, 100) : randInt(5, 60),
         cloud_bytes_uploaded: randInt(0, 1e9),
-        metrics: {
-          "CacheHit.Percent": { avg: cacheHitPct },
-          "CacheMiss.Percent": { avg: cacheMissPct },
-          "CacheUsed.Percent": { avg: Number(randFloat(10, 90)) },
-          CloudBytesDownloaded: { sum: randInt(1000, 1e9) },
-          CloudBytesUploaded: { sum: randInt(1000, 1e9) },
-          CloudDownloadLatency: { avg: Number(randFloat(10, 5000)) },
-          ReadBytes: { sum: randInt(1000, 1e9) },
-          WriteBytes: { sum: randInt(1000, 1e9) },
-          QueuedWrites: { avg: randInt(0, 1000) },
-          UploadBufferUsed: { avg: randInt(0, 1e9) },
-          UploadBufferFree: { avg: randInt(0, 1e9) },
-          CacheHits: { sum: randInt(100, 100000) },
-          CacheMisses: { sum: randInt(1, 1000) },
-          CachePercentDirty: { avg: Number(randFloat(0, 20)) },
-          CachePercentUsed: { avg: Number(randFloat(10, 90)) },
-        },
       },
     },
     event: {
@@ -1179,13 +1113,6 @@ function generateS3StorageLensLog(ts: string, er: number) {
         total_storage_bytes: totalBytes,
         total_object_count: objectCount,
         storage_type: storageType,
-        metrics: {
-          BucketCount: { avg: bucketCount },
-          TotalStorageBytes: { sum: totalBytes },
-          TotalObjectCount: { sum: objectCount },
-          BytesUsed: { sum: totalBytes },
-          ObjectCount: { sum: objectCount },
-        },
       },
     },
     event: {

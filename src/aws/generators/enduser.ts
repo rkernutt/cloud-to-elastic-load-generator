@@ -407,21 +407,6 @@ function generateGameLiftLog(ts: string, er: number): EcsDocument {
         error_code: isErr
           ? rand(["InvalidFleetStatus", "FleetCapacityExceeded", "InvalidGameSession"])
           : null,
-        metrics: {
-          ActiveInstances: { avg: randInt(1, 100) },
-          IdleInstances: { avg: randInt(0, 20) },
-          PercentIdleInstances: { avg: Number(randFloat(0, 30)) },
-          DesiredInstances: { avg: randInt(2, 100) },
-          MinInstances: { avg: 2 },
-          MaxInstances: { avg: 100 },
-          InstanceInterruptions: { sum: isErr ? randInt(1, 5) : 0 },
-          ActiveGameSessions: { avg: randInt(0, 1000) },
-          ActivatingGameSessions: { avg: randInt(0, 50) },
-          AvailableGameSessions: { avg: randInt(0, 500) },
-          ActivePlayerSessions: { avg: randInt(0, 10000) },
-          CurrentPlayerSessions: { avg: randInt(0, 5000) },
-          PlayerSessionActivations: { sum: randInt(1, 100) },
-        },
       },
     },
     event: {
@@ -1090,12 +1075,6 @@ function generateMediaConvertLog(ts: string, er: number): EcsDocument {
         error_message: isErr
           ? rand(["Invalid input file", "Unsupported codec", "Output permissions denied"])
           : null,
-        metrics: {
-          JobsCompletedCount: { sum: isErr ? 0 : 1 },
-          JobsErroredCount: { sum: isErr ? 1 : 0 },
-          StandbyTime: { avg: randInt(0, 300) },
-          TranscodingTime: { avg: dur },
-        },
       },
     },
     event: {
@@ -1173,13 +1152,6 @@ function generateMediaLiveLog(ts: string, er: number): EcsDocument {
         video_bitrate_kbps: isErr ? randInt(500, 2000) : randInt(3000, 15000),
         input_loss_frames: isErr ? randInt(1, 1000) : 0,
         encoder_fps: isErr ? randInt(5, 24) : rand([24, 25, 29.97, 30, 60]),
-        metrics: {
-          ActiveAlerts: { sum: isErr ? randInt(1, 5) : 0 },
-          ChannelInputErrorSeconds: { sum: isErr ? randInt(1, 300) : 0 },
-          NetworkOut: { avg: randInt(1000000, 50000000) },
-          OutputLossSeconds: { sum: isErr ? randInt(1, 60) : 0 },
-          FillMsec: { sum: isErr ? randInt(0, 5000) : 0 },
-        },
       },
     },
     event: {

@@ -131,13 +131,6 @@ function generateCloudFormationLog(ts: string, er: number): EcsDocument {
               : "DRIFTED"
             : rand(["NOT_CHECKED", "IN_SYNC", "DRIFTED"]),
         structured_logging: useStructuredLogging,
-        metrics: {
-          TotalStack: { avg: randInt(1, 500) },
-          ErroredStack: { avg: isErr ? randInt(1, 10) : 0 },
-          RollbackStack: { avg: isErr ? randInt(1, 5) : 0 },
-          DeletedStack: { avg: randInt(0, 50) },
-          StackInstancesDeployed: { avg: randInt(0, 10000) },
-        },
       },
     },
     event: {

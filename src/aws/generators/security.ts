@@ -887,14 +887,6 @@ function generateInspectorLog(ts: string, er: number): EcsDocument {
                   },
                 },
               }),
-        metrics: {
-          TotalFindings: { sum: randInt(1, 500) },
-          CriticalFindings: { sum: severity === "CRITICAL" ? randInt(1, 50) : 0 },
-          HighFindings: { sum: severity === "HIGH" ? randInt(1, 100) : 0 },
-          MediumFindings: { sum: severity === "MEDIUM" ? randInt(1, 200) : 0 },
-          LowFindings: { sum: ["LOW", "INFORMATIONAL"].includes(severity) ? randInt(1, 300) : 0 },
-          CoveredResources: { avg: randInt(10, 5000) },
-        },
       },
     },
     vulnerability: {
@@ -1015,12 +1007,6 @@ function generateConfigLog(ts: string, er: number): EcsDocument {
               "Public access enabled",
             ])
           : "Resource is compliant",
-        metrics: {
-          ComplianceByConfigRule: { avg: isNonCompliantFinal ? 0 : 1 },
-          NonCompliantRules: { sum: isNonCompliantFinal ? 1 : 0 },
-          CompliantRules: { sum: isNonCompliantFinal ? 0 : 1 },
-          ConfigurationItemsRecorded: { sum: randInt(1, 100) },
-        },
       },
     },
     event: {
@@ -1160,8 +1146,6 @@ function generateCognitoLog(ts: string, er: number): EcsDocument {
   ]);
   const isRiskEvent = riskEvents.includes(action);
   const user = randEmail(`user-${randId(8).toLowerCase()}`);
-  const signIns = randInt(100, 10000);
-  const tokenRefreshes = randInt(500, 50000);
   const isAccountTakeover = action === "AccountTakeoverRisk";
   const riskLevel = rand(["HIGH", "MEDIUM", "LOW"]);
   const riskDecision =
@@ -1220,21 +1204,6 @@ function generateCognitoLog(ts: string, er: number): EcsDocument {
             }
           : {}),
         ...(advancedSecurity ? { advanced_security: advancedSecurity } : {}),
-        metrics: {
-          SignInSuccesses: { sum: isErr ? 0 : signIns },
-          SignInAttempts: { sum: signIns + (isErr ? randInt(10, 500) : 0) },
-          TokenRefreshSuccesses: { sum: isErr ? 0 : tokenRefreshes },
-          SignUpSuccesses: { sum: action === "SignUp" && !isErr ? randInt(1, 100) : 0 },
-          FederationSuccesses: { sum: Math.random() > 0.8 ? randInt(1, 500) : 0 },
-          CallCount: { sum: randInt(1000, 100000) },
-          ThrottleCount: { sum: isErr ? randInt(1, 100) : 0 },
-          AccountTakeoverRisk: {
-            sum: isAccountTakeover ? randInt(1, 10) : isErr ? randInt(0, 5) : 0,
-          },
-          CompromisedCredentialsRisk: {
-            sum: action === "CompromisedCredentials" ? randInt(1, 5) : isErr ? randInt(0, 3) : 0,
-          },
-        },
       },
     },
     user: { name: isErr ? null : user },
@@ -1316,12 +1285,6 @@ function generateKmsLog(ts: string, er: number): EcsDocument {
         error_code: isErr
           ? rand(["DisabledException", "AccessDeniedException", "KMSInvalidStateException"])
           : null,
-        metrics: {
-          SecretsManagerCrossAccountBlocking: { sum: 0 },
-          KeysCount: { avg: randInt(1, 1000) },
-          KeysPendingDeletion: { avg: randInt(0, 10) },
-          KeysDisabled: { avg: randInt(0, 5) },
-        },
       },
     },
     event: {

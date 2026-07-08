@@ -442,23 +442,6 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
     ...(isStudio ? { space: spaceName, appType, user } : {}),
     ...(isErr ? { status: "Failed" } : { status: "Succeeded" }),
   });
-  const isTrainingJob = jobType === "Training" || jobType === "HyperparameterTuning";
-  const epoch = randInt(1, 100);
-  const trainingMetrics = isTrainingJob
-    ? {
-        "train:loss": parseFloat((Math.random() * 0.8 + 0.05).toFixed(4)),
-        "train:accuracy": parseFloat((Math.random() * 0.3 + 0.7).toFixed(4)),
-        "validation:loss": parseFloat((Math.random() * 0.9 + 0.1).toFixed(4)),
-        "validation:accuracy": parseFloat((Math.random() * 0.25 + 0.7).toFixed(4)),
-        epoch,
-        gpu_utilization_pct: randInt(40, 99),
-        cpu_utilization_pct: randInt(30, 90),
-      }
-    : { gpu_utilization_pct: randInt(10, 80), cpu_utilization_pct: randInt(20, 75) };
-  const invocations = randInt(1, 5000);
-  const modelLatencyMs = randInt(5, isErr ? 5000 : 200);
-  const gpuUtil = randInt(40, isErr ? 99 : 85);
-  const cpuUtil = randInt(30, isErr ? 95 : 75);
   return {
     "@timestamp": ts,
     cloud: {
@@ -496,7 +479,6 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
           type: instanceType,
           count: instanceCount,
         },
-        metrics: trainingMetrics,
         studio: isStudio
           ? {
               space_name: spaceName,
@@ -512,19 +494,6 @@ function generateSageMakerLog(ts: string, er: number): EcsDocument {
               lifecycle_config: false,
               continuous_logging: false,
             },
-        cloudwatch_metrics: {
-          Invocations: { sum: invocations },
-          ModelLatency: { avg: modelLatencyMs * 1000 },
-          OverheadLatency: { avg: randInt(1, 50) * 1000 },
-          GPUUtilization: { avg: gpuUtil },
-          GPUMemoryUtilization: { avg: randInt(30, isErr ? 99 : 80) },
-          CPUUtilization: { avg: cpuUtil },
-          DiskUtilization: { avg: randInt(10, isErr ? 95 : 60) },
-          MemoryUtilization: { avg: randInt(50, isErr ? 98 : 80) },
-          Invocations4XXError: { sum: isErr && Math.random() < 0.3 ? randInt(1, 50) : 0 },
-          Invocations5XXError: { sum: isErr ? randInt(1, 100) : 0 },
-          ModelSetupTime: { avg: randInt(100, 5000) },
-        },
       },
     },
     log: { level },
@@ -586,7 +555,6 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
         : randInt(50, 400)
       : null;
   const lat = Number(randFloat(0.5, isErr ? 30 : 15));
-  const invocations = randInt(1, 500);
   const latencyMs = Math.round(lat * 1000);
   const inputTokensPerSec =
     isStreaming && !isErr ? parseFloat((inputTokens / lat).toFixed(1)) : null;
@@ -797,13 +765,6 @@ function generateBedrockLog(ts: string, er: number): EcsDocument {
         time_to_first_token_ms: ttftMs,
         input_tokens_per_sec: inputTokensPerSec,
         model_family: modelFamily,
-        metrics: {
-          Invocations: { sum: invocations },
-          InvocationLatency: { avg: latencyMs, p99: latencyMs * 2 },
-          InputTokenCount: { sum: inputTokens },
-          OutputTokenCount: { sum: outputTokens },
-          Throttles: { sum: isErr ? randInt(1, 20) : 0 },
-        },
       },
     },
     event: {
@@ -1125,14 +1086,6 @@ function generateTextractLog(ts: string, er: number): EcsDocument {
               "BadDocumentException",
             ])
           : null,
-        metrics: {
-          DocumentsProcessed: { sum: 1 },
-          ThrottledRequests: { sum: isErr ? 1 : 0 },
-          ResponseTime: { avg: Number(randFloat(500, isErr ? 30000 : 5000)) },
-          SuccessfulRequests: { sum: isErr ? 0 : 1 },
-          UserErrorRequests: { sum: isErr ? randInt(1, 5) : 0 },
-          ServerErrorRequests: { sum: 0 },
-        },
       },
     },
     event: {
@@ -1266,11 +1219,6 @@ function generateComprehendLog(ts: string, er: number): EcsDocument {
         error_code: isErr
           ? rand(["TextSizeLimitExceededException", "UnsupportedLanguageException"])
           : null,
-        metrics: {
-          NumberOfSuccessfulRequest: { sum: 1 },
-          NumberOfFailedRequest: { sum: isErr ? 1 : 0 },
-          ResponseTime: { avg: Number(randFloat(100, isErr ? 5000 : 500)) },
-        },
       },
     },
     event: {
@@ -1468,12 +1416,6 @@ function generateTranscribeLog(ts: string, er: number): EcsDocument {
         error_code: isErr
           ? rand(["InternalFailure", "BadRequestException", "LimitExceededException"])
           : null,
-        metrics: {
-          TranscriptionJobsCompleted: { sum: isErr ? 0 : 1 },
-          TranscriptionJobsFailed: { sum: isErr ? 1 : 0 },
-          TranscriptionJobsPending: { avg: randInt(0, 10) },
-          TranscriptionJobsRunning: { avg: randInt(0, 5) },
-        },
       },
     },
     event: {

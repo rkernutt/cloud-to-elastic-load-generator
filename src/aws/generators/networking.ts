@@ -1494,13 +1494,6 @@ function generateNetworkFirewallLog(ts: string, er: number): EcsDocument {
         firewall_name: fwName,
         availability_zone: az,
         policy_name: "prod-fw-policy",
-        metrics: {
-          DroppedPackets: { sum: action === "DROP" ? randInt(1, 1000) : 0 },
-          PassedPackets: { sum: action === "PASS" ? randInt(1000, 100000) : 0 },
-          RejectedPackets: { sum: 0 },
-          Packets: { sum: randInt(1000, 100000) },
-          DroppedBytes: { sum: action === "DROP" ? randInt(64, 65535) : 0 },
-        },
       },
     },
     source: { ip: srcIp, port: srcPort },

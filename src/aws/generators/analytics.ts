@@ -61,7 +61,6 @@ function generateEmrLog(ts: string, er: number): EcsDocument[] {
           : "SUCCEEDED";
   const durationSec = randInt(60, level === "error" ? 7200 : 3600);
   const numCompletedTasks = randInt(10, 500);
-  const numFailedTasks = level === "error" ? randInt(1, 20) : 0;
 
   // Real EMR CloudWatch log groups follow: /aws/emr/j-XXXXX/... patterns
   const logSource = rand(["steps", "containers", "spark", "yarn", "hive"]);
@@ -125,20 +124,6 @@ function generateEmrLog(ts: string, er: number): EcsDocument[] {
     error: errorMsgs,
   };
   const message = rand(MSGS[level]);
-  const heapUsage = randInt(25, 92) / 100;
-  const emrMetrics = {
-    executor_count: executorCount,
-    running_step_count: level === "error" ? 0 : randInt(1, 5),
-    failed_step_count: level === "error" ? randInt(1, 3) : 0,
-    hdfs_utilization_pct: randInt(20, 95),
-    yarn_memory_used_mb: randInt(1024, 65536),
-    elapsedTime: durationSec * 1000,
-    numCompletedTasks,
-    numFailedTasks,
-    jvm_heap_usage: heapUsage,
-    gc_time_ms: randInt(500, 45000),
-    numberAllExecutors: randInt(executorCount, executorCount * 2),
-  };
   const emrDoc: EcsDocument = {
     "@timestamp": ts,
     cloud: {
@@ -160,36 +145,6 @@ function generateEmrLog(ts: string, er: number): EcsDocument[] {
         step_id: stepId,
         job: { name: job, id: appId, run_state: runState },
         log_source: logSource,
-        metrics: emrMetrics,
-      },
-      elasticmapreduce: {
-        metrics: {
-          S3BytesWritten: { sum: randInt(1e6, 1e12) },
-          S3BytesRead: { sum: randInt(1e6, 1e12) },
-          HDFSUtilization: { avg: emrMetrics.hdfs_utilization_pct },
-          HDFSBytesRead: { sum: randInt(1e6, 1e11) },
-          HDFSBytesWritten: { sum: randInt(1e6, 1e11) },
-          TotalNodesRunning: { avg: executorCount + 1 },
-          YARNMemoryAvailablePercentage: { avg: Number(randFloat(5, 80)) },
-          CoreNodesRunning: { avg: randInt(2, executorCount) },
-          CoreNodesPending: { avg: level === "error" ? randInt(1, 5) : 0 },
-          TaskNodesRunning: { avg: randInt(0, executorCount) },
-          LiveDataNodes: { avg: randInt(2, executorCount) },
-          CapacityRemainingGB: { avg: Number(randFloat(10, 5000)) },
-          MemoryAvailableMB: { sum: emrMetrics.yarn_memory_used_mb },
-          MemoryReservedMB: { avg: randInt(512, 32768) },
-          MemoryTotalMB: { sum: randInt(8192, 131072) },
-          ContainersPending: { avg: level === "error" ? randInt(1, 20) : 0 },
-          ContainerPendingRatio: {
-            avg: level === "error" ? Number(randFloat(0.5, 5.0)) : Number(randFloat(0, 0.5)),
-          },
-          ContainersAllocated: { avg: randInt(1, executorCount * 2) },
-          AppsCompleted: { sum: randInt(1, 100) },
-          AppsFailed: { sum: level === "error" ? randInt(1, 10) : 0 },
-          AppsKilled: { sum: level === "error" ? randInt(0, 5) : 0 },
-          AppsPending: { avg: randInt(0, 5) },
-          AppsRunning: { avg: level === "error" ? 0 : randInt(1, 5) },
-        },
       },
     },
     process: {
@@ -1211,108 +1166,6 @@ function generateGlueLog(ts: string, er: number): EcsDocument {
   const message = useContinuousLogging
     ? `${new Date(ts).toISOString().replace("T", " ").replace("Z", "")} ${level.toUpperCase()} [${threadName}] ${loggerName}: ${plainMessage}`
     : plainMessage;
-  // Job metrics (when "Enable job metrics" is on in Glue) — align with AWS Glue Observability metric names
-  const heapUsedPct = randInt(25, 92) / 100;
-  const diskUsedPct = randInt(15, 85) / 100;
-  const diskUsedGB = randInt(20, 400);
-  const diskAvailGB = Math.round((diskUsedGB / diskUsedPct) * (1 - diskUsedPct));
-  const heapUsedBytes = randInt(512 * 1e6, 4 * 1e9);
-  const heapAvailBytes = Math.round((heapUsedBytes * (1 - heapUsedPct)) / heapUsedPct);
-  const numCompletedTasks = randInt(10, 500);
-  const numFailedTasks = isErr ? randInt(1, 20) : 0;
-  const numKilledTasks = isErr ? randInt(0, 5) : 0;
-  const numCompletedStages = randInt(1, 12);
-  const numberAllExecutors = randInt(dpus, dpus * 2);
-  const numberMaxNeededExecutors = randInt(numberAllExecutors, dpus * 3);
-  const bytesRead = Math.floor(recordsRead * randInt(50, 500)); // synthetic bytes from records
-  const bytesWritten = Math.floor(recordsWritten * randInt(50, 500));
-  const glueMetrics = {
-    driver: {
-      aggregate: {
-        numRecords: recordsRead,
-        numFailedRecords: recordsFailed,
-        elapsedTime: durationSec * 1000, // CloudWatch: glue.driver.aggregate.elapsedTime in milliseconds
-        numCompletedTasks,
-        numFailedTasks,
-        numKilledTasks,
-        numCompletedStages,
-        bytesRead,
-        shuffleBytesWritten: randInt(0, Math.floor(bytesRead * 0.8)),
-        shuffleLocalBytesRead: randInt(0, Math.floor(bytesRead * 0.7)),
-        gc_time_ms: randInt(500, 45000),
-      },
-      // AWS Glue Observability: glue.driver.memory.heap.* and glue.driver.memory.heap.used.percentage
-      memory: {
-        heap: {
-          available: heapAvailBytes,
-          used: heapUsedBytes,
-          used_percentage: Math.round(heapUsedPct * 100),
-        },
-        "non-heap": {
-          available: randInt(64e6, 256e6),
-          used: randInt(32e6, 128e6),
-          used_percentage: randInt(20, 60),
-        },
-      },
-      // Alias for dashboards expecting jvm.heap.usage (0–1)
-      jvm: { heap: { usage: heapUsedPct } },
-      // AWS Glue Observability: glue.driver.disk.available_GB, used_GB, used.percentage; plus Spark-style diskSpaceUsed_MB
-      disk: {
-        available_GB: diskAvailGB,
-        used_GB: diskUsedGB,
-        used_percentage: Math.round(diskUsedPct * 100),
-        diskSpaceUsed_MB: randInt(128, 2048),
-      },
-      BlockManager: { disk: { diskSpaceUsed_MB: randInt(128, 2048) } },
-      ExecutorAllocationManager: {
-        executors: {
-          numberAllExecutors,
-          numberMaxNeededExecutors: numberMaxNeededExecutors,
-        },
-      },
-      // glue.driver.s3.filesystem.read_bytes / write_bytes (delta since last report)
-      s3: {
-        filesystem: { read_bytes: randInt(0, bytesRead), write_bytes: randInt(0, bytesWritten) },
-      },
-      // glue.driver.system.cpuSystemLoad (0–1)
-      system: { cpuSystemLoad: randInt(15, 85) / 100 },
-      workerUtilization: randInt(40, 95) / 100,
-      // AWS Glue Observability: glue.driver.skewness.stage, glue.driver.skewness.job (job_performance)
-      skewness: {
-        stage: Number(randFloat(0, 2.5)), // 0 = no skew; higher = max/median task duration ratio
-        job: Number(randFloat(0, 2.2)), // job-level skew (max weighted stage skewness)
-      },
-    },
-    executor: {
-      aggregate: { numCompletedTasks, numFailedTasks, gc_time_ms: randInt(200, 60000) },
-    },
-    // glue.ALL (executors aggregate) — same structure for executor memory/disk; jvm.heap.usage for dashboards
-    ALL: {
-      memory: {
-        heap: {
-          available: randInt(1e9, 16e9),
-          used: randInt(512e6, 12e9),
-          used_percentage: randInt(35, 88),
-        },
-        "non-heap": {
-          available: randInt(128e6, 512e6),
-          used: randInt(64e6, 256e6),
-          used_percentage: randInt(25, 55),
-        },
-      },
-      jvm: { heap: { usage: randInt(35, 88) / 100 } },
-      disk: {
-        available_GB: randInt(100, 800),
-        used_GB: randInt(50, 400),
-        used_percentage: randInt(20, 75),
-        diskSpaceUsed_MB: randInt(512, 4096),
-      },
-      s3: {
-        filesystem: { read_bytes: randInt(0, bytesRead), write_bytes: randInt(0, bytesWritten) },
-      },
-      system: { cpuSystemLoad: randInt(20, 90) / 100 },
-    },
-  };
   // Observability error category when job fails (see monitor-observability.html error categories)
   const OBSERVABILITY_ERROR_CATEGORIES = [
     "OUT_OF_MEMORY_ERROR",
@@ -1352,7 +1205,6 @@ function generateGlueLog(ts: string, er: number): EcsDocument {
         connection_name:
           Math.random() < 0.25 ? rand(["redshift-prod", "jdbc-staging", "s3-data"]) : null,
         continuous_logging: useContinuousLogging,
-        metrics: glueMetrics,
       },
     },
     log: { level },
@@ -1480,14 +1332,6 @@ function generateAthenaLog(ts: string, er: number): EcsDocument {
           TotalExecutionTimeInMillis: totalMs,
           ResultReuseInformation: { ReusedPreviousResult: Math.random() < 0.1 },
         },
-        metrics: {
-          DataScannedInBytes: { sum: dataScanned },
-          EngineExecutionTimeInMillis: { avg: engineMs, max: Math.round(engineMs * 1.2) },
-          ProcessedBytes: { sum: dataScanned },
-          QueryQueueTimeInMillis: { avg: queueMs },
-          TotalExecutionTimeInMillis: { avg: totalMs },
-          QueryPlanningTimeInMillis: { avg: planningMs },
-        },
       },
     },
     db: { statement: query, type: "sql" },
@@ -1550,13 +1394,6 @@ function generateLakeFormationLog(ts: string, er: number): EcsDocument {
         lf_tag_key: rand(["team", "environment", "classification", "pii"]),
         lf_tag_values: rand([["prod"], ["dev", "staging"], ["pii"]]),
         error_code: isErr ? rand(["AccessDeniedException", "EntityNotFoundException"]) : null,
-        metrics: {
-          // AWS Lake Formation CloudWatch metrics
-          GrantCount: { sum: isErr ? 0 : randInt(1, 50) },
-          DatabaseCount: { avg: randInt(1, 20) },
-          TableCount: { avg: randInt(1, 200) },
-          DataLakeSettings: { avg: 1 },
-        },
       },
     },
     event: {
@@ -1627,18 +1464,6 @@ function generateQuickSightLog(ts: string, er: number): EcsDocument {
         error_code: isErr
           ? rand(["AccessDeniedException", "ResourceNotFoundException", "ThrottlingException"])
           : null,
-        metrics: {
-          // AWS QuickSight CloudWatch metrics
-          DashboardViewEvents: { sum: randInt(1, 1000) },
-          SessionEvent: { sum: randInt(1, 500) },
-          // SPICECapacityUsed is a numeric percentage — must be a number, not a string
-          SPICECapacityUsed: { avg: Number(randFloat(10, 90)) },
-          // Additional real QuickSight CloudWatch metrics
-          SPICECapacityScheduled: { avg: Number(randFloat(10, 100)) },
-          EmbedCallCount: { sum: randInt(0, 500) },
-          ClientError: { sum: isErr ? randInt(1, 50) : 0 },
-          RowLevelSecurityEnabled: { avg: Math.random() < 0.4 ? 1 : 0 },
-        },
       },
     },
     user: { name: user },
@@ -1716,13 +1541,6 @@ function generateDataBrewLog(ts: string, er: number): EcsDocument {
         error_message: isErr
           ? rand(["Input dataset not found", "Data type mismatch", "Access denied"])
           : null,
-        metrics: {
-          RowsProcessed: { sum: rowsProcessed },
-          DurationSeconds: { avg: dur },
-          TransformSteps: { avg: transformSteps },
-          JobSuccessCount: { sum: isErr ? 0 : 1 },
-          JobFailureCount: { sum: isErr ? 1 : 0 },
-        },
       },
     },
     event: {
@@ -1783,12 +1601,6 @@ function generateAppFlowLog(ts: string, er: number): EcsDocument {
         error_message: isErr
           ? rand(["Credentials expired", "Rate limit exceeded", "Schema mismatch"])
           : null,
-        metrics: {
-          RecordsProcessed: { sum: records },
-          DurationMs: { avg: durationMs },
-          ExecutionSuccessCount: { sum: isErr ? 0 : 1 },
-          ExecutionFailureCount: { sum: isErr ? 1 : 0 },
-        },
       },
     },
     event: {

@@ -112,26 +112,6 @@ function generateIotCoreLog(ts: string, er: number): EcsDocument {
           ? rand(["UnauthorizedException", "ThrottlingException", "DeviceDisconnected"])
           : null,
         rules_evaluated: eventType === "RuleMatch" ? randInt(1, 5) : randInt(0, 2),
-        metrics: {
-          "Connect.Success": { sum: randInt(1, 1000) },
-          "Connect.Failure": { sum: isErr ? randInt(1, 100) : 0 },
-          "PublishIn.Success": { sum: randInt(1, 10000) },
-          "PublishIn.ClientError": { sum: isErr ? randInt(1, 500) : 0 },
-          "PublishIn.ServerError": { sum: isErr ? randInt(1, 100) : 0 },
-          "PublishOut.Success": { sum: randInt(1, 10000) },
-          "Publish.Success": { sum: randInt(1, 10000) },
-          "Publish.Failure": { sum: isErr ? randInt(1, 1000) : 0 },
-          "Subscribe.Success": { sum: randInt(1, 5000) },
-          "Subscribe.Failure": { sum: isErr ? randInt(1, 100) : 0 },
-          "Unsubscribe.Success": { sum: randInt(1, 1000) },
-          "Ping.Success": { sum: randInt(1, 10000) },
-          "Throttle.Success": { sum: randInt(0, 200) },
-          RulesMatched: { sum: randInt(0, 1000) },
-          RulesFailed: { sum: isErr ? randInt(1, 100) : 0 },
-          RulesNotMatched: { sum: randInt(0, 100) },
-          TopicMatch: { sum: randInt(1, 10000) },
-          ClientConnections: { avg: randInt(1, 100000) },
-        },
       },
     },
     source: { ip: randIp() },
@@ -271,14 +251,6 @@ function generateIotGreengrassLog(ts: string, er: number): EcsDocument {
         ipc_operation: eventCategory === "ipc" ? ipcOp : null,
         lambda_function_name: eventCategory === "lambda_invoke" ? lambdaName : null,
         status: isErr ? "FAILED" : "COMPLETED",
-        metrics: {
-          ComponentDeployedCount: { sum: randInt(0, 50) },
-          ComponentBrokenCount: { sum: isErr ? randInt(1, 10) : 0 },
-          StreamManagerMemoryUsage: { avg: Number(randFloat(10, 512)) },
-          StreamManagerBytesAppended: { sum: randInt(0, 10485760) },
-          NucleusRestartCount: { sum: isErr ? randInt(1, 5) : 0 },
-          DeploymentQueueSize: { avg: Number(randFloat(0, 20)) },
-        },
       },
     },
     event: {
@@ -603,10 +575,6 @@ function generateIotSiteWiseLog(ts: string, er: number): EcsDocument {
         error: isErr
           ? rand(["BatchPutAssetPropertyValue failed", "Property not found", "Quota exceeded"])
           : null,
-        metrics: {
-          GatewayDataStreamPartitionCount: { avg: Number(randFloat(1, 64)) },
-          AssetPropertyValueCount: { sum: randInt(1, 100000) },
-        },
       },
     },
     event: {
