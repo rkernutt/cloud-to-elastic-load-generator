@@ -2256,6 +2256,32 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
     ...(needsSessionContext ? { sessionContext } : {}),
   };
 
+  // Official Elastic AWS integration shape (`aws.cloudtrail.user_identity.*`,
+  // snake_case) — the raw camelCase `userIdentity` above is kept for the raw
+  // JSON `message`, which is how a real CloudTrail record arrives on the wire.
+  const cloudtrailUserIdentity: Record<string, unknown> = {
+    type: identityType,
+    arn: userIdentity.arn,
+    ...(identityType !== "Root" && identityType !== "AWSService"
+      ? { access_key_id: accessKeyId }
+      : {}),
+    ...(identityType === "AWSService" ? { invoked_by: `${ev.svc}` } : {}),
+    ...(needsSessionContext
+      ? {
+          session_context: {
+            mfa_authenticated: sessionContext.attributes.mfaAuthenticated,
+            creation_date: sessionContext.attributes.creationDate,
+            session_issuer: {
+              type: sessionContext.sessionIssuer.type,
+              principal_id: sessionContext.sessionIssuer.principalId,
+              arn: sessionContext.sessionIssuer.arn,
+              account_id: sessionContext.sessionIssuer.accountId,
+            },
+          },
+        }
+      : {}),
+  };
+
   // Resources affected by the event
   const newBucketName = `${acct.name}-${randId(8).toLowerCase()}`;
   const resourceMap = {
@@ -2372,36 +2398,37 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
     aws: {
       dimensions: { EventName: eventName, EventSource: ev.svc },
       cloudtrail: {
-        eventVersion: "1.11",
-        userIdentity,
-        eventTime,
-        eventSource: ev.svc,
-        eventName,
-        awsRegion: region,
-        sourceIPAddress,
-        userAgent,
-        requestParameters: requestParametersObj,
-        responseElements: responseElementsObj,
-        requestID: requestId,
-        eventID: eventId,
-        eventType,
-        recipientAccountId: acct.id,
-        readOnly,
-        eventCategory: "Management",
-        managementEvent: true,
+        event_version: "1.11",
+        user_identity: cloudtrailUserIdentity,
+        event_category: "Management",
+        management_event: true,
+        read_only: readOnly,
+        event_type: eventType,
+        request_id: requestId,
+        recipient_account_id: acct.id,
+        request_parameters: { text: JSON.stringify(requestParametersObj) },
+        flattened: {
+          request_parameters: requestParametersObj,
+          ...(responseElementsObj ? { response_elements: responseElementsObj } : {}),
+        },
+        ...(responseElementsObj
+          ? { response_elements: { text: JSON.stringify(responseElementsObj) } }
+          : {}),
         ...(resources ? { resources } : {}),
         ...(isErr
           ? {
-              errorCode,
-              errorMessage: errorMessageForCode(errorCode),
+              error_code: errorCode,
+              error_message: errorMessageForCode(errorCode),
             }
           : {}),
         ...(eventName === "ConsoleLogin"
           ? {
-              additionalEventData: {
-                LoginTo: `https://${acct.id}.signin.aws.amazon.com/console`,
-                MobileVersion: "No",
-                MFAUsed: String(Math.random() < 0.8),
+              console_login: {
+                additional_eventdata: {
+                  login_to: `https://${acct.id}.signin.aws.amazon.com/console`,
+                  mobile_version: "No",
+                  mfa_used: String(Math.random() < 0.8),
+                },
               },
             }
           : {}),
@@ -2475,12 +2502,14 @@ function generateCloudTrailLog(ts: string, er: number): EcsDocument {
     },
     user_agent: { original: userAgent },
     event: {
+      kind: "event",
+      id: eventId,
       action: eventName,
       outcome: isErr ? "failure" : "success",
       category: eventCategory,
       type: evType,
       dataset: "aws.cloudtrail",
-      provider: "cloudtrail.amazonaws.com",
+      provider: ev.svc,
     },
     message: JSON.stringify({
       eventVersion: "1.11",
