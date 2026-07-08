@@ -29,6 +29,9 @@ const dashboardsOnly = argv.has("--dashboards-only");
 const vendorArg = [...argv].find((a) => a.startsWith("--vendor="));
 const vendorFilter = vendorArg ? vendorArg.split("=")[1] : null;
 
+/** Bulk ship + index refresh can lag @timestamp buckets by minutes (see runShipWorkload). */
+const ML_DATAFEED_QUERY_DELAY = "120s";
+
 function humanTitle(vendor, sid) {
   const words = sid.split(/[-_]/g).filter(Boolean);
   const h = words.map((w) => w.slice(0, 1).toUpperCase() + w.slice(1)).join(" ");
@@ -225,7 +228,7 @@ function mlJob(vendor, sid, dataset) {
         },
       },
       chunking_config: { mode: "auto" },
-      query_delay: "60s",
+      query_delay: ML_DATAFEED_QUERY_DELAY,
       delayed_data_check_config: { enabled: true },
     },
   };
