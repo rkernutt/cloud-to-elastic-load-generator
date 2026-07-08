@@ -132,7 +132,7 @@ const ServiceGrid = memo(function ServiceGrid({
           const groupIds = serviceIdsInGroup(group);
           const selectableInGroup =
             eventType === "metrics"
-              ? groupIds.filter((id) => metricsSupportedServiceIds.has(id))
+              ? groupIds.filter((id) => metricsSupportedServiceIds.has(id) || id.endsWith("-chain"))
               : groupIds;
           const selCount = selectableInGroup.filter((id) => selectedServices.includes(id)).length;
           const allSel = selectableInGroup.length > 0 && selCount === selectableInGroup.length;
@@ -260,7 +260,9 @@ const ServiceGrid = memo(function ServiceGrid({
                   {group.services.map((svc) => {
                     const sel = selectedServices.includes(svc.id);
                     const metricsDisabled =
-                      eventType === "metrics" && !metricsSupportedServiceIds.has(svc.id);
+                      eventType === "metrics" &&
+                      !metricsSupportedServiceIds.has(svc.id) &&
+                      !svc.id.endsWith("-chain");
                     const svcDisabled = metricsDisabled;
                     const src = getEffectiveSource(svc.id);
                     const meta = ingestionMeta[src];

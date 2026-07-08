@@ -409,4 +409,42 @@ export const GCP_TRACE_SERVICES = [
     icon: "🔥",
     group: "Serverless",
   },
+  // ── Chain scenarios (multi-signal) ────────────────────────────────────────
+  // Correlated logs + traces (+ metrics where available) in a single run;
+  // available on every tab, each doc routed to its own signal stream.
+  {
+    id: "gcp-data-pipeline-chain",
+    label: "Data Pipeline (correlated)",
+    desc: "GCS → Dataproc → BigQuery pipeline — correlated logs + traces",
+    icon: "⛁",
+    group: "Scenarios",
+  },
+  {
+    id: "gcp-security-chain",
+    label: "SCC → Chronicle Chain",
+    desc: "Security Command Center → Chronicle finding chain — correlated logs + traces",
+    icon: "⛓",
+    group: "Scenarios",
+  },
+  {
+    id: "gcp-iam-privesc-chain",
+    label: "IAM PrivEsc Chain",
+    desc: "IAM enumeration → key creation → role escalation → impersonation — correlated logs + traces",
+    icon: "⚡",
+    group: "Scenarios",
+  },
+  {
+    id: "gcp-entra-federation-chain",
+    label: "Workload Federation Chain",
+    desc: "Workload identity federation → recon → data access → persistence — correlated logs + traces",
+    icon: "🔑",
+    group: "Scenarios",
+  },
+  {
+    id: "gcp-data-exfil-chain",
+    label: "Data Exfil Chain",
+    desc: "SCC detection → GCS object burst → high egress — correlated logs + traces",
+    icon: "◂",
+    group: "Scenarios",
+  },
 ];

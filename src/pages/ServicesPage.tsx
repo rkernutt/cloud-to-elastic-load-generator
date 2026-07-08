@@ -188,7 +188,9 @@ export function ServicesPage({
     return filteredServiceGroups.reduce((acc, g) => {
       const ids = serviceIdsInGroup(g);
       const selectable =
-        eventType === "metrics" ? ids.filter((id) => metricsSupportedServiceIds.has(id)) : ids;
+        eventType === "metrics"
+          ? ids.filter((id) => metricsSupportedServiceIds.has(id) || id.endsWith("-chain"))
+          : ids;
       return acc + selectable.length;
     }, 0);
   }, [searchTerm, filteredServiceGroups, eventType, metricsSupportedServiceIds, totalServices]);

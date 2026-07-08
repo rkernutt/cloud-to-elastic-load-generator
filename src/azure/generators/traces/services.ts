@@ -269,4 +269,11 @@ export const AZURE_TRACE_SERVICES = [
     desc: "Device register, send push, and delivery report spans",
     group: "Single-Service",
   },
+  // ── Chain scenarios (multi-signal) ────────────────────────────────────────
+  // Correlated logs + traces (+ metrics where available) in a single run;
+  // available on every tab, each doc routed to its own signal stream.
+  { id: "azure-data-pipeline-chain", label: "Data Pipeline — correlated logs + traces" },
+  { id: "azure-security-chain", label: "Defender → Sentinel — correlated logs + traces" },
+  { id: "azure-iam-privesc-chain", label: "Entra PrivEsc chain — correlated logs + traces" },
+  { id: "azure-data-exfil-chain", label: "Data exfil chain — correlated logs + traces" },
 ] as const;

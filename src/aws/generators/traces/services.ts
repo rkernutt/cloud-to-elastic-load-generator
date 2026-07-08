@@ -400,4 +400,49 @@ export const TRACE_SERVICES = [
     icon: "Elastic-Load-Balancing",
     group: "Single-Service",
   },
+  // ── Chain scenarios (multi-signal) ────────────────────────────────────────
+  // These emit a correlated mix of logs, metrics, and traces in one run and
+  // are available on every tab; each doc is routed to its own signal stream.
+  {
+    id: "data-pipeline-chain",
+    label: "Data Pipeline (correlated)",
+    desc: "S3 → EMR/Spark → Glue → Athena → Tableau — correlated logs + CloudWatch metrics + APM traces",
+    icon: "⛁",
+    group: "Scenarios",
+  },
+  {
+    id: "security-chain",
+    label: "GuardDuty → SecHub → Lake",
+    desc: "Linked GuardDuty → Security Hub → Security Lake finding chain — correlated logs + traces",
+    icon: "⛓",
+    group: "Scenarios",
+  },
+  {
+    id: "iam-privesc-chain",
+    label: "IAM PrivEsc Chain",
+    desc: "IAM enumeration → credential creation → policy escalation → AssumeRole — correlated logs + traces",
+    icon: "⚡",
+    group: "Scenarios",
+  },
+  {
+    id: "entra-federation-chain",
+    label: "Entra ID Federation Chain",
+    desc: "SAML federation (AssumeRoleWithSAML) → recon → S3 access → IAM persistence — correlated logs + traces",
+    icon: "🔑",
+    group: "Scenarios",
+  },
+  {
+    id: "data-exfil-chain",
+    label: "Data Exfil Chain",
+    desc: "GuardDuty S3 detection → CloudTrail GetObject burst → VPC Flow high egress — correlated logs + traces",
+    icon: "◂",
+    group: "Scenarios",
+  },
+  {
+    id: "dns-c2-chain",
+    label: "DNS C2 Chain",
+    desc: "DGA recon → C2 domain resolution → beaconing → DNS Firewall block — correlated logs + traces",
+    icon: "◉",
+    group: "Scenarios",
+  },
 ];

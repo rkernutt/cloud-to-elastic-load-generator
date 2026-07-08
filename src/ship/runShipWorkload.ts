@@ -98,7 +98,9 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
     setProgress,
   } = deps;
 
-  const activeServices = isTracesMode ? selectedTraceServices : selectedServices;
+  // `activeServices` may include chain scenarios (multi-signal), which are pulled
+  // out and handled by a dedicated self-routing pass inside the run (see below).
+  let activeServices = isTracesMode ? selectedTraceServices : selectedServices;
   if (!activeServices.length) {
     addLog("No services selected", "error");
     return;
@@ -173,6 +175,151 @@ export async function runShipWorkload(deps: RunShipWorkloadDeps): Promise<void> 
     };
 
     const { startDate, endDate } = freshTimeRange();
+
+    // ── Chain scenario pass (multi-signal, tab-independent) ──────────────────
+    // A chain scenario emits a correlated mix of logs, metrics, and traces in a
+    // single run. Whichever tab (Logs/Metrics/Traces) the user is on, selecting
+    // a chain lights up all of its signals — each doc is enriched and routed by
+    // its OWN signal type (logs-*, metrics-*, traces-apm) rather than the run's
+    // event type. Chains live in the logs generator map for every cloud; we key
+    // off that (not just the "-chain" suffix) so trace-only workflows such as
+    // "openai-chain" are left to the normal trace path.
+    const scenarioCandidates = activeServices.filter((s) => s.endsWith("-chain"));
+    const scenarioGens = scenarioCandidates.length ? await config.loadLogGenerators() : null;
+    const scenarioServices = scenarioGens
+      ? scenarioCandidates.filter((s) => typeof scenarioGens[s] === "function")
+      : [];
+    if (scenarioServices.length && scenarioGens) {
+      activeServices = activeServices.filter((s) => !scenarioServices.includes(s));
+      const scenarioCount = isTracesMode ? tracesPerService : logsPerService;
+      // Metric docs carry a fully-qualified `metrics-*` __dataset (prefix-independent);
+      // trace docs route to traces-apm. Only log docs need a logs prefix — respect the
+      // user's configured logs prefix except in metrics mode, where it isn't the run prefix.
+      const scenarioLogsPrefix =
+        eventType === "metrics" ? config.defaultLogsIndexPrefix : indexPrefix;
+
+      const docSignal = (doc: LooseDoc): "logs" | "metrics" | "traces" => {
+        const ds = typeof doc.__dataset === "string" ? doc.__dataset : "";
+        const t = (doc.data_stream as { type?: string } | undefined)?.type;
+        if (ds === "apm" || ds.startsWith("traces-") || t === "traces") return "traces";
+        if (ds.startsWith("metrics-") || t === "metrics") return "metrics";
+        return "logs";
+      };
+      const scenarioIndexFor = (doc: LooseDoc): string => {
+        const sig = docSignal(doc);
+        const prefix = sig === "metrics" ? config.defaultMetricsIndexPrefix : scenarioLogsPrefix;
+        const routeDs =
+          (typeof doc.__dataset === "string" && doc.__dataset) ||
+          (doc.data_stream as { dataset?: string } | undefined)?.dataset ||
+          (doc.event as { dataset?: string } | undefined)?.dataset ||
+          "unknown";
+        return config.formatDocDatasetIndex(prefix, routeDs);
+      };
+
+      setProgress({ sent: 0, total: 0, errors: 0, phase: "main" });
+      let scenSent = 0;
+      let scenErrors = 0;
+      const shipScenarioBatch = async (batch: LooseDoc[]) => {
+        if (!batch.length || abortRef.current) return;
+        const subBatches = splitBySize(batch, (d) =>
+          JSON.stringify({ create: { _index: scenarioIndexFor(d) } })
+        );
+        for (const sub of subBatches) {
+          if (abortRef.current) return;
+          const parts: string[] = [];
+          for (const d of sub) {
+            parts.push(
+              JSON.stringify({ create: { _index: scenarioIndexFor(d) } }),
+              "\n",
+              JSON.stringify(d),
+              "\n"
+            );
+          }
+          let sentDelta = 0;
+          let errDelta = 0;
+          try {
+            const res = dryRun
+              ? dryRunResponse()
+              : await fetchWithRetry(`/proxy/_bulk`, {
+                  method: "POST",
+                  headers,
+                  body: parts.join(""),
+                });
+            const json = (await res.json()) as {
+              error?: { reason?: string };
+              items?: BulkRespItem[];
+            };
+            if (!res.ok) {
+              errDelta = sub.length;
+              addLog(`  ✗ scenario batch rejected: ${json.error?.reason || res.status}`, "warn");
+            } else {
+              const failed = json.items?.filter((it) => it.create?.error || it.index?.error) || [];
+              errDelta = failed.length;
+              sentDelta = sub.length - failed.length;
+            }
+          } catch (e: unknown) {
+            errDelta = sub.length;
+            addLog(`  ✗ scenario network error: ${errMsg(e)}`, "error");
+          }
+          scenSent += sentDelta;
+          scenErrors += errDelta;
+          setProgress((p) => ({
+            ...p,
+            total: Math.max(p.total, p.sent + sentDelta + errDelta),
+            sent: p.sent + sentDelta,
+            errors: p.errors + errDelta,
+          }));
+          if (batchDelayMs > 0) await new Promise((r) => setTimeout(r, batchDelayMs));
+        }
+      };
+
+      for (const svc of scenarioServices) {
+        if (abortRef.current) break;
+        const gen = scenarioGens[svc];
+        if (!gen) {
+          addLog(`Scenario "${svc}" not found — skipping`, "warn");
+          continue;
+        }
+        addLog(
+          `▶ scenario ${svc} → correlated logs + metrics + traces (${scenarioCount} run(s))`,
+          "info"
+        );
+        const pending: LooseDoc[] = [];
+        for (let i = 0; i < scenarioCount; i++) {
+          if (abortRef.current) break;
+          const raw = gen(randTs(startDate, endDate), errorRate);
+          const arr = Array.isArray(raw) ? raw : [raw];
+          for (const d of arr) {
+            const sig = docSignal(d as LooseDoc);
+            const src = sig === "traces" ? traceIngestionSource : getEffectiveSource(svc);
+            const enriched = enrichDoc(d as LooseDoc, svc, src, sig) as LooseDoc;
+            stripNulls(enriched);
+            pending.push(enriched);
+            if (pending.length >= batchSize) {
+              await shipScenarioBatch(pending.splice(0, batchSize));
+            }
+          }
+        }
+        while (pending.length > 0 && !abortRef.current) {
+          await shipScenarioBatch(pending.splice(0, batchSize));
+        }
+      }
+      addLog(
+        `✓ scenario pass complete — ${scenSent.toLocaleString()} docs indexed${scenErrors ? `, ${scenErrors} errors` : ""}`,
+        scenErrors ? "warn" : "ok"
+      );
+
+      if (!activeServices.length) {
+        setStatus(abortRef.current ? "aborted" : "done");
+        addLog(
+          abortRef.current
+            ? `Aborted. ${scenSent.toLocaleString()} scenario docs shipped.`
+            : `Done! ${scenSent.toLocaleString()} scenario docs indexed, ${scenErrors} errors.`,
+          scenErrors > 0 ? "warn" : "ok"
+        );
+        return;
+      }
+    }
 
     if (isTracesMode) {
       const TRACE_GENERATORS = await config.loadTraceGenerators();
