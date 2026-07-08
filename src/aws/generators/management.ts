@@ -1154,28 +1154,6 @@ function generateDmsLog(ts: string, er: number): EcsDocument {
         error_message: isErr
           ? rand(["Table does not exist", "Column mapping failure", "Connection timeout"])
           : null,
-        metrics: {
-          FullLoadThroughputRowsSource: { avg: randInt(100, 100000) },
-          FullLoadThroughputRowsTarget: { avg: randInt(100, 100000) },
-          ...(migrationType.includes("cdc")
-            ? {
-                CDCIncomingChanges: { avg: randInt(0, 10000) },
-                CDCChangesMemorySource: { avg: randInt(0, 1000) },
-                CDCChangesMemoryTarget: { avg: randInt(0, 1000) },
-                CDCChangesDiskSource: { avg: randInt(0, 100) },
-                CDCChangesDiskTarget: { avg: randInt(0, 100) },
-                CDCLatencySource: { avg: randInt(0, isErr ? 60 : 5) },
-                CDCLatencyTarget: { avg: randInt(0, isErr ? 120 : 10) },
-              }
-            : {}),
-          CPUUtilization: { avg: randFloat(5, isErr ? 90 : 50) },
-          FreeableMemory: { avg: randInt(1e8, 8e9) },
-          FreeStorageSpace: { avg: randInt(1e9, 100e9) },
-          NetworkReceiveThroughput: { avg: randInt(1000, 1e8) },
-          NetworkTransmitThroughput: { avg: randInt(1000, 1e8) },
-          ReadIOPS: { avg: randInt(0, 3000) },
-          WriteIOPS: { avg: randInt(0, 3000) },
-        },
       },
     },
     event: {

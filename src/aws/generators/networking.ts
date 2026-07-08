@@ -2415,7 +2415,6 @@ function generateVpcIpamLog(ts: string, er: number): EcsDocument {
   const allocationsCount = randInt(1, 200);
   const totalCount = randInt(200, 500);
   const freeCount = isErr ? randInt(0, 5) : totalCount - allocationsCount;
-  const usedCount = totalCount - freeCount;
   const errorCode = rand(["AllocationFailure", "CidrOverlapConflict"]);
   return {
     "@timestamp": ts,
@@ -2433,11 +2432,6 @@ function generateVpcIpamLog(ts: string, er: number): EcsDocument {
         allocation_id: allocationId,
         cidr,
         allocation_type: allocationType,
-        metrics: {
-          allocations_count: allocationsCount,
-          free_count: freeCount,
-          used_count: usedCount,
-        },
         error_code: isErr ? errorCode : null,
       },
     },
@@ -2475,7 +2469,6 @@ function generatePrivate5gLog(ts: string, er: number) {
   const deviceIdentifier = `device-${randId(10).toLowerCase()}`;
   const orderId = `order-${randId(8).toLowerCase()}`;
   const radioUnitStatus = isErr ? "OFFLINE" : rand(["ACTIVE", "PROVISIONED", "ACTIVE"]);
-  const activatedDevices = randInt(1, 50);
   const radioUnitsOnline = isErr ? 0 : randInt(1, 10);
   const throughputMbps = isErr ? 0 : Number(randFloat(10, 1000));
   const errorCode = rand(["RadioUnitOffline", "ActivationFailed"]);
@@ -2495,11 +2488,6 @@ function generatePrivate5gLog(ts: string, er: number) {
         device_identifier: deviceIdentifier,
         order_id: orderId,
         radio_unit_status: radioUnitStatus,
-        metrics: {
-          activated_device_identifiers: activatedDevices,
-          radio_units_online: radioUnitsOnline,
-          throughput_mbps: throughputMbps,
-        },
         error_code: isErr ? errorCode : null,
       },
     },

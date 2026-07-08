@@ -347,14 +347,6 @@ function generateGuardDutyLog(ts: string, er: number): EcsDocument {
         createdAt: ts,
         updatedAt: ts,
         confidence: Number(randFloat(60, 99)),
-        metrics: {
-          FindingCount: { sum: isFinding ? randInt(1, 50) : 0 },
-          HighSeverityFindingCount: { sum: isFinding && sev >= 7 ? randInt(1, 10) : 0 },
-          MediumSeverityFindingCount: {
-            sum: isFinding && sev >= 4 && sev < 7 ? randInt(1, 20) : 0,
-          },
-          LowSeverityFindingCount: { sum: isFinding && sev < 4 ? randInt(1, 30) : 0 },
-        },
       },
     },
     rule: {
@@ -2706,10 +2698,6 @@ function generateSecurityFindingChain(ts: string, _er: number): EcsDocument[] {
               : {}),
           },
         },
-        metrics: {
-          FindingCount: { sum: randInt(1, 50) },
-          HighSeverityFindingCount: { sum: sevCode >= 7 ? randInt(1, 10) : 0 },
-        },
       },
     },
     source: {
@@ -3895,10 +3883,6 @@ function generateDataExfilChain(ts: string, _er: number): EcsDocument[] {
               },
             },
           },
-        },
-        metrics: {
-          FindingCount: { sum: randInt(1, 20) },
-          HighSeverityFindingCount: { sum: randInt(1, 5) },
         },
       },
     },

@@ -893,11 +893,6 @@ function generateGroundStationLog(ts: string, er: number): EcsDocument {
         satellite_arn: satelliteArn,
         mission_profile_id: missionProfileId,
         contact_status: contactStatus,
-        metrics: {
-          data_received_mb: dataReceivedMb,
-          elevation_degrees: elevationDegrees,
-          contact_duration_sec: contactDurationSec,
-        },
         error_code: isErr ? errorCode : null,
       },
     },

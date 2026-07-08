@@ -2053,14 +2053,6 @@ function generateNovaLog(ts: string, er: number): EcsDocument {
         guardrail_action: guardrail,
         stop_reason: isErr ? null : rand(["end_turn", "max_tokens", "stop_sequence"]),
         error_code: isErr ? errorCode : null,
-        metrics: {
-          Invocations: { sum: randInt(1, 1000) },
-          InvocationLatency: { avg: latMs, p99: Math.round(latMs * 2.5) },
-          InputTokenCount: { sum: inputTokens },
-          OutputTokenCount: { sum: outputTokens },
-          CacheReadInputTokenCount: { sum: cacheReadTokens },
-          Throttles: { sum: isErr ? randInt(1, 50) : 0 },
-        },
       },
     },
     event: {
@@ -2237,11 +2229,6 @@ function generateHealthOmicsLog(ts: string, er: number): EcsDocument {
         workflow_type: workflowType,
         engine,
         run_status: runStatus,
-        metrics: {
-          tasks_completed: tasksCompleted,
-          tasks_failed: tasksFailed,
-          storage_gb_used: storageGbUsed,
-        },
         error_code: isErr ? errorCode : null,
       },
     },
@@ -2307,11 +2294,6 @@ function generateBedrockDataAutomationLog(ts: string, er: number): EcsDocument {
         input_type: inputType,
         blueprint_id: blueprintId,
         status,
-        metrics: {
-          pages_processed: pagesProcessed,
-          tokens_used: tokensUsed,
-          confidence_score: confidenceScore,
-        },
         error_code: isErr ? errorCode : null,
       },
     },

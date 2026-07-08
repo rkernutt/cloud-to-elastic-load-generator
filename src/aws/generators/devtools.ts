@@ -1554,11 +1554,6 @@ function generateQDeveloperLog(ts: string, er: number): EcsDocument {
         ide,
         language,
         feature,
-        metrics: {
-          suggestions_accepted: suggestionsAccepted,
-          suggestions_rejected: suggestionsRejected,
-          active_users: activeUsers,
-        },
         error_code: isErr ? errorCode : null,
       },
     },

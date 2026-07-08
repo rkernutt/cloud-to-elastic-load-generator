@@ -1953,11 +1953,6 @@ function generateNeptuneAnalyticsLog(ts: string, er: number): EcsDocument {
         graph_id: graphId,
         query_id: queryId,
         algorithm,
-        metrics: {
-          nodes_processed: nodesProcessed,
-          edges_processed: edgesProcessed,
-          duration_ms: durationMs,
-        },
         error_code: isErr ? errorCode : null,
       },
     },
@@ -2025,11 +2020,6 @@ function generateAuroraDsqlLog(ts: string, er: number): EcsDocument {
         linked_cluster_arns: linkedClusterArns,
         transaction_id: transactionId,
         region_mode: regionMode,
-        metrics: {
-          transactions_per_sec: tps,
-          storage_used_gb: storageGb,
-          replication_lag_ms: replicationLagMs,
-        },
         error_code: isErr ? errorCode : null,
       },
     },

@@ -1521,11 +1521,6 @@ function generateEndUserMessagingLog(ts: string, er: number): EcsDocument {
         channel,
         destination_country: destinationCountry,
         message_status: messageStatus,
-        metrics: {
-          messages_sent: messagesSent,
-          delivery_rate: deliveryRate,
-          opt_out_rate: optOutRate,
-        },
         error_code: isErr ? errorCode : null,
       },
     },

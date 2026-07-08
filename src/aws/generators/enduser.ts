@@ -1797,9 +1797,6 @@ function generateWorkMailLog(ts: string, er: number): EcsDocument {
   const fromUser = rand(users);
   const toUser = rand(users);
   const domain = "globex.io";
-  const emailsDelivered = isErr ? 0 : randInt(1, 1000);
-  const emailsBounced = isErr ? randInt(1, 100) : 0;
-  const activeUsers = randInt(1, 500);
   const errorCode = rand(["EntityNotFoundException", "MailboxQuotaExceededException"]);
   return {
     "@timestamp": ts,
@@ -1815,11 +1812,6 @@ function generateWorkMailLog(ts: string, er: number): EcsDocument {
         organization_id: organizationId,
         mailbox_id: mailboxId,
         action,
-        metrics: {
-          emails_delivered: emailsDelivered,
-          emails_bounced: emailsBounced,
-          active_users: activeUsers,
-        },
         error_code: isErr ? errorCode : null,
       },
     },
@@ -1862,9 +1854,6 @@ function generateWickrLog(ts: string, er: number): EcsDocument {
   const messageType = rand(["text", "file", "call"]);
   const retentionPolicy = rand(["30d", "90d", "365d", "7d"]);
   const userName = `${rand(FIRST_NAMES)}.${rand(LAST_NAMES)}`;
-  const messagesSent = isErr ? 0 : randInt(1, 10000);
-  const activeUsers = randInt(1, 500);
-  const filesShared = isErr ? 0 : randInt(0, 100);
   const errorCode = rand(["ResourceNotFoundException", "ConflictException"]);
   return {
     "@timestamp": ts,
@@ -1881,11 +1870,6 @@ function generateWickrLog(ts: string, er: number): EcsDocument {
         room_id: roomId,
         message_type: messageType,
         retention_policy: retentionPolicy,
-        metrics: {
-          messages_sent: messagesSent,
-          active_users: activeUsers,
-          files_shared: filesShared,
-        },
         error_code: isErr ? errorCode : null,
       },
     },
