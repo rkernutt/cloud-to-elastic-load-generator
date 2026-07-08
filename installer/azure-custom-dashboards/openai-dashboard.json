@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY m = `azure.openai.model` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY m = `azure.openai.model` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY d = `azure.openai.deployment` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY d = `azure.openai.deployment` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY fr = `azure.openai.finish_reason` | SORT ``c DESC"
+            "query": "FROM logs-azure.openai* | STATS c = COUNT() BY fr = `azure.openai.finish_reason` | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.openai* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.openai* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.openai* | STATS tok = SUM(`azure.openai.prompt_tokens`) + SUM(`azure.openai.completion_tokens`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.openai* | STATS tok = SUM(`azure.openai.prompt_tokens`) + SUM(`azure.openai.completion_tokens`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.openai* | STATS lat = ROUND(AVG(event.duration) / 1000000.0, 0) BY m = `azure.openai.model` | SORT ``lat DESC | LIMIT 10"
+                "query": "FROM logs-azure.openai* | STATS lat = ROUND(AVG(event.duration) / 1000000.0, 0) BY m = `azure.openai.model` | SORT lat DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.openai* | KEEP `@timestamp``@timestamp`, `azure.openai.deployment`, `azure.openai.model`, `azure.openai.prompt_tokens`, `azure.openai.completion_tokens`, `azure.openai.finish_reason`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.openai* | KEEP `@timestamp`, `azure.openai.deployment`, `azure.openai.model`, `azure.openai.prompt_tokens`, `azure.openai.completion_tokens`, `azure.openai.finish_reason`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

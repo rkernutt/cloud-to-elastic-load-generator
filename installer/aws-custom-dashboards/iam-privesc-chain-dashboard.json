@@ -87,7 +87,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -106,7 +106,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) | STATS steps = COUNT(), methods = COUNT_DISTINCT(event.action), uid_type = MAX(aws.cloudtrail.user_identity.type) BY attacker = user.name, src = source.ip | SORT ``steps DESC | LIMIT 25"
+            "query": "FROM logs-aws.cloudtrail* | WHERE event.dataset == \"aws.cloudtrail\" AND (event.action IN (\"ListUsers\", \"CreateAccessKey\", \"AttachUserPolicy\", \"AssumeRole\") OR threat.tactic.name IS NOT NULL) | STATS steps = COUNT(), methods = COUNT_DISTINCT(event.action), uid_type = MAX(aws.cloudtrail.user_identity.type) BY attacker = user.name, src = source.ip | SORT steps DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "attacker", "label": "User name" },

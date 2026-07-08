@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY e = `gcp.memorystore.engine` | SORT ``c DESC"
+            "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY e = `gcp.memorystore.engine` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY op = `gcp.memorystore.operation` | SORT ``c DESC"
+            "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY op = `gcp.memorystore.operation` | SORT c DESC"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
+            "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.memorystore* | STATS mem = AVG(`gcp.memorystore.memory_used_mb`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.memorystore* | STATS mem = AVG(`gcp.memorystore.memory_used_mb`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.memorystore* | STATS ev = SUM(`gcp.memorystore.evicted_keys`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.memorystore* | STATS ev = SUM(`gcp.memorystore.evicted_keys`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.memorystore* | STATS ev = SUM(`gcp.memorystore.evicted_keys`) BY inst = `gcp.memorystore.instance_id` | SORT ``ev DESC | LIMIT 10"
+                "query": "FROM logs-gcp.memorystore* | STATS ev = SUM(`gcp.memorystore.evicted_keys`) BY inst = `gcp.memorystore.instance_id` | SORT ev DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.memorystore* | KEEP `@timestamp``@timestamp`, `gcp.memorystore.instance_id`, `gcp.memorystore.engine`, `gcp.memorystore.operation`, `gcp.memorystore.memory_used_mb`, `gcp.memorystore.connected_clients`, `gcp.memorystore.evicted_keys`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.memorystore* | KEEP `@timestamp`, `gcp.memorystore.instance_id`, `gcp.memorystore.engine`, `gcp.memorystore.operation`, `gcp.memorystore.memory_used_mb`, `gcp.memorystore.connected_clients`, `gcp.memorystore.evicted_keys`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

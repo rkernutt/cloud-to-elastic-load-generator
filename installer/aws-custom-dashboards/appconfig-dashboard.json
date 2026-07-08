@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY state = `aws.appconfig.state` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY state = `aws.appconfig.state` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY strategy = `aws.appconfig.deployment_strategy` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY strategy = `aws.appconfig.deployment_strategy` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.appconfig* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.appconfig* | KEEP `@timestamp``@timestamp`, `aws.appconfig.application_name`, `aws.appconfig.environment_name`, `aws.appconfig.state`, `aws.appconfig.percentage_complete` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.appconfig* | KEEP `@timestamp`, `aws.appconfig.application_name`, `aws.appconfig.environment_name`, `aws.appconfig.state`, `aws.appconfig.percentage_complete` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

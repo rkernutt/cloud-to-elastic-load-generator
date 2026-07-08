@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mskconnect* | STATS count = COUNT() BY connector = `aws.mskconnect.connector_name` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.mskconnect* | STATS count = COUNT() BY connector = `aws.mskconnect.connector_name` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mskconnect* | STATS count = COUNT() BY state = `aws.mskconnect.connector_state` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.mskconnect* | STATS count = COUNT() BY state = `aws.mskconnect.connector_state` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.mskconnect* | STATS count = COUNT(), total_records = SUM(`aws.mskconnect.record_count`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.mskconnect* | STATS count = COUNT(), total_records = SUM(`aws.mskconnect.record_count`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -245,7 +245,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mskconnect* | KEEP `@timestamp``@timestamp`, `aws.mskconnect.connector_name`, `aws.mskconnect.connector_state`, `aws.mskconnect.offset_lag`, `aws.mskconnect.record_count` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.mskconnect* | KEEP `@timestamp`, `aws.mskconnect.connector_name`, `aws.mskconnect.connector_state`, `aws.mskconnect.offset_lag`, `aws.mskconnect.record_count` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

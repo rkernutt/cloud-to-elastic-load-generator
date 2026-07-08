@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.healthlake* | STATS count = COUNT() BY datastore = `aws.healthlake.datastore_name` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.healthlake* | STATS count = COUNT() BY datastore = `aws.healthlake.datastore_name` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.healthlake* | STATS count = COUNT() BY resource = `aws.healthlake.resource_type` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.healthlake* | STATS count = COUNT() BY resource = `aws.healthlake.resource_type` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.healthlake* | STATS count = COUNT(), avg_lat = AVG(`aws.healthlake.latency_ms`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.healthlake* | STATS count = COUNT(), avg_lat = AVG(`aws.healthlake.latency_ms`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -245,7 +245,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.healthlake* | KEEP `@timestamp``@timestamp`, `aws.healthlake.datastore_name`, `aws.healthlake.operation`, `aws.healthlake.resource_type`, `aws.healthlake.latency_ms`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.healthlake* | KEEP `@timestamp`, `aws.healthlake.datastore_name`, `aws.healthlake.operation`, `aws.healthlake.resource_type`, `aws.healthlake.latency_ms`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

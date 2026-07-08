@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY cat = `azure.machine_learning.category` | SORT ``c DESC"
+            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY cat = `azure.machine_learning.category` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY ws = `azure.machine_learning.workspace` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY ws = `azure.machine_learning.workspace` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
+            "query": "FROM logs-azure.machine_learning* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.machine_learning* | WHERE `azure.machine_learning.category` == \"AmlRunStatus\" | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.machine_learning* | WHERE `azure.machine_learning.category` == \"AmlRunStatus\" | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.machine_learning* | STATS d = AVG(event.duration) / 1000000.0 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.machine_learning* | STATS d = AVG(event.duration) / 1000000.0 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.machine_learning* | WHERE `azure.machine_learning.category` == \"Inferencing\" | STATS lat = ROUND(AVG(event.duration) / 1000000.0, 1) BY ws = `azure.machine_learning.workspace` | SORT ``lat DESC | LIMIT 10"
+                "query": "FROM logs-azure.machine_learning* | WHERE `azure.machine_learning.category` == \"Inferencing\" | STATS lat = ROUND(AVG(event.duration) / 1000000.0, 1) BY ws = `azure.machine_learning.workspace` | SORT lat DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.machine_learning* | KEEP `@timestamp``@timestamp`, `azure.machine_learning.workspace`, `azure.machine_learning.category`, operationName, resultType, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.machine_learning* | KEEP `@timestamp`, `azure.machine_learning.workspace`, `azure.machine_learning.category`, operationName, resultType, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesisanalytics* | STATS count = COUNT() BY app = `aws.kinesisanalytics.application_name` | SORT ``count DESC | LIMIT 8"
+            "query": "FROM logs-aws.kinesisanalytics* | STATS count = COUNT() BY app = `aws.kinesisanalytics.application_name` | SORT count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesisanalytics* | STATS count = COUNT() BY runtime = `aws.kinesisanalytics.runtime` | SORT ``count DESC"
+            "query": "FROM logs-aws.kinesisanalytics* | STATS count = COUNT() BY runtime = `aws.kinesisanalytics.runtime` | SORT count DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesisanalytics* | STATS rps = AVG(`aws.kinesisanalytics.records_per_second`), lag = AVG(`aws.kinesisanalytics.input_watermark_lag_ms`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.kinesisanalytics* | STATS rps = AVG(`aws.kinesisanalytics.records_per_second`), lag = AVG(`aws.kinesisanalytics.input_watermark_lag_ms`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -292,7 +292,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesisanalytics* | STATS chk_ms = AVG(`aws.kinesisanalytics.last_checkpoint_duration_ms`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.kinesisanalytics* | STATS chk_ms = AVG(`aws.kinesisanalytics.last_checkpoint_duration_ms`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesisanalytics* | STATS kpu_pct = AVG(`aws.kinesisanalytics.metrics.kpu_utilization_pct`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.kinesisanalytics* | STATS kpu_pct = AVG(`aws.kinesisanalytics.metrics.kpu_utilization_pct`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesisanalytics* | STATS avg_rps = AVG(`aws.kinesisanalytics.records_per_second`) BY app = `aws.kinesisanalytics.application_name` | SORT ``avg_rps DESC | LIMIT 10"
+                "query": "FROM logs-aws.kinesisanalytics* | STATS avg_rps = AVG(`aws.kinesisanalytics.records_per_second`) BY app = `aws.kinesisanalytics.application_name` | SORT avg_rps DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -436,7 +436,7 @@
               "type": "bar",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.kinesisanalytics* | WHERE log.level == \"error\" | STATS failures = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.kinesisanalytics* | WHERE log.level == \"error\" | STATS failures = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -469,7 +469,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.kinesisanalytics* | KEEP `@timestamp``@timestamp`, `aws.kinesisanalytics.application_name`, `aws.kinesisanalytics.runtime`, `aws.kinesisanalytics.records_per_second`, `aws.kinesisanalytics.input_watermark_lag_ms`, `aws.kinesisanalytics.last_checkpoint_duration_ms`, `aws.kinesisanalytics.kpu_count`, log.level, `aws.kinesisanalytics.error` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.kinesisanalytics* | KEEP `@timestamp`, `aws.kinesisanalytics.application_name`, `aws.kinesisanalytics.runtime`, `aws.kinesisanalytics.records_per_second`, `aws.kinesisanalytics.input_watermark_lag_ms`, `aws.kinesisanalytics.last_checkpoint_duration_ms`, `aws.kinesisanalytics.kpu_count`, log.level, `aws.kinesisanalytics.error` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

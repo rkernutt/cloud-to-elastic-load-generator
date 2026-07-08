@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.rds* | STATS count = COUNT() BY outcome = `event.outcome` | SORT ``count DESC"
+            "query": "FROM logs-aws.rds* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
           "metrics": [
             {
@@ -175,7 +175,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY engine = `aws.rds.engine` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY engine = `aws.rds.engine` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -223,7 +223,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.rds* | STATS read_lat = AVG(`aws.rds.metrics.ReadLatency.avg`), write_lat = AVG(`aws.rds.metrics.WriteLatency.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.rds* | STATS read_lat = AVG(`aws.rds.metrics.ReadLatency.avg`), write_lat = AVG(`aws.rds.metrics.WriteLatency.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -324,7 +324,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -372,7 +372,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY inst = `aws.rds.db_instance.identifier` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY inst = `aws.rds.db_instance.identifier` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -405,7 +405,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.rds* | STATS count = COUNT() BY lvl = log.level | SORT ``count DESC"
+            "query": "FROM logs-aws.rds* | STATS count = COUNT() BY lvl = log.level | SORT count DESC"
           },
           "metrics": [
             {
@@ -437,7 +437,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.rds* | KEEP `@timestamp``@timestamp`, `aws.rds.db_instance.identifier`, `aws.rds.engine`, `aws.rds.latency_ms`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.rds* | KEEP `@timestamp`, `aws.rds.db_instance.identifier`, `aws.rds.engine`, `aws.rds.latency_ms`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

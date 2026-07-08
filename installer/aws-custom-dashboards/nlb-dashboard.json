@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS c = COUNT() BY p = `aws.elb.protocol` | SORT ``c DESC"
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS c = COUNT() BY p = `aws.elb.protocol` | SORT c DESC"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS c = COUNT() BY lb = `aws.elb.name` | SORT ``c DESC | LIMIT 8"
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS c = COUNT() BY lb = `aws.elb.name` | SORT c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS rx = SUM(`aws.elb.received_bytes`), tx = SUM(`aws.elb.sent_bytes`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS rx = SUM(`aws.elb.received_bytes`), tx = SUM(`aws.elb.sent_bytes`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS d = AVG(`aws.elb.connection_time.ms`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS d = AVG(`aws.elb.connection_time.ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS c = COUNT() BY ip = `aws.elb.backend.ip` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | STATS c = COUNT() BY ip = `aws.elb.backend.ip` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | KEEP `@timestamp``@timestamp`, `aws.elb.name`, `aws.elb.protocol`, event.outcome, `source.ip`, `aws.elb.backend.ip`, `aws.elb.connection_time.ms`, `network.bytes` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.elb_logs* | WHERE `cloud.service.name` == \"nlb\" | KEEP `@timestamp`, `aws.elb.name`, `aws.elb.protocol`, event.outcome, `source.ip`, `aws.elb.backend.ip`, `aws.elb.connection_time.ms`, `network.bytes` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

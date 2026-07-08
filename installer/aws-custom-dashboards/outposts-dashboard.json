@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY status = `aws.outposts.connectivity_status` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY status = `aws.outposts.connectivity_status` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY cap_status = `aws.outposts.capacity_status` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY cap_status = `aws.outposts.capacity_status` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.outposts* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.outposts* | KEEP `@timestamp``@timestamp`, `aws.outposts.outpost_id`, `aws.outposts.instance_type`, `aws.outposts.capacity_status`, `aws.outposts.available_instance_count` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.outposts* | KEEP `@timestamp`, `aws.outposts.outpost_id`, `aws.outposts.instance_type`, `aws.outposts.capacity_status`, `aws.outposts.available_instance_count` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

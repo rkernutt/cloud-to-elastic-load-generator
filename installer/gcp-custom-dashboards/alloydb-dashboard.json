@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY qt = `gcp.alloy_db.query_type` | SORT ``c DESC"
+            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY qt = `gcp.alloy_db.query_type` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY cl = `gcp.alloy_db.cluster_name` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY cl = `gcp.alloy_db.cluster_name` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
+            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.alloydb* | STATS lat = AVG(`gcp.alloy_db.query_duration_ms`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.alloydb* | STATS lat = AVG(`gcp.alloy_db.query_duration_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.alloydb* | STATS conn = AVG(`gcp.alloy_db.connection_count`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.alloydb* | STATS conn = AVG(`gcp.alloy_db.connection_count`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.alloydb* | STATS mem = ROUND(AVG(`gcp.alloy_db.memory_utilization`) * 100, 1) BY cl = `gcp.alloy_db.cluster_name` | SORT ``mem DESC | LIMIT 10"
+                "query": "FROM logs-gcp.alloydb* | STATS mem = ROUND(AVG(`gcp.alloy_db.memory_utilization`) * 100, 1) BY cl = `gcp.alloy_db.cluster_name` | SORT mem DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | KEEP `@timestamp``@timestamp`, `gcp.alloy_db.cluster_name`, `gcp.alloy_db.instance_name`, `gcp.alloy_db.query_type`, `gcp.alloy_db.query_duration_ms`, `gcp.alloy_db.connection_count`, `gcp.alloy_db.rows_returned`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.alloydb* | KEEP `@timestamp`, `gcp.alloy_db.cluster_name`, `gcp.alloy_db.instance_name`, `gcp.alloy_db.query_type`, `gcp.alloy_db.query_duration_ms`, `gcp.alloy_db.connection_count`, `gcp.alloy_db.rows_returned`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

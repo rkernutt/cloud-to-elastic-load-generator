@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY st = `gcp.composer.state` | SORT ``c DESC"
+            "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY st = `gcp.composer.state` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY op = `gcp.composer.operator` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY op = `gcp.composer.operator` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY dag = `gcp.composer.dag_id` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY dag = `gcp.composer.dag_id` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.composer* | STATS dur = AVG(`gcp.composer.duration_seconds`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.composer* | STATS dur = AVG(`gcp.composer.duration_seconds`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.composer* | STATS f = SUM(CASE(`gcp.composer.state` == \"failed\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.composer* | STATS f = SUM(CASE(`gcp.composer.state` == \"failed\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.composer* | STATS dur = ROUND(AVG(`gcp.composer.duration_seconds`), 0) BY dag = `gcp.composer.dag_id` | SORT ``dur DESC | LIMIT 10"
+                "query": "FROM logs-gcp.composer* | STATS dur = ROUND(AVG(`gcp.composer.duration_seconds`), 0) BY dag = `gcp.composer.dag_id` | SORT dur DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.composer* | KEEP `@timestamp``@timestamp`, `gcp.composer.dag_id`, `gcp.composer.task_id`, `gcp.composer.state`, `gcp.composer.operator`, `gcp.composer.duration_seconds`, `gcp.composer.try_number`, `gcp.composer.environment_name` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.composer* | KEEP `@timestamp`, `gcp.composer.dag_id`, `gcp.composer.task_id`, `gcp.composer.state`, `gcp.composer.operator`, `gcp.composer.duration_seconds`, `gcp.composer.try_number`, `gcp.composer.environment_name` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

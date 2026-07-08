@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa* | STATS count = COUNT() BY dag = `aws.mwaa.dag_id` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.mwaa* | STATS count = COUNT() BY dag = `aws.mwaa.dag_id` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa* | STATS count = COUNT() BY state = `aws.mwaa.run_state` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.mwaa* | STATS count = COUNT() BY state = `aws.mwaa.run_state` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.mwaa* | STATS count = COUNT(), avg_duration = AVG(`aws.mwaa.duration_seconds`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.mwaa* | STATS count = COUNT(), avg_duration = AVG(`aws.mwaa.duration_seconds`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -245,7 +245,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa* | KEEP `@timestamp``@timestamp`, `aws.mwaa.dag_id`, `aws.mwaa.run_state`, `aws.mwaa.duration_seconds`, `aws.mwaa.worker_count` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.mwaa* | KEEP `@timestamp`, `aws.mwaa.dag_id`, `aws.mwaa.run_state`, `aws.mwaa.duration_seconds`, `aws.mwaa.worker_count` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

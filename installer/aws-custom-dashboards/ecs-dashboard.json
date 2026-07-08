@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY outcome = `event.outcome` | SORT ``count DESC"
+            "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
           "metrics": [
             {
@@ -175,7 +175,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY cluster = `aws.ecs.cluster` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY cluster = `aws.ecs.cluster` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -223,7 +223,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.ecs_metrics* | STATS tasks = AVG(`aws.ecs.metrics.RunningTaskCount.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.ecs_metrics* | STATS tasks = AVG(`aws.ecs.metrics.RunningTaskCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -319,7 +319,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -367,7 +367,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY ctr = `aws.ecs.container_name` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY ctr = `aws.ecs.container_name` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -400,7 +400,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY health = `aws.ecs.health_status` | SORT ``count DESC"
+            "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY health = `aws.ecs.health_status` | SORT count DESC"
           },
           "metrics": [
             {
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ecs* | KEEP `@timestamp``@timestamp`, `aws.ecs.cluster`, `aws.ecs.task_arn`, `aws.ecs.container_name`, `aws.ecs.health_status`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.ecs* | KEEP `@timestamp`, `aws.ecs.cluster`, `aws.ecs.task_arn`, `aws.ecs.container_name`, `aws.ecs.health_status`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

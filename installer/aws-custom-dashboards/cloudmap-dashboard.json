@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY status = `aws.cloudmap.health_status` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY status = `aws.cloudmap.health_status` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY query_type = `aws.cloudmap.query_type` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY query_type = `aws.cloudmap.query_type` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.cloudmap* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudmap* | KEEP `@timestamp``@timestamp`, `aws.cloudmap.namespace`, `aws.cloudmap.service_name`, `aws.cloudmap.health_status`, `event.action` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.cloudmap* | KEEP `@timestamp`, `aws.cloudmap.namespace`, `aws.cloudmap.service_name`, `aws.cloudmap.health_status`, `event.action` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

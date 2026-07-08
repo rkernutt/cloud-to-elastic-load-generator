@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY dataset = `aws.dataexchange.dataset_name` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY dataset = `aws.dataexchange.dataset_name` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY job_type = `aws.dataexchange.job_type` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY job_type = `aws.dataexchange.job_type` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.dataexchange* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.dataexchange* | KEEP `@timestamp``@timestamp`, `aws.dataexchange.dataset_name`, `aws.dataexchange.job_type`, `aws.dataexchange.job_status` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.dataexchange* | KEEP `@timestamp`, `aws.dataexchange.dataset_name`, `aws.dataexchange.job_type`, `aws.dataexchange.job_status` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

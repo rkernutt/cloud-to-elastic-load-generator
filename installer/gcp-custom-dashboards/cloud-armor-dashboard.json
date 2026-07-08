@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY a = `gcp.cloud_armor.action` | SORT ``c DESC"
+            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY a = `gcp.cloud_armor.action` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY r = `gcp.cloud_armor.rule_name` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY r = `gcp.cloud_armor.rule_name` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.cloudarmor* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudarmor* | STATS blocked = SUM(CASE(`gcp.cloud_armor.action` IN (\"DENY\", \"DENY_403\", \"RATE_LIMITED\"), 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.cloudarmor* | STATS blocked = SUM(CASE(`gcp.cloud_armor.action` IN (\"DENY\", \"DENY_403\", \"RATE_LIMITED\"), 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudarmor* | WHERE `gcp.cloud_armor.action` IN (\"DENY\", \"DENY_403\", \"RATE_LIMITED\") | STATS c = COUNT() BY ip = `gcp.cloud_armor.source_ip` | SORT ``c DESC | LIMIT 15"
+                "query": "FROM logs-gcp.cloudarmor* | WHERE `gcp.cloud_armor.action` IN (\"DENY\", \"DENY_403\", \"RATE_LIMITED\") | STATS c = COUNT() BY ip = `gcp.cloud_armor.source_ip` | SORT c DESC | LIMIT 15"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudarmor* | KEEP `@timestamp``@timestamp`, `gcp.cloud_armor.source_ip`, `gcp.cloud_armor.action`, `gcp.cloud_armor.rule_name`, `gcp.cloud_armor.policy_name`, `gcp.cloud_armor.matched_expression`, cloud.region, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudarmor* | KEEP `@timestamp`, `gcp.cloud_armor.source_ip`, `gcp.cloud_armor.action`, `gcp.cloud_armor.rule_name`, `gcp.cloud_armor.policy_name`, `gcp.cloud_armor.matched_expression`, cloud.region, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

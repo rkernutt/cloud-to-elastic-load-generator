@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.aurora* | STATS count = COUNT() BY cluster = `aws.aurora.cluster_id` | SORT ``count DESC | LIMIT 8"
+            "query": "FROM logs-aws.aurora* | STATS count = COUNT() BY cluster = `aws.aurora.cluster_id` | SORT count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.aurora* | STATS count = COUNT() BY ver = `aws.aurora.engine_version` | SORT ``count DESC | LIMIT 8"
+            "query": "FROM logs-aws.aurora* | STATS count = COUNT() BY ver = `aws.aurora.engine_version` | SORT count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS avg_conn = AVG(`aws.aurora.db_connections`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.aurora* | STATS avg_conn = AVG(`aws.aurora.db_connections`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS binlog_lag = AVG(`aws.aurora.metrics.AuroraBinlogReplicaLag.avg`), global_lag = AVG(`aws.aurora.metrics.AuroraGlobalDBProgressLag.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.aurora* | STATS binlog_lag = AVG(`aws.aurora.metrics.AuroraBinlogReplicaLag.avg`), global_lag = AVG(`aws.aurora.metrics.AuroraGlobalDBProgressLag.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS capacity = AVG(`aws.aurora.metrics.ServerlessDatabaseCapacity.avg`), acu = AVG(`aws.aurora.metrics.ACUUtilization.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.aurora* | STATS capacity = AVG(`aws.aurora.metrics.ServerlessDatabaseCapacity.avg`), acu = AVG(`aws.aurora.metrics.ACUUtilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -393,7 +393,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS avg_c = AVG(`aws.aurora.db_connections`) BY cluster = `aws.aurora.cluster_id` | SORT ``avg_c DESC | LIMIT 10"
+                "query": "FROM logs-aws.aurora* | STATS avg_c = AVG(`aws.aurora.db_connections`) BY cluster = `aws.aurora.cluster_id` | SORT avg_c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -441,7 +441,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.aurora* | STATS xfer = SUM(`aws.aurora.metrics.AuroraGlobalDBDataTransferBytes.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.aurora* | STATS xfer = SUM(`aws.aurora.metrics.AuroraGlobalDBDataTransferBytes.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -474,7 +474,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.aurora* | KEEP `@timestamp``@timestamp`, `aws.aurora.cluster_id`, `aws.aurora.instance_id`, `aws.aurora.engine`, `aws.aurora.db_connections`, `aws.aurora.replica_lag_seconds`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.aurora* | KEEP `@timestamp`, `aws.aurora.cluster_id`, `aws.aurora.instance_id`, `aws.aurora.engine`, `aws.aurora.db_connections`, `aws.aurora.replica_lag_seconds`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY a = `gcp.artifact_registry.action` | SORT ``c DESC"
+            "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY a = `gcp.artifact_registry.action` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY f = `gcp.artifact_registry.format` | SORT ``c DESC"
+            "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY f = `gcp.artifact_registry.format` | SORT c DESC"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY r = `gcp.artifact_registry.repository` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY r = `gcp.artifact_registry.repository` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.artifactregistry* | STATS push = SUM(CASE(`gcp.artifact_registry.action` == \"push\", 1, 0)), pull = SUM(CASE(`gcp.artifact_registry.action` == \"pull\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.artifactregistry* | STATS push = SUM(CASE(`gcp.artifact_registry.action` == \"push\", 1, 0)), pull = SUM(CASE(`gcp.artifact_registry.action` == \"pull\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -292,7 +292,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.artifactregistry* | WHERE `gcp.artifact_registry.action` == \"scan\" | STATS vuln = SUM(`gcp.artifact_registry.vulnerability_count`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.artifactregistry* | WHERE `gcp.artifact_registry.action` == \"scan\" | STATS vuln = SUM(`gcp.artifact_registry.vulnerability_count`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY r = `gcp.artifact_registry.repository` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY r = `gcp.artifact_registry.repository` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -373,7 +373,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.artifactregistry* | KEEP `@timestamp``@timestamp`, `gcp.artifact_registry.repository`, `gcp.artifact_registry.package_name`, `gcp.artifact_registry.action`, `gcp.artifact_registry.format`, `gcp.artifact_registry.vulnerability_count`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.artifactregistry* | KEEP `@timestamp`, `gcp.artifact_registry.repository`, `gcp.artifact_registry.package_name`, `gcp.artifact_registry.action`, `gcp.artifact_registry.format`, `gcp.artifact_registry.vulnerability_count`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

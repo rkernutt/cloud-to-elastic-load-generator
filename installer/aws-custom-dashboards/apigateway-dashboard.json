@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY st = `aws.apigateway.status` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY st = `aws.apigateway.status` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY stg = `aws.apigateway.stage` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY stg = `aws.apigateway.stage` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY t = `aws.apigateway.api_type` | SORT ``c DESC | LIMIT 8"
+            "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY t = `aws.apigateway.api_type` | SORT c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.apigateway_logs* | STATS lat = AVG(event.duration) / 1000000.0, integ = AVG(`aws.apigateway.integration_latency`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.apigateway_logs* | STATS lat = AVG(event.duration) / 1000000.0, integ = AVG(`aws.apigateway.integration_latency`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.apigateway_metrics* | STATS e4 = SUM(`aws.apigateway.metrics.4XXError.sum`), e5 = SUM(`aws.apigateway.metrics.5XXError.sum`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM metrics-aws.apigateway_metrics* | STATS e4 = SUM(`aws.apigateway.metrics.4XXError.sum`), e5 = SUM(`aws.apigateway.metrics.5XXError.sum`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -393,7 +393,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY api = `aws.apigateway.api_id` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-aws.apigateway_logs* | STATS c = COUNT() BY api = `aws.apigateway.api_id` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -426,7 +426,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.apigateway_logs* | KEEP `@timestamp``@timestamp`, `aws.apigateway.api_id`, `aws.apigateway.stage`, `aws.apigateway.http_method`, `aws.apigateway.resource_path`, `aws.apigateway.status`, `aws.apigateway.integration_latency`, `aws.apigateway.request_id` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.apigateway_logs* | KEEP `@timestamp`, `aws.apigateway.api_id`, `aws.apigateway.stage`, `aws.apigateway.http_method`, `aws.apigateway.resource_path`, `aws.apigateway.status`, `aws.apigateway.integration_latency`, `aws.apigateway.request_id` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

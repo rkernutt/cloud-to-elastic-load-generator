@@ -104,7 +104,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.scc*, logs-gcp.secops* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.scc*, logs-gcp.secops* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -123,7 +123,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.scc* | WHERE gcp.security_command_center.category IS NOT NULL | STATS cnt = COUNT() BY cat = gcp.security_command_center.category, sev = gcp.security_command_center.severity, proj = cloud.project.id, res = resource.name | SORT ``cnt DESC | LIMIT 25"
+            "query": "FROM logs-gcp.scc* | WHERE gcp.security_command_center.category IS NOT NULL | STATS cnt = COUNT() BY cat = gcp.security_command_center.category, sev = gcp.security_command_center.severity, proj = cloud.project.id, res = resource.name | SORT cnt DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "cat", "label": "Category" },

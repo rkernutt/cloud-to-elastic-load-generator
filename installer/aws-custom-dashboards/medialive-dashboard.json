@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY outcome = `event.outcome` | SORT ``count DESC"
+            "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
           "metrics": [
             {
@@ -175,7 +175,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY dim = `aws.medialive.channel_name` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY dim = `aws.medialive.channel_name` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -223,7 +223,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.medialive* | STATS avg_m = AVG(`aws.medialive.metrics.ChannelInputErrorSeconds.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.medialive* | STATS avg_m = AVG(`aws.medialive.metrics.ChannelInputErrorSeconds.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -319,7 +319,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -367,7 +367,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY res = `aws.medialive.channel_id` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY res = `aws.medialive.channel_id` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -400,7 +400,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY lvl = log.level | SORT ``count DESC"
+            "query": "FROM logs-aws.medialive* | STATS count = COUNT() BY lvl = log.level | SORT count DESC"
           },
           "metrics": [
             {
@@ -432,7 +432,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.medialive* | KEEP `@timestamp``@timestamp`, `aws.medialive.channel_name`, `aws.medialive.channel_id`, `aws.medialive.metrics.ChannelInputErrorSeconds.sum`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.medialive* | KEEP `@timestamp`, `aws.medialive.channel_name`, `aws.medialive.channel_id`, `aws.medialive.metrics.ChannelInputErrorSeconds.sum`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

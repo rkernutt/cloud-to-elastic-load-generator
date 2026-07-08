@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.supplychain* | STATS count = COUNT() BY event_type = `aws.supplychain.event_type` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.supplychain* | STATS count = COUNT() BY event_type = `aws.supplychain.event_type` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.supplychain* | STATS count = COUNT() BY job_status = `aws.supplychain.job_status` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.supplychain* | STATS count = COUNT() BY job_status = `aws.supplychain.job_status` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.supplychain* | STATS count = COUNT(), total_records = SUM(`aws.supplychain.record_count`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.supplychain* | STATS count = COUNT(), total_records = SUM(`aws.supplychain.record_count`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -245,7 +245,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.supplychain* | KEEP `@timestamp``@timestamp`, `aws.supplychain.event_type`, `aws.supplychain.job_status`, `aws.supplychain.record_count` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.supplychain* | KEEP `@timestamp`, `aws.supplychain.event_type`, `aws.supplychain.job_status`, `aws.supplychain.record_count` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

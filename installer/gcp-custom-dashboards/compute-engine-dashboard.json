@@ -47,7 +47,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.compute* | STATS c = COUNT() BY t = `gcp.compute_engine.event_type` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.compute* | STATS c = COUNT() BY t = `gcp.compute_engine.event_type` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -94,7 +94,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.compute* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.compute* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -127,7 +127,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.compute* | KEEP `@timestamp``@timestamp`, `gcp.compute_engine.instance_name`, `gcp.compute_engine.zone`, `gcp.compute_engine.machine_type`, `gcp.compute_engine.event_type`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.compute* | KEEP `@timestamp`, `gcp.compute_engine.instance_name`, `gcp.compute_engine.zone`, `gcp.compute_engine.machine_type`, `gcp.compute_engine.event_type`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

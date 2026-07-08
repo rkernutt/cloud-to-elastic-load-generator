@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.codebuild* | STATS count = COUNT() BY proj = `aws.codebuild.project_name` | SORT ``count DESC | LIMIT 8"
+            "query": "FROM logs-aws.codebuild* | STATS count = COUNT() BY proj = `aws.codebuild.project_name` | SORT count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.codepipeline* | STATS total = SUM(`aws.codepipeline.metrics.PipelineExecutionAttempts.sum`), success = SUM(`aws.codepipeline.metrics.PipelineSuccessCount.sum`), failed = SUM(`aws.codepipeline.metrics.PipelineFailureCount.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.codepipeline* | STATS total = SUM(`aws.codepipeline.metrics.PipelineExecutionAttempts.sum`), success = SUM(`aws.codepipeline.metrics.PipelineSuccessCount.sum`), failed = SUM(`aws.codepipeline.metrics.PipelineFailureCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -297,7 +297,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.codebuild* | STATS builds = SUM(`aws.codebuild.metrics.Builds.sum`), succeeded = SUM(`aws.codebuild.metrics.SucceededBuilds.sum`), failed = SUM(`aws.codebuild.metrics.FailedBuilds.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.codebuild* | STATS builds = SUM(`aws.codebuild.metrics.Builds.sum`), succeeded = SUM(`aws.codebuild.metrics.SucceededBuilds.sum`), failed = SUM(`aws.codebuild.metrics.FailedBuilds.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -355,7 +355,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.codebuild* | STATS avg_d = AVG(`aws.codebuild.metrics.BuildDuration.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.codebuild* | STATS avg_d = AVG(`aws.codebuild.metrics.BuildDuration.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -403,7 +403,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.codebuild* | STATS avg_q = AVG(`aws.codebuild.metrics.QueuedDuration.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.codebuild* | STATS avg_q = AVG(`aws.codebuild.metrics.QueuedDuration.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -451,7 +451,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.codepipeline* | WHERE log.level == \"error\" | STATS count = COUNT() BY pipeline = `aws.codepipeline.pipeline_name` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.codepipeline* | WHERE log.level == \"error\" | STATS count = COUNT() BY pipeline = `aws.codepipeline.pipeline_name` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -499,7 +499,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.codebuild* | STATS avg_d = AVG(`aws.codebuild.duration_seconds`) BY proj = `aws.codebuild.project_name` | SORT ``avg_d DESC | LIMIT 10"
+                "query": "FROM logs-aws.codebuild* | STATS avg_d = AVG(`aws.codebuild.duration_seconds`) BY proj = `aws.codebuild.project_name` | SORT avg_d DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -532,7 +532,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.codebuild* | KEEP `@timestamp``@timestamp`, `aws.codebuild.project_name`, `aws.codebuild.build_status`, `aws.codebuild.current_phase`, `aws.codebuild.duration_seconds`, `aws.codebuild.queued_duration_seconds`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.codebuild* | KEEP `@timestamp`, `aws.codebuild.project_name`, `aws.codebuild.build_status`, `aws.codebuild.current_phase`, `aws.codebuild.duration_seconds`, `aws.codebuild.queued_duration_seconds`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

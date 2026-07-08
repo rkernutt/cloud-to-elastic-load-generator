@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.config* | STATS c = COUNT() BY s = `aws.config.compliance_type` | SORT ``c DESC"
+            "query": "FROM logs-aws.config* | STATS c = COUNT() BY s = `aws.config.compliance_type` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.config* | STATS c = COUNT() BY r = `aws.config.rule_name` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-aws.config* | STATS c = COUNT() BY r = `aws.config.rule_name` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.config* | STATS c = COUNT() BY t = `aws.config.resource_type` | SORT ``c DESC | LIMIT 8"
+            "query": "FROM logs-aws.config* | STATS c = COUNT() BY t = `aws.config.resource_type` | SORT c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.config* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.config* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.config* | STATS nc = SUM(`aws.config.metrics.NonCompliantRules.sum`), ok = SUM(`aws.config.metrics.CompliantRules.sum`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.config* | STATS nc = SUM(`aws.config.metrics.NonCompliantRules.sum`), ok = SUM(`aws.config.metrics.CompliantRules.sum`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.config* | STATS items = SUM(`aws.config.metrics.ConfigurationItemsRecorded.sum`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.config* | STATS items = SUM(`aws.config.metrics.ConfigurationItemsRecorded.sum`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.config* | WHERE `aws.config.compliance_type` == \"NON_COMPLIANT\" | STATS c = COUNT() BY r = `aws.config.rule_name` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-aws.config* | WHERE `aws.config.compliance_type` == \"NON_COMPLIANT\" | STATS c = COUNT() BY r = `aws.config.rule_name` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.config* | KEEP `@timestamp``@timestamp`, `aws.config.rule_name`, `aws.config.compliance_type`, `aws.config.resource_type`, `aws.config.resource_id`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.config* | KEEP `@timestamp`, `aws.config.rule_name`, `aws.config.compliance_type`, `aws.config.resource_type`, `aws.config.resource_id`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

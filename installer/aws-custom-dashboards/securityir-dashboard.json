@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY severity = `aws.securityir.severity` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY severity = `aws.securityir.severity` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY status = `aws.securityir.case_status` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY status = `aws.securityir.case_status` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.securityir* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.securityir* | KEEP `@timestamp``@timestamp`, `aws.securityir.case_title`, `aws.securityir.severity`, `aws.securityir.case_status` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.securityir* | KEEP `@timestamp`, `aws.securityir.case_title`, `aws.securityir.severity`, `aws.securityir.case_status` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

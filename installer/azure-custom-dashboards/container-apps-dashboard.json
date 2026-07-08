@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.container_apps* | STATS c = COUNT() BY cat = `azure.container_apps.category` | SORT ``c DESC"
+            "query": "FROM logs-azure.container_apps* | STATS c = COUNT() BY cat = `azure.container_apps.category` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.container_apps* | STATS c = COUNT() BY rev = `azure.container_apps.revision` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.container_apps* | STATS c = COUNT() BY rev = `azure.container_apps.revision` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.container_apps* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
+            "query": "FROM logs-azure.container_apps* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.container_apps* | WHERE `azure.container_apps.category` == \"ContainerAppIngressLogs\" | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.container_apps* | WHERE `azure.container_apps.category` == \"ContainerAppIngressLogs\" | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.container_apps* | WHERE event.outcome == \"failure\" | STATS e = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.container_apps* | WHERE event.outcome == \"failure\" | STATS e = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.container_apps* | STATS c = COUNT() BY app = `azure.container_apps.app_name` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-azure.container_apps* | STATS c = COUNT() BY app = `azure.container_apps.app_name` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.container_apps* | KEEP `@timestamp``@timestamp`, `azure.container_apps.app_name`, `azure.container_apps.revision`, `azure.container_apps.category`, operationName, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.container_apps* | KEEP `@timestamp`, `azure.container_apps.app_name`, `azure.container_apps.revision`, `azure.container_apps.category`, operationName, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

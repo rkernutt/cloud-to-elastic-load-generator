@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY w = `azure.microsoft_365.workload` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY w = `azure.microsoft_365.workload` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY t = `azure.microsoft_365.record_type` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY t = `azure.microsoft_365.record_type` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY r = `azure.microsoft_365.result` | SORT ``c DESC"
+            "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY r = `azure.microsoft_365.result` | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.microsoft_365* | STATS teams = SUM(CASE(`azure.microsoft_365.workload` == \"MicrosoftTeams\", 1, 0)), ex = SUM(CASE(`azure.microsoft_365.workload` == \"Exchange\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.microsoft_365* | STATS teams = SUM(CASE(`azure.microsoft_365.workload` == \"MicrosoftTeams\", 1, 0)), ex = SUM(CASE(`azure.microsoft_365.workload` == \"Exchange\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -340,7 +340,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.microsoft_365* | STATS od = SUM(CASE(`azure.microsoft_365.workload` == \"OneDrive\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.microsoft_365* | STATS od = SUM(CASE(`azure.microsoft_365.workload` == \"OneDrive\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -388,7 +388,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY u = `azure.microsoft_365.user_id` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-azure.microsoft_365* | STATS c = COUNT() BY u = `azure.microsoft_365.user_id` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -421,7 +421,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.microsoft_365* | KEEP `@timestamp``@timestamp`, `azure.microsoft_365.workload`, `azure.microsoft_365.record_type`, `azure.microsoft_365.user_id`, `azure.microsoft_365.result`, `azure.microsoft_365.client_ip` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.microsoft_365* | KEEP `@timestamp`, `azure.microsoft_365.workload`, `azure.microsoft_365.record_type`, `azure.microsoft_365.user_id`, `azure.microsoft_365.result`, `azure.microsoft_365.client_ip` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY hsm_state = `aws.cloudhsm.hsm_state` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY hsm_state = `aws.cloudhsm.hsm_state` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY op_type = `aws.cloudhsm.operation_type` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY op_type = `aws.cloudhsm.operation_type` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.cloudhsm* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.cloudhsm* | KEEP `@timestamp``@timestamp`, `aws.cloudhsm.cluster_id`, `aws.cloudhsm.hsm_state`, `aws.cloudhsm.operation_type`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.cloudhsm* | KEEP `@timestamp`, `aws.cloudhsm.cluster_id`, `aws.cloudhsm.hsm_state`, `aws.cloudhsm.operation_type`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

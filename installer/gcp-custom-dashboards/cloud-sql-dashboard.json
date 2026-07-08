@@ -133,7 +133,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY t = `gcp.cloud_sql.query_type` | SORT ``c DESC | LIMIT 8"
+            "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY t = `gcp.cloud_sql.query_type` | SORT c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -180,7 +180,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -213,7 +213,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudsql* | KEEP `@timestamp``@timestamp`, `gcp.cloud_sql.instance_name`, `gcp.cloud_sql.database_engine`, `gcp.cloud_sql.query_type`, `gcp.cloud_sql.query_duration_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudsql* | KEEP `@timestamp`, `gcp.cloud_sql.instance_name`, `gcp.cloud_sql.database_engine`, `gcp.cloud_sql.query_type`, `gcp.cloud_sql.query_duration_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

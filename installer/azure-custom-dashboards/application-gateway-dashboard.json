@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY s = `azure.application_gateway.http_status` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY s = `azure.application_gateway.http_status` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY g = `azure.application_gateway.name` | SORT ``c DESC | LIMIT 8"
+            "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY g = `azure.application_gateway.name` | SORT c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY cat = category | SORT ``c DESC | LIMIT 8"
+            "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY cat = category | SORT c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.application_gateway* | STATS lat = AVG(`azure.application_gateway.latency_ms`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.application_gateway* | STATS lat = AVG(`azure.application_gateway.latency_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.application_gateway* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.application_gateway* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -383,7 +383,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY h = `azure.application_gateway.backend_host` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-azure.application_gateway* | STATS c = COUNT() BY h = `azure.application_gateway.backend_host` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -416,7 +416,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.application_gateway* | KEEP `@timestamp``@timestamp`, `azure.application_gateway.name`, category, operationName, `azure.application_gateway.http_status`, `azure.application_gateway.latency_ms`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.application_gateway* | KEEP `@timestamp`, `azure.application_gateway.name`, category, operationName, `azure.application_gateway.http_status`, `azure.application_gateway.latency_ms`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

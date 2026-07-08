@@ -110,7 +110,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dataform* | STATS c = COUNT() BY op = COALESCE(event.action, `gcp.dataform.scenario`, \"unknown\") | SORT ``c DESC | LIMIT 15"
+            "query": "FROM logs-gcp.dataform* | STATS c = COUNT() BY op = COALESCE(event.action, `gcp.dataform.scenario`, \"unknown\") | SORT c DESC | LIMIT 15"
           },
           "metrics": [
             { "operation": "value", "column": "op", "label": "Operation" },
@@ -147,7 +147,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.dataform* | STATS c = COUNT() BY repo = `gcp.dataform.repository_id` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.dataform* | STATS c = COUNT() BY repo = `gcp.dataform.repository_id` | SORT c DESC | LIMIT 10"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "repo" }]

@@ -62,7 +62,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.kubernetes* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.kubernetes* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -95,7 +95,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.kubernetes* | KEEP `@timestamp``@timestamp`, `azure.kubernetes.cluster_name`, `azure.kubernetes.namespace`, `azure.kubernetes.pod`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.kubernetes* | KEEP `@timestamp`, `azure.kubernetes.cluster_name`, `azure.kubernetes.namespace`, `azure.kubernetes.pod`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

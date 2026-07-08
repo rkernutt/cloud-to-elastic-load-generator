@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.entityresolution* | STATS count = COUNT() BY workflow = `aws.entityresolution.matching_workflow_name` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.entityresolution* | STATS count = COUNT() BY workflow = `aws.entityresolution.matching_workflow_name` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.entityresolution* | STATS count = COUNT() BY status = `aws.entityresolution.job_status` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.entityresolution* | STATS count = COUNT() BY status = `aws.entityresolution.job_status` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.entityresolution* | STATS count = COUNT(), input_records = SUM(`aws.entityresolution.input_record_count`), matched_records = SUM(`aws.entityresolution.matched_record_count`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.entityresolution* | STATS count = COUNT(), input_records = SUM(`aws.entityresolution.input_record_count`), matched_records = SUM(`aws.entityresolution.matched_record_count`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -245,7 +245,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.entityresolution* | KEEP `@timestamp``@timestamp`, `aws.entityresolution.matching_workflow_name`, `aws.entityresolution.job_status`, `aws.entityresolution.input_record_count`, `aws.entityresolution.matched_record_count` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.entityresolution* | KEEP `@timestamp`, `aws.entityresolution.matching_workflow_name`, `aws.entityresolution.job_status`, `aws.entityresolution.input_record_count`, `aws.entityresolution.matched_record_count` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

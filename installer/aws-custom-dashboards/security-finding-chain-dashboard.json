@@ -104,7 +104,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.guardduty*, logs-aws.securityhub_findings*, logs-aws.securitylake* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.guardduty*, logs-aws.securityhub_findings*, logs-aws.securitylake* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -130,7 +130,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" AND source.ip IS NOT NULL | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" AND source.ip IS NOT NULL | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events with source IP" }]
@@ -149,7 +149,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" | STATS cnt = COUNT() BY ft = aws.guardduty.type, sev = aws.guardduty.severity.value, fid = aws.guardduty.id | SORT ``cnt DESC | LIMIT 25"
+            "query": "FROM logs-aws.guardduty* | WHERE event.kind == \"alert\" | STATS cnt = COUNT() BY ft = aws.guardduty.type, sev = aws.guardduty.severity.value, fid = aws.guardduty.id | SORT cnt DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "ft", "label": "Finding type" },
@@ -171,7 +171,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.guardduty*, logs-aws.securityhub_findings*, logs-aws.securitylake* | WHERE source.ip IS NOT NULL AND cloud.account.id IS NOT NULL | STATS evts = COUNT(), stages = COUNT_DISTINCT(event.dataset), ftype = MAX(aws.guardduty.type) BY src = source.ip, acct = cloud.account.id | SORT ``evts DESC | LIMIT 25"
+            "query": "FROM logs-aws.guardduty*, logs-aws.securityhub_findings*, logs-aws.securitylake* | WHERE source.ip IS NOT NULL AND cloud.account.id IS NOT NULL | STATS evts = COUNT(), stages = COUNT_DISTINCT(event.dataset), ftype = MAX(aws.guardduty.type) BY src = source.ip, acct = cloud.account.id | SORT evts DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "src", "label": "Source IP" },

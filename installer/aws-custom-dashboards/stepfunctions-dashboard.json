@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.stepfunctions* | STATS count = COUNT() BY sm = `aws.stepfunctions.state_machine_name` | SORT ``count DESC | LIMIT 8"
+            "query": "FROM logs-aws.stepfunctions* | STATS count = COUNT() BY sm = `aws.stepfunctions.state_machine_name` | SORT count DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS started = SUM(`aws.stepfunctions.metrics.ExecutionsStarted.sum`), succeeded = SUM(`aws.stepfunctions.metrics.ExecutionsSucceeded.sum`), failed = SUM(`aws.stepfunctions.metrics.ExecutionsFailed.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.stepfunctions* | STATS started = SUM(`aws.stepfunctions.metrics.ExecutionsStarted.sum`), succeeded = SUM(`aws.stepfunctions.metrics.ExecutionsSucceeded.sum`), failed = SUM(`aws.stepfunctions.metrics.ExecutionsFailed.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -297,7 +297,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS avg_d = AVG(`aws.stepfunctions.metrics.ExecutionTime.avg`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.stepfunctions* | STATS avg_d = AVG(`aws.stepfunctions.metrics.ExecutionTime.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -345,7 +345,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS p99_d = AVG(`aws.stepfunctions.metrics.ExecutionTime.p99`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.stepfunctions* | STATS p99_d = AVG(`aws.stepfunctions.metrics.ExecutionTime.p99`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -393,7 +393,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS avg_d = AVG(`aws.stepfunctions.duration_seconds`) BY sm = `aws.stepfunctions.state_machine_name` | SORT ``avg_d DESC | LIMIT 10"
+                "query": "FROM logs-aws.stepfunctions* | STATS avg_d = AVG(`aws.stepfunctions.duration_seconds`) BY sm = `aws.stepfunctions.state_machine_name` | SORT avg_d DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -441,7 +441,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.stepfunctions* | STATS throttled = SUM(`aws.stepfunctions.metrics.ExecutionThrottled.sum`), timedout = SUM(`aws.stepfunctions.metrics.ExecutionsTimedOut.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.stepfunctions* | STATS throttled = SUM(`aws.stepfunctions.metrics.ExecutionThrottled.sum`), timedout = SUM(`aws.stepfunctions.metrics.ExecutionsTimedOut.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -479,7 +479,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.stepfunctions* | KEEP `@timestamp``@timestamp`, `aws.stepfunctions.state_machine_name`, `aws.stepfunctions.workflow_type`, `aws.stepfunctions.status`, `aws.stepfunctions.duration_seconds`, log.level | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.stepfunctions* | KEEP `@timestamp`, `aws.stepfunctions.state_machine_name`, `aws.stepfunctions.workflow_type`, `aws.stepfunctions.status`, `aws.stepfunctions.duration_seconds`, log.level | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

@@ -87,7 +87,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.vpcflow* | WHERE network.direction == \"egress\" AND aws.vpcflow.bytes IS NOT NULL | STATS mb = SUM(aws.vpcflow.bytes) / 1048576 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.vpcflow* | WHERE network.direction == \"egress\" AND aws.vpcflow.bytes IS NOT NULL | STATS mb = SUM(aws.vpcflow.bytes) / 1048576 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "mb", "label": "MB" }]
@@ -113,7 +113,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.guardduty* | WHERE aws.guardduty.type LIKE \"Exfiltration*\" | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.guardduty* | WHERE aws.guardduty.type LIKE \"Exfiltration*\" | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Findings" }]
@@ -132,7 +132,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.vpcflow* | WHERE network.direction == \"egress\" AND aws.vpcflow.bytes IS NOT NULL | STATS bytes = SUM(aws.vpcflow.bytes), mb = SUM(aws.vpcflow.bytes) / 1048576 BY src = source.ip, dst = destination.ip, inst = aws.vpcflow.instance_id, reg = cloud.region, acct = cloud.account.id | SORT ``bytes DESC | LIMIT 25"
+            "query": "FROM logs-aws.vpcflow* | WHERE network.direction == \"egress\" AND aws.vpcflow.bytes IS NOT NULL | STATS bytes = SUM(aws.vpcflow.bytes), mb = SUM(aws.vpcflow.bytes) / 1048576 BY src = source.ip, dst = destination.ip, inst = aws.vpcflow.instance_id, reg = cloud.region, acct = cloud.account.id | SORT bytes DESC | LIMIT 25"
           },
           "metrics": [
             { "operation": "value", "column": "src", "label": "Source IP" },

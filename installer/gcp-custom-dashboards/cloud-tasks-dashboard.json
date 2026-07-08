@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudtasks* | STATS c = COUNT() BY q = `gcp.cloud_tasks.queue_name` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.cloudtasks* | STATS c = COUNT() BY q = `gcp.cloud_tasks.queue_name` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudtasks* | STATS c = COUNT() BY rc = TO_STRING(`gcp.cloud_tasks.response_code`) | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.cloudtasks* | STATS c = COUNT() BY rc = TO_STRING(`gcp.cloud_tasks.response_code`) | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudtasks* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
+            "query": "FROM logs-gcp.cloudtasks* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudtasks* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.cloudtasks* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudtasks* | STATS depth = AVG(`gcp.cloud_tasks.metrics.queue_depth.avg`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.cloudtasks* | STATS depth = AVG(`gcp.cloud_tasks.metrics.queue_depth.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudtasks* | STATS lat = ROUND(AVG(`gcp.cloud_tasks.attempt_latency_ms`), 0) BY q = `gcp.cloud_tasks.queue_name` | SORT ``lat DESC | LIMIT 10"
+                "query": "FROM logs-gcp.cloudtasks* | STATS lat = ROUND(AVG(`gcp.cloud_tasks.attempt_latency_ms`), 0) BY q = `gcp.cloud_tasks.queue_name` | SORT lat DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudtasks* | KEEP `@timestamp``@timestamp`, `gcp.cloud_tasks.queue_name`, `gcp.cloud_tasks.task_name`, `gcp.cloud_tasks.dispatch_count`, `gcp.cloud_tasks.response_code`, `gcp.cloud_tasks.attempt_latency_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudtasks* | KEEP `@timestamp`, `gcp.cloud_tasks.queue_name`, `gcp.cloud_tasks.task_name`, `gcp.cloud_tasks.dispatch_count`, `gcp.cloud_tasks.response_code`, `gcp.cloud_tasks.attempt_latency_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

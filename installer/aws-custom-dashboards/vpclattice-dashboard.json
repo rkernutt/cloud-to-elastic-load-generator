@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY service = `aws.vpclattice.service_name` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY service = `aws.vpclattice.service_name` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY code = `aws.vpclattice.response_code` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY code = `aws.vpclattice.response_code` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.vpclattice* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.vpclattice* | KEEP `@timestamp``@timestamp`, `aws.vpclattice.service_name`, `aws.vpclattice.response_code`, `aws.vpclattice.response_time_ms`, `aws.vpclattice.bytes_sent` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.vpclattice* | KEEP `@timestamp`, `aws.vpclattice.service_name`, `aws.vpclattice.response_code`, `aws.vpclattice.response_time_ms`, `aws.vpclattice.bytes_sent` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

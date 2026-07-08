@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.proton* | STATS count = COUNT() BY status = `aws.proton.deployment_status` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.proton* | STATS count = COUNT() BY status = `aws.proton.deployment_status` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.proton* | STATS count = COUNT() BY component = `aws.proton.component` | SORT ``count DESC | LIMIT 10"
+            "query": "FROM logs-aws.proton* | STATS count = COUNT() BY component = `aws.proton.component` | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -207,7 +207,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.proton* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.proton* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -240,7 +240,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.proton* | KEEP `@timestamp``@timestamp`, `aws.proton.environment_name`, `aws.proton.service_name`, `aws.proton.deployment_status`, `event.action` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.proton* | KEEP `@timestamp`, `aws.proton.environment_name`, `aws.proton.service_name`, `aws.proton.deployment_status`, `event.action` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

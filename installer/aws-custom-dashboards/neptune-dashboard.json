@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.neptune* | STATS c = COUNT() BY l = `aws.neptune.query_language` | SORT ``c DESC"
+            "query": "FROM logs-aws.neptune* | STATS c = COUNT() BY l = `aws.neptune.query_language` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.neptune* | STATS c = COUNT() BY s = `aws.neptune.http_status` | SORT ``c DESC"
+            "query": "FROM logs-aws.neptune* | STATS c = COUNT() BY s = `aws.neptune.http_status` | SORT c DESC"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.neptune* | STATS c = COUNT() BY cl = `aws.neptune.cluster_id` | SORT ``c DESC | LIMIT 8"
+            "query": "FROM logs-aws.neptune* | STATS c = COUNT() BY cl = `aws.neptune.cluster_id` | SORT c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.neptune* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.neptune* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.neptune* | STATS d = AVG(`aws.neptune.duration_ms`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-aws.neptune* | STATS d = AVG(`aws.neptune.duration_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.neptune* | STATS con = AVG(`aws.neptune.metrics.DatabaseConnections.avg`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM metrics-aws.neptune* | STATS con = AVG(`aws.neptune.metrics.DatabaseConnections.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -383,7 +383,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.neptune* | STATS rps = AVG(`aws.neptune.metrics.GremlinRequestsPerSec.avg`) BY cl = `aws.neptune.dimensions.DBClusterIdentifier` | SORT ``rps DESC | LIMIT 10"
+                "query": "FROM metrics-aws.neptune* | STATS rps = AVG(`aws.neptune.metrics.GremlinRequestsPerSec.avg`) BY cl = `aws.neptune.dimensions.DBClusterIdentifier` | SORT rps DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -416,7 +416,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.neptune* | KEEP `@timestamp``@timestamp`, `aws.neptune.cluster_id`, `aws.neptune.query_language`, `aws.neptune.duration_ms`, `aws.neptune.http_status`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.neptune* | KEEP `@timestamp`, `aws.neptune.cluster_id`, `aws.neptune.query_language`, `aws.neptune.duration_ms`, `aws.neptune.http_status`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

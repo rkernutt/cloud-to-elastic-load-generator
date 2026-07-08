@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY outcome = `event.outcome` | SORT ``count DESC"
+            "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
           "metrics": [
             {
@@ -175,7 +175,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY state = `aws.ec2.state` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY state = `aws.ec2.state` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -223,7 +223,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -271,7 +271,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.ec2* | STATS net_in = SUM(`aws.ec2.metrics.NetworkIn.sum`), net_out = SUM(`aws.ec2.metrics.NetworkOut.sum`) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM metrics-aws.ec2* | STATS net_in = SUM(`aws.ec2.metrics.NetworkIn.sum`), net_out = SUM(`aws.ec2.metrics.NetworkOut.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -324,7 +324,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -372,7 +372,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY itype = `aws.ec2.instance.type` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY itype = `aws.ec2.instance.type` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -405,7 +405,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY lvl = log.level | SORT ``count DESC"
+            "query": "FROM logs-aws.ec2* | STATS count = COUNT() BY lvl = log.level | SORT count DESC"
           },
           "metrics": [
             {
@@ -437,7 +437,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.ec2* | KEEP `@timestamp``@timestamp`, host.id, `aws.ec2.instance.type`, `aws.ec2.state`, `aws.ec2.source`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws.ec2* | KEEP `@timestamp`, host.id, `aws.ec2.instance.type`, `aws.ec2.state`, `aws.ec2.source`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

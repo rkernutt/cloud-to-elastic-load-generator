@@ -143,7 +143,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM traces-aws.xray* | STATS avg_ms = ROUND(AVG(event.duration) / 1000000, 2), p99_ms = ROUND(AVG(`aws.xray.metrics.Latency.p99`), 2) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM traces-aws.xray* | STATS avg_ms = ROUND(AVG(event.duration) / 1000000, 2), p99_ms = ROUND(AVG(`aws.xray.metrics.Latency.p99`), 2) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -196,7 +196,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM traces-aws.xray* | EVAL f = CASE(`aws.xray.fault` == true, 1.0, 0.0), e = CASE(`aws.xray.error` == true, 1.0, 0.0), t = CASE(`aws.xray.throttle` == true, 1.0, 0.0) | STATS fault_pct = ROUND(AVG(f)*100,2), error_pct = ROUND(AVG(e)*100,2), throttle_pct = ROUND(AVG(t)*100,2) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM traces-aws.xray* | EVAL f = CASE(`aws.xray.fault` == true, 1.0, 0.0), e = CASE(`aws.xray.error` == true, 1.0, 0.0), t = CASE(`aws.xray.throttle` == true, 1.0, 0.0) | STATS fault_pct = ROUND(AVG(f)*100,2), error_pct = ROUND(AVG(e)*100,2), throttle_pct = ROUND(AVG(t)*100,2) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -254,7 +254,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM traces-aws.xray* | STATS count = COUNT() BY service = `aws.xray.service.name` | SORT ``count DESC | LIMIT 10"
+                "query": "FROM traces-aws.xray* | STATS count = COUNT() BY service = `aws.xray.service.name` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -319,7 +319,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM traces-aws.xray* | EVAL status_str = TO_STRING(`aws.xray.http.response.status`) | STATS count = COUNT() BY status_str | SORT ``count DESC | LIMIT 10"
+            "query": "FROM traces-aws.xray* | EVAL status_str = TO_STRING(`aws.xray.http.response.status`) | STATS count = COUNT() BY status_str | SORT count DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -366,7 +366,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM traces-aws.xray* | STATS avg_ms = ROUND(AVG(event.duration) / 1000000, 1) BY service = `aws.xray.service.name` | SORT ``avg_ms DESC | LIMIT 10"
+                "query": "FROM traces-aws.xray* | STATS avg_ms = ROUND(AVG(event.duration) / 1000000, 1) BY service = `aws.xray.service.name` | SORT avg_ms DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -478,7 +478,7 @@
               "type": "bar",
               "dataset": {
                 "type": "esql",
-                "query": "FROM traces-aws.xray* | STATS total = COUNT(), faults = SUM(CASE(`aws.xray.fault` == true, 1, 0)), errors = SUM(CASE(`aws.xray.error` == true, 1, 0)) BY bucket = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``bucket"
+                "query": "FROM traces-aws.xray* | STATS total = COUNT(), faults = SUM(CASE(`aws.xray.fault` == true, 1, 0)), errors = SUM(CASE(`aws.xray.error` == true, 1, 0)) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -521,7 +521,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM traces-aws.xray* | KEEP `@timestamp``@timestamp`, `aws.xray.trace_id`, `aws.xray.service.name`, `aws.xray.service.type`, `aws.xray.http.request.method`, `aws.xray.http.response.status`, `aws.xray.duration`, `aws.xray.fault`, `aws.xray.error`, `aws.xray.throttle`, log.level | SORT `@timestamp` DESC | LIMIT 50"
+            "query": "FROM traces-aws.xray* | KEEP `@timestamp`, `aws.xray.trace_id`, `aws.xray.service.name`, `aws.xray.service.type`, `aws.xray.http.request.method`, `aws.xray.http.response.status`, `aws.xray.duration`, `aws.xray.fault`, `aws.xray.error`, `aws.xray.throttle`, log.level | SORT `@timestamp` DESC | LIMIT 50"
           },
           "metrics": [
             {

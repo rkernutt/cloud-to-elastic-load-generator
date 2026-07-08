@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY hub = `azure.event_hubs.eventhub` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY hub = `azure.event_hubs.eventhub` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY p = TO_STRING(`azure.event_hubs.partition`) | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY p = TO_STRING(`azure.event_hubs.partition`) | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
+            "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.event_hubs* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.event_hubs* | STATS mb = SUM(`azure.event_hubs.incoming_bytes`) / 1048576 BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.event_hubs* | STATS mb = SUM(`azure.event_hubs.incoming_bytes`) / 1048576 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.event_hubs* | STATS mb = ROUND(SUM(`azure.event_hubs.incoming_bytes`) / 1048576.0, 1) BY ns = `azure.event_hubs.namespace` | SORT ``mb DESC | LIMIT 10"
+                "query": "FROM logs-azure.event_hubs* | STATS mb = ROUND(SUM(`azure.event_hubs.incoming_bytes`) / 1048576.0, 1) BY ns = `azure.event_hubs.namespace` | SORT mb DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.event_hubs* | KEEP `@timestamp``@timestamp`, `azure.event_hubs.namespace`, `azure.event_hubs.eventhub`, `azure.event_hubs.partition`, `azure.event_hubs.incoming_bytes`, `azure.event_hubs.server_busy`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.event_hubs* | KEEP `@timestamp`, `azure.event_hubs.namespace`, `azure.event_hubs.eventhub`, `azure.event_hubs.partition`, `azure.event_hubs.incoming_bytes`, `azure.event_hubs.server_busy`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

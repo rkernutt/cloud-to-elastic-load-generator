@@ -101,7 +101,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudrun* | STATS c = COUNT() BY s = `gcp.cloud_run.response_status` | SORT ``c DESC | LIMIT 12"
+            "query": "FROM logs-gcp.cloudrun* | STATS c = COUNT() BY s = `gcp.cloud_run.response_status` | SORT c DESC | LIMIT 12"
           },
           "metrics": [
             {
@@ -133,7 +133,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudrun* | STATS c = COUNT() BY svc = `gcp.cloud_run.service_name` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.cloudrun* | STATS c = COUNT() BY svc = `gcp.cloud_run.service_name` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -180,7 +180,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudrun* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.cloudrun* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -213,7 +213,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudrun* | KEEP `@timestamp``@timestamp`, `gcp.cloud_run.service_name`, `gcp.cloud_run.request_method`, `gcp.cloud_run.url_path`, `gcp.cloud_run.response_status`, event.outcome, event.duration, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudrun* | KEEP `@timestamp`, `gcp.cloud_run.service_name`, `gcp.cloud_run.request_method`, `gcp.cloud_run.url_path`, `gcp.cloud_run.response_status`, event.outcome, event.duration, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

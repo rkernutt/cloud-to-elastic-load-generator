@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY sc = `gcp.cloud_storage.storage_class` | SORT ``c DESC"
+            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY sc = `gcp.cloud_storage.storage_class` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY op = `gcp.cloud_storage.operation` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY op = `gcp.cloud_storage.operation` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
+            "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.gcs* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.gcs* | WHERE event.outcome == \"failure\" | STATS e = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.gcs* | WHERE event.outcome == \"failure\" | STATS e = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.gcs* | WHERE event.outcome == \"failure\" | STATS c = COUNT() BY bucket = `gcp.cloud_storage.bucket_name` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-gcp.gcs* | WHERE event.outcome == \"failure\" | STATS c = COUNT() BY bucket = `gcp.cloud_storage.bucket_name` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.gcs* | KEEP `@timestamp``@timestamp`, `gcp.cloud_storage.bucket_name`, `gcp.cloud_storage.object_name`, `gcp.cloud_storage.operation`, `gcp.cloud_storage.storage_class`, `gcp.cloud_storage.object_size`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.gcs* | KEEP `@timestamp`, `gcp.cloud_storage.bucket_name`, `gcp.cloud_storage.object_name`, `gcp.cloud_storage.operation`, `gcp.cloud_storage.storage_class`, `gcp.cloud_storage.object_size`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

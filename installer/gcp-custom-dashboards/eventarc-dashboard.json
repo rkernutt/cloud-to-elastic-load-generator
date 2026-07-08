@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY et = `gcp.eventarc.event_type` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY et = `gcp.eventarc.event_type` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY tr = `gcp.eventarc.trigger_name` | SORT ``c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY tr = `gcp.eventarc.trigger_name` | SORT c DESC | LIMIT 10"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY ds = `gcp.eventarc.delivery_status` | SORT ``c DESC"
+            "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY ds = `gcp.eventarc.delivery_status` | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.eventarc* | STATS f = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-gcp.eventarc* | STATS f = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.eventarc* | STATS lat = ROUND(AVG(`gcp.eventarc.metrics.delivery_latency_ms.avg`), 0) BY tr = `gcp.eventarc.trigger_name` | SORT ``lat DESC | LIMIT 10"
+                "query": "FROM logs-gcp.eventarc* | STATS lat = ROUND(AVG(`gcp.eventarc.metrics.delivery_latency_ms.avg`), 0) BY tr = `gcp.eventarc.trigger_name` | SORT lat DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -368,7 +368,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.eventarc* | KEEP `@timestamp``@timestamp`, `gcp.eventarc.trigger_name`, `gcp.eventarc.event_type`, `gcp.eventarc.destination`, `gcp.eventarc.delivery_status`, `gcp.eventarc.metrics.delivery_latency_ms.avg`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.eventarc* | KEEP `@timestamp`, `gcp.eventarc.trigger_name`, `gcp.eventarc.event_type`, `gcp.eventarc.destination`, `gcp.eventarc.delivery_status`, `gcp.eventarc.metrics.delivery_latency_ms.avg`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {

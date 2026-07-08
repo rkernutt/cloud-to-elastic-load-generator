@@ -128,7 +128,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.policy* | STATS c = COUNT() BY s = `azure.policy.status` | SORT ``c DESC"
+            "query": "FROM logs-azure.policy* | STATS c = COUNT() BY s = `azure.policy.status` | SORT c DESC"
           },
           "metrics": [
             {
@@ -160,7 +160,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.policy* | STATS c = COUNT() BY cat = `azure.policy.category` | SORT ``c DESC | LIMIT 8"
+            "query": "FROM logs-azure.policy* | STATS c = COUNT() BY cat = `azure.policy.category` | SORT c DESC | LIMIT 8"
           },
           "metrics": [
             {
@@ -192,7 +192,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.policy* | STATS c = COUNT() BY o = event.outcome | SORT ``c DESC"
+            "query": "FROM logs-azure.policy* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.policy* | STATS c = COUNT() BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.policy* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.policy* | STATS e = SUM(CASE(`azure.policy.http_status` >= 400, 1, 0)) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.policy* | STATS e = SUM(CASE(`azure.policy.http_status` >= 400, 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -335,7 +335,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.policy* | STATS d = AVG(`azure.policy.duration_ms`) BY b = BUCKET(`@timestamp````@timestamp`, 75, ?_tstart, ?_tend) | SORT ``b"
+                "query": "FROM logs-azure.policy* | STATS d = AVG(`azure.policy.duration_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",
@@ -383,7 +383,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.policy* | STATS c = COUNT() BY r = `azure.policy.resource_name` | SORT ``c DESC | LIMIT 10"
+                "query": "FROM logs-azure.policy* | STATS c = COUNT() BY r = `azure.policy.resource_name` | SORT c DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
@@ -416,7 +416,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.policy* | KEEP `@timestamp``@timestamp`, operationName, `azure.policy.resource_name`, `azure.policy.status`, `azure.policy.http_status`, `azure.policy.duration_ms`, correlationId | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.policy* | KEEP `@timestamp`, operationName, `azure.policy.resource_name`, `azure.policy.status`, `azure.policy.http_status`, `azure.policy.duration_ms`, correlationId | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
