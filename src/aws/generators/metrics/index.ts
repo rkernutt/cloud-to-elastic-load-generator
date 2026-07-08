@@ -269,10 +269,12 @@ import {
   generateManagedprometheusMetrics,
 } from "./extendedAwsServices.js";
 
+import { AWS_METRIC_PARITY, applyMetricParity } from "./parity.js";
+
 /** All metric services use dedicated generators; this list is intentionally empty. */
 export const GENERIC_SERVICE_IDS: string[] = [];
 
-export const METRICS_GENERATORS = {
+const RAW_METRICS_GENERATORS = {
   // Compute
   lambda: generateLambdaMetrics,
   ec2: generateEc2Metrics,
@@ -499,3 +501,18 @@ export const METRICS_GENERATORS = {
   cwsynthetics: generateCwsyntheticsMetrics,
   managedprometheus: generateManagedprometheusMetrics,
 };
+
+/**
+ * Public registry. Generators whose service id has a metric-parity spec are wrapped so
+ * the real CloudWatch fields that assets read (previously embedded in logs) are emitted
+ * into `metrics-aws.*`. All other generators pass through unchanged.
+ */
+export const METRICS_GENERATORS = Object.fromEntries(
+  Object.entries(RAW_METRICS_GENERATORS).map(([id, gen]) => [
+    id,
+    AWS_METRIC_PARITY[id]
+      ? (ts: string, er: number) =>
+          (gen(ts, er) as Record<string, unknown>[]).map((doc) => applyMetricParity(doc, id, er))
+      : gen,
+  ])
+) as typeof RAW_METRICS_GENERATORS;
