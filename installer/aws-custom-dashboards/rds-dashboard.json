@@ -1,46 +1,24 @@
 {
   "title": "Amazon RDS — Overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "rds-kpi-events",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-aws.rds* | STATS `Events` = COUNT()"
-          },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Events"
-            }
-          ]
+          "dataset": { "type": "esql", "query": "FROM logs-aws.rds* | STATS `Events` = COUNT()" },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "rds-kpi-failures",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +27,14 @@
             "type": "esql",
             "query": "FROM logs-aws.rds* | STATS `Failures` = SUM(CASE(`event.outcome` == \"failure\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Failures"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failures" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "rds-kpi-avg-latency",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +43,14 @@
             "type": "esql",
             "query": "FROM logs-aws.rds* | STATS avg_l = AVG(`aws.rds.latency_ms`) | EVAL `Avg Latency (ms)` = ROUND(avg_l, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg Latency (ms)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Latency (ms)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "rds-kpi-avg-cpu",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +59,14 @@
             "type": "esql",
             "query": "FROM metrics-aws.rds* | STATS avg_c = AVG(`aws.rds.metrics.CPUUtilization.avg`) | EVAL `Avg CPU %` = ROUND(avg_c, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg CPU %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg CPU %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "rds-donut-outcome",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Event Outcome",
         "attributes": {
@@ -130,45 +75,22 @@
             "type": "esql",
             "query": "FROM logs-aws.rds* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "outcome"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "outcome" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "rds-bar-engine",
-      "grid": {
-        "x": 24,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Events by Engine",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -177,17 +99,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.rds* | STATS count = COUNT() BY engine = `aws.rds.engine` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "engine"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "engine" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -196,27 +109,14 @@
     {
       "type": "lens",
       "uid": "rds-line-volume",
-      "grid": {
-        "x": 0,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Event Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -225,17 +125,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.rds* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -244,27 +135,14 @@
     {
       "type": "lens",
       "uid": "rds-line-latency",
-      "grid": {
-        "x": 24,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Read & Write Latency Over Time (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -273,21 +151,10 @@
                 "type": "esql",
                 "query": "FROM metrics-aws.rds* | STATS read_lat = AVG(`aws.rds.metrics.ReadLatency.avg`), write_lat = AVG(`aws.rds.metrics.WriteLatency.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
+              "x": { "operation": "value", "column": "bucket" },
               "y": [
-                {
-                  "operation": "value",
-                  "column": "read_lat",
-                  "label": "Read latency"
-                },
-                {
-                  "operation": "value",
-                  "column": "write_lat",
-                  "label": "Write latency"
-                }
+                { "operation": "value", "column": "read_lat", "label": "Read latency" },
+                { "operation": "value", "column": "write_lat", "label": "Write latency" }
               ]
             }
           ]
@@ -297,46 +164,24 @@
     {
       "type": "lens",
       "uid": "rds-bar-region",
-      "grid": {
-        "x": 0,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by Region",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws.rds* | STATS count = COUNT() BY region = cloud.region | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "region"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "region" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -345,27 +190,14 @@
     {
       "type": "lens",
       "uid": "rds-bar-instance",
-      "grid": {
-        "x": 16,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 16, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Top DB Instances",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -374,17 +206,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.rds* | STATS count = COUNT() BY inst = `aws.rds.db_instance.identifier` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "inst"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "inst" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -393,12 +216,7 @@
     {
       "type": "lens",
       "uid": "rds-donut-log-level",
-      "grid": {
-        "x": 32,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 32, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Log Level",
         "attributes": {
@@ -407,30 +225,15 @@
             "type": "esql",
             "query": "FROM logs-aws.rds* | STATS count = COUNT() BY lvl = log.level | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "lvl"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "lvl" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "rds-table-recent",
-      "grid": {
-        "x": 0,
-        "y": 29,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 29, "w": 48, "h": 10 },
       "config": {
         "title": "Recent Events",
         "attributes": {
@@ -440,46 +243,16 @@
             "query": "FROM logs-aws.rds* | KEEP `@timestamp`, `aws.rds.db_instance.identifier`, `aws.rds.engine`, `aws.rds.latency_ms`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Timestamp"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Timestamp" },
             {
               "operation": "value",
               "column": "aws.rds.db_instance.identifier",
               "label": "Instance"
             },
-            {
-              "operation": "value",
-              "column": "aws.rds.engine",
-              "label": "Engine"
-            },
-            {
-              "operation": "value",
-              "column": "aws.rds.latency_ms",
-              "label": "Latency (ms)"
-            },
-            {
-              "operation": "value",
-              "column": "aws.rds.metrics.CPUUtilization.avg",
-              "label": "CPU %"
-            },
-            {
-              "operation": "value",
-              "column": "aws.rds.metrics.DatabaseConnections.sum",
-              "label": "Connections"
-            },
-            {
-              "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            }
+            { "operation": "value", "column": "aws.rds.engine", "label": "Engine" },
+            { "operation": "value", "column": "aws.rds.latency_ms", "label": "Latency (ms)" },
+            { "operation": "value", "column": "log.level", "label": "Log level" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
           ],
           "rows": []
         }

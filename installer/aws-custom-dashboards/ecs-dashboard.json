@@ -1,46 +1,24 @@
 {
   "title": "Amazon ECS — Overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "ecs-kpi-events",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-aws.ecs* | STATS `Events` = COUNT()"
-          },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Events"
-            }
-          ]
+          "dataset": { "type": "esql", "query": "FROM logs-aws.ecs* | STATS `Events` = COUNT()" },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "ecs-kpi-failures",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +27,14 @@
             "type": "esql",
             "query": "FROM logs-aws.ecs* | STATS `Failures` = SUM(CASE(`event.outcome` == \"failure\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Failures"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failures" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "ecs-kpi-cpu",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +43,14 @@
             "type": "esql",
             "query": "FROM metrics-aws.ecs_metrics* | STATS avg_c = AVG(`aws.ecs.metrics.CPUUtilization.avg`) | EVAL `Avg CPU %` = ROUND(avg_c, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg CPU %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg CPU %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "ecs-kpi-memory",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +59,14 @@
             "type": "esql",
             "query": "FROM metrics-aws.ecs_metrics* | STATS avg_m = AVG(`aws.ecs.metrics.MemoryUtilization.avg`) | EVAL `Avg Memory %` = ROUND(avg_m, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg Memory %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg Memory %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "ecs-donut-outcome",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Event Outcome",
         "attributes": {
@@ -130,45 +75,22 @@
             "type": "esql",
             "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "outcome"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "outcome" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "ecs-bar-cluster",
-      "grid": {
-        "x": 24,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Events by Cluster",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -177,17 +99,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY cluster = `aws.ecs.cluster` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "cluster"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "cluster" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -196,27 +109,14 @@
     {
       "type": "lens",
       "uid": "ecs-line-volume",
-      "grid": {
-        "x": 0,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Event Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -225,17 +125,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -244,27 +135,14 @@
     {
       "type": "lens",
       "uid": "ecs-line-tasks",
-      "grid": {
-        "x": 24,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Running Tasks Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -273,17 +151,8 @@
                 "type": "esql",
                 "query": "FROM metrics-aws.ecs_metrics* | STATS tasks = AVG(`aws.ecs.metrics.RunningTaskCount.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "tasks",
-                  "label": "Running tasks"
-                }
-              ]
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "tasks", "label": "Running tasks" }]
             }
           ]
         }
@@ -292,46 +161,24 @@
     {
       "type": "lens",
       "uid": "ecs-bar-region",
-      "grid": {
-        "x": 0,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by Region",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY region = cloud.region | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "region"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "region" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -340,27 +187,14 @@
     {
       "type": "lens",
       "uid": "ecs-bar-container",
-      "grid": {
-        "x": 16,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 16, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by Container",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -369,17 +203,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY ctr = `aws.ecs.container_name` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "ctr"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "ctr" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -388,12 +213,7 @@
     {
       "type": "lens",
       "uid": "ecs-donut-health",
-      "grid": {
-        "x": 32,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 32, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Health Status",
         "attributes": {
@@ -402,30 +222,15 @@
             "type": "esql",
             "query": "FROM logs-aws.ecs* | STATS count = COUNT() BY health = `aws.ecs.health_status` | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "health"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "health" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "ecs-table-recent",
-      "grid": {
-        "x": 0,
-        "y": 29,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 29, "w": 48, "h": 10 },
       "config": {
         "title": "Recent Events",
         "attributes": {
@@ -435,46 +240,13 @@
             "query": "FROM logs-aws.ecs* | KEEP `@timestamp`, `aws.ecs.cluster`, `aws.ecs.task_arn`, `aws.ecs.container_name`, `aws.ecs.health_status`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Timestamp"
-            },
-            {
-              "operation": "value",
-              "column": "aws.ecs.cluster",
-              "label": "Cluster"
-            },
-            {
-              "operation": "value",
-              "column": "aws.ecs.task_arn",
-              "label": "Task ARN"
-            },
-            {
-              "operation": "value",
-              "column": "aws.ecs.container_name",
-              "label": "Container"
-            },
-            {
-              "operation": "value",
-              "column": "aws.ecs.health_status",
-              "label": "Health"
-            },
-            {
-              "operation": "value",
-              "column": "aws.ecs.metrics.CPUUtilization.avg",
-              "label": "CPU %"
-            },
-            {
-              "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.ecs.cluster", "label": "Cluster" },
+            { "operation": "value", "column": "aws.ecs.task_arn", "label": "Task ARN" },
+            { "operation": "value", "column": "aws.ecs.container_name", "label": "Container" },
+            { "operation": "value", "column": "aws.ecs.health_status", "label": "Health" },
+            { "operation": "value", "column": "log.level", "label": "Log level" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
           ],
           "rows": []
         }

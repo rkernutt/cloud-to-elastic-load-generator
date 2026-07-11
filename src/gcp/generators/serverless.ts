@@ -6,7 +6,6 @@ import {
   type EcsDocument,
   rand,
   randInt,
-  randFloat,
   randId,
   randHexId,
   randIp,
@@ -218,16 +217,6 @@ export function generateCloudFunctionsLog(ts: string, er: number): EcsDocument {
         cold_start: coldStart,
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
-        metrics: {
-          execution_count: { sum: 1, avg: 1 },
-          user_memory_bytes: {
-            avg: randInt(memoryMb * 50_000, memoryMb * 900_000),
-            max: memoryMb * 1_000_000,
-          },
-          execution_times_ms: { avg: executionTimeMs, max: Math.round(executionTimeMs * 1.25) },
-          active_instances: { avg: randInt(1, coldStart ? 8 : 40) },
-          billable_instance_time_ms: { sum: executionTimeMs + (coldStart ? randInt(80, 900) : 0) },
-        },
       },
     },
     event: {
@@ -253,9 +242,6 @@ export function generateCloudRunLog(ts: string, er: number): EcsDocument {
   const spanId = randSpanId();
   const withTrace = Math.random() < 0.6;
   const trace = withTrace ? gcpTrace(project.id, traceId) : undefined;
-  const coldContainer = Math.random() < 0.07;
-  const billedInstanceMs = latencyMs + (coldContainer ? randInt(120, 2000) : randInt(0, 80));
-  const cpuMillis = randInt(50, 800);
   const style = isErr
     ? rand(["http_json", "stderr", "revision", "app_json"])
     : rand([
@@ -370,9 +356,6 @@ export function generateCloudRunLog(ts: string, er: number): EcsDocument {
         latency_ms: latencyMs,
         concurrency,
         max_instance_count: maxInstances,
-        billed_instance_time_ms: billedInstanceMs,
-        cpu_allocation_milli: cpuMillis,
-        request_count: randInt(1, isErr ? 50 : 5000),
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
       },
@@ -490,16 +473,11 @@ export function generateAppEngineLog(ts: string, er: number): EcsDocument {
         traffic_split_pct: trafficSplitPct,
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
-        metrics: {
-          instance_count: { avg: randInt(2, 80), max: randInt(5, 120) },
-          qps: { avg: randFloat(0.5, 420), max: randFloat(10, 1200) },
-          latency_ms: { avg: latencyMs, p95: Math.round(latencyMs * 1.8) },
-        },
       },
     },
     event: {
       outcome: isErr ? "failure" : "success",
-      duration: randInt(latencyMs, latencyMs + randInt(10, 200)),
+      duration: randInt(latencyMs, latencyMs + randInt(5, 120)),
     },
     message,
   };
@@ -600,11 +578,6 @@ export function generateCloudTasksLog(ts: string, er: number): EcsDocument {
         attempt_latency_ms: randLatencyMs(randInt(50, 4000), isErr),
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
-        metrics: {
-          task_attempt_count: { sum: dispatchCount, max: dispatchCount },
-          queue_depth: { avg: randInt(0, isErr ? 50_000 : 800), max: randInt(100, 120_000) },
-          task_latency_ms: { avg: randInt(120, 8000), p95: randInt(500, 25_000) },
-        },
       },
     },
     event: {
@@ -704,14 +677,6 @@ export function generateCloudSchedulerLog(ts: string, er: number): EcsDocument {
         attempt_count: attemptCount,
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
-        metrics: {
-          job_run_latency_ms: {
-            avg: randInt(200, isErr ? 90_000 : 4000),
-            max: randInt(500, 120_000),
-          },
-          delivery_errors: { sum: isErr ? attemptCount - 1 : 0 },
-          scheduled_invocations: { sum: randInt(1, 48) },
-        },
       },
     },
     event: {
@@ -817,11 +782,6 @@ export function generateWorkflowsLog(ts: string, er: number): EcsDocument {
         duration_ms: durationMs,
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
-        metrics: {
-          step_duration_ms: { avg: durationMs, max: Math.round(durationMs * 2.2) },
-          state_transitions: { sum: randInt(3, 40) },
-          external_calls: { sum: randInt(0, 25), errors: isErr ? randInt(1, 8) : 0 },
-        },
       },
     },
     event: {
@@ -912,11 +872,6 @@ export function generateEventarcLog(ts: string, er: number): EcsDocument {
         delivery_status: deliveryStatus,
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
-        metrics: {
-          delivery_latency_ms: { avg: randInt(25, isErr ? 8000 : 900), p99: randInt(200, 12_000) },
-          events_delivered: { sum: isErr ? randInt(0, 5) : randInt(10, 5000) },
-          dlq_redirects: { sum: isErr ? randInt(0, 3) : 0 },
-        },
       },
     },
     event: {
@@ -1019,11 +974,6 @@ export function generateCloudRunJobsLog(ts: string, er: number): EcsDocument {
         container_image: containerImage,
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
-        metrics: {
-          task_cpu_seconds: { sum: randFloat(0.5, isErr ? 400 : 120), max: randFloat(10, 900) },
-          task_retries: { sum: isErr ? randInt(1, 5) : 0 },
-          image_pull_seconds: { avg: randFloat(0.2, 8), max: randFloat(5, 45) },
-        },
       },
     },
     event: {
@@ -1119,14 +1069,6 @@ export function generateServerlessVpcAccessLog(ts: string, er: number): EcsDocum
         packets_forwarded: packetsForwarded,
         log_style: style,
         ...(withTrace ? { trace: gcpTrace(project.id, traceId), span_id: spanId } : {}),
-        metrics: {
-          forwarded_packets_per_sec: {
-            avg: randFloat(100, isErr ? 2000 : 120_000),
-            max: randFloat(1000, 500_000),
-          },
-          connector_instance_count: { avg: instancesActive, max: instancesActive + randInt(0, 20) },
-          egress_bytes: { sum: randInt(50_000, isErr ? 2_000_000 : 900_000_000) },
-        },
       },
     },
     event: {

@@ -1,19 +1,11 @@
 {
   "title": "AWS Groundstation — Overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "groundstation-kpi-events",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-aws.groundstation* | STATS Events = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "groundstation-kpi-failures",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-aws.groundstation* | STATS Failures = SUM(CASE(`event.outcome` == \"failure\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Failures"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failures" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "groundstation-kpi-actions",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +46,14 @@
             "type": "esql",
             "query": "FROM logs-aws.groundstation* | STATS `Distinct actions` = COUNT_DISTINCT(`event.action`)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Distinct actions"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Distinct actions" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "groundstation-kpi-resources",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +62,14 @@
             "type": "esql",
             "query": "FROM logs-aws.groundstation* | STATS Resources = COUNT_DISTINCT(`aws.groundstation.ground_station_id`)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Resources"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Resources" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "groundstation-donut-outcome",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Event Outcome",
         "attributes": {
@@ -130,45 +78,22 @@
             "type": "esql",
             "query": "FROM logs-aws.groundstation* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "outcome"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "outcome" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "groundstation-bar-dimension",
-      "grid": {
-        "x": 24,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Events by contact id",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -177,17 +102,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.groundstation* | STATS count = COUNT() BY dim = `aws.groundstation.contact_id` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "dim"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "dim" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -196,27 +112,14 @@
     {
       "type": "lens",
       "uid": "groundstation-line-volume",
-      "grid": {
-        "x": 0,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Event Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -225,17 +128,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.groundstation* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -244,27 +138,14 @@
     {
       "type": "lens",
       "uid": "groundstation-line-failures",
-      "grid": {
-        "x": 24,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Failures over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -273,17 +154,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.groundstation* | STATS failures = SUM(CASE(`event.outcome` == \"failure\", 1, 0)) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "failures",
-                  "label": "Failures"
-                }
-              ]
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "failures", "label": "Failures" }]
             }
           ]
         }
@@ -292,46 +164,24 @@
     {
       "type": "lens",
       "uid": "groundstation-bar-region",
-      "grid": {
-        "x": 0,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by Region",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.groundstation* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws.groundstation* | STATS count = COUNT() BY region = cloud.region | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "region"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "region" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -340,27 +190,14 @@
     {
       "type": "lens",
       "uid": "groundstation-bar-resource",
-      "grid": {
-        "x": 16,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 16, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by ground station id",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -369,17 +206,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.groundstation* | STATS count = COUNT() BY res = `aws.groundstation.ground_station_id` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "res"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "res" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -388,12 +216,7 @@
     {
       "type": "lens",
       "uid": "groundstation-donut-log-level",
-      "grid": {
-        "x": 32,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 32, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Log Level",
         "attributes": {
@@ -402,30 +225,15 @@
             "type": "esql",
             "query": "FROM logs-aws.groundstation* | STATS count = COUNT() BY lvl = log.level | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "lvl"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "lvl" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "groundstation-table-recent",
-      "grid": {
-        "x": 0,
-        "y": 29,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 29, "w": 48, "h": 10 },
       "config": {
         "title": "Recent Events",
         "attributes": {
@@ -435,11 +243,7 @@
             "query": "FROM logs-aws.groundstation* | KEEP `@timestamp`, `aws.groundstation.contact_id`, `aws.groundstation.ground_station_id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Timestamp"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Timestamp" },
             {
               "operation": "value",
               "column": "aws.groundstation.contact_id",
@@ -450,21 +254,9 @@
               "column": "aws.groundstation.ground_station_id",
               "label": "Ground station id"
             },
-            {
-              "operation": "value",
-              "column": "log.level",
-              "label": "Level"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "log.level", "label": "Level" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
         }

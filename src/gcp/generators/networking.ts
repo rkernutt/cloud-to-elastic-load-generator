@@ -752,7 +752,6 @@ export function generateTrafficDirectorLog(ts: string, er: number): EcsDocument 
     endpoint_group: `projects/${project.id}/zones/${randZone(region)}/networkEndpointGroups/${backendGroup}`,
     locality: { region, zone: randZone(region) },
     health_state: healthStatus,
-    metrics: { requests: requestCount, error_rate: Math.round(errorRate * 10_000) / 10_000 },
   };
   const message = `trafficdirector.googleapis.com/xds_streams ${meshName} ${serviceName} health=${healthStatus}`;
 

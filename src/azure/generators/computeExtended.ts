@@ -503,14 +503,7 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const container = `cnt-${randId(4).toLowerCase()}`;
-  const variant = rand([
-    "lifecycle",
-    "exec",
-    "event",
-    "network_profile",
-    "image_pull",
-    "metrics",
-  ] as const);
+  const variant = rand(["lifecycle", "exec", "event", "network_profile", "image_pull"] as const);
 
   if (variant === "lifecycle") {
     const op = isErr
@@ -740,60 +733,6 @@ export function generateContainerInstancesLog(ts: string, er: number): EcsDocume
       message: isErr
         ? `ACI image pull failed for ${group}/${container}: ${props.criMessage}`
         : `ACI pulled ${props.image} (${props.cachedLayersHitRatio.toFixed(2)} cache hit)`,
-    };
-  }
-
-  if (variant === "metrics") {
-    const cpuMw = isErr ? randFloat(850, 995) : randFloat(120, 620);
-    const props = {
-      MetricNamespace: "microsoft.containerinstance/containergroups",
-      MetricName: rand(["CpuUsage", "MemoryUsage", "NetworkBytesTransmittedOut"]),
-      TimeGrain: "PT1M",
-      Average: cpuMw,
-      Max: cpuMw * randFloat(1.05, 1.4),
-      Dimensions: { containerName: container },
-      alertBreached: isErr,
-    };
-    const { properties: mProps, error: mErr } = withComputeAzureErrors(
-      isErr,
-      variant,
-      props as Record<string, unknown>
-    );
-    return {
-      "@timestamp": ts,
-      time,
-      resourceId,
-      operationName:
-        "Microsoft.ContainerInstance/containerGroups/providers/microsoft.insights/metrics/read",
-      category: "ContainerInstanceMetrics",
-      resultType: isErr ? "Failure" : "Success",
-      resultSignature: isErr ? "ThresholdExceeded" : "WithinSLO",
-      callerIpAddress: callerIp,
-      correlationId,
-      level: isErr ? "Warning" : "Information",
-      properties: mProps,
-      ...(mErr ? { error: mErr } : {}),
-      cloud: azureCloud(region, subscription, "Microsoft.ContainerInstance/containerGroups"),
-      azure: {
-        container_instances: {
-          container_group: group,
-          container_name: container,
-          resource_group: resourceGroup,
-          category: "ContainerInstanceMetrics",
-          correlation_id: correlationId,
-          properties: props,
-        },
-      },
-      event: azureLogEvent(
-        isErr,
-        randInt(5e7, 8e8),
-        String("azure-activity"),
-        ["host"],
-        isErr ? ["error"] : ["info"]
-      ),
-      message: isErr
-        ? `[metrics] ACI ${group}: ${props.MetricName} sustained above budget (${cpuMw.toFixed(1)}mW)`
-        : `[metrics] ${props.MetricName} nominal on ${group}/${container}`,
     };
   }
 

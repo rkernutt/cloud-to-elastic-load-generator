@@ -1,6 +1,6 @@
 {
   "group": "databases",
-  "description": "Database anomaly detection — RDS, Aurora, ElastiCache",
+  "description": "Database anomaly detection \u2014 RDS, Aurora, ElastiCache",
   "jobs": [
     {
       "id": "aws-rds-latency-anomaly",
@@ -14,12 +14,12 @@
             {
               "detector_description": "High mean RDS read latency by DB instance",
               "function": "high_mean",
-              "field_name": "aws.rds.latency.read",
-              "partition_field_name": "aws.rds.db_instance.identifier",
+              "field_name": "aws.rds.metrics.ReadLatency.avg",
+              "partition_field_name": "aws.rds.dimensions.DBInstanceIdentifier",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.rds.db_instance.identifier", "cloud.region"]
+          "influencers": ["aws.rds.dimensions.DBInstanceIdentifier", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -34,7 +34,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.rds*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -68,12 +68,12 @@
             {
               "detector_description": "High mean RDS database connections by instance",
               "function": "high_mean",
-              "field_name": "aws.rds.database_connections",
-              "partition_field_name": "aws.rds.db_instance.identifier",
+              "field_name": "aws.rds.metrics.DatabaseConnections.sum",
+              "partition_field_name": "aws.rds.dimensions.DBInstanceIdentifier",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.rds.db_instance.identifier", "cloud.region"]
+          "influencers": ["aws.rds.dimensions.DBInstanceIdentifier", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -88,7 +88,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.*"],
+        "indices": ["metrics-aws.rds*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {

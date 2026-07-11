@@ -271,20 +271,24 @@ describe("Database generators", () => {
     assertDuration(doc);
   });
 
-  it("RDS enhanced monitoring emits os_metrics", () => {
-    let emDoc: any = null;
+  it("RDS logs do not embed CloudWatch-style metric fields", () => {
+    const metricFields = [
+      "cpu",
+      "freeable_memory",
+      "free_storage",
+      "database_connections",
+      "read_io",
+      "write_io",
+      "throughput",
+      "replica_lag",
+      "swap_usage",
+      "enhanced_monitoring",
+    ];
     for (let i = 0; i < 20; i++) {
       const d: any = generateRdsLog(TS, 0);
-      if (d.aws?.rds?.enhanced_monitoring) {
-        emDoc = d;
-        break;
+      for (const field of metricFields) {
+        expect(d.aws?.rds?.[field], `RDS log should not include ${field}`).toBeUndefined();
       }
-    }
-    if (emDoc) {
-      expect(emDoc.aws.rds.enhanced_monitoring).toBeTruthy();
-      expect(emDoc.aws.rds.enhanced_monitoring).toHaveProperty("cpuUtilization");
-      expect(emDoc.aws.rds.enhanced_monitoring).toHaveProperty("memory");
-      expect(emDoc.aws.rds.enhanced_monitoring).toHaveProperty("disk");
     }
   });
 });

@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudtasks* | STATS `Avg queue depth` = ROUND(AVG(`gcp.cloud_tasks.metrics.queue_depth.avg`), 0)"
+            "query": "FROM metrics-gcp.cloudtasks* | STATS `Avg queue depth` = ROUND(AVG(`gcp.cloud-tasks.metrics.cloudtasks.googleapis.com/queue/depth`.avg), 0)"
           },
           "metrics": [
             {
@@ -287,7 +287,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.cloudtasks* | STATS depth = AVG(`gcp.cloud_tasks.metrics.queue_depth.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM metrics-gcp.cloudtasks* | STATS depth = AVG(`gcp.cloud-tasks.metrics.cloudtasks.googleapis.com/queue/depth`.avg) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": {
                 "operation": "value",

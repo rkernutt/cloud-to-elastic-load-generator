@@ -1563,7 +1563,6 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
     "db.r6g.2xlarge",
     "db.m5.large",
   ]);
-  const useEnhancedMonitoring = Math.random() < 0.55;
   const dbName = rand(["appdb", "analytics", "users_db", "events_db", "ecommerce"]);
   const sourceIp = randIp();
   const pid = randInt(1000, 99999);
@@ -1582,44 +1581,6 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
     ? `/aws/rds/cluster/${instanceId}/${logType}`
     : `/aws/rds/instance/${instanceId}/${logType}`;
   const logStream = instanceId;
-
-  // Enhanced Monitoring (RDSOSMetrics) — OS-level metrics published every 1–60 s
-  const osMetrics = useEnhancedMonitoring
-    ? {
-        cpuUtilization: (() => {
-          const guest = Number(randFloat(0, 2));
-          const irq = Number(randFloat(0, 1));
-          const system = Number(randFloat(0.5, isErr ? 30 : 10));
-          const wait = Number(randFloat(0, isErr ? 20 : 5));
-          const user = Number(randFloat(1, isErr ? 60 : 40));
-          const total = parseFloat(Math.min(100, guest + irq + system + wait + user).toFixed(1));
-          const idle = parseFloat(Math.max(0, 100 - total).toFixed(1));
-          return { guest, irq, system, wait, idle, user, total };
-        })(),
-        memory: {
-          total: randInt(4e9, 64e9),
-          free: randInt(isErr ? 100e6 : 1e9, 8e9),
-          cached: randInt(500e6, 8e9),
-          active: randInt(1e9, 16e9),
-          inactive: randInt(500e6, 4e9),
-          buffers: randInt(50e6, 500e6),
-        },
-        disk: {
-          readIOsPS: Number(randFloat(0, 3000)),
-          writeIOsPS: Number(randFloat(0, 3000)),
-          readKbPS: Number(randFloat(0, 512000)),
-          writeKbPS: Number(randFloat(0, 512000)),
-          avgQueueLen: Number(randFloat(0, isErr ? 64 : 8)),
-          await: Number(randFloat(0.1, isErr ? 200 : 20)),
-        },
-        network: {
-          rx: randInt(0, 100e6),
-          tx: randInt(0, 100e6),
-        },
-        numVCPUs: rand([2, 4, 8, 16, 32, 64]),
-        uptime: `${randInt(0, 99)} days, ${randInt(0, 23)}:${randInt(0, 59).toString().padStart(2, "0")}:${randInt(0, 59).toString().padStart(2, "0")}`,
-      }
-    : null;
 
   const tableName = rand([
     "users",
@@ -1712,7 +1673,6 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
     }
   }
 
-  const cpuPct = Number(randFloat(1, isErr ? 95 : 60));
   const rdsErrCodes = [
     "DBInstanceNotFound",
     "DBInstanceAlreadyExists",
@@ -1761,26 +1721,6 @@ function generateRdsLog(ts: string, er: number): EcsDocument {
           allocated_storage_gb: rand([100, 200, 500, 1000, 2000]),
         },
         log_type: logType,
-        cpu: { total: { pct: parseFloat((cpuPct / 100).toFixed(4)) } },
-        freeable_memory: { bytes: randInt(1e8, 8e9) },
-        free_storage: { bytes: randInt(1e9, 500e9) },
-        database_connections: randInt(1, 500),
-        read_io: { ops_per_sec: Number(randFloat(0, 3000)) },
-        write_io: { ops_per_sec: Number(randFloat(0, 3000)) },
-        latency: {
-          read: Number(randFloat(0.001, isErr ? 0.5 : 0.02)),
-          write: Number(randFloat(0.001, isErr ? 0.5 : 0.01)),
-        },
-        throughput: {
-          read: randInt(1000, 1e8),
-          write: randInt(1000, 1e8),
-          network_receive: randInt(1000, 1e8),
-          network_transmit: randInt(1000, 1e8),
-        },
-        replica_lag: { sec: Number(randFloat(0, isErr ? 10000 : 100)) },
-        swap_usage: { bytes: randInt(0, 1e8) },
-        disk_usage: { bin_log: { bytes: randInt(0, 1e9) } },
-        ...(osMetrics ? { enhanced_monitoring: osMetrics } : {}),
       },
     },
     db: {
@@ -1966,9 +1906,6 @@ function generateAuroraDsqlLog(ts: string, er: number): EcsDocument {
   ].slice(0, randInt(1, 2));
   const transactionId = `txn-${randId(12).toLowerCase()}`;
   const regionMode = rand(["primary", "replica"]);
-  const tps = isErr ? 0 : Number(randFloat(10, 10000));
-  const storageGb = Number(randFloat(1, 500));
-  const replicationLagMs = regionMode === "replica" ? randInt(1, isErr ? 5000 : 100) : 0;
   const errorCode = rand(["ConflictError", "TransactionAborted"]);
   return {
     "@timestamp": ts,
@@ -2003,11 +1940,6 @@ function generateAuroraDsqlLog(ts: string, er: number): EcsDocument {
       transactionId,
       regionMode,
       linkedClusterArns,
-      metrics: {
-        transactionsPerSec: tps,
-        storageUsedGb: storageGb,
-        replicationLagMs,
-      },
       query: `BEGIN TRANSACTION /* ${transactionId} */`,
       latency_ms: randInt(1, isErr ? 5000 : 200),
       status: isErr ? "failed" : "success",

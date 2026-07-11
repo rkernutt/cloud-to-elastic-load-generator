@@ -1517,9 +1517,6 @@ function generateMainframeModernizationLog(ts: string, er: number): EcsDocument 
     (risky && Math.random() < 0.24) ||
     Math.random() < er;
   const batchJobStatus = isErr ? "Failed" : rand(["Succeeded", "Running", "Succeeded"]);
-  const batchJobsRunning = isErr ? 0 : randInt(0, 20);
-  const onlineTps = isErr ? 0 : Number(randFloat(1, 500));
-  const cpuUtilization = isErr ? Number(randFloat(90, 100)) : Number(randFloat(5, 75));
   const errCode = rand([
     "ServiceQuotaExceededException",
     "InternalServerException",
@@ -1569,11 +1566,6 @@ function generateMainframeModernizationLog(ts: string, er: number): EcsDocument 
       ...(scenario === "migration_assess" ? { assessment: assessReport } : {}),
       ...(scenario === "refactor_start" ? { refactor } : {}),
       ...(scenario === "replatform_deploy" ? { replatform } : {}),
-      metrics: {
-        batchJobsRunning,
-        onlineTransactionsPerSec: onlineTps,
-        cpuUtilization,
-      },
       error: isErr ? errCode : undefined,
     }),
     log: { level: isErr ? "error" : "info" },
@@ -1635,10 +1627,6 @@ function generateParallelComputingLog(ts: string, er: number): EcsDocument {
       : isErr
         ? "FAILED"
         : rand(["PENDING", "RUNNING", "COMPLETED"]);
-  const runningJobs = isErr && scenario === "node_scale" ? randInt(0, 80) : randInt(0, 500);
-  const pendingJobs = randInt(0, isErr ? 1000 : 200);
-  const computeNodesActive =
-    isErr && scenario === "cluster_create" ? randInt(0, 4) : randInt(1, 1000);
   const errCode = rand([
     "ValidationException",
     "ConflictException",
@@ -1700,7 +1688,6 @@ function generateParallelComputingLog(ts: string, er: number): EcsDocument {
         : {}),
       ...(scenario === "mpi_barrier" || scenario === "job_submit" ? { mpi } : {}),
       ...(scenario === "node_scale" ? { scaling: scalingActivity } : {}),
-      metrics: { runningJobs, pendingJobs, computeNodesActive },
       error: isErr ? errCode : undefined,
     }),
     log: { level: isErr ? "error" : "info" },
@@ -1770,8 +1757,6 @@ function generateEvsLog(ts: string, er: number): EcsDocument {
         ? randInt(1, Math.max(1, hostCount - 1))
         : hostCount
       : hostCount;
-  const vsanCapacityUsedTb = Number(randFloat(1, 100));
-  const vcpuAllocationRatio = Number(randFloat(1, isErr ? 20 : 8));
   const errCode = rand([
     "ServiceUnavailableException",
     "ConflictException",
@@ -1826,11 +1811,6 @@ function generateEvsLog(ts: string, er: number): EcsDocument {
         : {}),
       ...(scenario === "vsan_extend" || scenario === "lifecycle_snapshot" ? { vsan } : {}),
       ...(scenario === "nsx_configure" ? { nsx } : {}),
-      metrics: {
-        hostsOnline,
-        vsanCapacityUsedTb,
-        vcpuAllocationRatio,
-      },
       error: isErr ? errCode : undefined,
     }),
     log: { level: isErr ? "error" : hostsOnline < hostCount ? "warn" : "info" },

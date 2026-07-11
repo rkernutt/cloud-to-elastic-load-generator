@@ -147,8 +147,8 @@ function minimalDashboard(vendor, sid, dataset) {
         vendor === "gcp" ? "By project" : "By subscription",
         q(
           vendor === "gcp"
-            ? 'STATS c = COUNT() BY region = COALESCE(cloud.project.id, "unknown") | SORT c DESC | LIMIT 15'
-            : 'STATS c = COUNT() BY region = COALESCE(cloud.account.id, "unknown") | SORT c DESC | LIMIT 15'
+            ? "STATS c = COUNT() BY region = `cloud.project.id` | SORT c DESC | LIMIT 15"
+            : "STATS c = COUNT() BY region = cloud.account.id | SORT c DESC | LIMIT 15"
         ),
         [
           ["region", "Region"],

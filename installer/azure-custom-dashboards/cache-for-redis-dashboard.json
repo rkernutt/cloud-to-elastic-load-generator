@@ -1,19 +1,11 @@
 {
   "title": "Azure Cache for Redis — Hit Ratio & Memory",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "az-redis-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,106 +14,62 @@
             "type": "esql",
             "query": "FROM logs-azure.redis_cache* | STATS Events = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-redis-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-azure.redis_cache_metrics* | STATS hits = SUM(`azure.metrics.cachehits`), misses = SUM(`azure.metrics.cachemisses`) | EVAL `Hit ratio %` = ROUND(hits * 100.0 / (hits + misses), 1)"
+            "query": "FROM metrics-azure.redis_cache_metrics* | STATS hits = SUM(`azure.cache_for_redis.metrics.cachehits`), misses = SUM(`azure.cache_for_redis.metrics.cachemisses`) | EVAL `Hit ratio %` = ROUND(hits * 100.0 / (hits + misses), 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Hit ratio %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Hit ratio %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-redis-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-azure.redis_cache_metrics* | STATS `Avg memory (GB)` = ROUND(AVG(`azure.metrics.usedmemory`) / 1073741824.0, 2)"
+            "query": "FROM metrics-azure.redis_cache_metrics* | STATS `Avg memory (GB)` = ROUND(AVG(`azure.cache_for_redis.metrics.usedmemory`) / 1073741824.0, 2)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg memory (GB)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg memory (GB)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-redis-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-azure.redis_cache_metrics* | STATS Evictions = SUM(`azure.metrics.evictedkeys`)"
+            "query": "FROM metrics-azure.redis_cache_metrics* | STATS Evictions = SUM(`azure.cache_for_redis.metrics.evictedkeys`)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Evictions"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Evictions" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-redis-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Category",
         "attributes": {
@@ -130,30 +78,15 @@
             "type": "esql",
             "query": "FROM logs-azure.redis_cache* | STATS c = COUNT() BY cat = `azure.cache_for_redis.category` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "cat"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "cat" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-redis-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Cache",
         "attributes": {
@@ -162,30 +95,15 @@
             "type": "esql",
             "query": "FROM logs-azure.redis_cache* | STATS c = COUNT() BY cn = `azure.cache_for_redis.cache_name` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "cn"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "cn" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-redis-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Outcome",
         "attributes": {
@@ -194,64 +112,32 @@
             "type": "esql",
             "query": "FROM logs-azure.redis_cache* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-redis-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Connections over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-azure.redis_cache_metrics* | STATS conn = AVG(`azure.metrics.connectedclients`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM metrics-azure.redis_cache_metrics* | STATS conn = AVG(`azure.cache_for_redis.metrics.connectedclients`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "conn",
-                  "label": "Clients"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "conn", "label": "Clients" }]
             }
           ]
         }
@@ -260,46 +146,24 @@
     {
       "type": "lens",
       "uid": "az-redis-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Evictions over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-azure.redis_cache_metrics* | STATS ev = SUM(`azure.metrics.evictedkeys`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM metrics-azure.redis_cache_metrics* | STATS ev = SUM(`azure.cache_for_redis.metrics.evictedkeys`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "ev",
-                  "label": "Evictions"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "ev", "label": "Evictions" }]
             }
           ]
         }
@@ -308,46 +172,24 @@
     {
       "type": "lens",
       "uid": "az-redis-b1",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Memory by cache (GB)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-azure.redis_cache_metrics* | STATS gb = ROUND(AVG(`azure.metrics.usedmemory`) / 1073741824.0, 2) BY cn = `azure.resource.name` | SORT gb DESC | LIMIT 10"
+                "query": "FROM metrics-azure.redis_cache_metrics* | STATS gb = ROUND(AVG(`azure.cache_for_redis.metrics.usedmemory`) / 1073741824.0, 2) BY cn = `azure.resource.name` | SORT gb DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "cn"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "gb",
-                  "label": "GB"
-                }
-              ]
+              "x": { "operation": "value", "column": "cn" },
+              "y": [{ "operation": "value", "column": "gb", "label": "GB" }]
             }
           ]
         }
@@ -356,12 +198,7 @@
     {
       "type": "lens",
       "uid": "az-redis-t1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 12 },
       "config": {
         "title": "Recent events",
         "attributes": {
@@ -371,11 +208,7 @@
             "query": "FROM logs-azure.redis_cache* | KEEP `@timestamp`, `azure.cache_for_redis.cache_name`, `azure.cache_for_redis.category`, operationName, resultType, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
             {
               "operation": "value",
               "column": "azure.cache_for_redis.cache_name",
@@ -386,26 +219,10 @@
               "column": "azure.cache_for_redis.category",
               "label": "Category"
             },
-            {
-              "operation": "value",
-              "column": "operationName",
-              "label": "Operation"
-            },
-            {
-              "operation": "value",
-              "column": "resultType",
-              "label": "Result"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "operationName", "label": "Operation" },
+            { "operation": "value", "column": "resultType", "label": "Result" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
         }

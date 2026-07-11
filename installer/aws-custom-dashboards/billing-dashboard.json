@@ -1,46 +1,24 @@
 {
   "title": "AWS Billing — Overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "billing-kpi-events",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-aws.billing* | STATS Events = COUNT()"
-          },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Events"
-            }
-          ]
+          "dataset": { "type": "esql", "query": "FROM logs-aws.billing* | STATS Events = COUNT()" },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "billing-kpi-failures",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +27,14 @@
             "type": "esql",
             "query": "FROM logs-aws.billing* | STATS Failures = SUM(CASE(`event.outcome` == \"failure\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Failures"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failures" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "billing-kpi-metric3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +43,14 @@
             "type": "esql",
             "query": "FROM metrics-aws.billing* | STATS avg_m = AVG(`aws.billing.metrics.EstimatedCharges.sum`) | EVAL `Avg metric` = ROUND(avg_m, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg metric"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg metric" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "billing-kpi-metric4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +59,14 @@
             "type": "esql",
             "query": "FROM metrics-aws.billing* | STATS `Metric sum` = ROUND(SUM(`aws.billing.metrics.EstimatedCharges.sum`), 0)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Metric sum"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric sum" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "billing-donut-outcome",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Event Outcome",
         "attributes": {
@@ -130,45 +75,22 @@
             "type": "esql",
             "query": "FROM logs-aws.billing* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "outcome"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "outcome" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "billing-bar-dimension",
-      "grid": {
-        "x": 24,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Events by usage type",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -177,17 +99,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.billing* | STATS count = COUNT() BY dim = `aws.billing.usage_type` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "dim"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "dim" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -196,27 +109,14 @@
     {
       "type": "lens",
       "uid": "billing-line-volume",
-      "grid": {
-        "x": 0,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Event Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -225,17 +125,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.billing* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -244,27 +135,14 @@
     {
       "type": "lens",
       "uid": "billing-line-metric",
-      "grid": {
-        "x": 24,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Key metric over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -273,17 +151,8 @@
                 "type": "esql",
                 "query": "FROM metrics-aws.billing* | STATS avg_m = AVG(`aws.billing.metrics.EstimatedCharges.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "avg_m",
-                  "label": "Avg metric"
-                }
-              ]
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "avg_m", "label": "Avg metric" }]
             }
           ]
         }
@@ -292,46 +161,24 @@
     {
       "type": "lens",
       "uid": "billing-bar-region",
-      "grid": {
-        "x": 0,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by Region",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.billing* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws.billing* | STATS count = COUNT() BY region = cloud.region | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "region"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "region" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -340,27 +187,14 @@
     {
       "type": "lens",
       "uid": "billing-bar-resource",
-      "grid": {
-        "x": 16,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 16, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by linked account id",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -369,17 +203,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.billing* | STATS count = COUNT() BY res = `aws.billing.linked_account_id` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "res"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "res" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -388,12 +213,7 @@
     {
       "type": "lens",
       "uid": "billing-donut-log-level",
-      "grid": {
-        "x": 32,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 32, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Log Level",
         "attributes": {
@@ -402,30 +222,15 @@
             "type": "esql",
             "query": "FROM logs-aws.billing* | STATS count = COUNT() BY lvl = log.level | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "lvl"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "lvl" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "billing-table-recent",
-      "grid": {
-        "x": 0,
-        "y": 29,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 29, "w": 48, "h": 10 },
       "config": {
         "title": "Recent Events",
         "attributes": {
@@ -435,41 +240,16 @@
             "query": "FROM logs-aws.billing* | KEEP `@timestamp`, `aws.billing.usage_type`, `aws.billing.linked_account_id`, `log.level`, `event.outcome`, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Timestamp"
-            },
-            {
-              "operation": "value",
-              "column": "aws.billing.usage_type",
-              "label": "Usage type"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.billing.usage_type", "label": "Usage type" },
             {
               "operation": "value",
               "column": "aws.billing.linked_account_id",
               "label": "Linked account id"
             },
-            {
-              "operation": "value",
-              "column": "aws.billing.metrics.EstimatedCharges.sum",
-              "label": "Sum"
-            },
-            {
-              "operation": "value",
-              "column": "log.level",
-              "label": "Level"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "log.level", "label": "Level" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
         }

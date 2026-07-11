@@ -1,19 +1,11 @@
 {
   "title": "AWS Managed Prometheus",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "mgrpmk1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-aws.managedprometheus* | STATS `Total Events` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Total Events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Total Events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "mgrpmk2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-aws.managedprometheus* | EVAL is_err = CASE(log.level == \"error\", 1, CASE(event.outcome == \"failure\", 1, 0)) | STATS avg_e = AVG(is_err) | EVAL `Error Rate %` = ROUND(avg_e * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Error Rate %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Error Rate %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "mgrpmd1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 10 },
       "config": {
         "title": "Event outcome",
         "attributes": {
@@ -76,64 +46,32 @@
             "type": "esql",
             "query": "FROM logs-aws.managedprometheus* | STATS count = COUNT() BY outcome = COALESCE(event.outcome, \"unknown\") | SORT count DESC | LIMIT 10"
           },
-          "dimensions": [
-            {
-              "column": "outcome",
-              "type": "category"
-            }
-          ],
-          "metrics": [
-            {
-              "type": "size",
-              "operation": "value",
-              "column": "count"
-            }
-          ]
+          "dimensions": [{ "column": "outcome", "type": "category" }],
+          "metrics": [{ "type": "size", "operation": "value", "column": "count" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "mgrpmp1",
-      "grid": {
-        "x": 24,
-        "y": 5,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 10 },
       "config": {
         "title": "Events by AWS account",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.managedprometheus* | STATS count = COUNT() BY acct = COALESCE(cloud.account.id, \"unknown\") | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.managedprometheus* | STATS count = COUNT() BY acct = cloud.account.id | SORT count DESC | LIMIT 10"
           },
-          "dimensions": [
-            {
-              "column": "acct",
-              "type": "category"
-            }
-          ],
-          "metrics": [
-            {
-              "type": "size",
-              "operation": "value",
-              "column": "count"
-            }
-          ]
+          "dimensions": [{ "column": "acct", "type": "category" }],
+          "metrics": [{ "type": "size", "operation": "value", "column": "count" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "mgrpmb1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Events over time",
         "attributes": {
@@ -142,33 +80,16 @@
             "type": "esql",
             "query": "FROM logs-aws.managedprometheus* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend), outcome = COALESCE(event.outcome, \"unknown\") | SORT bucket"
           },
-          "xAxis": {
-            "column": "bucket",
-            "type": "date"
-          },
-          "breakdown": {
-            "column": "outcome",
-            "type": "category"
-          },
-          "metrics": [
-            {
-              "type": "bar",
-              "operation": "value",
-              "column": "count"
-            }
-          ]
+          "xAxis": { "column": "bucket", "type": "date" },
+          "breakdown": { "column": "outcome", "type": "category" },
+          "metrics": [{ "type": "bar", "operation": "value", "column": "count" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "mgrpmb2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
       "config": {
         "title": "Errors over time",
         "attributes": {
@@ -177,33 +98,16 @@
             "type": "esql",
             "query": "FROM logs-aws.managedprometheus* | WHERE log.level == \"error\" OR event.outcome == \"failure\" | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend), kind = COALESCE(event.action, log.level, \"error\") | SORT bucket"
           },
-          "xAxis": {
-            "column": "bucket",
-            "type": "date"
-          },
-          "breakdown": {
-            "column": "kind",
-            "type": "category"
-          },
-          "metrics": [
-            {
-              "type": "bar",
-              "operation": "value",
-              "column": "count"
-            }
-          ]
+          "xAxis": { "column": "bucket", "type": "date" },
+          "breakdown": { "column": "kind", "type": "category" },
+          "metrics": [{ "type": "bar", "operation": "value", "column": "count" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "mgrpmt1",
-      "grid": {
-        "x": 0,
-        "y": 37,
-        "w": 24,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 37, "w": 24, "h": 12 },
       "config": {
         "title": "Top operations",
         "attributes": {
@@ -213,16 +117,8 @@
             "query": "FROM logs-aws.managedprometheus* | STATS count = COUNT() BY action = COALESCE(event.action, \"unknown\") | SORT count DESC | LIMIT 15"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "action",
-              "label": "Operation"
-            },
-            {
-              "operation": "value",
-              "column": "count",
-              "label": "Events"
-            }
+            { "operation": "value", "column": "action", "label": "Operation" },
+            { "operation": "value", "column": "count", "label": "Events" }
           ],
           "rows": []
         }
@@ -231,31 +127,18 @@
     {
       "type": "lens",
       "uid": "mgrpmt2",
-      "grid": {
-        "x": 24,
-        "y": 37,
-        "w": 24,
-        "h": 12
-      },
+      "grid": { "x": 24, "y": 37, "w": 24, "h": 12 },
       "config": {
         "title": "Events by region",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.managedprometheus* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 15"
+            "query": "FROM logs-aws.managedprometheus* | STATS count = COUNT() BY region = cloud.region | SORT count DESC | LIMIT 15"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "region",
-              "label": "Region"
-            },
-            {
-              "operation": "value",
-              "column": "count",
-              "label": "Events"
-            }
+            { "operation": "value", "column": "region", "label": "Region" },
+            { "operation": "value", "column": "count", "label": "Events" }
           ],
           "rows": []
         }

@@ -5089,7 +5089,7 @@ export function generateLoadTestingLog(ts: string, er: number): EcsDocument {
   const callerIp = randIp();
   const correlationId = randUUID();
   const time = azureDiagnosticTime(ts);
-  const variant = rand(["run", "metrics", "admin", "artifact", "subnet", "capacity"] as const);
+  const variant = rand(["run", "admin", "artifact", "subnet", "capacity"] as const);
 
   if (variant === "run") {
     const props = {
@@ -5136,53 +5136,6 @@ export function generateLoadTestingLog(ts: string, er: number): EcsDocument {
       message: isErr
         ? `Load test ${test}: run ${runId} failed errorRate=${props.errorRate.toFixed(1)}%`
         : `Load test ${test}: run ${runId} completed VUs=${props.vus}`,
-    };
-  }
-
-  if (variant === "metrics") {
-    const props = {
-      testRunId: runId,
-      samplesIngested: isErr ? randInt(0, 500) : randInt(50_000, 12_000_000),
-      aggregatorLagSec: isErr ? randFloat(30, 180) : randFloat(0.2, 4),
-      status: isErr ? "degraded" : "healthy",
-      ...integrationExtendedErrFields(
-        isErr,
-        "Metrics ingestion backlog for load test engine aggregator partition",
-        "data"
-      ),
-    };
-    return {
-      "@timestamp": ts,
-      time,
-      resourceId,
-      operationName: "Microsoft.LoadTestService/loadTests/metrics/ingest",
-      category: "MetricsCollection",
-      resultType: isErr ? "Failure" : "Success",
-      resultSignature: props.status,
-      callerIpAddress: callerIp,
-      correlationId,
-      level: isErr ? "Warning" : "Information",
-      properties: props,
-      cloud: azureCloud(region, subscription, "Microsoft.LoadTestService/loadTests"),
-      azure: {
-        load_testing: {
-          test,
-          resource_group: resourceGroup,
-          category: "MetricsCollection",
-          correlation_id: correlationId,
-          properties: props,
-        },
-      },
-      event: azureLogEvent(
-        isErr,
-        randInt(2e8, 5e9),
-        String("Microsoft.LoadTestService/loadTests/metrics/ingest"),
-        ["process"],
-        isErr ? ["error"] : ["info"]
-      ),
-      message: isErr
-        ? `Load test ${test}: metrics pipeline lag ${props.aggregatorLagSec.toFixed(1)}s`
-        : `Load test ${test}: ingested ${props.samplesIngested} metric samples`,
     };
   }
 

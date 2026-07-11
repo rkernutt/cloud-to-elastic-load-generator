@@ -1,19 +1,11 @@
 {
   "title": "GCP Eventarc — Event Delivery",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcp-ea-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.eventarc* | STATS Deliveries = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Deliveries"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Deliveries" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ea-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,79 +30,46 @@
             "type": "esql",
             "query": "FROM logs-gcp.eventarc* | STATS Failures = SUM(CASE(event.outcome == \"failure\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Failures"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failures" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ea-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.eventarc* | STATS `Avg latency (ms)` = ROUND(AVG(`gcp.eventarc.metrics.delivery_latency_ms.avg`), 0)"
+            "query": "FROM metrics-gcp.eventarc* | STATS `Avg latency (ms)` = ROUND(AVG(`gcp.eventarc.metrics.eventarc.googleapis.com/trigger/delivery_latency`.avg), 0)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg latency (ms)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg latency (ms)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ea-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.eventarc* | STATS `DLQ redirects` = SUM(`gcp.eventarc.metrics.dlq_redirects.sum`)"
+            "query": "FROM metrics-gcp.eventarc* | WHERE `gcp.eventarc.labels.response_code` != \"ok\" | STATS `Failed events` = SUM(`gcp.eventarc.metrics.eventarc.googleapis.com/trigger/event_count`.sum)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "DLQ redirects"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ea-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Event type",
         "attributes": {
@@ -130,30 +78,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY et = `gcp.eventarc.event_type` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "et"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "et" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ea-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Trigger",
         "attributes": {
@@ -162,30 +95,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY tr = `gcp.eventarc.trigger_name` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "tr"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "tr" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ea-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Delivery status",
         "attributes": {
@@ -194,45 +112,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY ds = `gcp.eventarc.delivery_status` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "ds"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "ds" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ea-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Delivery rate over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,17 +136,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.eventarc* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
             }
           ]
         }
@@ -260,27 +146,14 @@
     {
       "type": "lens",
       "uid": "gcp-ea-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Failures over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -289,17 +162,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.eventarc* | STATS f = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "f",
-                  "label": "Failures"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "f", "label": "Failures" }]
             }
           ]
         }
@@ -308,46 +172,24 @@
     {
       "type": "lens",
       "uid": "gcp-ea-b1",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Latency by trigger (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.eventarc* | STATS lat = ROUND(AVG(`gcp.eventarc.metrics.delivery_latency_ms.avg`), 0) BY tr = `gcp.eventarc.trigger_name` | SORT lat DESC | LIMIT 10"
+                "query": "FROM metrics-gcp.eventarc* | STATS lat = ROUND(AVG(`gcp.eventarc.metrics.eventarc.googleapis.com/trigger/delivery_latency`.avg), 0) BY tr = `gcp.eventarc.labels.trigger_id` | SORT lat DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "tr"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "lat",
-                  "label": "Avg ms"
-                }
-              ]
+              "x": { "operation": "value", "column": "tr" },
+              "y": [{ "operation": "value", "column": "lat", "label": "Avg ms" }]
             }
           ]
         }
@@ -356,61 +198,23 @@
     {
       "type": "lens",
       "uid": "gcp-ea-t1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 12 },
       "config": {
         "title": "Recent deliveries",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.eventarc* | KEEP `@timestamp`, `gcp.eventarc.trigger_name`, `gcp.eventarc.event_type`, `gcp.eventarc.destination`, `gcp.eventarc.delivery_status`, `gcp.eventarc.metrics.delivery_latency_ms.avg`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.eventarc* | KEEP `@timestamp`, `gcp.eventarc.trigger_name`, `gcp.eventarc.event_type`, `gcp.eventarc.destination`, `gcp.eventarc.delivery_status`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.eventarc.trigger_name",
-              "label": "Trigger"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.eventarc.event_type",
-              "label": "Event type"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.eventarc.destination",
-              "label": "Destination"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.eventarc.delivery_status",
-              "label": "Status"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.eventarc.metrics.delivery_latency_ms.avg",
-              "label": "Latency ms"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "gcp.eventarc.trigger_name", "label": "Trigger" },
+            { "operation": "value", "column": "gcp.eventarc.event_type", "label": "Event type" },
+            { "operation": "value", "column": "gcp.eventarc.destination", "label": "Destination" },
+            { "operation": "value", "column": "gcp.eventarc.delivery_status", "label": "Status" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
         }

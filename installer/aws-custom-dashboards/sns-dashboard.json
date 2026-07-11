@@ -1,46 +1,24 @@
 {
   "title": "Amazon SNS — Overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "sns-kpi-events",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-aws.sns* | STATS `Events` = COUNT()"
-          },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Events"
-            }
-          ]
+          "dataset": { "type": "esql", "query": "FROM logs-aws.sns* | STATS `Events` = COUNT()" },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "sns-kpi-failures",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +27,14 @@
             "type": "esql",
             "query": "FROM logs-aws.sns* | STATS `Failures` = SUM(CASE(`event.outcome` == \"failure\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Failures"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failures" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "sns-kpi-published",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +43,14 @@
             "type": "esql",
             "query": "FROM metrics-aws.sns* | STATS `Published` = SUM(`aws.sns.metrics.NumberOfMessagesPublished.sum`)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Published"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Published" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "sns-kpi-failed-notify",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +59,14 @@
             "type": "esql",
             "query": "FROM metrics-aws.sns* | STATS `Failed Deliveries` = SUM(`aws.sns.metrics.NumberOfNotificationsFailed.sum`)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Failed Deliveries"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed Deliveries" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "sns-donut-outcome",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Event Outcome",
         "attributes": {
@@ -130,45 +75,22 @@
             "type": "esql",
             "query": "FROM logs-aws.sns* | STATS count = COUNT() BY outcome = `event.outcome` | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "outcome"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "outcome" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "sns-bar-operation",
-      "grid": {
-        "x": 24,
-        "y": 5,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 5, "w": 24, "h": 8 },
       "config": {
         "title": "Events by Operation",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -177,17 +99,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.sns* | STATS count = COUNT() BY op = `aws.sns.operation` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "op"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "op" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -196,27 +109,14 @@
     {
       "type": "lens",
       "uid": "sns-line-volume",
-      "grid": {
-        "x": 0,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Event Volume Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -225,17 +125,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.sns* | STATS count = COUNT() BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "bucket" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -244,27 +135,14 @@
     {
       "type": "lens",
       "uid": "sns-line-delivery",
-      "grid": {
-        "x": 24,
-        "y": 13,
-        "w": 24,
-        "h": 8
-      },
+      "grid": { "x": 24, "y": 13, "w": 24, "h": 8 },
       "config": {
         "title": "Publish & Delivery Over Time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -273,21 +151,10 @@
                 "type": "esql",
                 "query": "FROM metrics-aws.sns* | STATS pub = SUM(`aws.sns.metrics.NumberOfMessagesPublished.sum`), del = SUM(`aws.sns.metrics.NumberOfNotificationsDelivered.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
-              "x": {
-                "operation": "value",
-                "column": "bucket"
-              },
+              "x": { "operation": "value", "column": "bucket" },
               "y": [
-                {
-                  "operation": "value",
-                  "column": "pub",
-                  "label": "Published"
-                },
-                {
-                  "operation": "value",
-                  "column": "del",
-                  "label": "Delivered"
-                }
+                { "operation": "value", "column": "pub", "label": "Published" },
+                { "operation": "value", "column": "del", "label": "Delivered" }
               ]
             }
           ]
@@ -297,46 +164,24 @@
     {
       "type": "lens",
       "uid": "sns-bar-region",
-      "grid": {
-        "x": 0,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 0, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by Region",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.sns* | STATS count = COUNT() BY region = COALESCE(cloud.region, \"unknown\") | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws.sns* | STATS count = COUNT() BY region = cloud.region | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "region"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "region" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -345,27 +190,14 @@
     {
       "type": "lens",
       "uid": "sns-bar-protocol",
-      "grid": {
-        "x": 16,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 16, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Events by Protocol",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -374,17 +206,8 @@
                 "type": "esql",
                 "query": "FROM logs-aws.sns* | STATS count = COUNT() BY proto = `aws.sns.protocol` | SORT count DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "proto"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "count",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "proto" },
+              "y": [{ "operation": "value", "column": "count", "label": "Events" }]
             }
           ]
         }
@@ -393,12 +216,7 @@
     {
       "type": "lens",
       "uid": "sns-donut-log-level",
-      "grid": {
-        "x": 32,
-        "y": 21,
-        "w": 16,
-        "h": 8
-      },
+      "grid": { "x": 32, "y": 21, "w": 16, "h": 8 },
       "config": {
         "title": "Log Level",
         "attributes": {
@@ -407,30 +225,15 @@
             "type": "esql",
             "query": "FROM logs-aws.sns* | STATS count = COUNT() BY lvl = log.level | SORT count DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "count"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "lvl"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "count" }],
+          "group_by": [{ "operation": "value", "column": "lvl" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "sns-table-recent",
-      "grid": {
-        "x": 0,
-        "y": 29,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 29, "w": 48, "h": 10 },
       "config": {
         "title": "Recent Events",
         "attributes": {
@@ -440,41 +243,12 @@
             "query": "FROM logs-aws.sns* | KEEP `@timestamp`, `aws.sns.topic_name`, `aws.sns.operation`, `aws.sns.protocol`, log.level, `event.outcome` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Timestamp"
-            },
-            {
-              "operation": "value",
-              "column": "aws.sns.topic_name",
-              "label": "Topic"
-            },
-            {
-              "operation": "value",
-              "column": "aws.sns.operation",
-              "label": "Operation"
-            },
-            {
-              "operation": "value",
-              "column": "aws.sns.protocol",
-              "label": "Protocol"
-            },
-            {
-              "operation": "value",
-              "column": "aws.sns.metrics.NumberOfMessagesPublished.sum",
-              "label": "Published"
-            },
-            {
-              "operation": "value",
-              "column": "log.level",
-              "label": "Log level"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Timestamp" },
+            { "operation": "value", "column": "aws.sns.topic_name", "label": "Topic" },
+            { "operation": "value", "column": "aws.sns.operation", "label": "Operation" },
+            { "operation": "value", "column": "aws.sns.protocol", "label": "Protocol" },
+            { "operation": "value", "column": "log.level", "label": "Log level" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
           ],
           "rows": []
         }

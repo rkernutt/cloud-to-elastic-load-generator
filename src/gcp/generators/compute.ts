@@ -100,7 +100,6 @@ export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
   let outcome: "success" | "failure";
   let duration: number;
   const extra: Record<string, unknown> = {};
-  let metrics: Record<string, number> | undefined;
 
   if (style === 0) {
     const action = rand(["started", "stopped", "deleted", "suspended", "reset"] as const);
@@ -170,15 +169,8 @@ export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
     status = isErr ? "UNHEALTHY" : "HEALTHY";
     outcome = isErr ? "failure" : "success";
     duration = randInt(500, 60_000);
-    metrics = {
-      cpu_utilization:
-        Math.round((isErr ? randFloat(0.85, 0.99) : randFloat(0.05, 0.45)) * 1000) / 10,
-      memory_used_percent: Math.round((isErr ? randFloat(92, 99) : randFloat(35, 78)) * 10) / 10,
-      disk_read_iops: randInt(50, isErr ? 8000 : 1200),
-    };
     extra.jsonPayload = {
       agentVersion: rand(["2.46.0", "2.47.1", "2.48.0"]),
-      metrics,
       host: instance.name,
     };
   } else if (style === 3) {
@@ -244,7 +236,6 @@ export function generateComputeEngineLog(ts: string, er: number): EcsDocument {
     network_tags: networkTags,
     event_type: eventType,
     disk_size_gb: diskSizeGb,
-    ...(metrics ? { metrics } : {}),
   };
 
   return {
