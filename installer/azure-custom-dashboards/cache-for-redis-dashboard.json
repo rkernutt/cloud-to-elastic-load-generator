@@ -28,7 +28,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-azure.redis_cache_metrics* | STATS hits = SUM(`azure.cache_for_redis.metrics.cachehits`), misses = SUM(`azure.cache_for_redis.metrics.cachemisses`) | EVAL `Hit ratio %` = ROUND(hits * 100.0 / (hits + misses), 1)"
+            "query": "FROM metrics-azure.redis_cache_metrics* | STATS hits = SUM(`azure.cache_for_redis.metrics.cachehits.sum`), misses = SUM(`azure.cache_for_redis.metrics.cachemisses.sum`) | EVAL `Hit ratio %` = ROUND(hits * 100.0 / (hits + misses), 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Hit ratio %" }]
         }
@@ -44,7 +44,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-azure.redis_cache_metrics* | STATS `Avg memory (GB)` = ROUND(AVG(`azure.cache_for_redis.metrics.usedmemory`) / 1073741824.0, 2)"
+            "query": "FROM metrics-azure.redis_cache_metrics* | STATS `Avg memory (GB)` = ROUND(AVG(`azure.cache_for_redis.metrics.usedmemory.avg`) / 1073741824.0, 2)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Avg memory (GB)" }]
         }
@@ -60,7 +60,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-azure.redis_cache_metrics* | STATS Evictions = SUM(`azure.cache_for_redis.metrics.evictedkeys`)"
+            "query": "FROM metrics-azure.redis_cache_metrics* | STATS Evictions = SUM(`azure.cache_for_redis.metrics.evictedkeys.sum`)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Evictions" }]
         }
@@ -134,7 +134,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-azure.redis_cache_metrics* | STATS conn = AVG(`azure.cache_for_redis.metrics.connectedclients`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM metrics-azure.redis_cache_metrics* | STATS conn = AVG(`azure.cache_for_redis.metrics.connectedclients.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "conn", "label": "Clients" }]
@@ -160,7 +160,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-azure.redis_cache_metrics* | STATS ev = SUM(`azure.cache_for_redis.metrics.evictedkeys`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM metrics-azure.redis_cache_metrics* | STATS ev = SUM(`azure.cache_for_redis.metrics.evictedkeys.sum`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "ev", "label": "Evictions" }]
@@ -186,7 +186,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-azure.redis_cache_metrics* | STATS gb = ROUND(AVG(`azure.cache_for_redis.metrics.usedmemory`) / 1073741824.0, 2) BY cn = `azure.resource.name` | SORT gb DESC | LIMIT 10"
+                "query": "FROM metrics-azure.redis_cache_metrics* | STATS gb = ROUND(AVG(`azure.cache_for_redis.metrics.usedmemory.avg`) / 1073741824.0, 2) BY cn = `azure.resource.name` | SORT gb DESC | LIMIT 10"
               },
               "x": { "operation": "value", "column": "cn" },
               "y": [{ "operation": "value", "column": "gb", "label": "GB" }]

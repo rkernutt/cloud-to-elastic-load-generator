@@ -75,14 +75,14 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(gcp.dataflow.watermark_lag_seconds) partitionfield=gcp.dataflow.job_name",
+              "detector_description": "high_mean(gcp.dataflow.metrics.dataflow.googleapis.com/job/data_watermark_age.avg) partitionfield=gcp.dataflow.labels.job_name",
               "function": "high_mean",
-              "field_name": "gcp.dataflow.watermark_lag_seconds",
-              "partition_field_name": "gcp.dataflow.job_name",
+              "field_name": "gcp.dataflow.metrics.dataflow.googleapis.com/job/data_watermark_age.avg",
+              "partition_field_name": "gcp.dataflow.labels.job_name",
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.dataflow.job_name", "cloud.region"]
+          "influencers": ["gcp.dataflow.labels.job_name", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -97,19 +97,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.dataflow_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.dataflow_metrics"
                 }
               },
               {
-                "wildcard": {
-                  "cloud.service.name": "*dataflow*"
+                "exists": {
+                  "field": "gcp.dataflow.metrics.dataflow.googleapis.com/job/data_watermark_age.avg"
                 }
               }
             ]
@@ -134,14 +134,14 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_sum(gcp.dataflow.elements_produced) partitionfield=gcp.dataflow.job_name",
+              "detector_description": "high_sum(gcp.dataflow.metrics.dataflow.googleapis.com/job/elements_produced_count.sum) partitionfield=gcp.dataflow.labels.job_name",
               "function": "high_sum",
-              "field_name": "gcp.dataflow.elements_produced",
-              "partition_field_name": "gcp.dataflow.job_name",
+              "field_name": "gcp.dataflow.metrics.dataflow.googleapis.com/job/elements_produced_count.sum",
+              "partition_field_name": "gcp.dataflow.labels.job_name",
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.dataflow.job_name", "cloud.region"]
+          "influencers": ["gcp.dataflow.labels.job_name", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -156,19 +156,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.dataflow_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.dataflow_metrics"
                 }
               },
               {
-                "wildcard": {
-                  "cloud.service.name": "*dataflow*"
+                "exists": {
+                  "field": "gcp.dataflow.metrics.dataflow.googleapis.com/job/elements_produced_count.sum"
                 }
               }
             ]
@@ -259,14 +259,14 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(gcp.dataflow.watermark_lag_seconds) partitionfield=gcp.dataflow.job_name",
+              "detector_description": "high_mean(gcp.dataflow.metrics.dataflow.googleapis.com/job/data_watermark_age.avg) partitionfield=gcp.dataflow.labels.job_name",
               "function": "high_mean",
-              "field_name": "gcp.dataflow.watermark_lag_seconds",
-              "partition_field_name": "gcp.dataflow.job_name",
+              "field_name": "gcp.dataflow.metrics.dataflow.googleapis.com/job/data_watermark_age.avg",
+              "partition_field_name": "gcp.dataflow.labels.job_name",
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.dataflow.job_name", "gcp.dataflow.job_type", "cloud.region"]
+          "influencers": ["gcp.dataflow.labels.job_name", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -281,32 +281,22 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.dataflow*", "metrics-gcp.dataflow*"],
+        "indices": ["metrics-gcp.dataflow_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
-                }
-              }
-            ],
-            "should": [
-              {
-                "exists": {
-                  "field": "gcp.dataflow.watermark_lag_seconds"
+                  "event.dataset": "gcp.dataflow_metrics"
                 }
               },
               {
-                "range": {
-                  "gcp.dataflow.watermark_lag_seconds": {
-                    "gte": 60
-                  }
+                "exists": {
+                  "field": "gcp.dataflow.metrics.dataflow.googleapis.com/job/data_watermark_age.avg"
                 }
               }
-            ],
-            "minimum_should_match": 1
+            ]
           }
         },
         "chunking_config": {

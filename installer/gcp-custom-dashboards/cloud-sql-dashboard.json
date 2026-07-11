@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudsql* | STATS m = AVG(`gcp.cloud_sql.query_duration_ms`) | EVAL `Avg query (ms)` = ROUND(m, 2)"
+            "query": "FROM logs-gcp.cloudsql* | STATS m = AVG(event.duration) / 1000000 | EVAL `Avg query (ms)` = ROUND(m, 2)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY e = `gcp.cloud_sql.database_engine`"
+            "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY e = `gcp.cloud_sql.database_type`"
           },
           "metrics": [
             {
@@ -128,12 +128,12 @@
         "h": 10
       },
       "config": {
-        "title": "Query type",
+        "title": "Outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY t = `gcp.cloud_sql.query_type` | SORT c DESC | LIMIT 8"
+            "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [
             {
@@ -213,7 +213,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.cloudsql* | KEEP `@timestamp`, `gcp.cloud_sql.instance_name`, `gcp.cloud_sql.database_engine`, `gcp.cloud_sql.query_type`, `gcp.cloud_sql.query_duration_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.cloudsql* | KEEP `@timestamp`, `gcp.cloud_sql.instance_name`, `gcp.cloud_sql.database_type`, event.duration, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -228,17 +228,12 @@
             },
             {
               "operation": "value",
-              "column": "gcp.cloud_sql.database_engine",
+              "column": "gcp.cloud_sql.database_type",
               "label": "Engine"
             },
             {
               "operation": "value",
-              "column": "gcp.cloud_sql.query_type",
-              "label": "Query"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_sql.query_duration_ms",
+              "column": "event.duration",
               "label": "Dur ms"
             },
             {

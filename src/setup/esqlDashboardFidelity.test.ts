@@ -35,6 +35,8 @@ describe("ES|QL dashboard fidelity contracts", () => {
     const flat = findAzureRedisFlatMetrics(text);
     expect(flat, file).toEqual([]);
     expect(text, file).toMatch(/azure\.cache_for_redis\.metrics\./);
+    expect(text, file).toMatch(/azure\.cache_for_redis\.metrics\.cachehits\.sum/);
+    expect(text, file).not.toMatch(/`azure\.cache_for_redis\.metrics\.cachehits`(?!\.)/);
   });
 
   it("AWS dashboards: no logs-aws datatable column bindings for aws.*.metrics.*", () => {

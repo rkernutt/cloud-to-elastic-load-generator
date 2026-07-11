@@ -1,24 +1,29 @@
 {
   "group": "compute-extended",
-  "description": "Extended compute anomaly detection — ECS container health, Amazon EC2 Auto Scaling thrashing, AWS Elastic Beanstalk errors & latency",
+  "description": "Extended compute anomaly detection \u2014 ECS container health, Amazon EC2 Auto Scaling thrashing, AWS Elastic Beanstalk errors & latency",
   "jobs": [
     {
       "id": "aws-ecs-memory-pressure",
-      "description": "Detects unusual memory utilization spikes in Amazon ECS containers — early OOM warning",
+      "description": "Detects unusual memory utilization spikes in Amazon ECS containers \u2014 early OOM warning",
       "job": {
-        "description": "Detects unusual memory utilization spikes in ECS containers — early OOM warning",
+        "description": "Detects unusual memory utilization spikes in ECS containers \u2014 early OOM warning",
         "groups": ["aws", "compute-extended", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_count partitionfield=aws.ecs.dimensions.ClusterName",
-              "function": "high_count",
+              "detector_description": "High mean ECS MemoryUtilization by cluster",
+              "function": "high_mean",
+              "field_name": "aws.ecs.metrics.MemoryUtilization.avg",
               "partition_field_name": "aws.ecs.dimensions.ClusterName",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.ecs.dimensions.ClusterName", "cloud.region"]
+          "influencers": [
+            "aws.ecs.dimensions.ClusterName",
+            "aws.ecs.dimensions.ServiceName",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -33,7 +38,7 @@
         }
       },
       "datafeed": {
-        "indices": ["metrics-aws.*"],
+        "indices": ["metrics-aws.ecs_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -57,21 +62,21 @@
     },
     {
       "id": "aws-ecs-task-failure-spike",
-      "description": "Detects spikes in Amazon ECS task failures — container instability detection",
+      "description": "Detects spikes in Amazon ECS task failures \u2014 container instability detection",
       "job": {
-        "description": "Detects spikes in ECS task failures — container instability detection",
+        "description": "Detects spikes in ECS task failures \u2014 container instability detection",
         "groups": ["aws", "compute-extended", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_count partitionfield=aws.ecs.dimensions.ClusterName",
+              "detector_description": "High count of ECS task failures by cluster",
               "function": "high_count",
-              "partition_field_name": "aws.ecs.dimensions.ClusterName",
+              "partition_field_name": "aws.ecs.ecs_cluster",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.ecs.dimensions.ClusterName", "cloud.region"]
+          "influencers": ["aws.ecs.ecs_cluster", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -86,14 +91,19 @@
         }
       },
       "datafeed": {
-        "indices": ["metrics-aws.*"],
+        "indices": ["logs-aws.ecs*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.ecs_metrics"
+                  "event.dataset": "aws.ecs"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
                 }
               }
             ]
@@ -110,9 +120,9 @@
     },
     {
       "id": "aws-autoscaling-rapid-scaling",
-      "description": "Detects unusually rapid Amazon EC2 Auto Scaling activity — flapping/thrashing detection",
+      "description": "Detects unusually rapid Amazon EC2 Auto Scaling activity \u2014 flapping/thrashing detection",
       "job": {
-        "description": "Detects unusually rapid Auto Scaling activity — flapping/thrashing detection",
+        "description": "Detects unusually rapid Auto Scaling activity \u2014 flapping/thrashing detection",
         "groups": ["aws", "compute-extended", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
@@ -216,9 +226,9 @@
     },
     {
       "id": "aws-beanstalk-latency-p99-anomaly",
-      "description": "Detects unusual p99 latency spikes in AWS Elastic Beanstalk — tail latency regression",
+      "description": "Detects unusual p99 latency spikes in AWS Elastic Beanstalk \u2014 tail latency regression",
       "job": {
-        "description": "Detects unusual p99 latency spikes in Elastic Beanstalk — tail latency regression",
+        "description": "Detects unusual p99 latency spikes in Elastic Beanstalk \u2014 tail latency regression",
         "groups": ["aws", "compute-extended", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
