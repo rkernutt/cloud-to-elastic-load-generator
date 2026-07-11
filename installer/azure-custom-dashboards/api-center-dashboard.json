@@ -1,19 +1,11 @@
 {
-  "title": "Azure Api Center \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure Api Center — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "aapicenterk1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-azure.api_center* | STATS `Log events` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Log events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "aapicenterd1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Event outcome",
         "attributes": {
@@ -49,45 +30,22 @@
             "type": "esql",
             "query": "FROM logs-azure.api_center* | STATS c = COUNT() BY o = event.outcome"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "aapicenterl1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Event volume",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -96,17 +54,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.api_center* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
             }
           ]
         }
@@ -115,12 +64,7 @@
     {
       "type": "lens",
       "uid": "aapicentert1",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
       "config": {
         "title": "By resource group",
         "attributes": {
@@ -130,18 +74,70 @@
             "query": "FROM logs-azure.api_center* | STATS c = COUNT() BY region = COALESCE(`azure.api_center.resource_group`, \"unknown\") | SORT c DESC | LIMIT 15"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "region",
-              "label": "Resource group"
-            },
-            {
-              "operation": "value",
-              "column": "c",
-              "label": "Count"
-            }
+            { "operation": "value", "column": "region", "label": "Resource group" },
+            { "operation": "value", "column": "c", "label": "Count" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-api-center",
+      "grid": { "x": 0, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.api_center_metrics* | STATS `Metric Api Count` = ROUND(AVG(`azure.api_center.metrics.ApiCount.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Api Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-api-center",
+      "grid": { "x": 24, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.api_center_metrics* | STATS `Metric Definition Count` = ROUND(AVG(`azure.api_center.metrics.DefinitionCount.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Definition Count" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-api-center",
+      "grid": { "x": 0, "y": 43, "w": 48, "h": 10 },
+      "config": {
+        "title": "Api Count over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.api_center_metrics* | STATS m = AVG(`azure.api_center.metrics.ApiCount.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Api Count" }]
+            }
+          ]
         }
       }
     }

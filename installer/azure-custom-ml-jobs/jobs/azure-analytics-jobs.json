@@ -1,6 +1,6 @@
 {
   "group": "azure-analytics",
-  "description": "Azure analytics \u2014 Data Factory, Stream Analytics",
+  "description": "Azure analytics — Data Factory, Stream Analytics",
   "jobs": [
     {
       "id": "azure-data-factory-duration-anomaly",
@@ -12,53 +12,36 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(azure.data_factory.duration_ms) partitionfield=azure.data_factory.resource_name",
+              "detector_description": "high_mean(azure.data_factory.metrics.PipelineSucceededRuns.avg)",
               "function": "high_mean",
-              "field_name": "azure.data_factory.duration_ms",
-              "partition_field_name": "azure.data_factory.resource_name",
+              "field_name": "azure.data_factory.metrics.PipelineSucceededRuns.avg",
               "detector_index": 0
             }
           ],
           "influencers": ["azure.data_factory.resource_group", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["metrics-azure.data_factory_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "exists": {
-                  "field": "azure.data_factory.resource_name"
-                }
-              }
+              { "term": { "event.dataset": "azure.data_factory_metrics" } },
+              { "exists": { "field": "azure.data_factory.metrics.PipelineSucceededRuns.avg" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -80,12 +63,8 @@
           "influencers": ["azure.data_factory.resource_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
@@ -97,31 +76,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "exists": {
-                  "field": "azure.data_factory.resource_name"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "azure" } },
+              { "exists": { "field": "azure.data_factory.resource_name" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -134,53 +97,36 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=azure.stream_analytics.job",
+              "detector_description": "high_mean(azure.stream_analytics.metrics.ResourceUtilization.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "azure.stream_analytics.job",
+              "field_name": "azure.stream_analytics.metrics.ResourceUtilization.avg",
               "detector_index": 0
             }
           ],
           "influencers": ["azure.stream_analytics.job", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["metrics-azure.stream_analytics_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "exists": {
-                  "field": "azure.stream_analytics.job"
-                }
-              }
+              { "term": { "event.dataset": "azure.stream_analytics_metrics" } },
+              { "exists": { "field": "azure.stream_analytics.metrics.ResourceUtilization.avg" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -202,12 +148,8 @@
           "influencers": ["azure.synapse.pool_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
@@ -219,31 +161,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "cloud.service.name": "Microsoft.Synapse/workspaces"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Synapse/workspaces" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -256,53 +182,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=azure.synapse.pool_name",
+              "detector_description": "high_mean(azure.synapse_workspace.metrics.IntegrationPipelineRunsEnded.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "azure.synapse.pool_name",
+              "field_name": "azure.synapse_workspace.metrics.IntegrationPipelineRunsEnded.avg",
               "detector_index": 0
             }
           ],
           "influencers": ["azure.synapse.pool_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["metrics-azure.synapse_workspace_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "azure.synapse_workspace_metrics" } },
               {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "cloud.service.name": "Microsoft.Synapse/workspaces"
+                "exists": {
+                  "field": "azure.synapse_workspace.metrics.IntegrationPipelineRunsEnded.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -324,12 +237,8 @@
           "influencers": ["azure.databricks.cluster_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
@@ -341,31 +250,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "cloud.service.name": "Microsoft.Databricks/workspaces"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Databricks/workspaces" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -387,12 +280,8 @@
           "influencers": ["azure.databricks.cluster_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
@@ -404,26 +293,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "cloud.service.name": "Microsoft.Databricks/workspaces"
-                }
-              }
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Databricks/workspaces" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -449,12 +326,8 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
@@ -466,39 +339,19 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.outcome": "failure" } }
             ],
             "should": [
-              {
-                "wildcard": {
-                  "message": "*Output*errors=*"
-                }
-              },
-              {
-                "term": {
-                  "category": "StreamingIOEvents"
-                }
-              }
+              { "wildcard": { "message": "*Output*errors=*" } },
+              { "term": { "category": "StreamingIOEvents" } }
             ],
             "minimum_should_match": 1
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -524,12 +377,8 @@
           ]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
@@ -541,31 +390,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              },
-              {
-                "exists": {
-                  "field": "azure.data_factory.pipeline_name"
-                }
-              }
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "event.outcome": "failure" } },
+              { "exists": { "field": "azure.data_factory.pipeline_name" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -588,12 +421,8 @@
           "influencers": ["azure.synapse.pool_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
@@ -605,26 +434,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "cloud.service.name": "Microsoft.Synapse/workspaces"
-                }
-              }
+              { "term": { "cloud.provider": "azure" } },
+              { "term": { "cloud.service.name": "Microsoft.Synapse/workspaces" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     }
   ]

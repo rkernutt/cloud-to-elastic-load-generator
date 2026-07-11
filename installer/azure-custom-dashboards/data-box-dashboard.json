@@ -1,19 +1,11 @@
 {
-  "title": "Azure Data Box \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure Data Box — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "adataboxk1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-azure.data_box* | STATS `Log events` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Log events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "adataboxd1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Event outcome",
         "attributes": {
@@ -49,45 +30,22 @@
             "type": "esql",
             "query": "FROM logs-azure.data_box* | STATS c = COUNT() BY o = event.outcome"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "adataboxl1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Event volume",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -96,17 +54,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.data_box* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
             }
           ]
         }
@@ -115,12 +64,7 @@
     {
       "type": "lens",
       "uid": "adataboxt1",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
       "config": {
         "title": "By resource group",
         "attributes": {
@@ -130,18 +74,68 @@
             "query": "FROM logs-azure.data_box* | STATS c = COUNT() BY region = COALESCE(`azure.data_box.resource_group`, \"unknown\") | SORT c DESC | LIMIT 15"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "region",
-              "label": "Resource group"
-            },
-            {
-              "operation": "value",
-              "column": "c",
-              "label": "Count"
-            }
+            { "operation": "value", "column": "region", "label": "Resource group" },
+            { "operation": "value", "column": "c", "label": "Count" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-data-box",
+      "grid": { "x": 0, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.data_box_metrics* | STATS `Metric Bytes Copied` = ROUND(AVG(`azure.data_box.metrics.BytesCopied.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Bytes Copied" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-data-box",
+      "grid": { "x": 24, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.data_box_metrics* | STATS `Metric Copy Speed` = ROUND(AVG(`azure.data_box.metrics.CopySpeed.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Copy Speed" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-data-box",
+      "grid": { "x": 0, "y": 43, "w": 48, "h": 10 },
+      "config": {
+        "title": "Bytes Copied over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.data_box_metrics* | STATS m = AVG(`azure.data_box.metrics.BytesCopied.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Bytes Copied" }]
+            }
+          ]
         }
       }
     }

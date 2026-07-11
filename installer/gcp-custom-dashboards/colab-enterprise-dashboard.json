@@ -1,9 +1,6 @@
 {
-  "title": "GCP Colab Enterprise \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "GCP Colab Enterprise — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -151,6 +148,64 @@
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "r" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-colab-enterprise",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.colab_enterprise_metrics* | STATS `Metric Pass Count` = ROUND(SUM(`gcp.colab-enterprise.metrics.monitoring.googleapis.com/uptime/check/pass_count.sum`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Pass Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-colab-enterprise",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.colab_enterprise_metrics* | STATS `Metric Utilization` = ROUND(AVG(`gcp.colab-enterprise.metrics.notebooks.googleapis.com/instance/cpu/utilization.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Utilization" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-colab-enterprise",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Utilization over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.colab_enterprise_metrics* | STATS m = AVG(`gcp.colab-enterprise.metrics.notebooks.googleapis.com/instance/cpu/utilization.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Utilization" }]
+            }
+          ]
         }
       }
     }

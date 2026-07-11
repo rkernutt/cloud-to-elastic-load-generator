@@ -1,46 +1,24 @@
 {
   "title": "GCP Cloud KMS — Key Operations",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcp-kms-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-gcp.kms* | STATS Operations = COUNT()"
-          },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Operations"
-            }
-          ]
+          "dataset": { "type": "esql", "query": "FROM logs-gcp.kms* | STATS Operations = COUNT()" },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Operations" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-kms-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +27,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.kms* | STATS Encrypt = SUM(CASE(`gcp.cloud_kms.operation` == \"Encrypt\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Encrypt"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Encrypt" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-kms-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +43,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.kms* | STATS Decrypt = SUM(CASE(`gcp.cloud_kms.operation` == \"Decrypt\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Decrypt"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Decrypt" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-kms-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +59,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.kms* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Error %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Error %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-kms-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Operation",
         "attributes": {
@@ -130,30 +75,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.kms* | STATS c = COUNT() BY op = `gcp.cloud_kms.operation` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "op"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "op" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-kms-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Key ring",
         "attributes": {
@@ -162,30 +92,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.kms* | STATS c = COUNT() BY kr = `gcp.cloud_kms.key_ring` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "kr"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "kr" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-kms-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Outcome",
         "attributes": {
@@ -194,45 +109,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.kms* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-kms-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Operations over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,17 +133,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.kms* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Ops"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Ops" }]
             }
           ]
         }
@@ -260,27 +143,14 @@
     {
       "type": "lens",
       "uid": "gcp-kms-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Errors over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -289,17 +159,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.kms* | WHERE event.outcome == \"failure\" | STATS e = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "e",
-                  "label": "Errors"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "e", "label": "Errors" }]
             }
           ]
         }
@@ -308,27 +169,14 @@
     {
       "type": "lens",
       "uid": "gcp-kms-b1",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Errors by key ring",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -337,17 +185,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.kms* | WHERE event.outcome == \"failure\" | STATS c = COUNT() BY kr = `gcp.cloud_kms.key_ring` | SORT c DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "kr"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Errors"
-                }
-              ]
+              "x": { "operation": "value", "column": "kr" },
+              "y": [{ "operation": "value", "column": "c", "label": "Errors" }]
             }
           ]
         }
@@ -356,12 +195,7 @@
     {
       "type": "lens",
       "uid": "gcp-kms-t1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 12 },
       "config": {
         "title": "Recent operations",
         "attributes": {
@@ -371,48 +205,74 @@
             "query": "FROM logs-gcp.kms* | KEEP `@timestamp`, `gcp.cloud_kms.key_ring`, `gcp.cloud_kms.crypto_key`, `gcp.cloud_kms.operation`, `gcp.cloud_kms.caller`, `gcp.cloud_kms.algorithm`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_kms.key_ring",
-              "label": "Key ring"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_kms.crypto_key",
-              "label": "Key"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_kms.operation",
-              "label": "Operation"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_kms.caller",
-              "label": "Caller"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_kms.algorithm",
-              "label": "Algorithm"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "gcp.cloud_kms.key_ring", "label": "Key ring" },
+            { "operation": "value", "column": "gcp.cloud_kms.crypto_key", "label": "Key" },
+            { "operation": "value", "column": "gcp.cloud_kms.operation", "label": "Operation" },
+            { "operation": "value", "column": "gcp.cloud_kms.caller", "label": "Caller" },
+            { "operation": "value", "column": "gcp.cloud_kms.algorithm", "label": "Algorithm" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-cloud-kms",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.kms_metrics* | STATS `Metric Request Count` = ROUND(SUM(`gcp.cloud-kms.metrics.cloudkms.googleapis.com/cryptokey/request_count.sum`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Request Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-cloud-kms",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.kms_metrics* | STATS `Metric Version Count` = ROUND(SUM(`gcp.cloud-kms.metrics.cloudkms.googleapis.com/cryptokey/version_count.sum`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Version Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-cloud-kms",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Request Count over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.kms_metrics* | STATS m = SUM(`gcp.cloud-kms.metrics.cloudkms.googleapis.com/cryptokey/request_count.sum`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Request Count" }]
+            }
+          ]
         }
       }
     }

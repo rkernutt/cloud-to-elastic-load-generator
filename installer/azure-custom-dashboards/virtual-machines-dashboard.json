@@ -1,19 +1,11 @@
 {
   "title": "Azure Virtual Machines — Operations",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "az-vm-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-azure.virtual_machines* | STATS `Log events` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Log events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-vm-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Event outcome",
         "attributes": {
@@ -49,45 +30,22 @@
             "type": "esql",
             "query": "FROM logs-azure.virtual_machines* | STATS c = COUNT() BY o = event.outcome"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-vm-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Events",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -96,17 +54,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.virtual_machines* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
             }
           ]
         }
@@ -115,12 +64,7 @@
     {
       "type": "lens",
       "uid": "az-vm-t1",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
       "config": {
         "title": "Recent",
         "attributes": {
@@ -130,38 +74,76 @@
             "query": "FROM logs-azure.virtual_machines* | KEEP `@timestamp`, `azure.virtual_machines.vm_name`, `azure.virtual_machines.operation`, `azure.virtual_machines.status`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "azure.virtual_machines.vm_name",
-              "label": "VM"
-            },
-            {
-              "operation": "value",
-              "column": "azure.virtual_machines.operation",
-              "label": "Op"
-            },
-            {
-              "operation": "value",
-              "column": "azure.virtual_machines.status",
-              "label": "Status"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "azure.virtual_machines.vm_name", "label": "VM" },
+            { "operation": "value", "column": "azure.virtual_machines.operation", "label": "Op" },
+            { "operation": "value", "column": "azure.virtual_machines.status", "label": "Status" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-virtual-machines",
+      "grid": { "x": 0, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.virtual_machines_metrics* | STATS `Metric Network In Total` = ROUND(SUM(`azure.virtual_machines.metrics.Network In Total.sum`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Network In Total" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-virtual-machines",
+      "grid": { "x": 24, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.virtual_machines_metrics* | STATS `Metric Percentage CPU` = ROUND(AVG(`azure.virtual_machines.metrics.Percentage CPU.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Percentage CPU" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-virtual-machines",
+      "grid": { "x": 0, "y": 43, "w": 48, "h": 10 },
+      "config": {
+        "title": "Percentage CPU over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.virtual_machines_metrics* | STATS m = AVG(`azure.virtual_machines.metrics.Percentage CPU.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Percentage CPU" }]
+            }
+          ]
         }
       }
     }

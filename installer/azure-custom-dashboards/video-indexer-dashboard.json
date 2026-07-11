@@ -1,9 +1,6 @@
 {
-  "title": "Azure Video Indexer \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure Video Indexer — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -162,6 +159,82 @@
               "xAccessor": "bucket",
               "yAccessor": "count",
               "splitAccessor": "insight"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-video-indexer",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.video_indexer_metrics* | STATS `Metric Video Indexer Indexing Job Duration Mill` = ROUND(AVG(`azure.video_indexer.metrics.VideoIndexerIndexingJobDurationMillisecondsAverage.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Video Indexer Indexing Job Duration Mill"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-video-indexer",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.video_indexer_metrics* | STATS `Metric Live Stream Dropped Fragements Count Sum` = ROUND(AVG(`azure.video_indexer.metrics.LiveStreamDroppedFragementsCountSum.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Live Stream Dropped Fragements Count Sum"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-video-indexer",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Video Indexer Indexing Job Duration Mill over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.video_indexer_metrics* | STATS m = AVG(`azure.video_indexer.metrics.VideoIndexerIndexingJobDurationMillisecondsAverage.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "m",
+                  "label": "Video Indexer Indexing Job Duration Mill"
+                }
+              ]
             }
           ]
         }

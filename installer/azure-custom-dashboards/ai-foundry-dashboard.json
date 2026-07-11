@@ -1,9 +1,6 @@
 {
-  "title": "Azure AI Foundry \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure AI Foundry — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -162,6 +159,72 @@
               "xAccessor": "bucket",
               "yAccessor": "count",
               "splitAccessor": "cat"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-ai-foundry",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.ai_foundry_metrics* | STATS `Metric Batch Inference Throughput` = ROUND(SUM(`azure.ai_foundry.metrics.BatchInferenceThroughput.sum`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Batch Inference Throughput"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-ai-foundry",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.ai_foundry_metrics* | STATS `Metric Gpu Memory Usage Percent` = ROUND(AVG(`azure.ai_foundry.metrics.GpuMemoryUsagePercent.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Gpu Memory Usage Percent" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-ai-foundry",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Gpu Memory Usage Percent over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.ai_foundry_metrics* | STATS m = AVG(`azure.ai_foundry.metrics.GpuMemoryUsagePercent.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Gpu Memory Usage Percent" }]
             }
           ]
         }

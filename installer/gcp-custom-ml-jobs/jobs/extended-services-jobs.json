@@ -21,12 +21,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -38,26 +34,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.vertex_ai_agent_builder"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.vertex_ai_agent_builder" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -70,48 +54,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.vertex-ai-agent-builder.metrics.aiplatform.googleapis.com/reasoning_engine/request_count.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.vertex-ai-agent-builder.metrics.aiplatform.googleapis.com/reasoning_engine/request_count.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.vertex_ai_agent_builder_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.vertex_ai_agent_builder_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.vertex_ai_agent_builder"
+                "exists": {
+                  "field": "gcp.vertex-ai-agent-builder.metrics.aiplatform.googleapis.com/reasoning_engine/request_count.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -133,12 +109,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -150,26 +122,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.colab_enterprise"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.colab_enterprise" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -182,48 +142,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.colab-enterprise.metrics.serviceruntime.googleapis.com/api/request_count.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.colab-enterprise.metrics.serviceruntime.googleapis.com/api/request_count.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.colab_enterprise_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.colab_enterprise_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.colab_enterprise"
+                "exists": {
+                  "field": "gcp.colab-enterprise.metrics.serviceruntime.googleapis.com/api/request_count.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -245,12 +197,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -262,26 +210,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.distributed_cloud"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.distributed_cloud" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -294,48 +230,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.distributed-cloud.metrics.edgecontainer.googleapis.com/machine/cpu/utilization.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.distributed-cloud.metrics.edgecontainer.googleapis.com/machine/cpu/utilization.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.distributed_cloud_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.distributed_cloud_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.distributed_cloud"
+                "exists": {
+                  "field": "gcp.distributed-cloud.metrics.edgecontainer.googleapis.com/machine/cpu/utilization.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -357,12 +285,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -374,26 +298,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.parallelstore"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.parallelstore" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -406,48 +318,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.parallelstore.metrics.parallelstore.googleapis.com/instance/total_capacity_bytes.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.parallelstore.metrics.parallelstore.googleapis.com/instance/total_capacity_bytes.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.parallelstore_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.parallelstore_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.parallelstore"
+                "exists": {
+                  "field": "gcp.parallelstore.metrics.parallelstore.googleapis.com/instance/total_capacity_bytes.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -469,12 +373,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -486,26 +386,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.dataform"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.dataform" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -518,48 +406,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.dataform.metrics.serviceruntime.googleapis.com/api/request_count.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.dataform.metrics.serviceruntime.googleapis.com/api/request_count.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.dataform_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.dataform_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.dataform"
+                "exists": {
+                  "field": "gcp.dataform.metrics.serviceruntime.googleapis.com/api/request_count.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -581,12 +461,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -598,26 +474,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.biglake"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.biglake" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -630,48 +494,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.biglake.metrics.bigquerystorage.googleapis.com/read/concurrent_streams.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.biglake.metrics.bigquerystorage.googleapis.com/read/concurrent_streams.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.biglake_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.biglake_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.biglake"
+                "exists": {
+                  "field": "gcp.biglake.metrics.bigquerystorage.googleapis.com/read/concurrent_streams.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -693,12 +549,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -710,26 +562,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.certificate_manager"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.certificate_manager" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -742,48 +582,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.certificate-manager.metrics.certificatemanager.googleapis.com/map/entries.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.certificate-manager.metrics.certificatemanager.googleapis.com/map/entries.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.certificate_manager_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.certificate_manager_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.certificate_manager"
+                "exists": {
+                  "field": "gcp.certificate-manager.metrics.certificatemanager.googleapis.com/map/entries.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -805,12 +637,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -822,26 +650,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.blockchain_node_engine"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.blockchain_node_engine" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -854,48 +670,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.blockchain-node-engine.metrics.blockchainnodeengine.googleapis.com/node/active_peers.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.blockchain-node-engine.metrics.blockchainnodeengine.googleapis.com/node/active_peers.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.blockchain_node_engine_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.blockchain_node_engine_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.blockchain_node_engine"
+                "exists": {
+                  "field": "gcp.blockchain-node-engine.metrics.blockchainnodeengine.googleapis.com/node/active_peers.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -917,12 +725,8 @@
           "influencers": ["cloud.region", "event.outcome"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
@@ -934,26 +738,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "event.dataset": "gcp.netapp_volumes"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "event.dataset": "gcp.netapp_volumes" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -966,48 +758,40 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=cloud.region",
+              "detector_description": "high_mean(gcp.netapp-volumes.metrics.netapp.googleapis.com/volume/allocated_bytes.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "cloud.region",
+              "field_name": "gcp.netapp-volumes.metrics.netapp.googleapis.com/volume/allocated_bytes.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "gcp-load-generator-extended-services",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.netapp_volumes_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.netapp_volumes_metrics" } },
               {
-                "term": {
-                  "event.dataset": "gcp.netapp_volumes"
+                "exists": {
+                  "field": "gcp.netapp-volumes.metrics.netapp.googleapis.com/volume/allocated_bytes.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     }
   ]

@@ -1,19 +1,11 @@
 {
-  "title": "Azure Virtual Network \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure Virtual Network — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "avirtualnetwok1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-azure.virtual_network* | STATS `Log events` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Log events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "avirtualnetwod1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Event outcome",
         "attributes": {
@@ -49,45 +30,22 @@
             "type": "esql",
             "query": "FROM logs-azure.virtual_network* | STATS c = COUNT() BY o = event.outcome"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "avirtualnetwol1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Event volume",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -96,17 +54,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.virtual_network* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
             }
           ]
         }
@@ -115,12 +64,7 @@
     {
       "type": "lens",
       "uid": "avirtualnetwot1",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
       "config": {
         "title": "By resource group",
         "attributes": {
@@ -130,18 +74,72 @@
             "query": "FROM logs-azure.virtual_network* | STATS c = COUNT() BY region = COALESCE(`azure.virtual_network.resource_group`, \"unknown\") | SORT c DESC | LIMIT 15"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "region",
-              "label": "Resource group"
-            },
-            {
-              "operation": "value",
-              "column": "c",
-              "label": "Count"
-            }
+            { "operation": "value", "column": "region", "label": "Resource group" },
+            { "operation": "value", "column": "c", "label": "Count" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-virtual-network",
+      "grid": { "x": 0, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.virtual_network_metrics* | STATS `Metric If Under Attack` = ROUND(AVG(`azure.virtual_network.metrics.IfUnderAttack.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric If Under Attack" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-virtual-network",
+      "grid": { "x": 24, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.virtual_network_metrics* | STATS `Metric Bytes In DDo S` = ROUND(AVG(`azure.virtual_network.metrics.BytesInDDoS.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Bytes In DDo S" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-virtual-network",
+      "grid": { "x": 0, "y": 43, "w": 48, "h": 10 },
+      "config": {
+        "title": "If Under Attack over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.virtual_network_metrics* | STATS m = AVG(`azure.virtual_network.metrics.IfUnderAttack.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "If Under Attack" }]
+            }
+          ]
         }
       }
     }

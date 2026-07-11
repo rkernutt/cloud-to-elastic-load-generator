@@ -12,10 +12,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(azure.sql_database.dtu_percent) partitionfield=azure.sql_database.database",
+              "detector_description": "high_mean(azure.sql_database.metrics.dtu_consumption_percent.avg)",
               "function": "high_mean",
-              "field_name": "azure.sql_database.dtu_percent",
-              "partition_field_name": "azure.sql_database.database",
+              "field_name": "azure.sql_database.metrics.dtu_consumption_percent.avg",
               "detector_index": 0
             }
           ],
@@ -34,19 +33,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["metrics-azure.sql_database_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "azure"
+                  "event.dataset": "azure.sql_database_metrics"
                 }
               },
               {
-                "term": {
-                  "cloud.service.name": "Microsoft.Sql/servers"
+                "exists": {
+                  "field": "azure.sql_database.metrics.dtu_consumption_percent.avg"
                 }
               }
             ]
@@ -71,10 +70,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(azure.sql_database.failed_connections) partitionfield=azure.sql_database.server",
-              "function": "high_mean",
-              "field_name": "azure.sql_database.failed_connections",
-              "partition_field_name": "azure.sql_database.server",
+              "detector_description": "high_sum(azure.sql_database.metrics.connection_failed.sum)",
+              "function": "high_sum",
+              "field_name": "azure.sql_database.metrics.connection_failed.sum",
               "detector_index": 0
             }
           ],
@@ -93,19 +91,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["metrics-azure.sql_database_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "azure"
+                  "event.dataset": "azure.sql_database_metrics"
                 }
               },
               {
-                "term": {
-                  "cloud.service.name": "Microsoft.Sql/servers"
+                "exists": {
+                  "field": "azure.sql_database.metrics.connection_failed.sum"
                 }
               }
             ]
@@ -193,10 +191,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(azure.cosmos_db.ru_consumed) partitionfield=azure.cosmos_db.account",
-              "function": "high_mean",
-              "field_name": "azure.cosmos_db.ru_consumed",
-              "partition_field_name": "azure.cosmos_db.account",
+              "detector_description": "high_sum(azure.cosmos_db.metrics.TotalRequestUnits.sum)",
+              "function": "high_sum",
+              "field_name": "azure.cosmos_db.metrics.TotalRequestUnits.sum",
               "detector_index": 0
             }
           ],
@@ -215,19 +212,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.cosmos_db*"],
+        "indices": ["metrics-azure.cosmos_db_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "azure"
+                  "event.dataset": "azure.cosmos_db_metrics"
                 }
               },
               {
                 "exists": {
-                  "field": "azure.cosmos_db.ru_consumed"
+                  "field": "azure.cosmos_db.metrics.TotalRequestUnits.sum"
                 }
               }
             ]

@@ -151,10 +151,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_lb.forwarding_rule",
+              "detector_description": "high_mean(gcp.cloud-lb.metrics.loadbalancing.googleapis.com/https/backend_latencies.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "gcp.cloud_lb.forwarding_rule",
+              "field_name": "gcp.cloud-lb.metrics.loadbalancing.googleapis.com/https/backend_latencies.avg",
               "detector_index": 0
             }
           ],
@@ -177,19 +176,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.loadbalancing_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.loadbalancing_metrics"
                 }
               },
               {
-                "term": {
-                  "event.dataset": "gcp.loadbalancing"
+                "exists": {
+                  "field": "gcp.cloud-lb.metrics.loadbalancing.googleapis.com/https/backend_latencies.avg"
                 }
               }
             ]

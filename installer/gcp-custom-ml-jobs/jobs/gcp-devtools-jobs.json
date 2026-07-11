@@ -1,6 +1,6 @@
 {
   "group": "gcp-devtools",
-  "description": "GCP developer tools \u2014 Cloud Build",
+  "description": "GCP developer tools — Cloud Build",
   "jobs": [
     {
       "id": "gcp-cloud-build-failure-spike",
@@ -21,16 +21,9 @@
           "influencers": ["gcp.cloud_build.trigger_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -38,31 +31,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*cloudbuild*"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*cloudbuild*" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -75,53 +52,37 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(gcp.cloud_build.build_duration_seconds) partitionfield=gcp.cloud_build.build_id",
+              "detector_description": "high_mean(gcp.source-repositories.metrics.serviceruntime.googleapis.com/api/request_count.avg)",
               "function": "high_mean",
-              "field_name": "gcp.cloud_build.build_duration_seconds",
-              "partition_field_name": "gcp.cloud_build.build_id",
+              "field_name": "gcp.source-repositories.metrics.serviceruntime.googleapis.com/api/request_count.avg",
               "detector_index": 0
             }
           ],
           "influencers": ["gcp.cloud_build.trigger_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.cloudbuild_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.cloudbuild_metrics" } },
               {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*cloudbuild*"
+                "exists": {
+                  "field": "gcp.source-repositories.metrics.serviceruntime.googleapis.com/api/request_count.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -143,16 +104,9 @@
           "influencers": ["gcp.apigee.proxy_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -160,31 +114,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*apigee.googleapis.com*"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*apigee.googleapis.com*" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -197,52 +135,37 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration)",
+              "detector_description": "high_mean(gcp.apigee.metrics.apigee.googleapis.com/proxy/request_count.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
+              "field_name": "gcp.apigee.metrics.apigee.googleapis.com/proxy/request_count.avg",
               "detector_index": 0
             }
           ],
           "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.apigee_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.apigee_metrics" } },
               {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*apigee.googleapis.com*"
+                "exists": {
+                  "field": "gcp.apigee.metrics.apigee.googleapis.com/proxy/request_count.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     }
   ]

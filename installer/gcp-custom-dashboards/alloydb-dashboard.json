@@ -1,19 +1,11 @@
 {
   "title": "GCP AlloyDB — Queries & Replication",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcp-alloy-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.alloydb* | STATS `Avg latency (ms)` = ROUND(AVG(`gcp.alloy_db.query_duration_ms`), 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg latency (ms)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg latency (ms)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-alloy-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.alloydb* | STATS `Avg connections` = ROUND(AVG(`gcp.alloy_db.connection_count`), 0)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg connections"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg connections" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-alloy-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +46,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.alloydb* | STATS `Avg CPU %` = ROUND(AVG(`gcp.alloy_db.cpu_utilization`) * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg CPU %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg CPU %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-alloy-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +62,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.alloydb* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Error %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Error %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-alloy-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Query type",
         "attributes": {
@@ -130,30 +78,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY qt = `gcp.alloy_db.query_type` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "qt"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "qt" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-alloy-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Cluster",
         "attributes": {
@@ -162,30 +95,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY cl = `gcp.alloy_db.cluster_name` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "cl"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "cl" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-alloy-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Outcome",
         "attributes": {
@@ -194,45 +112,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-alloy-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Query latency over time (ms)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,17 +136,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.alloydb* | STATS lat = AVG(`gcp.alloy_db.query_duration_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "lat",
-                  "label": "Latency ms"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "lat", "label": "Latency ms" }]
             }
           ]
         }
@@ -260,27 +146,14 @@
     {
       "type": "lens",
       "uid": "gcp-alloy-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Connections over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -289,17 +162,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.alloydb* | STATS conn = AVG(`gcp.alloy_db.connection_count`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "conn",
-                  "label": "Connections"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "conn", "label": "Connections" }]
             }
           ]
         }
@@ -308,27 +172,14 @@
     {
       "type": "lens",
       "uid": "gcp-alloy-b1",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Storage by cluster (MB)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -337,17 +188,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.alloydb* | STATS mem = ROUND(AVG(`gcp.alloy_db.memory_utilization`) * 100, 1) BY cl = `gcp.alloy_db.cluster_name` | SORT mem DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "cl"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "mem",
-                  "label": "Memory %"
-                }
-              ]
+              "x": { "operation": "value", "column": "cl" },
+              "y": [{ "operation": "value", "column": "mem", "label": "Memory %" }]
             }
           ]
         }
@@ -356,12 +198,7 @@
     {
       "type": "lens",
       "uid": "gcp-alloy-t1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 12 },
       "config": {
         "title": "Recent queries",
         "attributes": {
@@ -371,26 +208,10 @@
             "query": "FROM logs-gcp.alloydb* | KEEP `@timestamp`, `gcp.alloy_db.cluster_name`, `gcp.alloy_db.instance_name`, `gcp.alloy_db.query_type`, `gcp.alloy_db.query_duration_ms`, `gcp.alloy_db.connection_count`, `gcp.alloy_db.rows_returned`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.alloy_db.cluster_name",
-              "label": "Cluster"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.alloy_db.instance_name",
-              "label": "Instance"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.alloy_db.query_type",
-              "label": "Query"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "gcp.alloy_db.cluster_name", "label": "Cluster" },
+            { "operation": "value", "column": "gcp.alloy_db.instance_name", "label": "Instance" },
+            { "operation": "value", "column": "gcp.alloy_db.query_type", "label": "Query" },
             {
               "operation": "value",
               "column": "gcp.alloy_db.query_duration_ms",
@@ -401,18 +222,72 @@
               "column": "gcp.alloy_db.connection_count",
               "label": "Connections"
             },
-            {
-              "operation": "value",
-              "column": "gcp.alloy_db.rows_returned",
-              "label": "Rows"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            }
+            { "operation": "value", "column": "gcp.alloy_db.rows_returned", "label": "Rows" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-alloydb",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.alloydb_metrics* | STATS `Metric Average Utilization` = ROUND(AVG(`gcp.alloydb.metrics.alloydb.googleapis.com/instance/cpu/average_utilization.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Average Utilization" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-alloydb",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.alloydb_metrics* | STATS `Metric Total Connections` = ROUND(AVG(`gcp.alloydb.metrics.alloydb.googleapis.com/instance/postgres/total_connections.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Total Connections" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-alloydb",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Average Utilization over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.alloydb_metrics* | STATS m = AVG(`gcp.alloydb.metrics.alloydb.googleapis.com/instance/cpu/average_utilization.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Average Utilization" }]
+            }
+          ]
         }
       }
     }

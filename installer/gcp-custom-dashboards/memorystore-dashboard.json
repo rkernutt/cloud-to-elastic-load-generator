@@ -1,19 +1,11 @@
 {
   "title": "GCP Memorystore — Cache Performance",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcp-ms-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.memorystore* | STATS `Avg memory (MB)` = ROUND(AVG(`gcp.memorystore.memory_used_mb`), 0)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg memory (MB)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg memory (MB)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ms-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.memorystore* | STATS `Avg clients` = ROUND(AVG(`gcp.memorystore.connected_clients`), 0)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg clients"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg clients" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ms-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +46,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.memorystore* | STATS Evictions = SUM(`gcp.memorystore.evicted_keys`)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Evictions"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Evictions" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ms-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +62,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.memorystore* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Error %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Error %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ms-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Engine",
         "attributes": {
@@ -130,30 +78,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY e = `gcp.memorystore.engine` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "e"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "e" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ms-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Operation",
         "attributes": {
@@ -162,30 +95,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY op = `gcp.memorystore.operation` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "op"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "op" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ms-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Outcome",
         "attributes": {
@@ -194,45 +112,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.memorystore* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ms-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Memory usage over time (MB)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,17 +136,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.memorystore* | STATS mem = AVG(`gcp.memorystore.memory_used_mb`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "mem",
-                  "label": "Memory (MB)"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "mem", "label": "Memory (MB)" }]
             }
           ]
         }
@@ -260,27 +146,14 @@
     {
       "type": "lens",
       "uid": "gcp-ms-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Evictions over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -289,17 +162,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.memorystore* | STATS ev = SUM(`gcp.memorystore.evicted_keys`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "ev",
-                  "label": "Evictions"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "ev", "label": "Evictions" }]
             }
           ]
         }
@@ -308,27 +172,14 @@
     {
       "type": "lens",
       "uid": "gcp-ms-b1",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Top instances by evictions",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -337,17 +188,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.memorystore* | STATS ev = SUM(`gcp.memorystore.evicted_keys`) BY inst = `gcp.memorystore.instance_id` | SORT ev DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "inst"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "ev",
-                  "label": "Evictions"
-                }
-              ]
+              "x": { "operation": "value", "column": "inst" },
+              "y": [{ "operation": "value", "column": "ev", "label": "Evictions" }]
             }
           ]
         }
@@ -356,12 +198,7 @@
     {
       "type": "lens",
       "uid": "gcp-ms-t1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 12 },
       "config": {
         "title": "Recent events",
         "attributes": {
@@ -371,26 +208,10 @@
             "query": "FROM logs-gcp.memorystore* | KEEP `@timestamp`, `gcp.memorystore.instance_id`, `gcp.memorystore.engine`, `gcp.memorystore.operation`, `gcp.memorystore.memory_used_mb`, `gcp.memorystore.connected_clients`, `gcp.memorystore.evicted_keys`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.memorystore.instance_id",
-              "label": "Instance"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.memorystore.engine",
-              "label": "Engine"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.memorystore.operation",
-              "label": "Operation"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "gcp.memorystore.instance_id", "label": "Instance" },
+            { "operation": "value", "column": "gcp.memorystore.engine", "label": "Engine" },
+            { "operation": "value", "column": "gcp.memorystore.operation", "label": "Operation" },
             {
               "operation": "value",
               "column": "gcp.memorystore.memory_used_mb",
@@ -401,18 +222,70 @@
               "column": "gcp.memorystore.connected_clients",
               "label": "Clients"
             },
-            {
-              "operation": "value",
-              "column": "gcp.memorystore.evicted_keys",
-              "label": "Evicted"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            }
+            { "operation": "value", "column": "gcp.memorystore.evicted_keys", "label": "Evicted" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-memorystore",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.memorystore_metrics* | STATS `Metric Cache Hit Ratio` = ROUND(SUM(`gcp.memorystore.metrics.redis.googleapis.com/stats/cache_hit_ratio.sum`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Cache Hit Ratio" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-memorystore",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.memorystore_metrics* | STATS `Metric Usage` = ROUND(AVG(`gcp.memorystore.metrics.redis.googleapis.com/stats/memory/usage.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Usage" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-memorystore",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Usage over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.memorystore_metrics* | STATS m = AVG(`gcp.memorystore.metrics.redis.googleapis.com/stats/memory/usage.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Usage" }]
+            }
+          ]
         }
       }
     }

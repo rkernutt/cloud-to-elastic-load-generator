@@ -1,19 +1,11 @@
 {
-  "title": "GCP Cloud SQL \u2014 Queries & Connections",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "GCP Cloud SQL — Queries & Connections",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcp-sql-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.cloudsql* | STATS `Queries` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Queries"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Queries" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-sql-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.cloudsql* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Fail %` = ROUND(e * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Fail %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Fail %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-sql-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +46,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.cloudsql* | STATS m = AVG(event.duration) / 1000000 | EVAL `Avg query (ms)` = ROUND(m, 2)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg query (ms)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg query (ms)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-sql-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Engine",
         "attributes": {
@@ -103,30 +62,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY e = `gcp.cloud_sql.database_type`"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "e"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "e" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-sql-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Outcome",
         "attributes": {
@@ -135,45 +79,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "t"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "t" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-sql-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Volume",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -182,17 +103,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.cloudsql* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Queries"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Queries" }]
             }
           ]
         }
@@ -201,12 +113,7 @@
     {
       "type": "lens",
       "uid": "gcp-sql-t1",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
       "config": {
         "title": "Recent",
         "attributes": {
@@ -216,38 +123,74 @@
             "query": "FROM logs-gcp.cloudsql* | KEEP `@timestamp`, `gcp.cloud_sql.instance_name`, `gcp.cloud_sql.database_type`, event.duration, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_sql.instance_name",
-              "label": "Instance"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_sql.database_type",
-              "label": "Engine"
-            },
-            {
-              "operation": "value",
-              "column": "event.duration",
-              "label": "Dur ms"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "gcp.cloud_sql.instance_name", "label": "Instance" },
+            { "operation": "value", "column": "gcp.cloud_sql.database_type", "label": "Engine" },
+            { "operation": "value", "column": "event.duration", "label": "Dur ms" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-cloud-sql",
+      "grid": { "x": 0, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.cloudsql_metrics* | STATS `Metric Received Bytes Count` = ROUND(SUM(`gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/network/received_bytes_count.sum`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Received Bytes Count" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-cloud-sql",
+      "grid": { "x": 24, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.cloudsql_metrics* | STATS `Metric Utilization` = ROUND(AVG(`gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/cpu/utilization.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Utilization" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-cloud-sql",
+      "grid": { "x": 0, "y": 43, "w": 48, "h": 10 },
+      "config": {
+        "title": "Utilization over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.cloudsql_metrics* | STATS m = AVG(`gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/cpu/utilization.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Utilization" }]
+            }
+          ]
         }
       }
     }

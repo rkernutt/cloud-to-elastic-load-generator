@@ -1,9 +1,6 @@
 {
-  "title": "Azure Managed Grafana \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure Managed Grafana — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -162,6 +159,78 @@
               "xAccessor": "bucket",
               "yAccessor": "count",
               "splitAccessor": "inst"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-managed-grafana",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.managed_grafana_metrics* | STATS `Metric Grafana Average Request Latency` = ROUND(AVG(`azure.managed_grafana.metrics.GrafanaAverageRequestLatency.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Grafana Average Request Latency"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-managed-grafana",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.managed_grafana_metrics* | STATS `Metric Grafana Http Requests Received` = ROUND(AVG(`azure.managed_grafana.metrics.GrafanaHttpRequestsReceived.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Grafana Http Requests Received"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-managed-grafana",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Grafana Average Request Latency over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.managed_grafana_metrics* | STATS m = AVG(`azure.managed_grafana.metrics.GrafanaAverageRequestLatency.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                { "operation": "value", "column": "m", "label": "Grafana Average Request Latency" }
+              ]
             }
           ]
         }

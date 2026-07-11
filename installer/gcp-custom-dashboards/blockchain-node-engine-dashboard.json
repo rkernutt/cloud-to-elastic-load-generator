@@ -1,9 +1,6 @@
 {
-  "title": "GCP Blockchain Node Engine \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "GCP Blockchain Node Engine — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -150,6 +147,66 @@
             "query": "FROM logs-gcp.blockchain_node_engine* | WHERE `gcp.blockchain_node_engine.block_height` IS NOT NULL | STATS m = AVG(`gcp.blockchain_node_engine.block_height`) | EVAL `Avg block height` = ROUND(m, 0)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Avg block height" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-blockchain-node-engine",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.blockchain_node_engine_metrics* | STATS `Metric Total Request Count` = ROUND(SUM(`gcp.blockchain-node-engine.metrics.blockchainnodeengine.googleapis.com/node/total_request_count.sum`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Total Request Count" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-blockchain-node-engine",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.blockchain_node_engine_metrics* | STATS `Metric Utilization` = ROUND(AVG(`gcp.blockchain-node-engine.metrics.blockchainnodeengine.googleapis.com/node/cpu/utilization.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Utilization" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-blockchain-node-engine",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Utilization over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.blockchain_node_engine_metrics* | STATS m = AVG(`gcp.blockchain-node-engine.metrics.blockchainnodeengine.googleapis.com/node/cpu/utilization.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Utilization" }]
+            }
+          ]
         }
       }
     }

@@ -1,9 +1,6 @@
 {
-  "title": "GCP NetApp Volumes \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "GCP NetApp Volumes — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -151,6 +148,68 @@
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "pool" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-netapp-volumes",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.netapp_volumes_metrics* | STATS `Metric Throttle Operation Count` = ROUND(SUM(`gcp.netapp-volumes.metrics.netapp.googleapis.com/volume/throttle_operation_count.sum`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Throttle Operation Count" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-netapp-volumes",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.netapp_volumes_metrics* | STATS `Metric Average Latency` = ROUND(AVG(`gcp.netapp-volumes.metrics.netapp.googleapis.com/volume/average_latency.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Average Latency" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-netapp-volumes",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Average Latency over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.netapp_volumes_metrics* | STATS m = AVG(`gcp.netapp-volumes.metrics.netapp.googleapis.com/volume/average_latency.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Average Latency" }]
+            }
+          ]
         }
       }
     }

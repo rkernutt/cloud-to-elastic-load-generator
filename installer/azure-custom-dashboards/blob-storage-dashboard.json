@@ -1,19 +1,11 @@
 {
   "title": "Azure Blob Storage — Operations & Throughput",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "az-blob-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-azure.blob_storage* | STATS Operations = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Operations"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Operations" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-blob-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-azure.blob_storage* | STATS mb = SUM(`azure.blob_storage.bytes`) / 1048576 | EVAL `Throughput (MB)` = ROUND(mb, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Throughput (MB)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Throughput (MB)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-blob-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +46,14 @@
             "type": "esql",
             "query": "FROM logs-azure.blob_storage* | STATS `Avg latency (ms)` = ROUND(AVG(`azure.blob_storage.e2e_latency_ms`), 0)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg latency (ms)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg latency (ms)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-blob-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +62,14 @@
             "type": "esql",
             "query": "FROM logs-azure.blob_storage* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Error %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Error %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-blob-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Operation",
         "attributes": {
@@ -130,30 +78,15 @@
             "type": "esql",
             "query": "FROM logs-azure.blob_storage* | STATS c = COUNT() BY op = `azure.blob_storage.operation` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "op"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "op" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-blob-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Container",
         "attributes": {
@@ -162,30 +95,15 @@
             "type": "esql",
             "query": "FROM logs-azure.blob_storage* | STATS c = COUNT() BY ct = `azure.blob_storage.container` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "ct"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "ct" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-blob-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Outcome",
         "attributes": {
@@ -194,45 +112,22 @@
             "type": "esql",
             "query": "FROM logs-azure.blob_storage* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "o"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "o" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-blob-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Operations over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,17 +136,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.blob_storage* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Ops"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Ops" }]
             }
           ]
         }
@@ -260,27 +146,14 @@
     {
       "type": "lens",
       "uid": "az-blob-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Throughput over time (MB)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -289,17 +162,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.blob_storage* | STATS mb = SUM(`azure.blob_storage.bytes`) / 1048576 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "mb",
-                  "label": "MB"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "mb", "label": "MB" }]
             }
           ]
         }
@@ -308,27 +172,14 @@
     {
       "type": "lens",
       "uid": "az-blob-b1",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Error rate by container",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -337,17 +188,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.blob_storage* | STATS err = SUM(CASE(event.outcome == \"failure\", 1, 0)), total = COUNT() BY ct = `azure.blob_storage.container` | EVAL rate = ROUND(err * 100.0 / total, 1) | SORT rate DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "ct"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "rate",
-                  "label": "Error %"
-                }
-              ]
+              "x": { "operation": "value", "column": "ct" },
+              "y": [{ "operation": "value", "column": "rate", "label": "Error %" }]
             }
           ]
         }
@@ -356,12 +198,7 @@
     {
       "type": "lens",
       "uid": "az-blob-t1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 12 },
       "config": {
         "title": "Recent operations",
         "attributes": {
@@ -371,11 +208,7 @@
             "query": "FROM logs-azure.blob_storage* | KEEP `@timestamp`, `azure.blob_storage.storage_account`, `azure.blob_storage.container`, `azure.blob_storage.blob`, `azure.blob_storage.operation`, `azure.blob_storage.bytes`, `azure.blob_storage.e2e_latency_ms`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
             {
               "operation": "value",
               "column": "azure.blob_storage.storage_account",
@@ -386,33 +219,81 @@
               "column": "azure.blob_storage.container",
               "label": "Container"
             },
-            {
-              "operation": "value",
-              "column": "azure.blob_storage.blob",
-              "label": "Blob"
-            },
+            { "operation": "value", "column": "azure.blob_storage.blob", "label": "Blob" },
             {
               "operation": "value",
               "column": "azure.blob_storage.operation",
               "label": "Operation"
             },
-            {
-              "operation": "value",
-              "column": "azure.blob_storage.bytes",
-              "label": "Bytes"
-            },
+            { "operation": "value", "column": "azure.blob_storage.bytes", "label": "Bytes" },
             {
               "operation": "value",
               "column": "azure.blob_storage.e2e_latency_ms",
               "label": "Latency ms"
             },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            }
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-blob-storage",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.blob_storage_metrics* | STATS `Metric Success E2ELatency` = ROUND(AVG(`azure.blob_storage.metrics.SuccessE2ELatency.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Success E2ELatency" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-blob-storage",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.blob_storage_metrics* | STATS `Metric Transactions` = ROUND(AVG(`azure.blob_storage.metrics.Transactions.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Transactions" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-blob-storage",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Success E2ELatency over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.blob_storage_metrics* | STATS m = AVG(`azure.blob_storage.metrics.SuccessE2ELatency.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Success E2ELatency" }]
+            }
+          ]
         }
       }
     }

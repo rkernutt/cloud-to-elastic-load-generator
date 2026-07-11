@@ -1,9 +1,6 @@
 {
-  "title": "Azure Dedicated HSM \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure Dedicated HSM — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -162,6 +159,82 @@
               "xAccessor": "bucket",
               "yAccessor": "count",
               "splitAccessor": "hsm"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-dedicated-hsm",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.dedicated_hsm_metrics* | STATS `Metric Dedicated Hsms Throughput Operations Per` = ROUND(SUM(`azure.dedicated_hsm.metrics.DedicatedHsmsThroughputOperationsPerSecondAverage.sum`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Dedicated Hsms Throughput Operations Per"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-dedicated-hsm",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.dedicated_hsm_metrics* | STATS `Metric Dedicated HSMPacket Loss Percentage` = ROUND(AVG(`azure.dedicated_hsm.metrics.DedicatedHSMPacketLossPercentage.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Dedicated HSMPacket Loss Percentage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-dedicated-hsm",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Dedicated HSMPacket Loss Percentage over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.dedicated_hsm_metrics* | STATS m = AVG(`azure.dedicated_hsm.metrics.DedicatedHSMPacketLossPercentage.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "m",
+                  "label": "Dedicated HSMPacket Loss Percentage"
+                }
+              ]
             }
           ]
         }

@@ -1,19 +1,11 @@
 {
   "title": "Azure Firewall — Allow vs Deny",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "azfw-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-azure.firewall* | STATS Events = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azfw-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-azure.firewall* | EVAL d = CASE(to_lower(`azure.firewall.action`) == \"deny\", 1, 0) | STATS m = AVG(d) | EVAL `Denied %` = ROUND(m * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Denied %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Denied %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azfw-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +46,14 @@
             "type": "esql",
             "query": "FROM logs-azure.firewall* | STATS `Firewalls` = COUNT_DISTINCT(`azure.firewall.name`)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Distinct firewalls"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Distinct firewalls" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azfw-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +62,14 @@
             "type": "esql",
             "query": "FROM logs-azure.firewall* | STATS `DNS` = SUM(CASE(category == \"AzureFirewallDnsProxy\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "DNS proxy events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "DNS proxy events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azfw-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Action",
         "attributes": {
@@ -130,30 +78,15 @@
             "type": "esql",
             "query": "FROM logs-azure.firewall* | STATS c = COUNT() BY a = `azure.firewall.action` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "a"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "a" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azfw-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Log category",
         "attributes": {
@@ -162,30 +95,15 @@
             "type": "esql",
             "query": "FROM logs-azure.firewall* | STATS c = COUNT() BY cat = category | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "cat"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "cat" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azfw-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Rule collection",
         "attributes": {
@@ -194,45 +112,22 @@
             "type": "esql",
             "query": "FROM logs-azure.firewall* | STATS c = COUNT() BY rc = `azure.firewall.rule_collection` | SORT c DESC | LIMIT 8"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "rc"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "rc" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azfw-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Events over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,17 +136,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.firewall* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
             }
           ]
         }
@@ -260,27 +146,14 @@
     {
       "type": "lens",
       "uid": "azfw-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Allow vs deny",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -289,21 +162,10 @@
                 "type": "esql",
                 "query": "FROM logs-azure.firewall* | STATS al = SUM(CASE(to_lower(`azure.firewall.action`) == \"allow\", 1, 0)), dn = SUM(CASE(to_lower(`azure.firewall.action`) == \"deny\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
+              "x": { "operation": "value", "column": "b" },
               "y": [
-                {
-                  "operation": "value",
-                  "column": "al",
-                  "label": "Allow"
-                },
-                {
-                  "operation": "value",
-                  "column": "dn",
-                  "label": "Deny"
-                }
+                { "operation": "value", "column": "al", "label": "Allow" },
+                { "operation": "value", "column": "dn", "label": "Deny" }
               ]
             }
           ]
@@ -313,27 +175,14 @@
     {
       "type": "lens",
       "uid": "azfw-l3",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Threat intel hits",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -342,17 +191,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.firewall* | STATS ti = SUM(CASE(category == \"AzureFirewallThreatIntel\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "ti",
-                  "label": "ThreatIntel"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "ti", "label": "ThreatIntel" }]
             }
           ]
         }
@@ -361,27 +201,14 @@
     {
       "type": "lens",
       "uid": "azfw-b1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
       "config": {
         "title": "Top destination ports",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -390,17 +217,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.firewall* | STATS c = COUNT() BY p = `azure.firewall.dest_port` | SORT c DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "p"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Flows"
-                }
-              ]
+              "x": { "operation": "value", "column": "p" },
+              "y": [{ "operation": "value", "column": "c", "label": "Flows" }]
             }
           ]
         }
@@ -409,12 +227,7 @@
     {
       "type": "lens",
       "uid": "azfw-t1",
-      "grid": {
-        "x": 0,
-        "y": 45,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
       "config": {
         "title": "Recent",
         "attributes": {
@@ -424,43 +237,77 @@
             "query": "FROM logs-azure.firewall* | KEEP `@timestamp`, `azure.firewall.name`, category, `azure.firewall.action`, `azure.firewall.source_ip`, `azure.firewall.dest_ip`, `azure.firewall.dest_port` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "azure.firewall.name",
-              "label": "Firewall"
-            },
-            {
-              "operation": "value",
-              "column": "category",
-              "label": "Category"
-            },
-            {
-              "operation": "value",
-              "column": "azure.firewall.action",
-              "label": "Action"
-            },
-            {
-              "operation": "value",
-              "column": "azure.firewall.source_ip",
-              "label": "Src"
-            },
-            {
-              "operation": "value",
-              "column": "azure.firewall.dest_ip",
-              "label": "Dst"
-            },
-            {
-              "operation": "value",
-              "column": "azure.firewall.dest_port",
-              "label": "Dport"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "azure.firewall.name", "label": "Firewall" },
+            { "operation": "value", "column": "category", "label": "Category" },
+            { "operation": "value", "column": "azure.firewall.action", "label": "Action" },
+            { "operation": "value", "column": "azure.firewall.source_ip", "label": "Src" },
+            { "operation": "value", "column": "azure.firewall.dest_ip", "label": "Dst" },
+            { "operation": "value", "column": "azure.firewall.dest_port", "label": "Dport" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-azure-firewall",
+      "grid": { "x": 0, "y": 58, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.firewall_metrics* | STATS `Metric SNATPort Utilization` = ROUND(AVG(`azure.azure_firewall.metrics.SNATPortUtilization.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric SNATPort Utilization" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-azure-firewall",
+      "grid": { "x": 24, "y": 58, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.firewall_metrics* | STATS `Metric Application Rule Hit` = ROUND(AVG(`azure.azure_firewall.metrics.ApplicationRuleHit.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Application Rule Hit" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-azure-firewall",
+      "grid": { "x": 0, "y": 63, "w": 48, "h": 10 },
+      "config": {
+        "title": "SNATPort Utilization over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.firewall_metrics* | STATS m = AVG(`azure.azure_firewall.metrics.SNATPortUtilization.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "SNATPort Utilization" }]
+            }
+          ]
         }
       }
     }

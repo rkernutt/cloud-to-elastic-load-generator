@@ -12,10 +12,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_sql.instance_name",
+              "detector_description": "high_mean(gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/cpu/utilization.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "gcp.cloud_sql.instance_name",
+              "field_name": "gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/cpu/utilization.avg",
               "detector_index": 0
             }
           ],
@@ -34,19 +33,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.cloudsql_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.cloudsql_metrics"
                 }
               },
               {
-                "wildcard": {
-                  "cloud.service.name": "*cloud-sql*"
+                "exists": {
+                  "field": "gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/cpu/utilization.avg"
                 }
               }
             ]
@@ -71,10 +70,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(gcp.cloud_sql.connection_count) partitionfield=gcp.cloud_sql.instance_name",
+              "detector_description": "high_mean(gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/postgresql/num_backends.avg)",
               "function": "high_mean",
-              "field_name": "gcp.cloud_sql.connection_count",
-              "partition_field_name": "gcp.cloud_sql.instance_name",
+              "field_name": "gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/postgresql/num_backends.avg",
               "detector_index": 0
             }
           ],
@@ -93,19 +91,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.cloudsql_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.cloudsql_metrics"
                 }
               },
               {
-                "wildcard": {
-                  "cloud.service.name": "*cloud-sql*"
+                "exists": {
+                  "field": "gcp.cloud-sql.metrics.cloudsql.googleapis.com/database/postgresql/num_backends.avg"
                 }
               }
             ]
@@ -193,10 +191,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(gcp.bigquery.total_slot_ms) partitionfield=gcp.bigquery.dataset",
+              "detector_description": "high_mean(gcp.bigquery.metrics.bigquery.googleapis.com/query/total_slot_ms.avg)",
               "function": "high_mean",
-              "field_name": "gcp.bigquery.total_slot_ms",
-              "partition_field_name": "gcp.bigquery.dataset",
+              "field_name": "gcp.bigquery.metrics.bigquery.googleapis.com/query/total_slot_ms.avg",
               "detector_index": 0
             }
           ],
@@ -215,19 +212,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.bigquery*"],
+        "indices": ["metrics-gcp.bigquery_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.bigquery_metrics"
                 }
               },
               {
                 "exists": {
-                  "field": "gcp.bigquery.total_slot_ms"
+                  "field": "gcp.bigquery.metrics.bigquery.googleapis.com/query/total_slot_ms.avg"
                 }
               }
             ]

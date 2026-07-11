@@ -1,46 +1,24 @@
 {
   "title": "GCP Cloud DNS — Queries & Errors",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcpdns-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
-          "dataset": {
-            "type": "esql",
-            "query": "FROM logs-gcp.dns* | STATS Queries = COUNT()"
-          },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Queries"
-            }
-          ]
+          "dataset": { "type": "esql", "query": "FROM logs-gcp.dns* | STATS Queries = COUNT()" },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Queries" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcpdns-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +27,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.dns* | EVAL nx = CASE(`gcp.cloud_dns.response_code` == \"NXDOMAIN\", 1, 0) | STATS m = AVG(nx) | EVAL `NXDOMAIN %` = ROUND(m * 100, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "NXDOMAIN %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "NXDOMAIN %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcpdns-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +43,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.dns* | STATS `Avg ms` = ROUND(AVG(event.duration) / 1000000.0, 2)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg latency (ms)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg latency (ms)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcpdns-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +59,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.dns* | STATS `Zones` = COUNT_DISTINCT(`gcp.cloud_dns.zone_name`)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Distinct zones"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Distinct zones" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcpdns-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Response code",
         "attributes": {
@@ -130,30 +75,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY r = `gcp.cloud_dns.response_code` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "r"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "r" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcpdns-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Record type",
         "attributes": {
@@ -162,30 +92,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY t = `gcp.cloud_dns.query_type` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "t"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "t" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcpdns-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Protocol",
         "attributes": {
@@ -194,45 +109,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY p = `gcp.cloud_dns.protocol` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "p"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "p" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcpdns-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Queries over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,17 +133,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Queries"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Queries" }]
             }
           ]
         }
@@ -260,27 +143,14 @@
     {
       "type": "lens",
       "uid": "gcpdns-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Errors vs success",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -289,21 +159,10 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.dns* | STATS bad = SUM(CASE(event.outcome == \"failure\", 1, 0)), ok = SUM(CASE(event.outcome == \"success\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
+              "x": { "operation": "value", "column": "b" },
               "y": [
-                {
-                  "operation": "value",
-                  "column": "bad",
-                  "label": "Failures"
-                },
-                {
-                  "operation": "value",
-                  "column": "ok",
-                  "label": "Success"
-                }
+                { "operation": "value", "column": "bad", "label": "Failures" },
+                { "operation": "value", "column": "ok", "label": "Success" }
               ]
             }
           ]
@@ -313,27 +172,14 @@
     {
       "type": "lens",
       "uid": "gcpdns-l3",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Avg latency",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -342,17 +188,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.dns* | STATS lat = AVG(event.duration) / 1000000.0 BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "lat",
-                  "label": "Ms"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "lat", "label": "Ms" }]
             }
           ]
         }
@@ -361,27 +198,14 @@
     {
       "type": "lens",
       "uid": "gcpdns-b1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
       "config": {
         "title": "Top QNAMEs",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -390,17 +214,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.dns* | STATS c = COUNT() BY q = `gcp.cloud_dns.query_name` | SORT c DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "q"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Queries"
-                }
-              ]
+              "x": { "operation": "value", "column": "q" },
+              "y": [{ "operation": "value", "column": "c", "label": "Queries" }]
             }
           ]
         }
@@ -409,12 +224,7 @@
     {
       "type": "lens",
       "uid": "gcpdns-t1",
-      "grid": {
-        "x": 0,
-        "y": 45,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
       "config": {
         "title": "Recent queries",
         "attributes": {
@@ -424,43 +234,75 @@
             "query": "FROM logs-gcp.dns* | KEEP `@timestamp`, `gcp.cloud_dns.query_name`, `gcp.cloud_dns.query_type`, `gcp.cloud_dns.response_code`, `gcp.cloud_dns.source_ip`, `gcp.cloud_dns.zone_name`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_dns.query_name",
-              "label": "QNAME"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_dns.query_type",
-              "label": "Type"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_dns.response_code",
-              "label": "RCODE"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_dns.source_ip",
-              "label": "Client"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.cloud_dns.zone_name",
-              "label": "Zone"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "gcp.cloud_dns.query_name", "label": "QNAME" },
+            { "operation": "value", "column": "gcp.cloud_dns.query_type", "label": "Type" },
+            { "operation": "value", "column": "gcp.cloud_dns.response_code", "label": "RCODE" },
+            { "operation": "value", "column": "gcp.cloud_dns.source_ip", "label": "Client" },
+            { "operation": "value", "column": "gcp.cloud_dns.zone_name", "label": "Zone" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-cloud-dns",
+      "grid": { "x": 0, "y": 58, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.dns_metrics* | STATS `Metric Response Count` = ROUND(SUM(`gcp.cloud-dns.metrics.dns.googleapis.com/query/response_count.sum`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Response Count" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-cloud-dns",
+      "grid": { "x": 24, "y": 58, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.dns_metrics* | STATS `Metric Latencies` = ROUND(AVG(`gcp.cloud-dns.metrics.dns.googleapis.com/query/latencies.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Latencies" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-cloud-dns",
+      "grid": { "x": 0, "y": 63, "w": 48, "h": 10 },
+      "config": {
+        "title": "Latencies over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.dns_metrics* | STATS m = AVG(`gcp.cloud-dns.metrics.dns.googleapis.com/query/latencies.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Latencies" }]
+            }
+          ]
         }
       }
     }

@@ -1,9 +1,6 @@
 {
-  "title": "Azure Virtual Desktop \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure Virtual Desktop — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -162,6 +159,82 @@
               "xAccessor": "bucket",
               "yAccessor": "count",
               "splitAccessor": "pool"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-virtual-desktop",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.virtual_desktop_metrics* | STATS `Metric Session Host Availability Percentage` = ROUND(AVG(`azure.virtual_desktop.metrics.SessionHostAvailabilityPercentage.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Session Host Availability Percentage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-virtual-desktop",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.virtual_desktop_metrics* | STATS `Metric Connection Round Trip Time Ms` = ROUND(AVG(`azure.virtual_desktop.metrics.ConnectionRoundTripTimeMs.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Connection Round Trip Time Ms"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-virtual-desktop",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Session Host Availability Percentage over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.virtual_desktop_metrics* | STATS m = AVG(`azure.virtual_desktop.metrics.SessionHostAvailabilityPercentage.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "m",
+                  "label": "Session Host Availability Percentage"
+                }
+              ]
             }
           ]
         }

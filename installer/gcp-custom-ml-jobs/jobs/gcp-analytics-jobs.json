@@ -1,6 +1,6 @@
 {
   "group": "gcp-analytics",
-  "description": "GCP analytics \u2014 BigQuery, Dataproc",
+  "description": "GCP analytics — BigQuery, Dataproc",
   "jobs": [
     {
       "id": "gcp-bigquery-bytes-scanned-anomaly",
@@ -12,53 +12,37 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_sum(gcp.bigquery.total_bytes_processed) partitionfield=gcp.bigquery.job_id",
+              "detector_description": "high_sum(gcp.bigquery.metrics.bigquery.googleapis.com/query/scanned_bytes.sum)",
               "function": "high_sum",
-              "field_name": "gcp.bigquery.total_bytes_processed",
-              "partition_field_name": "gcp.bigquery.job_id",
+              "field_name": "gcp.bigquery.metrics.bigquery.googleapis.com/query/scanned_bytes.sum",
               "detector_index": 0
             }
           ],
           "influencers": ["gcp.bigquery.dataset", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "48mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "48mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.bigquery_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.bigquery_metrics" } },
               {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*bigquery*"
+                "exists": {
+                  "field": "gcp.bigquery.metrics.bigquery.googleapis.com/query/scanned_bytes.sum"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -80,16 +64,9 @@
           "influencers": ["gcp.bigquery.job_type", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -97,31 +74,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*bigquery*"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*bigquery*" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -134,53 +95,37 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=gcp.dataproc.job_id",
+              "detector_description": "high_mean(gcp.dataproc.metrics.dataproc.googleapis.com/cluster/yarn/available_memory.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "gcp.dataproc.job_id",
+              "field_name": "gcp.dataproc.metrics.dataproc.googleapis.com/cluster/yarn/available_memory.avg",
               "detector_index": 0
             }
           ],
           "influencers": ["gcp.dataproc.cluster_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.dataproc_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.dataproc_metrics" } },
               {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*dataproc*"
+                "exists": {
+                  "field": "gcp.dataproc.metrics.dataproc.googleapis.com/cluster/yarn/available_memory.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -202,16 +147,9 @@
           "influencers": ["gcp.dataflow.job_name", "gcp.dataflow.job_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
         "indices": ["logs-gcp.dataflow*"],
@@ -219,26 +157,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "term": {
-                  "gcp.dataflow.current_state": "JOB_STATE_FAILED"
-                }
-              }
+              { "term": { "cloud.provider": "gcp" } },
+              { "term": { "gcp.dataflow.current_state": "JOB_STATE_FAILED" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -260,56 +186,27 @@
           "influencers": ["gcp.pubsub.subscription_name", "gcp.pubsub.topic_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
         "indices": ["logs-gcp.pubsub*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
-            "filter": [
-              {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              }
-            ],
+            "filter": [{ "term": { "cloud.provider": "gcp" } }],
             "should": [
-              {
-                "wildcard": {
-                  "message": "*dead-letter*"
-                }
-              },
-              {
-                "wildcard": {
-                  "message": "*DeadLetter*"
-                }
-              },
-              {
-                "term": {
-                  "error.type": "DeadLetterExceeded"
-                }
-              }
+              { "wildcard": { "message": "*dead-letter*" } },
+              { "wildcard": { "message": "*DeadLetter*" } },
+              { "term": { "error.type": "DeadLetterExceeded" } }
             ],
             "minimum_should_match": 1
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -331,16 +228,9 @@
           "influencers": ["gcp.composer.dag_id", "gcp.composer.task_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
         "indices": ["logs-gcp.composer*"],
@@ -348,26 +238,14 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "term": {
-                  "gcp.composer.state": "failed"
-                }
-              }
+              { "term": { "cloud.provider": "gcp" } },
+              { "term": { "gcp.composer.state": "failed" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     }
   ]

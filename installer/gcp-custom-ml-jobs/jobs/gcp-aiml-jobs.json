@@ -1,6 +1,6 @@
 {
   "group": "gcp-aiml",
-  "description": "GCP AI/ML \u2014 Vertex AI",
+  "description": "GCP AI/ML — Vertex AI",
   "jobs": [
     {
       "id": "gcp-vertex-ai-latency-anomaly",
@@ -12,53 +12,37 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(gcp.vertex_ai.latency_ms) partitionfield=gcp.vertex_ai.model_name",
+              "detector_description": "high_mean(gcp.vertex-ai-search.metrics.discoveryengine.googleapis.com/search_requests_regional.avg)",
               "function": "high_mean",
-              "field_name": "gcp.vertex_ai.latency_ms",
-              "partition_field_name": "gcp.vertex_ai.model_name",
+              "field_name": "gcp.vertex-ai-search.metrics.discoveryengine.googleapis.com/search_requests_regional.avg",
               "detector_index": 0
             }
           ],
           "influencers": ["gcp.vertex_ai.model_name", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.vertexai_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
+              { "term": { "event.dataset": "gcp.vertexai_metrics" } },
               {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*aiplatform*"
+                "exists": {
+                  "field": "gcp.vertex-ai-search.metrics.discoveryengine.googleapis.com/search_requests_regional.avg"
                 }
               }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -80,16 +64,9 @@
           "influencers": ["gcp.vertex_ai.endpoint_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "gcp-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
+        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -97,31 +74,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "gcp"
-                }
-              },
-              {
-                "wildcard": {
-                  "cloud.service.name": "*aiplatform*"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "gcp" } },
+              { "wildcard": { "cloud.service.name": "*aiplatform*" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     }
   ]

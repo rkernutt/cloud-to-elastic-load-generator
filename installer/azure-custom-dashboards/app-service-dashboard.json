@@ -1,19 +1,11 @@
 {
   "title": "Azure App Service — Requests",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "az-as-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-azure.app_service* | STATS `Log events` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Log events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-as-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Status",
         "attributes": {
@@ -49,30 +30,15 @@
             "type": "esql",
             "query": "FROM logs-azure.app_service* | STATS c = COUNT() BY s = `azure.app_service.status_code` | SORT c DESC | LIMIT 12"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "s"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "s" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-as-t1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 12 },
       "config": {
         "title": "Recent",
         "attributes": {
@@ -82,43 +48,83 @@
             "query": "FROM logs-azure.app_service* | KEEP `@timestamp`, `azure.app_service.app_name`, `azure.app_service.request_method`, `azure.app_service.url_path`, `azure.app_service.latency_ms`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "azure.app_service.app_name",
-              "label": "App"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "azure.app_service.app_name", "label": "App" },
             {
               "operation": "value",
               "column": "azure.app_service.request_method",
               "label": "Method"
             },
-            {
-              "operation": "value",
-              "column": "azure.app_service.url_path",
-              "label": "Path"
-            },
+            { "operation": "value", "column": "azure.app_service.url_path", "label": "Path" },
             {
               "operation": "value",
               "column": "azure.app_service.latency_ms",
               "label": "Latency ms"
             },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-app-service",
+      "grid": { "x": 0, "y": 28, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.app_service_metrics* | STATS `Metric Requests` = ROUND(SUM(`azure.app_service.metrics.Requests.sum`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Requests" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-app-service",
+      "grid": { "x": 24, "y": 28, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.app_service_metrics* | STATS `Metric Cpu Percentage` = ROUND(AVG(`azure.app_service.metrics.CpuPercentage.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Cpu Percentage" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-app-service",
+      "grid": { "x": 0, "y": 33, "w": 48, "h": 10 },
+      "config": {
+        "title": "Cpu Percentage over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.app_service_metrics* | STATS m = AVG(`azure.app_service.metrics.CpuPercentage.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Cpu Percentage" }]
+            }
+          ]
         }
       }
     }

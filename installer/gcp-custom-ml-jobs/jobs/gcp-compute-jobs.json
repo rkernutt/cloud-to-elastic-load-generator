@@ -75,10 +75,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_run.service_name",
+              "detector_description": "high_mean(gcp.cloud-run.metrics.run.googleapis.com/request_latencies.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "gcp.cloud_run.service_name",
+              "field_name": "gcp.cloud-run.metrics.run.googleapis.com/request_latencies.avg",
               "detector_index": 0
             }
           ],
@@ -97,19 +96,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.cloudrun_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.cloudrun_metrics"
                 }
               },
               {
-                "wildcard": {
-                  "cloud.service.name": "*run.googleapis.com*"
+                "exists": {
+                  "field": "gcp.cloud-run.metrics.run.googleapis.com/request_latencies.avg"
                 }
               }
             ]
@@ -318,10 +317,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=gcp.gcs.bucket.name",
-              "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "gcp.gcs.bucket.name",
+              "detector_description": "high_sum(gcp.cloud-storage.metrics.storage.googleapis.com/api/request_count.sum)",
+              "function": "high_sum",
+              "field_name": "gcp.cloud-storage.metrics.storage.googleapis.com/api/request_count.sum",
               "detector_index": 0
             }
           ],
@@ -340,19 +338,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.*"],
+        "indices": ["metrics-gcp.gcs_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.gcs_metrics"
                 }
               },
               {
-                "wildcard": {
-                  "cloud.service.name": "*storage.googleapis.com*"
+                "exists": {
+                  "field": "gcp.cloud-storage.metrics.storage.googleapis.com/api/request_count.sum"
                 }
               }
             ]
@@ -521,10 +519,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=gcp.cloud_run.revision",
+              "detector_description": "high_mean(gcp.cloud-run.metrics.run.googleapis.com/request_latencies.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "gcp.cloud_run.revision",
+              "field_name": "gcp.cloud-run.metrics.run.googleapis.com/request_latencies.avg",
               "detector_index": 0
             }
           ],
@@ -543,19 +540,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.cloudrun*"],
+        "indices": ["metrics-gcp.cloudrun_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.cloudrun_metrics"
                 }
               },
               {
                 "exists": {
-                  "field": "gcp.cloud_run.service_name"
+                  "field": "gcp.cloud-run.metrics.run.googleapis.com/request_latencies.avg"
                 }
               }
             ]

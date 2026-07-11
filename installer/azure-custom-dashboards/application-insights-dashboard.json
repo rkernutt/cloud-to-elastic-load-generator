@@ -1,9 +1,6 @@
 {
-  "title": "Azure Application Insights \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure Application Insights — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -162,6 +159,82 @@
               "xAccessor": "bucket",
               "yAccessor": "count",
               "splitAccessor": "dtype"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-application-insights",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.application_insights_metrics* | STATS `Metric Requests Duration Milliseconds Average` = ROUND(AVG(`azure.application_insights.metrics.RequestsDurationMillisecondsAverage.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Requests Duration Milliseconds Average"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-application-insights",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.application_insights_metrics* | STATS `Metric Requests Rate Per Seconds Average` = ROUND(AVG(`azure.application_insights.metrics.RequestsRatePerSecondsAverage.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Requests Rate Per Seconds Average"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-application-insights",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Requests Duration Milliseconds Average over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.application_insights_metrics* | STATS m = AVG(`azure.application_insights.metrics.RequestsDurationMillisecondsAverage.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "m",
+                  "label": "Requests Duration Milliseconds Average"
+                }
+              ]
             }
           ]
         }

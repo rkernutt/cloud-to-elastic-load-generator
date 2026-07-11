@@ -50,4 +50,42 @@ describe("ES|QL dashboard fidelity contracts", () => {
       }
     }
   });
+
+  it("GCP and Azure service dashboards include metrics-* panels when a metrics generator exists", () => {
+    // Spot-check high-traffic services that previously had logs-only dashboards.
+    const required: Array<[string, string]> = [
+      ["installer/gcp-custom-dashboards", "cloud-functions-dashboard.json"],
+      ["installer/gcp-custom-dashboards", "cloud-run-dashboard.json"],
+      ["installer/gcp-custom-dashboards", "compute-engine-dashboard.json"],
+      ["installer/gcp-custom-dashboards", "bigquery-dashboard.json"],
+      ["installer/azure-custom-dashboards", "functions-dashboard.json"],
+      ["installer/azure-custom-dashboards", "app-service-dashboard.json"],
+      ["installer/azure-custom-dashboards", "virtual-machines-dashboard.json"],
+      ["installer/azure-custom-dashboards", "sql-database-dashboard.json"],
+      ["installer/azure-custom-dashboards", "openai-dashboard.json"],
+    ];
+    for (const [dir, file] of required) {
+      const text = readDashboardFile(dir, file);
+      expect(text, file).toMatch(/FROM metrics-(gcp|azure)\./);
+    }
+  });
+
+  it("compute-engine metrics panels cover multi-variant CPU via COALESCE", () => {
+    const text = readDashboardFile(
+      "installer/gcp-custom-dashboards",
+      "compute-engine-dashboard.json"
+    );
+    expect(text).toMatch(/FROM metrics-gcp\.compute_metrics/);
+    expect(text).toMatch(/cpu\/utilization/);
+    expect(text).toMatch(/COALESCE\(/);
+  });
+
+  it("Azure virtual-machines metrics panels use virtual_machines_metrics CPU", () => {
+    const text = readDashboardFile(
+      "installer/azure-custom-dashboards",
+      "virtual-machines-dashboard.json"
+    );
+    expect(text).toMatch(/FROM metrics-azure\.virtual_machines_metrics/);
+    expect(text).toMatch(/Percentage CPU/);
+  });
 });

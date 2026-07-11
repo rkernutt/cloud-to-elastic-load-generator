@@ -1,9 +1,6 @@
 {
-  "title": "GCP Distributed Cloud \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "GCP Distributed Cloud — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -150,6 +147,70 @@
             "query": "FROM logs-gcp.distributed_cloud* | WHERE event.duration IS NOT NULL | STATS m = AVG(event.duration) | EVAL `Avg duration (ms)` = ROUND(m, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Avg duration (ms)" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-distributed-cloud",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.distributed_cloud_metrics* | STATS `Metric Upstream Unreachable Transitions Count` = ROUND(SUM(`gcp.distributed-cloud.metrics.edgecontainer.googleapis.com/cluster/network/upstream_unreachable_transitions_count.sum`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Upstream Unreachable Transitions Count"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-distributed-cloud",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.distributed_cloud_metrics* | STATS `Metric Utilization` = ROUND(AVG(`gcp.distributed-cloud.metrics.edgecontainer.googleapis.com/machine/cpu/utilization.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Utilization" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-distributed-cloud",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Utilization over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.distributed_cloud_metrics* | STATS m = AVG(`gcp.distributed-cloud.metrics.edgecontainer.googleapis.com/machine/cpu/utilization.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Utilization" }]
+            }
+          ]
         }
       }
     }

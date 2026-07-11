@@ -1,19 +1,11 @@
 {
   "title": "GCP Composer — Airflow DAGs & Scheduler",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcp-comp-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.composer* | STATS `DAG runs` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "DAG runs"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "DAG runs" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-comp-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.composer* | STATS total = COUNT(), ok = SUM(CASE(`gcp.composer.state` IN (\"success\", \"running\"), 1, 0)) | EVAL `Success %` = ROUND(ok * 100.0 / total, 1)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Success %"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Success %" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-comp-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +46,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.composer* | STATS `Avg duration (s)` = ROUND(AVG(`gcp.composer.duration_seconds`), 0)"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg duration (s)"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg duration (s)" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-comp-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +62,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.composer* | STATS `Failed tasks` = SUM(CASE(`gcp.composer.state` == \"failed\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Failed tasks"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Failed tasks" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-comp-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "DAG state",
         "attributes": {
@@ -130,30 +78,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY st = `gcp.composer.state` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "st"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "st" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-comp-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Operator",
         "attributes": {
@@ -162,30 +95,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY op = `gcp.composer.operator` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "op"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "op" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-comp-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Top DAGs",
         "attributes": {
@@ -194,45 +112,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.composer* | STATS c = COUNT() BY dag = `gcp.composer.dag_id` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "dag"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "dag" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-comp-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Task duration over time (s)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,17 +136,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.composer* | STATS dur = AVG(`gcp.composer.duration_seconds`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "dur",
-                  "label": "Duration s"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "dur", "label": "Duration s" }]
             }
           ]
         }
@@ -260,27 +146,14 @@
     {
       "type": "lens",
       "uid": "gcp-comp-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Failures over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -289,17 +162,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.composer* | STATS f = SUM(CASE(`gcp.composer.state` == \"failed\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "f",
-                  "label": "Failed"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "f", "label": "Failed" }]
             }
           ]
         }
@@ -308,27 +172,14 @@
     {
       "type": "lens",
       "uid": "gcp-comp-b1",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Duration by DAG (s)",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -337,17 +188,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.composer* | STATS dur = ROUND(AVG(`gcp.composer.duration_seconds`), 0) BY dag = `gcp.composer.dag_id` | SORT dur DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "dag"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "dur",
-                  "label": "Avg s"
-                }
-              ]
+              "x": { "operation": "value", "column": "dag" },
+              "y": [{ "operation": "value", "column": "dur", "label": "Avg s" }]
             }
           ]
         }
@@ -356,12 +198,7 @@
     {
       "type": "lens",
       "uid": "gcp-comp-t1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 12 },
       "config": {
         "title": "Recent DAG tasks",
         "attributes": {
@@ -371,41 +208,17 @@
             "query": "FROM logs-gcp.composer* | KEEP `@timestamp`, `gcp.composer.dag_id`, `gcp.composer.task_id`, `gcp.composer.state`, `gcp.composer.operator`, `gcp.composer.duration_seconds`, `gcp.composer.try_number`, `gcp.composer.environment_name` | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.composer.dag_id",
-              "label": "DAG"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.composer.task_id",
-              "label": "Task"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.composer.state",
-              "label": "State"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.composer.operator",
-              "label": "Operator"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "gcp.composer.dag_id", "label": "DAG" },
+            { "operation": "value", "column": "gcp.composer.task_id", "label": "Task" },
+            { "operation": "value", "column": "gcp.composer.state", "label": "State" },
+            { "operation": "value", "column": "gcp.composer.operator", "label": "Operator" },
             {
               "operation": "value",
               "column": "gcp.composer.duration_seconds",
               "label": "Duration s"
             },
-            {
-              "operation": "value",
-              "column": "gcp.composer.try_number",
-              "label": "Try"
-            },
+            { "operation": "value", "column": "gcp.composer.try_number", "label": "Try" },
             {
               "operation": "value",
               "column": "gcp.composer.environment_name",
@@ -413,6 +226,64 @@
             }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-composer",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.composer_metrics* | STATS `Metric Run Count` = ROUND(SUM(`gcp.composer.metrics.composer.googleapis.com/workflow/run_count.sum`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Run Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-composer",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.composer_metrics* | STATS `Metric Run Duration` = ROUND(AVG(`gcp.composer.metrics.composer.googleapis.com/workflow/task_instance/run_duration.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Run Duration" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-composer",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Run Duration over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.composer_metrics* | STATS m = AVG(`gcp.composer.metrics.composer.googleapis.com/workflow/task_instance/run_duration.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Run Duration" }]
+            }
+          ]
         }
       }
     }

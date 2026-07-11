@@ -203,10 +203,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(gcp.cloud_nat.allocated_ports) partitionfield=gcp.cloud_nat.gateway_name",
+              "detector_description": "high_mean(gcp.cloud-nat.metrics.router.googleapis.com/nat/port_usage.avg)",
               "function": "high_mean",
-              "field_name": "gcp.cloud_nat.allocated_ports",
-              "partition_field_name": "gcp.cloud_nat.gateway_name",
+              "field_name": "gcp.cloud-nat.metrics.router.googleapis.com/nat/port_usage.avg",
               "detector_index": 0
             }
           ],
@@ -225,37 +224,22 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-gcp.nat*"],
+        "indices": ["metrics-gcp.nat_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "gcp"
+                  "event.dataset": "gcp.nat_metrics"
                 }
               },
               {
                 "exists": {
-                  "field": "gcp.cloud_nat.gateway_name"
+                  "field": "gcp.cloud-nat.metrics.router.googleapis.com/nat/port_usage.avg"
                 }
               }
-            ],
-            "should": [
-              {
-                "range": {
-                  "gcp.cloud_nat.allocated_ports": {
-                    "gte": 40000
-                  }
-                }
-              },
-              {
-                "exists": {
-                  "field": "gcp.cloud_nat.packets_dropped"
-                }
-              }
-            ],
-            "minimum_should_match": 1
+            ]
           }
         },
         "chunking_config": {

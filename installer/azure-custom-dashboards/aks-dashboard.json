@@ -1,19 +1,11 @@
 {
   "title": "Azure Kubernetes Service — Events",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "az-aks-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,40 +14,21 @@
             "type": "esql",
             "query": "FROM logs-azure.kubernetes* | STATS `Log events` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Log events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "az-aks-l1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 48, "h": 10 },
       "config": {
         "title": "Volume",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -64,17 +37,8 @@
                 "type": "esql",
                 "query": "FROM logs-azure.kubernetes* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
             }
           ]
         }
@@ -83,12 +47,7 @@
     {
       "type": "lens",
       "uid": "az-aks-t1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 12 },
       "config": {
         "title": "Recent",
         "attributes": {
@@ -98,38 +57,84 @@
             "query": "FROM logs-azure.kubernetes* | KEEP `@timestamp`, `azure.kubernetes.cluster_name`, `azure.kubernetes.namespace`, `azure.kubernetes.pod`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "azure.kubernetes.cluster_name",
-              "label": "Cluster"
-            },
-            {
-              "operation": "value",
-              "column": "azure.kubernetes.namespace",
-              "label": "NS"
-            },
-            {
-              "operation": "value",
-              "column": "azure.kubernetes.pod",
-              "label": "Pod"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "azure.kubernetes.cluster_name", "label": "Cluster" },
+            { "operation": "value", "column": "azure.kubernetes.namespace", "label": "NS" },
+            { "operation": "value", "column": "azure.kubernetes.pod", "label": "Pod" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-aks",
+      "grid": { "x": 0, "y": 28, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.kubernetes_metrics* | STATS `Metric Kube Apiserver Requests Total` = ROUND(SUM(`azure.aks.metrics.kube_apiserver_requests_total.sum`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Kube Apiserver Requests Total"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-aks",
+      "grid": { "x": 24, "y": 28, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.kubernetes_metrics* | STATS `Metric Node Cpu Usage Percentage` = ROUND(AVG(`azure.aks.metrics.node_cpu_usage_percentage.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Node Cpu Usage Percentage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-aks",
+      "grid": { "x": 0, "y": 33, "w": 48, "h": 10 },
+      "config": {
+        "title": "Node Cpu Usage Percentage over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.kubernetes_metrics* | STATS m = AVG(`azure.aks.metrics.node_cpu_usage_percentage.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Node Cpu Usage Percentage" }]
+            }
+          ]
         }
       }
     }

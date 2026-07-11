@@ -1,6 +1,6 @@
 {
   "group": "azure-aiml",
-  "description": "Azure AI \u2014 OpenAI (Cognitive Services)",
+  "description": "Azure AI — OpenAI (Cognitive Services)",
   "jobs": [
     {
       "id": "azure-openai-latency-anomaly",
@@ -12,53 +12,36 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=azure.openai.deployment",
+              "detector_description": "high_mean(azure.openai.metrics.Latency.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "azure.openai.deployment",
+              "field_name": "azure.openai.metrics.Latency.avg",
               "detector_index": 0
             }
           ],
           "influencers": ["azure.openai.deployment", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["metrics-azure.openai_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "exists": {
-                  "field": "azure.openai.deployment"
-                }
-              }
+              { "term": { "event.dataset": "azure.openai_metrics" } },
+              { "exists": { "field": "azure.openai.metrics.Latency.avg" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     },
     {
@@ -80,12 +63,8 @@
           "influencers": ["azure.openai.deployment", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
+        "analysis_limits": { "model_memory_limit": "32mb" },
+        "data_description": { "time_field": "@timestamp" },
         "custom_settings": {
           "created_by": "azure-elastic-load-generator",
           "tags": ["cloudloadgen"]
@@ -97,31 +76,15 @@
         "query": {
           "bool": {
             "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "exists": {
-                  "field": "azure.openai.deployment"
-                }
-              },
-              {
-                "term": {
-                  "event.outcome": "failure"
-                }
-              }
+              { "term": { "cloud.provider": "azure" } },
+              { "exists": { "field": "azure.openai.deployment" } },
+              { "term": { "event.outcome": "failure" } }
             ]
           }
         },
-        "chunking_config": {
-          "mode": "auto"
-        },
+        "chunking_config": { "mode": "auto" },
         "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
+        "delayed_data_check_config": { "enabled": true }
       }
     }
   ]

@@ -75,10 +75,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(azure.application_gateway.latency_ms) partitionfield=azure.application_gateway.name",
+              "detector_description": "high_mean(azure.application_gateway.metrics.TotalLatency.avg)",
               "function": "high_mean",
-              "field_name": "azure.application_gateway.latency_ms",
-              "partition_field_name": "azure.application_gateway.name",
+              "field_name": "azure.application_gateway.metrics.TotalLatency.avg",
               "detector_index": 0
             }
           ],
@@ -97,19 +96,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["metrics-azure.application_gateway_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "azure"
+                  "event.dataset": "azure.application_gateway_metrics"
                 }
               },
               {
-                "term": {
-                  "cloud.service.name": "Microsoft.Network/applicationGateways"
+                "exists": {
+                  "field": "azure.application_gateway.metrics.TotalLatency.avg"
                 }
               }
             ]
@@ -269,10 +268,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(event.duration) partitionfield=azure.front_door.profile_name",
+              "detector_description": "high_mean(azure.front_door.metrics.TotalLatency.avg)",
               "function": "high_mean",
-              "field_name": "event.duration",
-              "partition_field_name": "azure.front_door.profile_name",
+              "field_name": "azure.front_door.metrics.TotalLatency.avg",
               "detector_index": 0
             }
           ],
@@ -295,19 +293,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.front_door*"],
+        "indices": ["metrics-azure.front_door_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "azure"
+                  "event.dataset": "azure.front_door_metrics"
                 }
               },
               {
-                "term": {
-                  "category": "FrontDoorAccessLog"
+                "exists": {
+                  "field": "azure.front_door.metrics.TotalLatency.avg"
                 }
               }
             ]

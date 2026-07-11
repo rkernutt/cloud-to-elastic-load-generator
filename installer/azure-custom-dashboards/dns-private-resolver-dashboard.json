@@ -1,9 +1,6 @@
 {
-  "title": "Azure DNS Private Resolver \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "Azure DNS Private Resolver — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -162,6 +159,82 @@
               "xAccessor": "bucket",
               "yAccessor": "count",
               "splitAccessor": "resolver"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k1-dns-private-resolver",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.dns_private_resolver_metrics* | STATS `Metric Dns Resolver Outbound Endpoint Health Pe` = ROUND(AVG(`azure.dns_private_resolver.metrics.DnsResolverOutboundEndpointHealthPercentage.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Dns Resolver Outbound Endpoint Health Pe"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-k2-dns-private-resolver",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-azure.dns_private_resolver_metrics* | STATS `Metric DNSQuery Inbound Count Per Second Averag` = ROUND(AVG(`azure.dns_private_resolver.metrics.DNSQueryInboundCountPerSecondAverage.avg`), 2)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric DNSQuery Inbound Count Per Second Averag"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "azure-mx-ts-dns-private-resolver",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Dns Resolver Outbound Endpoint Health Pe over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-azure.dns_private_resolver_metrics* | STATS m = AVG(`azure.dns_private_resolver.metrics.DnsResolverOutboundEndpointHealthPercentage.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "m",
+                  "label": "Dns Resolver Outbound Endpoint Health Pe"
+                }
+              ]
             }
           ]
         }

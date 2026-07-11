@@ -1,19 +1,11 @@
 {
   "title": "GCP Artifact Registry — Images & Scans",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcp-ar-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.artifactregistry* | STATS Operations = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Operations"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Operations" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ar-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -49,25 +30,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.artifactregistry* | STATS Pushes = SUM(CASE(`gcp.artifact_registry.action` == \"push\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Pushes"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Pushes" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ar-k3",
-      "grid": {
-        "x": 24,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -76,25 +46,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.artifactregistry* | STATS Pulls = SUM(CASE(`gcp.artifact_registry.action` == \"pull\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Pulls"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Pulls" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ar-k4",
-      "grid": {
-        "x": 36,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -103,25 +62,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.artifactregistry* | STATS `Scan failures` = SUM(CASE(`gcp.artifact_registry.action` == \"scan\" AND event.outcome == \"failure\", 1, 0))"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Scan failures"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Scan failures" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ar-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Action",
         "attributes": {
@@ -130,30 +78,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY a = `gcp.artifact_registry.action` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "a"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "a" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ar-d2",
-      "grid": {
-        "x": 16,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Format",
         "attributes": {
@@ -162,30 +95,15 @@
             "type": "esql",
             "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY f = `gcp.artifact_registry.format` | SORT c DESC"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "f"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "f" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ar-d3",
-      "grid": {
-        "x": 32,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Repository",
         "attributes": {
@@ -194,45 +112,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY r = `gcp.artifact_registry.repository` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "r"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "r" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-ar-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Push & pull over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -241,21 +136,10 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.artifactregistry* | STATS push = SUM(CASE(`gcp.artifact_registry.action` == \"push\", 1, 0)), pull = SUM(CASE(`gcp.artifact_registry.action` == \"pull\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
+              "x": { "operation": "value", "column": "b" },
               "y": [
-                {
-                  "operation": "value",
-                  "column": "push",
-                  "label": "Push"
-                },
-                {
-                  "operation": "value",
-                  "column": "pull",
-                  "label": "Pull"
-                }
+                { "operation": "value", "column": "push", "label": "Push" },
+                { "operation": "value", "column": "pull", "label": "Pull" }
               ]
             }
           ]
@@ -265,27 +149,14 @@
     {
       "type": "lens",
       "uid": "gcp-ar-l2",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Scan findings over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -294,17 +165,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.artifactregistry* | WHERE `gcp.artifact_registry.action` == \"scan\" | STATS vuln = SUM(`gcp.artifact_registry.vulnerability_count`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "vuln",
-                  "label": "Findings"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "vuln", "label": "Findings" }]
             }
           ]
         }
@@ -313,27 +175,14 @@
     {
       "type": "lens",
       "uid": "gcp-ar-b1",
-      "grid": {
-        "x": 24,
-        "y": 25,
-        "w": 24,
-        "h": 10
-      },
+      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
       "config": {
         "title": "Repository activity",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -342,17 +191,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.artifactregistry* | STATS c = COUNT() BY r = `gcp.artifact_registry.repository` | SORT c DESC | LIMIT 10"
               },
-              "x": {
-                "operation": "value",
-                "column": "r"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Ops"
-                }
-              ]
+              "x": { "operation": "value", "column": "r" },
+              "y": [{ "operation": "value", "column": "c", "label": "Ops" }]
             }
           ]
         }
@@ -361,12 +201,7 @@
     {
       "type": "lens",
       "uid": "gcp-ar-t1",
-      "grid": {
-        "x": 0,
-        "y": 35,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 35, "w": 48, "h": 12 },
       "config": {
         "title": "Recent operations",
         "attributes": {
@@ -376,11 +211,7 @@
             "query": "FROM logs-gcp.artifactregistry* | KEEP `@timestamp`, `gcp.artifact_registry.repository`, `gcp.artifact_registry.package_name`, `gcp.artifact_registry.action`, `gcp.artifact_registry.format`, `gcp.artifact_registry.vulnerability_count`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
             {
               "operation": "value",
               "column": "gcp.artifact_registry.repository",
@@ -391,33 +222,75 @@
               "column": "gcp.artifact_registry.package_name",
               "label": "Package"
             },
-            {
-              "operation": "value",
-              "column": "gcp.artifact_registry.action",
-              "label": "Action"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.artifact_registry.format",
-              "label": "Format"
-            },
+            { "operation": "value", "column": "gcp.artifact_registry.action", "label": "Action" },
+            { "operation": "value", "column": "gcp.artifact_registry.format", "label": "Format" },
             {
               "operation": "value",
               "column": "gcp.artifact_registry.vulnerability_count",
               "label": "Vulns"
             },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-artifact-registry",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.artifactregistry_metrics* | STATS `Metric Request Count` = ROUND(SUM(`gcp.artifact-registry.metrics.artifactregistry.googleapis.com/repository/request_count.sum`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Request Count" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-artifact-registry",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.artifactregistry_metrics* | STATS `Metric Size Bytes` = ROUND(AVG(`gcp.artifact-registry.metrics.artifactregistry.googleapis.com/repository/size_bytes.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Size Bytes" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-artifact-registry",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Size Bytes over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.artifactregistry_metrics* | STATS m = AVG(`gcp.artifact-registry.metrics.artifactregistry.googleapis.com/repository/size_bytes.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Size Bytes" }]
+            }
+          ]
         }
       }
     }

@@ -1,9 +1,6 @@
 {
-  "title": "GCP Parallelstore \u2014 overview",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "GCP Parallelstore — overview",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
@@ -150,6 +147,68 @@
             "query": "FROM logs-gcp.parallelstore* | WHERE `gcp.parallelstore.throughput_mib_per_sec` IS NOT NULL | STATS m = AVG(`gcp.parallelstore.throughput_mib_per_sec`) | EVAL `Avg MiB/s` = ROUND(m, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Avg MiB/s" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-parallelstore",
+      "grid": { "x": 0, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.parallelstore_metrics* | STATS `Metric Read Bytes Count` = ROUND(SUM(`gcp.parallelstore.metrics.parallelstore.googleapis.com/instance/read_bytes_count.sum`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Read Bytes Count" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-parallelstore",
+      "grid": { "x": 24, "y": 48, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.parallelstore_metrics* | STATS `Metric Metadata Latency Ms` = ROUND(AVG(`gcp.parallelstore.metrics.parallelstore.googleapis.com/instance/metadata_latency_ms.avg`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Metadata Latency Ms" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-parallelstore",
+      "grid": { "x": 0, "y": 53, "w": 48, "h": 10 },
+      "config": {
+        "title": "Metadata Latency Ms over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.parallelstore_metrics* | STATS m = AVG(`gcp.parallelstore.metrics.parallelstore.googleapis.com/instance/metadata_latency_ms.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "Metadata Latency Ms" }]
+            }
+          ]
         }
       }
     }

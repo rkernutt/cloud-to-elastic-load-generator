@@ -75,10 +75,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(azure.event_hubs.incoming_bytes) partitionfield=azure.event_hubs.eventhub",
-              "function": "high_mean",
-              "field_name": "azure.event_hubs.incoming_bytes",
-              "partition_field_name": "azure.event_hubs.eventhub",
+              "detector_description": "high_sum(azure.event_hubs.metrics.IncomingMessages.sum)",
+              "function": "high_sum",
+              "field_name": "azure.event_hubs.metrics.IncomingMessages.sum",
               "detector_index": 0
             }
           ],
@@ -97,19 +96,19 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["metrics-azure.event_hubs_metrics*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "cloud.provider": "azure"
+                  "event.dataset": "azure.event_hubs_metrics"
                 }
               },
               {
-                "term": {
-                  "cloud.service.name": "Microsoft.EventHub/namespaces"
+                "exists": {
+                  "field": "azure.event_hubs.metrics.IncomingMessages.sum"
                 }
               }
             ]

@@ -1,19 +1,11 @@
 {
-  "title": "GCP Dataflow \u2014 Jobs & Lag",
-  "time_range": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "title": "GCP Dataflow — Jobs & Lag",
+  "time_range": { "from": "now-24h", "to": "now" },
   "panels": [
     {
       "type": "lens",
       "uid": "gcp-df-k1",
-      "grid": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -22,25 +14,14 @@
             "type": "esql",
             "query": "FROM logs-gcp.dataflow* | STATS `Log events` = COUNT()"
           },
-          "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Log events"
-            }
-          ]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Log events" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-df-k2",
-      "grid": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 5
-      },
+      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
       "config": {
         "title": "",
         "attributes": {
@@ -50,11 +31,7 @@
             "query": "FROM metrics-gcp.dataflow_metrics* | STATS m = AVG(`gcp.dataflow.metrics.dataflow.googleapis.com/job/data_watermark_age.avg`) | EVAL `Avg watermark lag (s)` = ROUND(m, 1)"
           },
           "metrics": [
-            {
-              "type": "primary",
-              "operation": "value",
-              "column": "Avg watermark lag (s)"
-            }
+            { "type": "primary", "operation": "value", "column": "Avg watermark lag (s)" }
           ]
         }
       }
@@ -62,12 +39,7 @@
     {
       "type": "lens",
       "uid": "gcp-df-d1",
-      "grid": {
-        "x": 0,
-        "y": 5,
-        "w": 16,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
       "config": {
         "title": "Job type",
         "attributes": {
@@ -76,45 +48,22 @@
             "type": "esql",
             "query": "FROM logs-gcp.dataflow* | STATS c = COUNT() BY t = `gcp.dataflow.job_type`"
           },
-          "metrics": [
-            {
-              "operation": "value",
-              "column": "c"
-            }
-          ],
-          "group_by": [
-            {
-              "operation": "value",
-              "column": "t"
-            }
-          ]
+          "metrics": [{ "operation": "value", "column": "c" }],
+          "group_by": [{ "operation": "value", "column": "t" }]
         }
       }
     },
     {
       "type": "lens",
       "uid": "gcp-df-l1",
-      "grid": {
-        "x": 0,
-        "y": 15,
-        "w": 48,
-        "h": 10
-      },
+      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
       "config": {
         "title": "Events",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": {
-              "title": {
-                "visible": false
-              }
-            },
-            "left": {
-              "title": {
-                "visible": false
-              }
-            }
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
           },
           "layers": [
             {
@@ -123,17 +72,8 @@
                 "type": "esql",
                 "query": "FROM logs-gcp.dataflow* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": {
-                "operation": "value",
-                "column": "b"
-              },
-              "y": [
-                {
-                  "operation": "value",
-                  "column": "c",
-                  "label": "Events"
-                }
-              ]
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
             }
           ]
         }
@@ -142,12 +82,7 @@
     {
       "type": "lens",
       "uid": "gcp-df-t1",
-      "grid": {
-        "x": 0,
-        "y": 25,
-        "w": 48,
-        "h": 12
-      },
+      "grid": { "x": 0, "y": 25, "w": 48, "h": 12 },
       "config": {
         "title": "Recent",
         "attributes": {
@@ -157,38 +92,74 @@
             "query": "FROM logs-gcp.dataflow* | KEEP `@timestamp`, `gcp.dataflow.job_name`, `gcp.dataflow.job_type`, `gcp.dataflow.worker_count`, event.outcome, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            {
-              "operation": "value",
-              "column": "`@timestamp`",
-              "label": "Time"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.dataflow.job_name",
-              "label": "Job"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.dataflow.job_type",
-              "label": "Type"
-            },
-            {
-              "operation": "value",
-              "column": "gcp.dataflow.worker_count",
-              "label": "Workers"
-            },
-            {
-              "operation": "value",
-              "column": "event.outcome",
-              "label": "Outcome"
-            },
-            {
-              "operation": "value",
-              "column": "message",
-              "label": "Message"
-            }
+            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
+            { "operation": "value", "column": "gcp.dataflow.job_name", "label": "Job" },
+            { "operation": "value", "column": "gcp.dataflow.job_type", "label": "Type" },
+            { "operation": "value", "column": "gcp.dataflow.worker_count", "label": "Workers" },
+            { "operation": "value", "column": "event.outcome", "label": "Outcome" },
+            { "operation": "value", "column": "message", "label": "Message" }
           ],
           "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k1-dataflow",
+      "grid": { "x": 0, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.dataflow_metrics* | STATS `Metric Elements Produced Count` = ROUND(SUM(`gcp.dataflow.metrics.dataflow.googleapis.com/job/elements_produced_count.sum`), 2)"
+          },
+          "metrics": [
+            { "type": "primary", "operation": "value", "column": "Metric Elements Produced Count" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-k2-dataflow",
+      "grid": { "x": 24, "y": 38, "w": 24, "h": 5 },
+      "config": {
+        "title": "",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM metrics-gcp.dataflow_metrics* | STATS `Metric System Lag` = ROUND(AVG(`gcp.dataflow.metrics.dataflow.googleapis.com/job/system_lag.avg`), 2)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric System Lag" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "gcp-mx-ts-dataflow",
+      "grid": { "x": 0, "y": 43, "w": 48, "h": 10 },
+      "config": {
+        "title": "System Lag over time",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": { "title": { "visible": false } },
+            "left": { "title": { "visible": false } }
+          },
+          "layers": [
+            {
+              "type": "line",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM metrics-gcp.dataflow_metrics* | STATS m = AVG(`gcp.dataflow.metrics.dataflow.googleapis.com/job/system_lag.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+              },
+              "x": { "operation": "value", "column": "b" },
+              "y": [{ "operation": "value", "column": "m", "label": "System Lag" }]
+            }
+          ]
         }
       }
     }
