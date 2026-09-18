@@ -162,6 +162,8 @@ const GENERIC_DATASET_BY_SOURCE: Record<string, string> = {
   s3: "aws_logs.generic",
   firehose: "awsfirehose",
   api: "aws.cloudwatch_logs",
+  // Custom Kafka Logs integration default data stream
+  kafka: "kafka_log.generic",
   agent: "aws.cloudwatch_logs",
   otel: "aws.cloudwatch_logs",
   "otel-edot-collector": "aws.cloudwatch_logs",
@@ -200,6 +202,11 @@ const REAL_LOG_DATASET_VALUES = new Set<string>([
   "aws.cloudwatch_logs",
   "aws_logs.generic",
   "awsfirehose",
+  // Custom Kafka Logs integration: the data stream is whatever dataset the user
+  // configures on the input. Glue Data Quality results are consumed from the
+  // customer's Confluent topic into this dataset.
+  "kafka_log.generic",
+  "aws.glue_dataquality",
 ]);
 
 /**
@@ -379,6 +386,9 @@ const METRICS_SUPPORTED_SERVICE_IDS = new Set([
   "sqs",
   "eventbridge",
   "amazonmq",
+  // Lineage (OpenLineage RunEvents via HTTP endpoint) — bespoke dataset, never remapped to a generic stream
+  "openlineage",
+  "aws.openlineage",
   // Security
   "waf",
   "wafv2",

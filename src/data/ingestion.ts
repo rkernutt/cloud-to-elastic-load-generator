@@ -150,6 +150,10 @@ const SERVICE_INGESTION_DEFAULTS = {
   a2i: "cloudwatch",
   healthlake: "cloudwatch",
   mwaa: "cloudwatch",
+  // OpenLineage RunEvents: Airflow/Spark http transport → Elastic Agent HTTP Endpoint input
+  openlineage: "api",
+  // Glue Data Quality results published to a Confluent Kafka topic → Elastic Agent Kafka input
+  glue_dataquality: "kafka",
   cleanrooms: "cloudwatch",
   datazone: "cloudwatch",
   entityresolution: "cloudwatch",
@@ -242,6 +246,9 @@ const INGESTION_META = {
   cloudwatch: { label: "CloudWatch", color: "#1BA9F5", inputType: "aws-cloudwatch" },
   firehose: { label: "Firehose", color: "#F04E98", inputType: "aws-firehose" },
   api: { label: "API", color: "#00BFB3", inputType: "http_endpoint" },
+  // Elastic Agent Kafka input (Custom Kafka Logs integration) consuming a topic
+  // on the customer's own Kafka / Confluent cluster.
+  kafka: { label: "Kafka", color: "#231F20", inputType: "kafka" },
   otel: { label: "OTel", color: "#93C90E", inputType: "opentelemetry" },
   "otel-edot-collector": { label: "EDOT Collector", color: "#93C90E", inputType: "opentelemetry" },
   "otel-csp-edot-gateway": {

@@ -285,7 +285,7 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         id: "data-pipeline-chain",
         label: "Data Pipeline",
         icon: "⛁",
-        desc: "Data pipeline: S3 (Avro) → EMR/Spark → S3 (Parquet) + metadata → Glue Catalog → Athena → Tableau | orchestrated via MWAA, EventBridge, or manual trigger | schema drift + failure cascades",
+        desc: "Data pipeline: S3 (Avro) → EMR/Spark → S3 (Parquet) + metadata → Glue Catalog → Athena → Tableau | orchestrated via MWAA, EventBridge, or manual trigger | OpenLineage run events (Airflow provider + Spark listener) for dataset lineage | schema drift + failure cascades",
       },
     ],
   },
@@ -424,6 +424,18 @@ const SERVICE_GROUPS: ServiceGroup[] = [
       { id: "databrew", label: "DataBrew", icon: "⊕", desc: "Data prep job logs" },
       { id: "appflow", label: "AppFlow", icon: "⟿", desc: "SaaS integration logs" },
       { id: "mwaa", label: "MWAA", icon: "⟿", desc: "Managed Airflow DAG & task logs" },
+      {
+        id: "openlineage",
+        label: "OpenLineage",
+        icon: "⟐",
+        desc: "Airflow (MWAA) provider + Spark (EMR) listener RunEvents — dataset lineage, parent runs, schema & row counts",
+      },
+      {
+        id: "glue_dataquality",
+        label: "Glue Data Quality",
+        icon: "✓",
+        desc: "EvaluateDataQuality results (DQDL rule outcomes, score) read from a Confluent Kafka topic via the Elastic Agent Kafka input",
+      },
       {
         id: "cleanrooms",
         label: "Clean Rooms",

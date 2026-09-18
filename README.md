@@ -51,12 +51,15 @@ The wizard opens on the **Start** step, where you pick cloud vendor, deployment 
 
 Catalog size today:
 
-| Vendor     | Services | Dashboards | ML jobs | Traces | Alerting rules |
-| ---------- | -------- | ---------- | ------- | ------ | -------------- |
-| AWS        | 217      | 223        | 33      | 56     | 13             |
-| GCP        | 136      | 135        | 15      | 58     | 9              |
-| Azure      | 133      | 138        | 14      | 52     | 9              |
-| Supporting | 8        | —          | —       | —      | —              |
+| Vendor     | Services | Dashboards | ML jobs | Traces  | Alerting rules |
+| ---------- | -------- | ---------- | ------- | ------- | -------------- |
+| AWS        | 218      | 224        | 401     | 56      | 117            |
+| GCP        | 136      | 135        | 182     | 58      | 62             |
+| Azure      | 133      | 138        | 195     | 52      | 66             |
+| Supporting | 8        | —          | —       | —       | —              |
+| **Total**  | **495**  | **497**    | **778** | **166** | **245**        |
+
+Counts are taken from the repo: services from `src/data/serviceGroups.ts` (and the GCP / Azure / Supporting equivalents), dashboards from `installer/*-custom-dashboards/*-dashboard.json`, ML jobs from `installer/*-custom-ml-jobs/jobs/*.json`, rules from `installer/*-custom-rules/*.json`.
 
 Trace generators produce APM transactions and spans for the Elastic **Service Map**; the remaining services emit logs and metrics only — matching real-world instrumentation patterns where not every cloud service is OTel-instrumented.
 
@@ -64,7 +67,7 @@ Behaviour, categories, post-install toggles, Serverless limits, dashboard fallba
 
 ## Beyond per-service generators
 
-Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with shared correlation IDs and audit attribution, and **CSPM/KSPM findings using 321 real CIS rule UUIDs**. The **Supporting Services** vendor provides standalone generators for **Microsoft Entra ID**, **Microsoft 365** (unified audit), **Managed Active Directory**, **ServiceNow CMDB**, and **O365 metrics** (Teams, Outlook, OneDrive) — cross-cloud services that are not specific to any single hyperscaler. A canonical alert-enrichment **Elastic Workflow** ties them together. Detail in **[docs/advanced-data-types.md](docs/advanced-data-types.md)**.
+Cloud Loadgen for Elastic also produces multi-service **chained scenarios** with shared correlation IDs and audit attribution, and **CSPM/KSPM findings using 321 real CIS rule UUIDs**. The AWS Data & Analytics Pipeline chain adds **OpenLineage-based run lineage**: the `RunEvent`s Airflow on MWAA and Spark on EMR really emit, delivered over an Elastic Agent HTTP endpoint to `logs-aws.openlineage-default`, correlated to the raw S3 / EMR / Glue / Glue Data Quality (read from a Confluent Kafka topic) / Kafka Connect / Step Functions logs through their native ids, and surfaced in a run-lineage dashboard, per-run alert rules, ML jobs, and the enrichment workflow — see **[docs/chained-events/data-pipeline-lineage.md](docs/chained-events/data-pipeline-lineage.md)**. The **Supporting Services** vendor provides standalone generators for **Microsoft Entra ID**, **Microsoft 365** (unified audit), **Managed Active Directory**, **ServiceNow CMDB**, and **O365 metrics** (Teams, Outlook, OneDrive) — cross-cloud services that are not specific to any single hyperscaler. A canonical alert-enrichment **Elastic Workflow** ties them together. Detail in **[docs/advanced-data-types.md](docs/advanced-data-types.md)**.
 
 The Setup wizard also installs **SLO definitions** (availability and data-pipeline SLIs per cloud) via the Kibana Observability SLO API, and optional **Agent Builder** tool definitions for AI-assisted investigation — including a dedicated **SOC Analyst** agent with 8 security-focused tools for investigating attack chains, querying CMDB context, triaging security alerts, and searching a **364-document knowledge base** of runbooks, investigation guides, and detection rule context. Agent Builder is available in the deployment by default and does not require a separate install toggle.
 
@@ -72,7 +75,7 @@ The Setup wizard also installs **SLO definitions** (availability and data-pipeli
 
 Cloud Loadgen ships a complete AI SOC demo scenario built around **IAM privilege escalation**, with **20 Elastic Security detection rules** (6 IAM, 6 finding, 4 exfiltration, 4 DNS) that produce 50+ alerts for **Attack Discovery**, a **security alert enrichment workflow** that adds originating IP and hostname from **ServiceNow CMDB**, an **Agent Builder SOC Analyst** for conversational investigation, and a **364-document knowledge base** (`kb-cloudloadgen-soc`) of investigation runbooks, detection rule guides, and MITRE ATT&CK context that grounds the agent's responses in documented procedures. Full walkthrough in **[docs/SOC-DEMO-SETUP.md](docs/SOC-DEMO-SETUP.md)**.
 
-Alerting rules ship in two tiers. Chained-scenario rules cover the multi-service chains, and per-service domain rules cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **31 rules total** across AWS (13), GCP (9), and Azure (9). Each rule's `artifacts.dashboards` field links **the chain overview plus per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
+Alerting rules ship in two tiers. Chained-scenario rules cover the multi-service chains, and per-service domain rules cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **245 rules total** across AWS (117), GCP (62), and Azure (66). Each rule's `artifacts.dashboards` field links **the chain overview plus per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
 
 ## ML training mode
 

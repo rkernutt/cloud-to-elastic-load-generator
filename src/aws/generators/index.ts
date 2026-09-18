@@ -84,6 +84,8 @@ import {
   generateIncidentManagerLog,
 } from "./security.js";
 import { generateDataPipelineChain } from "./dataPipelineChain.js";
+import { generateOpenLineageLog } from "./openlineage.js";
+import { generateGlueDataQualityLog } from "./glueDataQuality.js";
 import {
   generateS3Log,
   generateS3StorageLensLog,
@@ -384,6 +386,8 @@ const GENERATORS = {
   databrew: generateDataBrewLog,
   appflow: generateAppFlowLog,
   mwaa: generateMwaaLog,
+  openlineage: generateOpenLineageLog,
+  glue_dataquality: generateGlueDataQualityLog,
   cleanrooms: generateCleanRoomsLog,
   datazone: generateDataZoneLog,
   entityresolution: generateEntityResolutionLog,

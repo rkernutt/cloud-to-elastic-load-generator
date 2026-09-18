@@ -153,6 +153,8 @@ const AWS_SERVICE_ICON_MAP = {
   vpclattice: "AmazonVPCLattice",
   mskconnect: "AmazonMSKConnect",
   mwaa: "AmazonMWAA",
+  openlineage: "AmazonMWAA",
+  glue_dataquality: "AWSGlue",
   cleanrooms: "AWSCleanRooms",
   datazone: "AmazonDataZone",
   entityresolution: "AWSEntityResolution",

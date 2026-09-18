@@ -164,6 +164,13 @@ Generators must produce documents that are indistinguishable from real cloud tel
 - `errorMessage` varies by `errorCode` — not a single hardcoded string.
 - `source.geo` includes `location: { lat, lon }` for geospatial mapping.
 
+### Lineage
+
+- **Never stamp stage or lineage fields onto raw service logs.** S3 access logs, EMR step logs, Glue job logs, the Glue Data Quality result (the `GetDataQualityResult` JSON read from the Confluent Kafka topic — see `src/aws/generators/glueDataQuality.ts`), EventBridge's native `Data Quality Evaluation Results Available` event, and Kafka Connect container logs on EKS carry no notion of a pipeline "stage" in real life. Lineage comes from the components that know the graph — Airflow (`apache-airflow-providers-openlineage`) and Spark (`openlineage-spark`) — as OpenLineage `RunEvent`s on `logs-aws.openlineage-default`, with the curated `aws.openlineage.*` contract documented in `src/aws/generators/openlineage.ts`.
+- Raw documents keep their **native** correlation ids (`aws.emr.spark_app_id`, `aws.glue.job.run_id`, `aws.glue_dataquality.result_id` / `.job.run_id`, `kafka.key` / `.partition` / `.offset`, `aws.s3access.key`, `aws.stepfunctions.execution_arn`, `aws.mwaa.run_id`, CloudTrail `requestParameters` / `responseElements`). Those are the join keys to the lineage events — and, for the DQ result, to the CloudTrail `StartJobRun` whose `arguments.--pipeline_run_id` names the run (`JobRunId` on both sides; alternatively `ResultId` ↔ EventBridge `detail.resultID`).
+- `labels.pipeline_run_id` (and `labels.dag_id`, `labels.orchestration_mode`) on raw documents is an **ingest-time enrichment label**, not a service field. The generator writes it directly so the demo works without an enrich policy; every doc that mentions it must say so and point at the enrich-policy / `LOOKUP JOIN` recipe in [chained-events/data-pipeline-lineage.md](./chained-events/data-pipeline-lineage.md). Its value is the OpenLineage **root** run id (`run.root.id` → `run.parent.id` → `run.id`).
+- `trace.id` belongs only on orchestrator documents (Airflow task logs, Step Functions history, EventBridge) — what an ADOT/OTel-instrumented worker emits. Raw S3 / EMR / Glue / Glue DQ result / Kafka Connect (EKS) logs never carry it. The Kafka Connect S3 sink is asynchronous and gets no APM span either.
+
 ### Account and identity pools
 
 - AWS account pool: 12 accounts spanning production, staging, dev, security-tooling, shared-services, data-platform, networking, sandbox, log-archive, identity, payments, and ML — reflecting a realistic AWS Organization.
@@ -189,7 +196,7 @@ Generators must produce documents that are indistinguishable from real cloud tel
 | `src/helpers/identity.ts`        | Shared user identity pool and audit trail event builders                                                                  |
 | `src/hooks/useMLTrainingLoop.ts` | React hook for automated ML reset → baseline → wait → inject → stabilise workflow                                         |
 | `src/pages/`                     | React page components (Landing, Connection, Services, Setup, Ship)                                                        |
-| `installer/`                     | CLI installers and asset JSON (496 dashboards, 778 ML jobs, 243 rules, pipelines)                                         |
+| `installer/`                     | CLI installers and asset JSON (497 dashboards, 778 ML jobs, 245 rules, pipelines)                                         |
 | `workflows/`                     | Elastic Workflow YAML definitions (alert enrichment automation)                                                           |
 
 ## Documentation index

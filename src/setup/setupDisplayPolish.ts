@@ -321,6 +321,8 @@ const CATEGORY_FULL_LABEL_OVERRIDES: Record<string, string> = {
   databrew: "AWS Glue DataBrew",
   appflow: "Amazon AppFlow",
   mwaa: "Amazon MWAA",
+  openlineage: "OpenLineage (Airflow / Spark)",
+  glue_dataquality: "Glue Data Quality (via Kafka)",
   "data-pipeline": "Data & Analytics Pipeline",
   cleanrooms: "AWS Clean Rooms",
   datazone: "Amazon DataZone",

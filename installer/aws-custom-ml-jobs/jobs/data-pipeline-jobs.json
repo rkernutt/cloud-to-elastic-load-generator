@@ -19,7 +19,12 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.mwaa.dag_id", "cloud.region", "aws.mwaa.quality_check"]
+          "influencers": [
+            "aws.mwaa.dag_id",
+            "labels.pipeline_run_id",
+            "cloud.region",
+            "aws.mwaa.quality_check"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -77,7 +82,7 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["cloud.region", "event.dataset", "error.type"]
+          "influencers": ["cloud.region", "event.dataset", "error.type", "labels.pipeline_run_id"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -96,7 +101,6 @@
           "logs-aws.mwaa*",
           "logs-aws.emr*",
           "logs-aws.glue*",
-          "logs-aws.athena*",
           "logs-aws.eventbridge*",
           "logs-aws.stepfunctions*"
         ],
@@ -107,6 +111,13 @@
               {
                 "term": {
                   "event.outcome": "failure"
+                }
+              }
+            ],
+            "must_not": [
+              {
+                "term": {
+                  "event.dataset": "aws.glue_dataquality"
                 }
               }
             ]
@@ -123,21 +134,27 @@
     },
     {
       "id": "aws-data-pipeline-null-data",
-      "description": "Detects increase in Athena queries returning zero rows (null data propagation)",
+      "description": "Detects increase in Glue Data Quality RowCount rule failures (empty Parquet output — null data propagation)",
       "job": {
-        "description": "Detects increase in Athena queries returning zero rows",
+        "description": "Detects increase in Glue Data Quality RowCount rule failures (empty pipeline output)",
         "groups": ["aws", "data-pipeline", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_count on athena zero-row queries partitionfield=aws.athena.workgroup",
+              "detector_description": "high_count on glue_dataquality RowCount failures partitionfield=aws.glue_dataquality.job.name",
               "function": "high_count",
-              "partition_field_name": "aws.athena.workgroup",
+              "partition_field_name": "aws.glue_dataquality.job.name",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.athena.workgroup", "cloud.region"]
+          "influencers": [
+            "aws.glue_dataquality.job.name",
+            "aws.glue_dataquality.ruleset_name",
+            "labels.pipeline_run_id",
+            "labels.dag_id",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -152,14 +169,85 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.athena*"],
+        "indices": ["logs-aws.glue_dataquality*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "aws.athena.rows_returned": 0
+                  "event.dataset": "aws.glue_dataquality"
+                }
+              },
+              {
+                "term": {
+                  "aws.glue_dataquality.failed_rule_types": "RowCount"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "120s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-data-pipeline-dq-score-drift",
+      "description": "Detects unusually low Glue Data Quality scores per DQ job (quality regression that does not fail the DAG)",
+      "job": {
+        "description": "Detects unusually low Glue Data Quality scores per DQ job (quality regression that does not fail the DAG)",
+        "groups": ["aws", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "low_mean(aws.glue_dataquality.score) partitionfield=aws.glue_dataquality.job.name",
+              "function": "low_mean",
+              "field_name": "aws.glue_dataquality.score",
+              "partition_field_name": "aws.glue_dataquality.job.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "aws.glue_dataquality.job.name",
+            "aws.glue_dataquality.ruleset_name",
+            "aws.glue_dataquality.failed_rule_types",
+            "labels.pipeline_run_id",
+            "labels.dag_id",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.glue_dataquality*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "event.dataset": "aws.glue_dataquality"
+                }
+              },
+              {
+                "exists": {
+                  "field": "aws.glue_dataquality.score"
                 }
               }
             ]
@@ -176,22 +264,28 @@
     },
     {
       "id": "aws-data-pipeline-stage-latency",
-      "description": "Detects per-stage latency anomalies in EMR Spark processing",
+      "description": "Detects per-job (stage) latency anomalies from OpenLineage run durations — Airflow tasks and Spark jobs",
       "job": {
-        "description": "Detects per-stage latency anomalies in EMR Spark processing",
+        "description": "Detects per-job (stage) latency anomalies from OpenLineage run durations — Airflow tasks and Spark jobs",
         "groups": ["aws", "data-pipeline", "cloudloadgen"],
         "analysis_config": {
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(aws.emr.duration_ms) partitionfield=aws.emr.compute_mode",
+              "detector_description": "high_mean(aws.openlineage.run.duration_ms) partitionfield=aws.openlineage.job.name",
               "function": "high_mean",
-              "field_name": "aws.emr.duration_ms",
-              "partition_field_name": "aws.emr.compute_mode",
+              "field_name": "aws.openlineage.run.duration_ms",
+              "partition_field_name": "aws.openlineage.job.name",
               "detector_index": 0
             }
           ],
-          "influencers": ["aws.emr.compute_mode", "aws.emr.cluster_id", "cloud.region"]
+          "influencers": [
+            "aws.openlineage.job.name",
+            "labels.pipeline_run_id",
+            "labels.dag_id",
+            "labels.orchestration_mode",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -206,14 +300,144 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.emr*"],
+        "indices": ["logs-aws.openlineage*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
+                "term": {
+                  "event.dataset": "aws.openlineage"
+                }
+              },
+              {
                 "exists": {
-                  "field": "aws.emr.duration_ms"
+                  "field": "aws.openlineage.run.duration_ms"
+                }
+              }
+            ],
+            "must_not": [
+              {
+                "term": {
+                  "aws.openlineage.job.type": "DAG"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "120s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-data-pipeline-lineage-job-failures",
+      "description": "Detects spikes in OpenLineage FAIL events per job (lineage-aware pipeline failures)",
+      "job": {
+        "description": "Detects spikes in OpenLineage FAIL events per job (lineage-aware pipeline failures)",
+        "groups": ["aws", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "high_count on openlineage FAIL events partitionfield=aws.openlineage.job.name",
+              "function": "high_count",
+              "partition_field_name": "aws.openlineage.job.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": [
+            "aws.openlineage.job.name",
+            "labels.pipeline_run_id",
+            "labels.dag_id",
+            "error.type",
+            "cloud.region"
+          ]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.openlineage*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "aws.openlineage.event_type": "FAIL"
+                }
+              }
+            ]
+          }
+        },
+        "chunking_config": {
+          "mode": "auto"
+        },
+        "query_delay": "120s",
+        "delayed_data_check_config": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "aws-data-pipeline-lineage-output-rows",
+      "description": "Detects unusually low output row counts per job (silent null-data propagation visible in OpenLineage outputStatistics)",
+      "job": {
+        "description": "Detects unusually low output row counts per job (silent null-data propagation visible in OpenLineage outputStatistics)",
+        "groups": ["aws", "data-pipeline", "cloudloadgen"],
+        "analysis_config": {
+          "bucket_span": "15m",
+          "detectors": [
+            {
+              "detector_description": "low_mean(aws.openlineage.output_statistics.row_count) partitionfield=aws.openlineage.job.name",
+              "function": "low_mean",
+              "field_name": "aws.openlineage.output_statistics.row_count",
+              "partition_field_name": "aws.openlineage.job.name",
+              "detector_index": 0
+            }
+          ],
+          "influencers": ["aws.openlineage.job.name", "labels.pipeline_run_id", "labels.dag_id"]
+        },
+        "allow_lazy_open": true,
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "aws-load-generator-data-pipeline",
+          "tags": ["cloudloadgen"]
+        }
+      },
+      "datafeed": {
+        "indices": ["logs-aws.openlineage*"],
+        "max_empty_searches": 10,
+        "query": {
+          "bool": {
+            "filter": [
+              {
+                "term": {
+                  "aws.openlineage.event_type": "COMPLETE"
+                }
+              },
+              {
+                "exists": {
+                  "field": "aws.openlineage.output_statistics.row_count"
                 }
               }
             ]

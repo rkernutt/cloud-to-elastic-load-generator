@@ -34,7 +34,7 @@ export function getSloDefinitions(vendor: string): SloDefinition[] {
     {
       id: `cloudloadgen-${vendor}-pipeline-availability`,
       name: `${v} Data Pipeline Availability`,
-      description: `Data pipeline success rate for ${v} services (EMR, Glue, Athena, etc.).`,
+      description: `Data pipeline success rate for ${v} services (EMR, Glue, Glue Data Quality, Kafka Connect, etc.).`,
       indicator: {
         type: "sli.kql.custom",
         params: {
