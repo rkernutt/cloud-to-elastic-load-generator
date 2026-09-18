@@ -8,7 +8,7 @@
     {
       "type": "lens",
       "uid": "dp-k1",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": { "x": 0, "y": 0, "w": 10, "h": 5 },
       "config": {
         "title": "Pipeline runs (all modes)",
         "attributes": {
@@ -24,14 +24,14 @@
     {
       "type": "lens",
       "uid": "dp-k2",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": { "x": 10, "y": 0, "w": 10, "h": 5 },
       "config": {
         "title": "Failure rate",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.athena*, logs-aws.stepfunctions* | WHERE labels.pipeline_run_id IS NOT NULL | STATS total = COUNT_DISTINCT(labels.pipeline_run_id), failures = COUNT_DISTINCT(CASE(event.outcome == \"failure\", labels.pipeline_run_id, null)) | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
+            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.stepfunctions* | WHERE labels.pipeline_run_id IS NOT NULL AND event.dataset != \"aws.glue_dataquality\" | STATS total = COUNT_DISTINCT(labels.pipeline_run_id), failures = COUNT_DISTINCT(CASE(event.outcome == \"failure\", labels.pipeline_run_id, null)) | EVAL `Failure %` = ROUND(failures * 100.0 / total, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
         }
@@ -40,7 +40,7 @@
     {
       "type": "lens",
       "uid": "dp-k3",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": { "x": 20, "y": 0, "w": 10, "h": 5 },
       "config": {
         "title": "Avg pipeline duration (ms)",
         "attributes": {
@@ -56,16 +56,32 @@
     {
       "type": "lens",
       "uid": "dp-k4",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": { "x": 30, "y": 0, "w": 9, "h": 5 },
       "config": {
-        "title": "Schema drift events",
+        "title": "Schema drift runs (Glue DQ)",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.glue* | WHERE aws.glue.schema_change_type IS NOT NULL | STATS `Drift events` = COUNT()"
+            "query": "FROM logs-aws.glue_dataquality* | MV_EXPAND aws.glue_dataquality.failed_rule_types | WHERE aws.glue_dataquality.failed_rule_types IN (\"ColumnExists\", \"ColumnCount\", \"ColumnDataType\") OR labels.schema_drift_detected == \"true\" | STATS `Drift runs` = COUNT_DISTINCT(labels.pipeline_run_id)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Drift events" }]
+          "metrics": [{ "type": "primary", "operation": "value", "column": "Drift runs" }]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dp-k5",
+      "grid": { "x": 39, "y": 0, "w": 9, "h": 5 },
+      "config": {
+        "title": "Runs with DQ rule failures",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue_dataquality* | WHERE aws.glue_dataquality.rules.failed > 0 | STATS `DQ failed runs` = COUNT_DISTINCT(labels.pipeline_run_id)"
+          },
+          "metrics": [{ "type": "primary", "operation": "value", "column": "DQ failed runs" }]
         }
       }
     },
@@ -79,7 +95,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.athena*, logs-aws.stepfunctions*, logs-aws.eventbridge* | WHERE labels.orchestration_mode IS NOT NULL | STATS c = COUNT_DISTINCT(labels.pipeline_run_id) BY mode = labels.orchestration_mode"
+            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.glue_dataquality*, logs-aws.stepfunctions*, logs-aws.eventbridge* | WHERE labels.orchestration_mode IS NOT NULL | STATS c = COUNT_DISTINCT(labels.pipeline_run_id) BY mode = labels.orchestration_mode"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "mode" }]
@@ -96,7 +112,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | EVAL status = CASE(event.outcome == \"failure\", \"Failed\", aws.mwaa.quality_check == \"DEGRADED\", \"Degraded\", aws.mwaa.quality_check == \"SCHEMA_DRIFT\", \"Schema Drift\", \"Success\") | STATS c = COUNT() BY status"
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | EVAL status = CASE(event.outcome == \"failure\", \"Failed\", aws.mwaa.quality_check == \"DEGRADED\", \"Degraded\", aws.mwaa.quality_check == \"SCHEMA_DRIFT\", \"Schema Drift\", aws.mwaa.quality_check == \"DQ_RULES_FAILED\", \"DQ Rules Failed\", \"Success\") | STATS c = COUNT() BY status"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "status" }]
@@ -137,7 +153,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.athena*, logs-aws.s3access*, logs-aws.eventbridge*, logs-aws.stepfunctions* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.glue_dataquality*, logs-aws.eks*, logs-aws.s3access*, logs-aws.eventbridge*, logs-aws.stepfunctions* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -180,7 +196,7 @@
       "uid": "dp-l3",
       "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
       "config": {
-        "title": "Athena data scanned (bytes)",
+        "title": "Data quality score by run (Glue DQ)",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -189,13 +205,16 @@
           },
           "layers": [
             {
-              "type": "bar_stacked",
+              "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.athena* | WHERE aws.athena.data_scanned_bytes IS NOT NULL | STATS total_scanned = SUM(aws.athena.data_scanned_bytes) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.glue_dataquality* | WHERE aws.glue_dataquality.score IS NOT NULL | STATS avg_score = ROUND(AVG(aws.glue_dataquality.score), 3), min_score = ROUND(MIN(aws.glue_dataquality.score), 3) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
-              "y": [{ "operation": "value", "column": "total_scanned", "label": "Bytes scanned" }]
+              "y": [
+                { "operation": "value", "column": "avg_score", "label": "Avg DQ score" },
+                { "operation": "value", "column": "min_score", "label": "Min DQ score" }
+              ]
             }
           ]
         }
@@ -206,7 +225,7 @@
       "uid": "dp-l4",
       "grid": { "x": 24, "y": 35, "w": 24, "h": 10 },
       "config": {
-        "title": "Null-data queries (Athena 0 rows)",
+        "title": "DQ rules failed by rule type",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -218,10 +237,11 @@
               "type": "bar_stacked",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.athena* | WHERE aws.athena.rows_returned == 0 | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-aws.glue_dataquality* | MV_EXPAND aws.glue_dataquality.failed_rule_types | WHERE aws.glue_dataquality.failed_rule_types IS NOT NULL | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend), rule_type = aws.glue_dataquality.failed_rule_types | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
-              "y": [{ "operation": "value", "column": "c", "label": "Zero-row queries" }]
+              "y": [{ "operation": "value", "column": "c", "label": "Failed rules" }],
+              "series": [{ "operation": "value", "column": "rule_type" }]
             }
           ]
         }
@@ -232,7 +252,7 @@
       "uid": "dp-l5",
       "grid": { "x": 0, "y": 45, "w": 48, "h": 10 },
       "config": {
-        "title": "Schema drift events over time",
+        "title": "Schema drift rules failed over time (Glue DQ)",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -244,11 +264,11 @@
               "type": "bar_stacked",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.glue* | WHERE aws.glue.schema_change_type IS NOT NULL | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend), change = aws.glue.schema_change_type | SORT b"
+                "query": "FROM logs-aws.glue_dataquality* | MV_EXPAND aws.glue_dataquality.failed_rule_types | WHERE aws.glue_dataquality.failed_rule_types IN (\"ColumnExists\", \"ColumnCount\", \"ColumnDataType\") | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend), rule_type = aws.glue_dataquality.failed_rule_types | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
-              "y": [{ "operation": "value", "column": "c", "label": "Drift events" }],
-              "series": [{ "operation": "value", "column": "change" }]
+              "y": [{ "operation": "value", "column": "c", "label": "Drift rule failures" }],
+              "series": [{ "operation": "value", "column": "rule_type" }]
             }
           ]
         }
@@ -264,7 +284,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS runs = COUNT(), failures = SUM(CASE(event.outcome == \"failure\", 1, 0)), degraded = SUM(CASE(aws.mwaa.quality_check == \"DEGRADED\", 1, 0)), drift = SUM(CASE(aws.mwaa.quality_check == \"SCHEMA_DRIFT\", 1, 0)), avg_ms = ROUND(AVG(aws.mwaa.duration_ms), 0) BY dag = aws.mwaa.dag_id | SORT runs DESC | LIMIT 20"
+            "query": "FROM logs-aws.mwaa* | WHERE aws.mwaa.task_id == \"dag_complete\" | STATS runs = COUNT(), failures = SUM(CASE(event.outcome == \"failure\", 1, 0)), degraded = SUM(CASE(aws.mwaa.quality_check == \"DEGRADED\", 1, 0)), drift = SUM(CASE(aws.mwaa.quality_check == \"SCHEMA_DRIFT\", 1, 0)), dq_failed = SUM(CASE(aws.mwaa.quality_check == \"DQ_RULES_FAILED\", 1, 0)), avg_dq_score = ROUND(AVG(aws.mwaa.dq_score), 3), avg_ms = ROUND(AVG(aws.mwaa.duration_ms), 0) BY dag = aws.mwaa.dag_id | SORT runs DESC | LIMIT 20"
           },
           "metrics": [
             { "operation": "value", "column": "dag", "label": "DAG" },
@@ -272,6 +292,8 @@
             { "operation": "value", "column": "failures", "label": "Failures" },
             { "operation": "value", "column": "degraded", "label": "Degraded" },
             { "operation": "value", "column": "drift", "label": "Schema Drift" },
+            { "operation": "value", "column": "dq_failed", "label": "DQ Rules Failed" },
+            { "operation": "value", "column": "avg_dq_score", "label": "Avg DQ score" },
             { "operation": "value", "column": "avg_ms", "label": "Avg duration (ms)" }
           ],
           "rows": []
@@ -283,19 +305,20 @@
       "uid": "dp-t2",
       "grid": { "x": 0, "y": 67, "w": 48, "h": 12 },
       "config": {
-        "title": "Tableau BI queries",
+        "title": "DQ results delivered to S3 (Kafka Connect S3 sink)",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.athena* | WHERE aws.athena.workgroup == \"tableau-connector\" | STATS queries = COUNT(), total_scanned = SUM(aws.athena.data_scanned_bytes), avg_rows = ROUND(AVG(aws.athena.rows_returned), 0), avg_ms = ROUND(AVG(aws.athena.execution_time_ms), 0) BY user = user.name | SORT queries DESC | LIMIT 20"
+            "query": "FROM logs-aws.s3access* | WHERE aws.s3access.key LIKE \"topics/glue.dq.results/*\" AND aws.s3access.operation == \"REST.PUT.OBJECT\" | STATS commit_count = COUNT(), runs_count = COUNT_DISTINCT(labels.pipeline_run_id), total_bytes = SUM(aws.s3access.bytes_sent), avg_ms = ROUND(AVG(aws.s3access.total_time), 0), errors_count = SUM(CASE(aws.s3access.http_status >= 400, 1, 0)) BY bucket = aws.s3access.bucket | SORT commit_count DESC | LIMIT 20"
           },
           "metrics": [
-            { "operation": "value", "column": "user", "label": "Tableau User" },
-            { "operation": "value", "column": "queries", "label": "Queries" },
-            { "operation": "value", "column": "total_scanned", "label": "Total Scanned (bytes)" },
-            { "operation": "value", "column": "avg_rows", "label": "Avg Rows" },
-            { "operation": "value", "column": "avg_ms", "label": "Avg Duration (ms)" }
+            { "operation": "value", "column": "bucket", "label": "DQ results bucket" },
+            { "operation": "value", "column": "commit_count", "label": "Sink commits (PutObject)" },
+            { "operation": "value", "column": "runs_count", "label": "Pipeline runs" },
+            { "operation": "value", "column": "total_bytes", "label": "Bytes written" },
+            { "operation": "value", "column": "avg_ms", "label": "Avg PUT time (ms)" },
+            { "operation": "value", "column": "errors_count", "label": "HTTP errors" }
           ],
           "rows": []
         }
@@ -311,7 +334,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.athena*, logs-aws.eventbridge*, logs-aws.stepfunctions* | STATS Events = COUNT() BY Region = cloud.region | SORT Events DESC | LIMIT 15"
+            "query": "FROM logs-aws.mwaa*, logs-aws.emr*, logs-aws.glue*, logs-aws.glue_dataquality*, logs-aws.eventbridge*, logs-aws.stepfunctions* | STATS Events = COUNT() BY Region = cloud.region | SORT Events DESC | LIMIT 15"
           },
           "metrics": [
             { "operation": "value", "column": "Region", "label": "Region" },
@@ -387,7 +410,7 @@
       "uid": "dp-m3",
       "grid": { "x": 32, "y": 91, "w": 16, "h": 10 },
       "config": {
-        "title": "Athena data scanned — CloudWatch (metrics)",
+        "title": "Confluent Kafka on EKS — pod utilization — CloudWatch (metrics)",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -396,13 +419,16 @@
           },
           "layers": [
             {
-              "type": "bar_stacked",
+              "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.athena* | STATS scanned = SUM(`aws.athena.metrics.DataScannedInBytes.avg`) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM metrics-aws.kubernetes* | STATS pod_cpu = ROUND(AVG(`aws.kubernetes.metrics.pod_cpu_utilization.avg`), 1), pod_mem = ROUND(AVG(`aws.kubernetes.metrics.pod_memory_utilization.avg`), 1) BY b = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
-              "y": [{ "operation": "value", "column": "scanned", "label": "Bytes scanned (CW)" }]
+              "y": [
+                { "operation": "value", "column": "pod_cpu", "label": "Pod CPU %" },
+                { "operation": "value", "column": "pod_mem", "label": "Pod memory %" }
+              ]
             }
           ]
         }

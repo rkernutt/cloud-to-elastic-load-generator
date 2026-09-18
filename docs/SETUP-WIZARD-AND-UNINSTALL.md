@@ -118,7 +118,7 @@ Each install run starts by emitting a one-line plan summary so the activity log 
 
 ```
 ── Install run started 05/05/2026, 14:59:14 ──
-Plan: install AWS integration, APM integration, 223 dashboards, 33 ML jobs, 13 alerting rules.
+Plan: install AWS integration, APM integration, 224 dashboards, 401 ML jobs, 117 alerting rules.
 Skipping (toggles off): alert-enrichment Workflow.
 Installing AWS Integration…
 …
@@ -271,12 +271,12 @@ When an alert fires, the **Alert Details** page surfaces a **Related dashboards*
 
 The full per-rule link table:
 
-| Rule group                                   | Per-rule links                                                                                                                                                                                             |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data-pipeline` (AWS / GCP / Azure)          | Chain overview **+** the per-service dashboard for the dataset the rule queries (Airflow / Composer / Data Factory · Athena / BigQuery / Synapse · EMR / Dataproc / Databricks · S3 / GCS / Blob)          |
-| `data-exfil-chain` (AWS / GCP / Azure)       | Threat-detector dashboard (GuardDuty / SCC / Defender), VPC flow / NSG, object-storage audit (CloudTrail+S3 / GCS+Audit / Blob); the **full-chain correlation** rule links only the chain overview         |
-| `iam-privesc-chain` (AWS / GCP / Azure)      | The audit-log dashboard for that cloud (CloudTrail / Cloud Audit Logs / Activity Log + Entra ID); the Azure full-chain rule links **both** Entra ID and Activity Log because the rule joins the two        |
-| `security-finding-chain` (AWS / GCP / Azure) | High-severity findings → threat-detector dashboard; SecOps / Sentinel / Security Hub findings → the corresponding aggregator dashboard; the multi-stage **chain-burst** rule links only the chain overview |
+| Rule group                                   | Per-rule links                                                                                                                                                                                               |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `data-pipeline` (AWS / GCP / Azure)          | Chain overview **+** the per-service dashboard for the dataset the rule queries (Airflow / Composer / Data Factory · Glue Data Quality / BigQuery / Synapse · EMR / Dataproc / Databricks · S3 / GCS / Blob) |
+| `data-exfil-chain` (AWS / GCP / Azure)       | Threat-detector dashboard (GuardDuty / SCC / Defender), VPC flow / NSG, object-storage audit (CloudTrail+S3 / GCS+Audit / Blob); the **full-chain correlation** rule links only the chain overview           |
+| `iam-privesc-chain` (AWS / GCP / Azure)      | The audit-log dashboard for that cloud (CloudTrail / Cloud Audit Logs / Activity Log + Entra ID); the Azure full-chain rule links **both** Entra ID and Activity Log because the rule joins the two          |
+| `security-finding-chain` (AWS / GCP / Azure) | High-severity findings → threat-detector dashboard; SecOps / Sentinel / Security Hub findings → the corresponding aggregator dashboard; the multi-stage **chain-burst** rule links only the chain overview   |
 
 Notes:
 

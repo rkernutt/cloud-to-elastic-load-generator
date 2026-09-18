@@ -2,6 +2,23 @@
 
 The bundled [`data-pipeline-alert-enrichment.yaml`](../workflows/data-pipeline-alert-enrichment.yaml) is a Kibana **Workflow** that runs when any data-pipeline alerting rule fires. It enriches the alert with ServiceNow CMDB context (CI owner, support group, open incidents, recent changes), opens a Kibana case when multiple incidents are found, emails the on-call group with a link to the matching [`docs/runbooks/`](./runbooks/) entry for that rule, and indexes the enriched record back to Elasticsearch.
 
+### Run lineage context
+
+Before the CMDB lookups, the workflow resolves the affected pipeline run and adds OpenLineage lineage to every notification and to the indexed `logs-pipeline-alert-enriched-default` record (`lineage.*` fields):
+
+| Step                                 | What it produces                                                                                                                                                                                                                       |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `extract_alert_fields` (`ai.prompt`) | `run_id`, `dag`, `job`, `mode`, `rule_name`, `severity` from the alert. The two **Lineage** rules (job failed / job slower than baseline) expose these as ES\|QL row columns; the seven other rules do not, so fields come back empty. |
+| `resolve_run_id`                     | The alert's `run_id`, or — when empty — the most recent run with a `FAIL` event in `logs-aws.openlineage*` over the last 6h.                                                                                                           |
+| `lineage_table`                      | One line per job in execution order: time, status (`FAILED` / `ok` / `running`), integration, job, duration, rows written, inputs, outputs, error.                                                                                     |
+| `downstream_impact`                  | Jobs that `START`ed but never `COMPLETE`d — outputs that were never produced.                                                                                                                                                          |
+| `stage_baseline`                     | Each job's duration vs its 7-day p50 (`INLINE STATS`, GA since 9.3, preview in 9.2).                                                                                                                                                   |
+| `dq_result`                          | The run's Glue Data Quality result from `logs-aws.glue_dataquality*` (the Kafka-sourced stream): job, score, state, passed/failed/total rules, failed DQDL rules, Kafka topic / partition / offset.                                    |
+| `raw_evidence`                       | Native ids for the run across `s3access`, `emr_logs`, `glue`, `glue_dataquality`, `eks` (Kafka Connect sink), `mwaa`, `stepfunctions`, `cloudtrail` (capped at 200 rows).                                                              |
+| `apm_trace`                          | `trace.id` for the run, rendered as `{{ inputs.kibanaUrl }}/app/apm/link-to/trace/<id>` — set the `kibanaUrl` input.                                                                                                                   |
+
+All lineage steps are `on-failure: continue`, so a missing index or an empty run leaves blank sections rather than aborting the notification. Multi-line tables are built inside ES|QL (`MV_CONCAT(MV_SORT(VALUES(line)), "\n")`) and returned as a single cell because workflow templates have no loop construct.
+
 This page documents how to install and run it on each Elastic deployment type.
 
 > **Important — the workflow installs DISABLED and is not attached to any alerting rule.**
@@ -69,13 +86,14 @@ curl -sS -X POST "$KIBANA_URL/api/kibana/settings" \
 
 ## Inputs
 
-The workflow exposes three inputs you can override at install time. Defaults are picked so the workflow runs unchanged on Elastic Cloud Hosted and Serverless.
+The workflow exposes four inputs you can override at install time. Defaults are picked so the workflow runs unchanged on Elastic Cloud Hosted and Serverless.
 
-| Input            | Default                            | Used by                                              |
-| ---------------- | ---------------------------------- | ---------------------------------------------------- |
-| `emailConnector` | `elastic-cloud-email`              | The active `notify_email` step                       |
-| `notifyTo`       | `data-platform-oncall@example.com` | Recipient of `notify_email`                          |
-| `slackConnector` | `data-pipeline-alerts`             | Optional — only used if you uncomment `notify_slack` |
+| Input            | Default                            | Used by                                                                                                    |
+| ---------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `emailConnector` | `elastic-cloud-email`              | The active `notify_email` step                                                                             |
+| `notifyTo`       | `data-platform-oncall@example.com` | Recipient of `notify_email`                                                                                |
+| `slackConnector` | `data-pipeline-alerts`             | Optional — only used if you uncomment `notify_slack`                                                       |
+| `kibanaUrl`      | `https://your-kibana.example.com`  | Base URL (no trailing slash) for the `apm_trace` link in the notification body — set it to your Kibana URL |
 
 ## Three install paths
 

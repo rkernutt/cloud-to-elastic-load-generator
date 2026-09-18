@@ -42596,6 +42596,619 @@ export const PIPELINE_REGISTRY = [
     ],
   },
   {
+    id: "logs-aws.glue_dataquality-default",
+    dataset: "aws.glue_dataquality",
+    group: "analytics",
+    description:
+      "Parse Glue Data Quality result JSON (GetDataQualityResult shape) read from the Confluent Kafka topic — score, rule outcomes, failed rules",
+    processors: [
+      {
+        set: {
+          field: "ecs.version",
+          tag: "set_ecs_version",
+          value: "9.3.0",
+        },
+      },
+      {
+        rename: {
+          field: "message",
+          target_field: "event.original",
+          ignore_missing: true,
+          tag: "rename_message_to_event_original",
+          description:
+            "Renames the original message field to event.original to store a copy of the original message.",
+          if: "ctx.event?.original == null",
+        },
+      },
+      {
+        remove: {
+          field: "message",
+          ignore_missing: true,
+          tag: "remove_message",
+          description:
+            "The message field is no longer required if the document has an event.original field.",
+          if: "ctx.event?.original != null",
+        },
+      },
+      {
+        json: {
+          field: "event.original",
+          target_field: "glue_dataquality.parsed",
+          ignore_failure: true,
+          tag: "parse_json",
+        },
+      },
+      {
+        grok: {
+          field: "event.original",
+          tag: "grok_log4j_fallback",
+          patterns: [
+            "%{TIMESTAMP_ISO8601:_log4j_ts}[,.]?%{INT}? %{LOGLEVEL:log.level} \\[%{DATA:_log4j_thread}\\] %{JAVACLASS:_log4j_class}: %{GREEDYDATA:_log4j_message}",
+            "%{TIMESTAMP_ISO8601:_log4j_ts} %{LOGLEVEL:log.level} %{GREEDYDATA:_log4j_message}",
+          ],
+          ignore_failure: true,
+          ignore_missing: true,
+          if: "ctx['glue_dataquality']?.parsed == null",
+        },
+      },
+      {
+        set: {
+          field: "source.ip",
+          value: "{{{aws.cloudtrail.sourceIPAddress}}}",
+          override: false,
+          if: "ctx.aws?.cloudtrail?.sourceIPAddress != null && ctx.source?.ip == null",
+          ignore_failure: true,
+          tag: "set_source_ip_from_cloudtrail",
+        },
+      },
+      {
+        set: {
+          field: "user.name",
+          value: "{{{aws.cloudtrail.userIdentity.userName}}}",
+          override: false,
+          if: "ctx.aws?.cloudtrail?.userIdentity?.userName != null && ctx.user?.name == null",
+          ignore_failure: true,
+          tag: "set_user_name_from_cloudtrail",
+        },
+      },
+      {
+        set: {
+          field: "event.action",
+          value: "{{{aws.cloudtrail.eventName}}}",
+          override: false,
+          if: "ctx.aws?.cloudtrail?.eventName != null && ctx.event?.action == null",
+          ignore_failure: true,
+          tag: "set_event_action_from_cloudtrail",
+        },
+      },
+      {
+        set: {
+          field: "user_agent.original",
+          value: "{{{aws.cloudtrail.userAgent}}}",
+          override: false,
+          if: "ctx.aws?.cloudtrail?.userAgent != null && ctx.user_agent?.original == null",
+          ignore_failure: true,
+          tag: "set_user_agent_from_cloudtrail",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.ResultId",
+          target_field: "glue_dataquality.result_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_ResultId",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.Score",
+          target_field: "glue_dataquality.score",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_Score",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.RulesetName",
+          target_field: "glue_dataquality.ruleset_name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_RulesetName",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.EvaluationContext",
+          target_field: "glue_dataquality.evaluation_context",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_EvaluationContext",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.StartedOn",
+          target_field: "glue_dataquality.started_on",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_StartedOn",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.CompletedOn",
+          target_field: "glue_dataquality.completed_on",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_CompletedOn",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.JobName",
+          target_field: "glue_dataquality.job.name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_JobName",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.JobRunId",
+          target_field: "glue_dataquality.job.run_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_JobRunId",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.RulesetEvaluationRunId",
+          target_field: "glue_dataquality.ruleset_evaluation_run_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_RulesetEvaluationRunId",
+        },
+      },
+      {
+        date: {
+          field: "glue_dataquality.completed_on",
+          target_field: "@timestamp",
+          formats: ["ISO8601"],
+          ignore_failure: true,
+          tag: "date_glue_dataquality_completed_on",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "script_glue_dataquality_rules",
+          description:
+            "Flatten RuleResults to snake_case, derive counts/state/score, failed_rules and failed_rule_types",
+          source:
+            "def dq = ctx.glue_dataquality; if (dq == null) return; def p = dq.parsed; if (p == null) return; def rr = new ArrayList(); def failed = new ArrayList(); def failedTypes = new ArrayList(); int pass = 0; int fail = 0; int skip = 0; if (p.RuleResults instanceof List) { for (def r : p.RuleResults) {   def m = new HashMap(); if (r.Name != null) m.put('name', r.Name); if (r.Description != null) m.put('description', r.Description);   String rule = r.EvaluatedRule != null ? r.EvaluatedRule.toString() : (r.Description != null ? r.Description.toString() : null);   if (rule != null) { m.put('evaluated_rule', rule); String[] parts = /\\s+/.split(rule.trim()); if (parts.length > 0) m.put('rule_type', parts[0]); }   String res = r.Result != null ? r.Result.toString() : 'UNKNOWN'; m.put('result', res);   if (r.EvaluationMessage != null) m.put('evaluation_message', r.EvaluationMessage); if (r.EvaluatedMetrics != null) m.put('evaluated_metrics', r.EvaluatedMetrics); if (r.Labels != null) m.put('labels', r.Labels);   if (res == 'PASS') pass++; else if (res == 'FAIL') { fail++; if (rule != null) { failed.add(rule); if (m.rule_type != null && !failedTypes.contains(m.rule_type)) failedTypes.add(m.rule_type); } } else skip++;   rr.add(m); } } dq.put('rule_results', rr); dq.put('failed_rules', failed); dq.put('failed_rule_types', failedTypes); def counts = new HashMap(); counts.put('passed', pass); counts.put('failed', fail); counts.put('skipped', skip); counts.put('total', rr.size()); dq.put('rules', counts); dq.put('state', fail == 0 ? 'SUCCEEDED' : 'FAILED'); if (dq.started_on != null && dq.completed_on != null) { try { long a = ZonedDateTime.parse(dq.started_on.toString()).toInstant().toEpochMilli(); long b = ZonedDateTime.parse(dq.completed_on.toString()).toInstant().toEpochMilli(); if (b >= a) { dq.put('duration_ms', b - a); if (ctx.event == null) ctx.event = new HashMap(); ctx.event.duration = (b - a) * 1000000L; } } catch (Exception e) {} } if (ctx.event == null) ctx.event = new HashMap(); ctx.event.kind = 'event'; ctx.event.category = ['database']; ctx.event.action = 'data-quality-evaluation'; if (fail == 0) { ctx.event.outcome = 'success'; ctx.event.type = ['info']; } else { ctx.event.outcome = 'failure'; ctx.event.type = ['error']; if (ctx.error == null) { ctx.error = new HashMap(); ctx.error.type = 'DataQualityRuleFailure'; ctx.error.message = fail + ' of ' + rr.size() + ' rules failed (score ' + dq.score + '): ' + String.join('; ', failed); } }",
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.jobId",
+          target_field: "glue_dataquality.job_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_jobId",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.job_id",
+          target_field: "glue_dataquality.job_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_job_id",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.jobName",
+          target_field: "glue_dataquality.job_name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_jobName",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.job_name",
+          target_field: "glue_dataquality.job_name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_job_name",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.state",
+          target_field: "glue_dataquality.state",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_state",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.status",
+          target_field: "glue_dataquality.status",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_status",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.query",
+          target_field: "glue_dataquality.query",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_query",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.records_processed",
+          target_field: "glue_dataquality.records_processed",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_records_processed",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.bytes_scanned",
+          target_field: "glue_dataquality.bytes_scanned",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_bytes_scanned",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.errorCode",
+          target_field: "error.code",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_errorCode",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.error_code",
+          target_field: "error.code",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_error_code",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.errorMessage",
+          target_field: "error.message",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_errorMessage",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.error_message",
+          target_field: "error.message",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_error_message",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.errorType",
+          target_field: "error.type",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_errorType",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.error_type",
+          target_field: "error.type",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_error_type",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.level",
+          target_field: "log.level",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_level",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.logLevel",
+          target_field: "log.level",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_logLevel",
+        },
+      },
+      {
+        rename: {
+          field: "glue_dataquality.parsed.severity",
+          target_field: "log.level",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_glue_dataquality_parsed_severity",
+        },
+      },
+      {
+        lowercase: {
+          field: "log.level",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "lowercase_log_level",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          description:
+            "Promote extracted glue_dataquality.* fields to aws.glue_dataquality.* for dashboard compatibility",
+          tag: "promote_to_vendor_ns",
+          source:
+            "def nsObj = ctx['glue_dataquality']; if (nsObj == null || nsObj.isEmpty()) return; if (ctx.aws == null) ctx.aws = new HashMap(); def svc = ctx.aws.containsKey('glue_dataquality') ? ctx.aws.get('glue_dataquality') : new HashMap(); for (def entry : nsObj.entrySet()) {   if (entry.getKey().equals('parsed')) continue;   if (!svc.containsKey(entry.getKey())) {     svc.put(entry.getKey(), entry.getValue());   } } ctx.aws.put('glue_dataquality', svc);",
+          ignore_failure: true,
+        },
+      },
+      {
+        set: {
+          field: "event.kind",
+          value: "event",
+          override: false,
+          ignore_failure: true,
+          tag: "set_event_kind",
+        },
+      },
+      {
+        set: {
+          field: "event.category",
+          value: ["database"],
+          override: false,
+          ignore_failure: true,
+          tag: "set_event_category",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["info"],
+          override: false,
+          ignore_failure: true,
+          tag: "set_event_type",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx.event?.outcome == 'failure'",
+          ignore_failure: true,
+          tag: "set_event_type_error",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          description: "Normalise duration fields to event.duration (nanoseconds)",
+          tag: "script_duration_norm",
+          source:
+            "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def nsObj = ctx['glue_dataquality'];\n          if (nsObj != null && nsObj.parsed != null) {\n            def p = nsObj.parsed;\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && (ctx.event == null || ctx.event.duration == null)) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
+          ignore_failure: true,
+        },
+      },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "geoip_source_ip",
+        },
+      },
+      {
+        geoip: {
+          field: "client.ip",
+          target_field: "client.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "geoip_client_ip",
+        },
+      },
+      {
+        geoip: {
+          field: "destination.ip",
+          target_field: "destination.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "geoip_destination_ip",
+        },
+      },
+      {
+        user_agent: {
+          field: "user_agent.original",
+          target_field: "user_agent",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "user_agent_parse",
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{{source.ip}}}",
+          allow_duplicates: false,
+          if: "ctx.source?.ip != null",
+          ignore_failure: true,
+          tag: "append_related_ip_source",
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{{destination.ip}}}",
+          allow_duplicates: false,
+          if: "ctx.destination?.ip != null",
+          ignore_failure: true,
+          tag: "append_related_ip_destination",
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{{client.ip}}}",
+          allow_duplicates: false,
+          if: "ctx.client?.ip != null",
+          ignore_failure: true,
+          tag: "append_related_ip_client",
+        },
+      },
+      {
+        append: {
+          field: "related.user",
+          value: ["{{{user.name}}}"],
+          allow_duplicates: false,
+          if: "ctx.user?.name != null",
+          ignore_failure: true,
+          tag: "append_related_user_name",
+        },
+      },
+      {
+        append: {
+          field: "related.user",
+          value: ["{{{user.email}}}"],
+          allow_duplicates: false,
+          if: "ctx.user?.email != null",
+          ignore_failure: true,
+          tag: "append_related_user_email",
+        },
+      },
+      {
+        append: {
+          field: "related.user",
+          value: ["{{{user.id}}}"],
+          allow_duplicates: false,
+          if: "ctx.user?.id != null",
+          ignore_failure: true,
+          tag: "append_related_user_id",
+        },
+      },
+      {
+        append: {
+          field: "related.hosts",
+          value: ["{{{host.name}}}"],
+          allow_duplicates: false,
+          if: "ctx.host?.name != null",
+          ignore_failure: true,
+          tag: "append_related_hosts_name",
+        },
+      },
+      {
+        append: {
+          field: "related.hosts",
+          value: ["{{{host.hostname}}}"],
+          allow_duplicates: false,
+          if: "ctx.host?.hostname != null",
+          ignore_failure: true,
+          tag: "append_related_hosts_hostname",
+        },
+      },
+      {
+        remove: {
+          field: "glue_dataquality.parsed",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "remove_glue_dataquality_parsed",
+        },
+      },
+      {
+        remove: {
+          field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "remove_log4j_temp_fields",
+        },
+      },
+      {
+        remove: {
+          field: "aws.cloudtrail.sourceIPAddress",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "drop_aws_cloudtrail_sourceIp",
+          if: "ctx.source?.ip != null",
+          description: "Remove after mapping to source.ip",
+        },
+      },
+      {
+        remove: {
+          field: "aws.cloudtrail.userAgent",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "drop_aws_cloudtrail_userAgent",
+          if: "ctx.user_agent?.original != null",
+          description: "Remove after mapping to user_agent.original",
+        },
+      },
+      {
+        append: {
+          field: "tags",
+          tag: "append_preserve_original_on_error",
+          value: "preserve_original_event",
+          allow_duplicates: false,
+          if: "ctx.error?.message != null",
+        },
+      },
+    ],
+    on_failure: [
+      {
+        append: {
+          field: "error.message",
+          tag: "append_pipeline_error",
+          value:
+            "Processor '{{{ _ingest.on_failure_processor_type }}}'{{{#_ingest.on_failure_processor_tag}}} with tag '{{{ _ingest.on_failure_processor_tag }}}'{{{/_ingest.on_failure_processor_tag}}} failed with message '{{{ _ingest.on_failure_message }}}'",
+        },
+      },
+      {
+        set: {
+          field: "event.kind",
+          tag: "set_pipeline_error",
+          value: "pipeline_error",
+        },
+      },
+      {
+        append: {
+          field: "tags",
+          tag: "append_preserve_original",
+          value: "preserve_original_event",
+          allow_duplicates: false,
+        },
+      },
+    ],
+  },
+  {
     id: "logs-aws.greengrass-default",
     dataset: "aws.greengrass",
     group: "iot",
@@ -66059,6 +66672,855 @@ export const PIPELINE_REGISTRY = [
           ignore_missing: true,
           ignore_failure: true,
           tag: "remove_nova_parsed",
+        },
+      },
+      {
+        remove: {
+          field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "remove_log4j_temp_fields",
+        },
+      },
+      {
+        remove: {
+          field: "aws.cloudtrail.sourceIPAddress",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "drop_aws_cloudtrail_sourceIp",
+          if: "ctx.source?.ip != null",
+          description: "Remove after mapping to source.ip",
+        },
+      },
+      {
+        remove: {
+          field: "aws.cloudtrail.userAgent",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "drop_aws_cloudtrail_userAgent",
+          if: "ctx.user_agent?.original != null",
+          description: "Remove after mapping to user_agent.original",
+        },
+      },
+      {
+        append: {
+          field: "tags",
+          tag: "append_preserve_original_on_error",
+          value: "preserve_original_event",
+          allow_duplicates: false,
+          if: "ctx.error?.message != null",
+        },
+      },
+    ],
+    on_failure: [
+      {
+        append: {
+          field: "error.message",
+          tag: "append_pipeline_error",
+          value:
+            "Processor '{{{ _ingest.on_failure_processor_type }}}'{{{#_ingest.on_failure_processor_tag}}} with tag '{{{ _ingest.on_failure_processor_tag }}}'{{{/_ingest.on_failure_processor_tag}}} failed with message '{{{ _ingest.on_failure_message }}}'",
+        },
+      },
+      {
+        set: {
+          field: "event.kind",
+          tag: "set_pipeline_error",
+          value: "pipeline_error",
+        },
+      },
+      {
+        append: {
+          field: "tags",
+          tag: "append_preserve_original",
+          value: "preserve_original_event",
+          allow_duplicates: false,
+        },
+      },
+    ],
+  },
+  {
+    id: "logs-aws.openlineage-default",
+    dataset: "aws.openlineage",
+    group: "analytics",
+    description:
+      "Parse OpenLineage RunEvent JSON (Airflow/MWAA provider, Spark listener) — job runs, parent run, input/output datasets",
+    processors: [
+      {
+        set: {
+          field: "ecs.version",
+          tag: "set_ecs_version",
+          value: "9.3.0",
+        },
+      },
+      {
+        rename: {
+          field: "message",
+          target_field: "event.original",
+          ignore_missing: true,
+          tag: "rename_message_to_event_original",
+          description:
+            "Renames the original message field to event.original to store a copy of the original message.",
+          if: "ctx.event?.original == null",
+        },
+      },
+      {
+        remove: {
+          field: "message",
+          ignore_missing: true,
+          tag: "remove_message",
+          description:
+            "The message field is no longer required if the document has an event.original field.",
+          if: "ctx.event?.original != null",
+        },
+      },
+      {
+        json: {
+          field: "event.original",
+          target_field: "openlineage.parsed",
+          ignore_failure: true,
+          tag: "parse_json",
+        },
+      },
+      {
+        grok: {
+          field: "event.original",
+          tag: "grok_log4j_fallback",
+          patterns: [
+            "%{TIMESTAMP_ISO8601:_log4j_ts}[,.]?%{INT}? %{LOGLEVEL:log.level} \\[%{DATA:_log4j_thread}\\] %{JAVACLASS:_log4j_class}: %{GREEDYDATA:_log4j_message}",
+            "%{TIMESTAMP_ISO8601:_log4j_ts} %{LOGLEVEL:log.level} %{GREEDYDATA:_log4j_message}",
+          ],
+          ignore_failure: true,
+          ignore_missing: true,
+          if: "ctx['openlineage']?.parsed == null",
+        },
+      },
+      {
+        set: {
+          field: "source.ip",
+          value: "{{{aws.cloudtrail.sourceIPAddress}}}",
+          override: false,
+          if: "ctx.aws?.cloudtrail?.sourceIPAddress != null && ctx.source?.ip == null",
+          ignore_failure: true,
+          tag: "set_source_ip_from_cloudtrail",
+        },
+      },
+      {
+        set: {
+          field: "user.name",
+          value: "{{{aws.cloudtrail.userIdentity.userName}}}",
+          override: false,
+          if: "ctx.aws?.cloudtrail?.userIdentity?.userName != null && ctx.user?.name == null",
+          ignore_failure: true,
+          tag: "set_user_name_from_cloudtrail",
+        },
+      },
+      {
+        set: {
+          field: "event.action",
+          value: "{{{aws.cloudtrail.eventName}}}",
+          override: false,
+          if: "ctx.aws?.cloudtrail?.eventName != null && ctx.event?.action == null",
+          ignore_failure: true,
+          tag: "set_event_action_from_cloudtrail",
+        },
+      },
+      {
+        set: {
+          field: "user_agent.original",
+          value: "{{{aws.cloudtrail.userAgent}}}",
+          override: false,
+          if: "ctx.aws?.cloudtrail?.userAgent != null && ctx.user_agent?.original == null",
+          ignore_failure: true,
+          tag: "set_user_agent_from_cloudtrail",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.eventType",
+          target_field: "openlineage.event_type",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_eventType",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.eventTime",
+          target_field: "openlineage.event_time",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_eventTime",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.producer",
+          target_field: "openlineage.producer",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_producer",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.schemaURL",
+          target_field: "openlineage.schema_url",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_schemaURL",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.runId",
+          target_field: "openlineage.run.id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_runId",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.parent.run.runId",
+          target_field: "openlineage.run.parent.id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_parent_run_runId",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.parent.job.name",
+          target_field: "openlineage.run.parent.job_name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_parent_job_name",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.parent.job.namespace",
+          target_field: "openlineage.run.parent.job_namespace",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_parent_job_namespace",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.parent.root.run.runId",
+          target_field: "openlineage.run.root.id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_parent_root_run_runId",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.parent.root.job.name",
+          target_field: "openlineage.run.root.job_name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_parent_root_job_name",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.nominalTime.nominalStartTime",
+          target_field: "openlineage.run.nominal_start_time",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_nominalTime_nominalStartTime",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.nominalTime.nominalEndTime",
+          target_field: "openlineage.run.nominal_end_time",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_nominalTime_nominalEndTime",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job.namespace",
+          target_field: "openlineage.job.namespace",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_namespace",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job.name",
+          target_field: "openlineage.job.name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_name",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job.facets.jobType.jobType",
+          target_field: "openlineage.job.type",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_facets_jobType_jobType",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job.facets.jobType.integration",
+          target_field: "openlineage.job.integration",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_facets_jobType_integration",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job.facets.jobType.processingType",
+          target_field: "openlineage.job.processing_type",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_facets_jobType_processingType",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job.facets.sql.query",
+          target_field: "openlineage.sql.query",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_facets_sql_query",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job.facets.sql.dialect",
+          target_field: "openlineage.sql.dialect",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_facets_sql_dialect",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.processing_engine.name",
+          target_field: "openlineage.processing_engine.name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_processing_engine_name",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.processing_engine.version",
+          target_field: "openlineage.processing_engine.version",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_processing_engine_version",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.airflow.dag.dag_id",
+          target_field: "openlineage.airflow.dag_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_airflow_dag_dag_id",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.airflow.dagRun.run_id",
+          target_field: "openlineage.airflow.run_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_airflow_dagRun_run_id",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.airflow.task.task_id",
+          target_field: "openlineage.airflow.task_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_airflow_task_task_id",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.airflow.task.operator_class",
+          target_field: "openlineage.airflow.operator_class",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_airflow_task_operator_class",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.airflow.taskInstance.try_number",
+          target_field: "openlineage.airflow.try_number",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_airflow_taskInstance_try_number",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.airflowState.dagRunState",
+          target_field: "openlineage.airflow.dag_run_state",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_airflowState_dagRunState",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.spark_applicationDetails.applicationId",
+          target_field: "openlineage.spark.application_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_spark_applicationDetails_applicationId",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.spark_applicationDetails.appName",
+          target_field: "openlineage.spark.app_name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_spark_applicationDetails_appName",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.spark_applicationDetails.master",
+          target_field: "openlineage.spark.master",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_spark_applicationDetails_master",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.spark_applicationDetails.deployMode",
+          target_field: "openlineage.spark.deploy_mode",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_spark_applicationDetails_deployMode",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.errorMessage.message",
+          target_field: "error.message",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_errorMessage_message",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.errorMessage.stackTrace",
+          target_field: "error.stack_trace",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_errorMessage_stackTrace",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.run.facets.errorMessage.programmingLanguage",
+          target_field: "openlineage.error.programming_language",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_run_facets_errorMessage_programmingLanguage",
+        },
+      },
+      {
+        date: {
+          field: "openlineage.event_time",
+          target_field: "@timestamp",
+          formats: ["ISO8601"],
+          ignore_failure: true,
+          tag: "date_openlineage_event_time",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "script_openlineage_datasets",
+          description:
+            "Flatten OpenLineage inputs/outputs to dataset URIs; lift outputStatistics and output schema",
+          source:
+            "def ol = ctx.openlineage; if (ol == null) return; def p = ol.parsed; if (p == null) return; def ins = new ArrayList(); def outs = new ArrayList(); if (p.inputs instanceof List) { for (def d : p.inputs) { if (d.namespace != null && d.name != null) { String n = d.name.toString(); ins.add(n.startsWith('/') ? d.namespace + n : d.namespace + '/' + n); } } } if (p.outputs instanceof List) { for (def d : p.outputs) {   if (d.namespace != null && d.name != null) { String n = d.name.toString(); outs.add(n.startsWith('/') ? d.namespace + n : d.namespace + '/' + n); }   if (d.outputFacets != null && d.outputFacets.outputStatistics != null) { def s = d.outputFacets.outputStatistics; def st = new HashMap(); if (s.rowCount != null) st.put('row_count', s.rowCount); if (s.size != null) st.put('size', s.size); if (s.fileCount != null) st.put('file_count', s.fileCount); ol.put('output_statistics', st); }   if (d.facets != null && d.facets.schema != null && d.facets.schema.fields instanceof List) { def f = new ArrayList(); for (def fld : d.facets.schema.fields) { f.add(fld.name + ':' + fld.type); } ol.put('output_schema_fields', f); } } } ol.put('inputs', ins); ol.put('outputs', outs); ol.put('input_count', ins.size()); ol.put('output_count', outs.size());",
+          ignore_failure: true,
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "script_openlineage_ecs",
+          description:
+            "Derive ECS event.action/type/outcome and labels.pipeline_run_id (parent run) from the RunEvent",
+          source:
+            "def ol = ctx.openlineage; if (ol == null || ol.event_type == null) return; String et = ol.event_type.toString(); if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = et; ctx.event.kind = 'event'; ctx.event.category = ['process']; if (et == 'START' || et == 'RUNNING') { ctx.event.type = ['start']; ctx.event.outcome = 'unknown'; } else if (et == 'COMPLETE') { ctx.event.type = ['end']; ctx.event.outcome = 'success'; } else { ctx.event.type = ['end', 'error']; ctx.event.outcome = 'failure'; } String prid = null; if (ol.run != null) { if (ol.run.root != null && ol.run.root.id != null) prid = ol.run.root.id.toString(); else if (ol.run.parent != null && ol.run.parent.id != null) prid = ol.run.parent.id.toString(); else if (ol.run.id != null) prid = ol.run.id.toString(); } if (prid != null) { if (ctx.labels == null) ctx.labels = new HashMap(); if (ctx.labels.pipeline_run_id == null) ctx.labels.pipeline_run_id = prid; } if (ctx.error != null && ctx.error.message != null && ctx.error.type == null) { String m = ctx.error.message.toString(); int i = m.indexOf(':'); ctx.error.type = i > 0 ? m.substring(0, i).trim() : 'RuntimeError'; }",
+          ignore_failure: true,
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.jobId",
+          target_field: "openlineage.job_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_jobId",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job_id",
+          target_field: "openlineage.job_id",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_id",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.jobName",
+          target_field: "openlineage.job_name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_jobName",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.job_name",
+          target_field: "openlineage.job_name",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_job_name",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.state",
+          target_field: "openlineage.state",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_state",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.status",
+          target_field: "openlineage.status",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_status",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.query",
+          target_field: "openlineage.query",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_query",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.records_processed",
+          target_field: "openlineage.records_processed",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_records_processed",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.bytes_scanned",
+          target_field: "openlineage.bytes_scanned",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_bytes_scanned",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.errorCode",
+          target_field: "error.code",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_errorCode",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.error_code",
+          target_field: "error.code",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_error_code",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.errorMessage",
+          target_field: "error.message",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_errorMessage",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.error_message",
+          target_field: "error.message",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_error_message",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.errorType",
+          target_field: "error.type",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_errorType",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.error_type",
+          target_field: "error.type",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_error_type",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.level",
+          target_field: "log.level",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_level",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.logLevel",
+          target_field: "log.level",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_logLevel",
+        },
+      },
+      {
+        rename: {
+          field: "openlineage.parsed.severity",
+          target_field: "log.level",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "rename_openlineage_parsed_severity",
+        },
+      },
+      {
+        lowercase: {
+          field: "log.level",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "lowercase_log_level",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          description:
+            "Promote extracted openlineage.* fields to aws.openlineage.* for dashboard compatibility",
+          tag: "promote_to_vendor_ns",
+          source:
+            "def nsObj = ctx['openlineage']; if (nsObj == null || nsObj.isEmpty()) return; if (ctx.aws == null) ctx.aws = new HashMap(); def svc = ctx.aws.containsKey('openlineage') ? ctx.aws.get('openlineage') : new HashMap(); for (def entry : nsObj.entrySet()) {   if (entry.getKey().equals('parsed')) continue;   if (!svc.containsKey(entry.getKey())) {     svc.put(entry.getKey(), entry.getValue());   } } ctx.aws.put('openlineage', svc);",
+          ignore_failure: true,
+        },
+      },
+      {
+        set: {
+          field: "event.kind",
+          value: "event",
+          override: false,
+          ignore_failure: true,
+          tag: "set_event_kind",
+        },
+      },
+      {
+        set: {
+          field: "event.category",
+          value: ["database"],
+          override: false,
+          ignore_failure: true,
+          tag: "set_event_category",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["info"],
+          override: false,
+          ignore_failure: true,
+          tag: "set_event_type",
+        },
+      },
+      {
+        set: {
+          field: "event.type",
+          value: ["error"],
+          override: true,
+          if: "ctx.event?.outcome == 'failure'",
+          ignore_failure: true,
+          tag: "set_event_type_error",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          description: "Normalise duration fields to event.duration (nanoseconds)",
+          tag: "script_duration_norm",
+          source:
+            "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def nsObj = ctx['openlineage'];\n          if (nsObj != null && nsObj.parsed != null) {\n            def p = nsObj.parsed;\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && (ctx.event == null || ctx.event.duration == null)) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
+          ignore_failure: true,
+        },
+      },
+      {
+        geoip: {
+          field: "source.ip",
+          target_field: "source.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "geoip_source_ip",
+        },
+      },
+      {
+        geoip: {
+          field: "client.ip",
+          target_field: "client.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "geoip_client_ip",
+        },
+      },
+      {
+        geoip: {
+          field: "destination.ip",
+          target_field: "destination.geo",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "geoip_destination_ip",
+        },
+      },
+      {
+        user_agent: {
+          field: "user_agent.original",
+          target_field: "user_agent",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "user_agent_parse",
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{{source.ip}}}",
+          allow_duplicates: false,
+          if: "ctx.source?.ip != null",
+          ignore_failure: true,
+          tag: "append_related_ip_source",
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{{destination.ip}}}",
+          allow_duplicates: false,
+          if: "ctx.destination?.ip != null",
+          ignore_failure: true,
+          tag: "append_related_ip_destination",
+        },
+      },
+      {
+        append: {
+          field: "related.ip",
+          value: "{{{client.ip}}}",
+          allow_duplicates: false,
+          if: "ctx.client?.ip != null",
+          ignore_failure: true,
+          tag: "append_related_ip_client",
+        },
+      },
+      {
+        append: {
+          field: "related.user",
+          value: ["{{{user.name}}}"],
+          allow_duplicates: false,
+          if: "ctx.user?.name != null",
+          ignore_failure: true,
+          tag: "append_related_user_name",
+        },
+      },
+      {
+        append: {
+          field: "related.user",
+          value: ["{{{user.email}}}"],
+          allow_duplicates: false,
+          if: "ctx.user?.email != null",
+          ignore_failure: true,
+          tag: "append_related_user_email",
+        },
+      },
+      {
+        append: {
+          field: "related.user",
+          value: ["{{{user.id}}}"],
+          allow_duplicates: false,
+          if: "ctx.user?.id != null",
+          ignore_failure: true,
+          tag: "append_related_user_id",
+        },
+      },
+      {
+        append: {
+          field: "related.hosts",
+          value: ["{{{host.name}}}"],
+          allow_duplicates: false,
+          if: "ctx.host?.name != null",
+          ignore_failure: true,
+          tag: "append_related_hosts_name",
+        },
+      },
+      {
+        append: {
+          field: "related.hosts",
+          value: ["{{{host.hostname}}}"],
+          allow_duplicates: false,
+          if: "ctx.host?.hostname != null",
+          ignore_failure: true,
+          tag: "append_related_hosts_hostname",
+        },
+      },
+      {
+        remove: {
+          field: "openlineage.parsed",
+          ignore_missing: true,
+          ignore_failure: true,
+          tag: "remove_openlineage_parsed",
         },
       },
       {
@@ -91749,7 +93211,7 @@ export const PIPELINE_REGISTRY = [
           tag: "resolve_target_dataset",
           description: "Detect AWS service from ingestion metadata and resolve target dataset",
           source:
-            "String lg = ctx.aws?.cloudwatch?.log_group; if (lg == null || lg.length() == 0) return; Map routes = ['glue': 'aws.glue', 'emr': 'aws.emr_logs', 'emr_logs': 'aws.emr_logs', 'athena': 'aws.athena', 'lakeformation': 'aws.lakeformation', 'quicksight': 'aws.quicksight', 'databrew': 'aws.databrew', 'appflow': 'aws.appflow', 'opensearch': 'aws.opensearch', 'sagemaker': 'aws.sagemaker', 'bedrock': 'aws.bedrock', 'bedrockagent': 'aws.bedrockagent', 'rekognition': 'aws.rekognition', 'textract': 'aws.textract', 'comprehend': 'aws.comprehend', 'comprehendmedical': 'aws.comprehendmedical', 'translate': 'aws.translate', 'transcribe': 'aws.transcribe', 'polly': 'aws.polly', 'personalize': 'aws.personalize', 'lex': 'aws.lex', 'qbusiness': 'aws.qbusiness', 'lambda': 'aws.lambda_logs', 'lambda_logs': 'aws.lambda_logs', 'stepfunctions': 'aws.stepfunctions', 'apprunner': 'aws.apprunner', 'appsync': 'aws.appsync', 'fargate': 'aws.fargate', 'ec2': 'aws.ec2_logs', 'ec2_logs': 'aws.ec2_logs', 'eks': 'aws.eks', 'ecr': 'aws.ecr', 'batch': 'aws.batch', 'elasticbeanstalk': 'aws.elasticbeanstalk', 'autoscaling': 'aws.autoscaling', 'imagebuilder': 'aws.imagebuilder', 'rds': 'aws.rds', 'elasticache': 'aws.elasticache', 'aurora': 'aws.aurora', 'docdb': 'aws.docdb', 'neptune': 'aws.neptune', 'timestream': 'aws.timestream', 'keyspaces': 'aws.keyspaces', 'memorydb': 'aws.memorydb', 's3storagelens': 'aws.s3storagelens', 'efs': 'aws.efs', 'fsx': 'aws.fsx', 'backup': 'aws.backup', 'datasync': 'aws.datasync', 'storagegateway': 'aws.storagegateway', 'macie': 'aws.macie', 'accessanalyzer': 'aws.accessanalyzer', 'cognito': 'aws.cognito', 'kms': 'aws.kms', 'secretsmanager': 'aws.secretsmanager', 'acm': 'aws.acm', 'identitycenter': 'aws.identitycenter', 'detective': 'aws.detective', 'verifiedaccess': 'aws.verifiedaccess', 'securitylake': 'aws.securitylake', 'shield': 'aws.shield', 'globalaccelerator': 'aws.globalaccelerator', 'directconnect': 'aws.directconnect', 'privatelink': 'aws.privatelink', 'firehose': 'aws.firehose', 'kinesisanalytics': 'aws.kinesisanalytics', 'amazonmq': 'aws.amazonmq', 'eventbridge': 'aws.eventbridge', 'iot': 'aws.iot', 'greengrass': 'aws.greengrass', 'iotanalytics': 'aws.iotanalytics', 'iotdefender': 'aws.iotdefender', 'iotevents': 'aws.iotevents', 'iotsitewise': 'aws.iotsitewise', 'cloudformation': 'aws.cloudformation', 'ssm': 'aws.ssm', 'codebuild': 'aws.codebuild', 'codepipeline': 'aws.codepipeline', 'cloudwatch': 'aws.cloudwatch', 'controltower': 'aws.controltower', 'organizations': 'aws.organizations', 'servicecatalog': 'aws.servicecatalog', 'servicequotas': 'aws.servicequotas', 'computeoptimizer': 'aws.computeoptimizer', 'budgets': 'aws.budgets', 'ram': 'aws.ram', 'resiliencehub': 'aws.resiliencehub', 'migrationhub': 'aws.migrationhub', 'networkmanager': 'aws.networkmanager', 'dms': 'aws.dms', 'codedeploy': 'aws.codedeploy', 'codecommit': 'aws.codecommit', 'codeartifact': 'aws.codeartifact', 'amplify': 'aws.amplify', 'xray': 'aws.xray', 'codeguru': 'aws.codeguru', 'workspaces': 'aws.workspaces', 'connect': 'aws.connect', 'appstream': 'aws.appstream', 'gamelift': 'aws.gamelift', 'ses': 'aws.ses', 'pinpoint': 'aws.pinpoint', 'transfer': 'aws.transfer', 'lightsail': 'aws.lightsail', 'frauddetector': 'aws.frauddetector', 'location': 'aws.location', 'mediaconvert': 'aws.mediaconvert', 'medialive': 'aws.medialive', 'blockchain': 'aws.blockchain', 'devopsguru': 'aws.devopsguru', 'wafv2': 'aws.wafv2', 'vpclattice': 'aws.vpclattice', 'securityir': 'aws.securityir', 'cloudhsm': 'aws.cloudhsm', 'mskconnect': 'aws.mskconnect', 'mwaa': 'aws.mwaa', 'cleanrooms': 'aws.cleanrooms', 'datazone': 'aws.datazone', 'entityresolution': 'aws.entityresolution', 'dataexchange': 'aws.dataexchange', 'a2i': 'aws.a2i', 'healthlake': 'aws.healthlake', 'iottwinmaker': 'aws.iottwinmaker', 'iotfleetwise': 'aws.iotfleetwise', 'codecatalyst': 'aws.codecatalyst', 'devicefarm': 'aws.devicefarm', 'fis': 'aws.fis', 'managedgrafana': 'aws.managedgrafana', 'supplychain': 'aws.supplychain', 'arc': 'aws.arc', 'deadlinecloud': 'aws.deadlinecloud', 'appmesh': 'aws.appmesh', 'clientvpn': 'aws.clientvpn', 'cloudmap': 'aws.cloudmap', 'outposts': 'aws.outposts', 'auditmanager': 'aws.auditmanager', 'verifiedpermissions': 'aws.verifiedpermissions', 'paymentcryptography': 'aws.paymentcryptography', 'dax': 'aws.dax', 'proton': 'aws.proton', 'appfabric': 'aws.appfabric', 'b2bi': 'aws.b2bi', 'appconfig': 'aws.appconfig', 'drs': 'aws.drs', 'licensemanager': 'aws.licensemanager', 'chatbot': 'aws.chatbot', 'chimesdkvoice': 'aws.chimesdkvoice', 'wavelength': 'aws.wavelength', 'nova': 'aws.nova', 'lookoutvision': 'aws.lookoutvision', 'vpcipam': 'aws.vpcipam', 'private5g': 'aws.private5g', 'neptuneanalytics': 'aws.neptuneanalytics', 'auroradsql': 'aws.auroradsql', 'm2': 'aws.m2', 'pcs': 'aws.pcs', 'evs': 'aws.evs', 'healthomics': 'aws.healthomics', 'bedrockdataautomation': 'aws.bedrockdataautomation', 'groundstation': 'aws.groundstation', 'workmail': 'aws.workmail', 'wickr': 'aws.wickr', 'qdeveloper': 'aws.qdeveloper', 'endusermessaging': 'aws.endusermessaging', 'rdsproxy': 'aws.rdsproxy', 'rdscustom': 'aws.rdscustom', 'dmsserverless': 'aws.dmsserverless', 'elasticacheglobal': 'aws.elasticacheglobal', 'sagemakerfeaturestore': 'aws.sagemakerfeaturestore', 'sagemakerpipelines': 'aws.sagemakerpipelines', 'sagemakermodelmonitor': 'aws.sagemakermodelmonitor', 'lookoutequipment': 'aws.lookoutequipment', 'monitron': 'aws.monitron', 'networkaccessanalyzer': 'aws.networkaccessanalyzer', 'incidentmanager': 'aws.incidentmanager', 'cloud9': 'aws.cloud9', 's3_intelligent_tiering': 'aws.s3_intelligent_tiering', 's3_batch_operations': 'aws.s3_batch_operations', 'kinesisvideo': 'aws.kinesisvideo', 'cloudwatch_rum': 'aws.cloudwatch_rum', 'bedrockguardrails': 'aws.bedrockguardrails', 'gwlb': 'aws.gwlb', 'elb': 'aws.elb', 'mediaconnect': 'aws.mediaconnect', 'mediapackage': 'aws.mediapackage', 'mediatailor': 'aws.mediatailor', 'ivs': 'aws.ivs', 'ivschat': 'aws.ivschat', 'directoryservice': 'aws.directoryservice', 'acmpca': 'aws.acmpca', 'mgn': 'aws.mgn', 'cwsynthetics': 'aws.cwsynthetics', 'managedprometheus': 'aws.managedprometheus']; Matcher m = /^\\/aws\\/([^\\/]+)/.matcher(lg); if (m.find()) {   String svc = m.group(1);   if (routes.containsKey(svc)) {     ctx._target_dataset = routes.get(svc);     return;   } } Matcher ecs = /^\\/ecs\\//.matcher(lg); if (ecs.find() && routes.containsKey('fargate')) {   ctx._target_dataset = routes.get('fargate');   return; } Matcher trail = /^aws-cloudtrail-logs-/.matcher(lg); if (trail.find()) return; Matcher wafLog = /^aws-waf-logs-/.matcher(lg); if (wafLog.find() && routes.containsKey('wafv2')) {   ctx._target_dataset = routes.get('wafv2'); }",
+            "String lg = ctx.aws?.cloudwatch?.log_group; if (lg == null || lg.length() == 0) return; Map routes = ['glue': 'aws.glue', 'emr': 'aws.emr_logs', 'emr_logs': 'aws.emr_logs', 'athena': 'aws.athena', 'lakeformation': 'aws.lakeformation', 'quicksight': 'aws.quicksight', 'databrew': 'aws.databrew', 'appflow': 'aws.appflow', 'opensearch': 'aws.opensearch', 'sagemaker': 'aws.sagemaker', 'bedrock': 'aws.bedrock', 'bedrockagent': 'aws.bedrockagent', 'rekognition': 'aws.rekognition', 'textract': 'aws.textract', 'comprehend': 'aws.comprehend', 'comprehendmedical': 'aws.comprehendmedical', 'translate': 'aws.translate', 'transcribe': 'aws.transcribe', 'polly': 'aws.polly', 'personalize': 'aws.personalize', 'lex': 'aws.lex', 'qbusiness': 'aws.qbusiness', 'lambda': 'aws.lambda_logs', 'lambda_logs': 'aws.lambda_logs', 'stepfunctions': 'aws.stepfunctions', 'apprunner': 'aws.apprunner', 'appsync': 'aws.appsync', 'fargate': 'aws.fargate', 'ec2': 'aws.ec2_logs', 'ec2_logs': 'aws.ec2_logs', 'eks': 'aws.eks', 'ecr': 'aws.ecr', 'batch': 'aws.batch', 'elasticbeanstalk': 'aws.elasticbeanstalk', 'autoscaling': 'aws.autoscaling', 'imagebuilder': 'aws.imagebuilder', 'rds': 'aws.rds', 'elasticache': 'aws.elasticache', 'aurora': 'aws.aurora', 'docdb': 'aws.docdb', 'neptune': 'aws.neptune', 'timestream': 'aws.timestream', 'keyspaces': 'aws.keyspaces', 'memorydb': 'aws.memorydb', 's3storagelens': 'aws.s3storagelens', 'efs': 'aws.efs', 'fsx': 'aws.fsx', 'backup': 'aws.backup', 'datasync': 'aws.datasync', 'storagegateway': 'aws.storagegateway', 'macie': 'aws.macie', 'accessanalyzer': 'aws.accessanalyzer', 'cognito': 'aws.cognito', 'kms': 'aws.kms', 'secretsmanager': 'aws.secretsmanager', 'acm': 'aws.acm', 'identitycenter': 'aws.identitycenter', 'detective': 'aws.detective', 'verifiedaccess': 'aws.verifiedaccess', 'securitylake': 'aws.securitylake', 'shield': 'aws.shield', 'globalaccelerator': 'aws.globalaccelerator', 'directconnect': 'aws.directconnect', 'privatelink': 'aws.privatelink', 'firehose': 'aws.firehose', 'kinesisanalytics': 'aws.kinesisanalytics', 'amazonmq': 'aws.amazonmq', 'eventbridge': 'aws.eventbridge', 'iot': 'aws.iot', 'greengrass': 'aws.greengrass', 'iotanalytics': 'aws.iotanalytics', 'iotdefender': 'aws.iotdefender', 'iotevents': 'aws.iotevents', 'iotsitewise': 'aws.iotsitewise', 'cloudformation': 'aws.cloudformation', 'ssm': 'aws.ssm', 'codebuild': 'aws.codebuild', 'codepipeline': 'aws.codepipeline', 'cloudwatch': 'aws.cloudwatch', 'controltower': 'aws.controltower', 'organizations': 'aws.organizations', 'servicecatalog': 'aws.servicecatalog', 'servicequotas': 'aws.servicequotas', 'computeoptimizer': 'aws.computeoptimizer', 'budgets': 'aws.budgets', 'ram': 'aws.ram', 'resiliencehub': 'aws.resiliencehub', 'migrationhub': 'aws.migrationhub', 'networkmanager': 'aws.networkmanager', 'dms': 'aws.dms', 'codedeploy': 'aws.codedeploy', 'codecommit': 'aws.codecommit', 'codeartifact': 'aws.codeartifact', 'amplify': 'aws.amplify', 'xray': 'aws.xray', 'codeguru': 'aws.codeguru', 'workspaces': 'aws.workspaces', 'connect': 'aws.connect', 'appstream': 'aws.appstream', 'gamelift': 'aws.gamelift', 'ses': 'aws.ses', 'pinpoint': 'aws.pinpoint', 'transfer': 'aws.transfer', 'lightsail': 'aws.lightsail', 'frauddetector': 'aws.frauddetector', 'location': 'aws.location', 'mediaconvert': 'aws.mediaconvert', 'medialive': 'aws.medialive', 'blockchain': 'aws.blockchain', 'devopsguru': 'aws.devopsguru', 'wafv2': 'aws.wafv2', 'vpclattice': 'aws.vpclattice', 'securityir': 'aws.securityir', 'cloudhsm': 'aws.cloudhsm', 'mskconnect': 'aws.mskconnect', 'mwaa': 'aws.mwaa', 'openlineage': 'aws.openlineage', 'glue_dataquality': 'aws.glue_dataquality', 'cleanrooms': 'aws.cleanrooms', 'datazone': 'aws.datazone', 'entityresolution': 'aws.entityresolution', 'dataexchange': 'aws.dataexchange', 'a2i': 'aws.a2i', 'healthlake': 'aws.healthlake', 'iottwinmaker': 'aws.iottwinmaker', 'iotfleetwise': 'aws.iotfleetwise', 'codecatalyst': 'aws.codecatalyst', 'devicefarm': 'aws.devicefarm', 'fis': 'aws.fis', 'managedgrafana': 'aws.managedgrafana', 'supplychain': 'aws.supplychain', 'arc': 'aws.arc', 'deadlinecloud': 'aws.deadlinecloud', 'appmesh': 'aws.appmesh', 'clientvpn': 'aws.clientvpn', 'cloudmap': 'aws.cloudmap', 'outposts': 'aws.outposts', 'auditmanager': 'aws.auditmanager', 'verifiedpermissions': 'aws.verifiedpermissions', 'paymentcryptography': 'aws.paymentcryptography', 'dax': 'aws.dax', 'proton': 'aws.proton', 'appfabric': 'aws.appfabric', 'b2bi': 'aws.b2bi', 'appconfig': 'aws.appconfig', 'drs': 'aws.drs', 'licensemanager': 'aws.licensemanager', 'chatbot': 'aws.chatbot', 'chimesdkvoice': 'aws.chimesdkvoice', 'wavelength': 'aws.wavelength', 'nova': 'aws.nova', 'lookoutvision': 'aws.lookoutvision', 'vpcipam': 'aws.vpcipam', 'private5g': 'aws.private5g', 'neptuneanalytics': 'aws.neptuneanalytics', 'auroradsql': 'aws.auroradsql', 'm2': 'aws.m2', 'pcs': 'aws.pcs', 'evs': 'aws.evs', 'healthomics': 'aws.healthomics', 'bedrockdataautomation': 'aws.bedrockdataautomation', 'groundstation': 'aws.groundstation', 'workmail': 'aws.workmail', 'wickr': 'aws.wickr', 'qdeveloper': 'aws.qdeveloper', 'endusermessaging': 'aws.endusermessaging', 'rdsproxy': 'aws.rdsproxy', 'rdscustom': 'aws.rdscustom', 'dmsserverless': 'aws.dmsserverless', 'elasticacheglobal': 'aws.elasticacheglobal', 'sagemakerfeaturestore': 'aws.sagemakerfeaturestore', 'sagemakerpipelines': 'aws.sagemakerpipelines', 'sagemakermodelmonitor': 'aws.sagemakermodelmonitor', 'lookoutequipment': 'aws.lookoutequipment', 'monitron': 'aws.monitron', 'networkaccessanalyzer': 'aws.networkaccessanalyzer', 'incidentmanager': 'aws.incidentmanager', 'cloud9': 'aws.cloud9', 's3_intelligent_tiering': 'aws.s3_intelligent_tiering', 's3_batch_operations': 'aws.s3_batch_operations', 'kinesisvideo': 'aws.kinesisvideo', 'cloudwatch_rum': 'aws.cloudwatch_rum', 'bedrockguardrails': 'aws.bedrockguardrails', 'gwlb': 'aws.gwlb', 'elb': 'aws.elb', 'mediaconnect': 'aws.mediaconnect', 'mediapackage': 'aws.mediapackage', 'mediatailor': 'aws.mediatailor', 'ivs': 'aws.ivs', 'ivschat': 'aws.ivschat', 'directoryservice': 'aws.directoryservice', 'acmpca': 'aws.acmpca', 'mgn': 'aws.mgn', 'cwsynthetics': 'aws.cwsynthetics', 'managedprometheus': 'aws.managedprometheus']; Matcher m = /^\\/aws\\/([^\\/]+)/.matcher(lg); if (m.find()) {   String svc = m.group(1);   if (routes.containsKey(svc)) {     ctx._target_dataset = routes.get(svc);     return;   } } Matcher ecs = /^\\/ecs\\//.matcher(lg); if (ecs.find() && routes.containsKey('fargate')) {   ctx._target_dataset = routes.get('fargate');   return; } Matcher trail = /^aws-cloudtrail-logs-/.matcher(lg); if (trail.find()) return; Matcher wafLog = /^aws-waf-logs-/.matcher(lg); if (wafLog.find() && routes.containsKey('wafv2')) {   ctx._target_dataset = routes.get('wafv2'); }",
           ignore_failure: true,
         },
       },
@@ -91800,7 +93262,7 @@ export const PIPELINE_REGISTRY = [
           tag: "resolve_target_dataset",
           description: "Detect AWS service from ingestion metadata and resolve target dataset",
           source:
-            "String key = ctx.aws?.s3?.object?.key; if (key == null || key.length() == 0) return; Map routes = ['glue': 'aws.glue', 'emr': 'aws.emr_logs', 'emr_logs': 'aws.emr_logs', 'athena': 'aws.athena', 'lakeformation': 'aws.lakeformation', 'quicksight': 'aws.quicksight', 'databrew': 'aws.databrew', 'appflow': 'aws.appflow', 'opensearch': 'aws.opensearch', 'sagemaker': 'aws.sagemaker', 'bedrock': 'aws.bedrock', 'bedrockagent': 'aws.bedrockagent', 'rekognition': 'aws.rekognition', 'textract': 'aws.textract', 'comprehend': 'aws.comprehend', 'comprehendmedical': 'aws.comprehendmedical', 'translate': 'aws.translate', 'transcribe': 'aws.transcribe', 'polly': 'aws.polly', 'personalize': 'aws.personalize', 'lex': 'aws.lex', 'qbusiness': 'aws.qbusiness', 'lambda': 'aws.lambda_logs', 'lambda_logs': 'aws.lambda_logs', 'stepfunctions': 'aws.stepfunctions', 'apprunner': 'aws.apprunner', 'appsync': 'aws.appsync', 'fargate': 'aws.fargate', 'ec2': 'aws.ec2_logs', 'ec2_logs': 'aws.ec2_logs', 'eks': 'aws.eks', 'ecr': 'aws.ecr', 'batch': 'aws.batch', 'elasticbeanstalk': 'aws.elasticbeanstalk', 'autoscaling': 'aws.autoscaling', 'imagebuilder': 'aws.imagebuilder', 'rds': 'aws.rds', 'elasticache': 'aws.elasticache', 'aurora': 'aws.aurora', 'docdb': 'aws.docdb', 'neptune': 'aws.neptune', 'timestream': 'aws.timestream', 'keyspaces': 'aws.keyspaces', 'memorydb': 'aws.memorydb', 's3storagelens': 'aws.s3storagelens', 'efs': 'aws.efs', 'fsx': 'aws.fsx', 'backup': 'aws.backup', 'datasync': 'aws.datasync', 'storagegateway': 'aws.storagegateway', 'macie': 'aws.macie', 'accessanalyzer': 'aws.accessanalyzer', 'cognito': 'aws.cognito', 'kms': 'aws.kms', 'secretsmanager': 'aws.secretsmanager', 'acm': 'aws.acm', 'identitycenter': 'aws.identitycenter', 'detective': 'aws.detective', 'verifiedaccess': 'aws.verifiedaccess', 'securitylake': 'aws.securitylake', 'shield': 'aws.shield', 'globalaccelerator': 'aws.globalaccelerator', 'directconnect': 'aws.directconnect', 'privatelink': 'aws.privatelink', 'firehose': 'aws.firehose', 'kinesisanalytics': 'aws.kinesisanalytics', 'amazonmq': 'aws.amazonmq', 'eventbridge': 'aws.eventbridge', 'iot': 'aws.iot', 'greengrass': 'aws.greengrass', 'iotanalytics': 'aws.iotanalytics', 'iotdefender': 'aws.iotdefender', 'iotevents': 'aws.iotevents', 'iotsitewise': 'aws.iotsitewise', 'cloudformation': 'aws.cloudformation', 'ssm': 'aws.ssm', 'codebuild': 'aws.codebuild', 'codepipeline': 'aws.codepipeline', 'cloudwatch': 'aws.cloudwatch', 'controltower': 'aws.controltower', 'organizations': 'aws.organizations', 'servicecatalog': 'aws.servicecatalog', 'servicequotas': 'aws.servicequotas', 'computeoptimizer': 'aws.computeoptimizer', 'budgets': 'aws.budgets', 'ram': 'aws.ram', 'resiliencehub': 'aws.resiliencehub', 'migrationhub': 'aws.migrationhub', 'networkmanager': 'aws.networkmanager', 'dms': 'aws.dms', 'codedeploy': 'aws.codedeploy', 'codecommit': 'aws.codecommit', 'codeartifact': 'aws.codeartifact', 'amplify': 'aws.amplify', 'xray': 'aws.xray', 'codeguru': 'aws.codeguru', 'workspaces': 'aws.workspaces', 'connect': 'aws.connect', 'appstream': 'aws.appstream', 'gamelift': 'aws.gamelift', 'ses': 'aws.ses', 'pinpoint': 'aws.pinpoint', 'transfer': 'aws.transfer', 'lightsail': 'aws.lightsail', 'frauddetector': 'aws.frauddetector', 'location': 'aws.location', 'mediaconvert': 'aws.mediaconvert', 'medialive': 'aws.medialive', 'blockchain': 'aws.blockchain', 'devopsguru': 'aws.devopsguru', 'wafv2': 'aws.wafv2', 'vpclattice': 'aws.vpclattice', 'securityir': 'aws.securityir', 'cloudhsm': 'aws.cloudhsm', 'mskconnect': 'aws.mskconnect', 'mwaa': 'aws.mwaa', 'cleanrooms': 'aws.cleanrooms', 'datazone': 'aws.datazone', 'entityresolution': 'aws.entityresolution', 'dataexchange': 'aws.dataexchange', 'a2i': 'aws.a2i', 'healthlake': 'aws.healthlake', 'iottwinmaker': 'aws.iottwinmaker', 'iotfleetwise': 'aws.iotfleetwise', 'codecatalyst': 'aws.codecatalyst', 'devicefarm': 'aws.devicefarm', 'fis': 'aws.fis', 'managedgrafana': 'aws.managedgrafana', 'supplychain': 'aws.supplychain', 'arc': 'aws.arc', 'deadlinecloud': 'aws.deadlinecloud', 'appmesh': 'aws.appmesh', 'clientvpn': 'aws.clientvpn', 'cloudmap': 'aws.cloudmap', 'outposts': 'aws.outposts', 'auditmanager': 'aws.auditmanager', 'verifiedpermissions': 'aws.verifiedpermissions', 'paymentcryptography': 'aws.paymentcryptography', 'dax': 'aws.dax', 'proton': 'aws.proton', 'appfabric': 'aws.appfabric', 'b2bi': 'aws.b2bi', 'appconfig': 'aws.appconfig', 'drs': 'aws.drs', 'licensemanager': 'aws.licensemanager', 'chatbot': 'aws.chatbot', 'chimesdkvoice': 'aws.chimesdkvoice', 'wavelength': 'aws.wavelength', 'nova': 'aws.nova', 'lookoutvision': 'aws.lookoutvision', 'vpcipam': 'aws.vpcipam', 'private5g': 'aws.private5g', 'neptuneanalytics': 'aws.neptuneanalytics', 'auroradsql': 'aws.auroradsql', 'm2': 'aws.m2', 'pcs': 'aws.pcs', 'evs': 'aws.evs', 'healthomics': 'aws.healthomics', 'bedrockdataautomation': 'aws.bedrockdataautomation', 'groundstation': 'aws.groundstation', 'workmail': 'aws.workmail', 'wickr': 'aws.wickr', 'qdeveloper': 'aws.qdeveloper', 'endusermessaging': 'aws.endusermessaging', 'rdsproxy': 'aws.rdsproxy', 'rdscustom': 'aws.rdscustom', 'dmsserverless': 'aws.dmsserverless', 'elasticacheglobal': 'aws.elasticacheglobal', 'sagemakerfeaturestore': 'aws.sagemakerfeaturestore', 'sagemakerpipelines': 'aws.sagemakerpipelines', 'sagemakermodelmonitor': 'aws.sagemakermodelmonitor', 'lookoutequipment': 'aws.lookoutequipment', 'monitron': 'aws.monitron', 'networkaccessanalyzer': 'aws.networkaccessanalyzer', 'incidentmanager': 'aws.incidentmanager', 'cloud9': 'aws.cloud9', 's3_intelligent_tiering': 'aws.s3_intelligent_tiering', 's3_batch_operations': 'aws.s3_batch_operations', 'kinesisvideo': 'aws.kinesisvideo', 'cloudwatch_rum': 'aws.cloudwatch_rum', 'bedrockguardrails': 'aws.bedrockguardrails', 'gwlb': 'aws.gwlb', 'elb': 'aws.elb', 'mediaconnect': 'aws.mediaconnect', 'mediapackage': 'aws.mediapackage', 'mediatailor': 'aws.mediatailor', 'ivs': 'aws.ivs', 'ivschat': 'aws.ivschat', 'directoryservice': 'aws.directoryservice', 'acmpca': 'aws.acmpca', 'mgn': 'aws.mgn', 'cwsynthetics': 'aws.cwsynthetics', 'managedprometheus': 'aws.managedprometheus']; Matcher m = /AWSLogs\\/[0-9]+\\/([^\\/]+)\\//.matcher(key); if (m.find()) {   String svc = m.group(1).toLowerCase();   if (routes.containsKey(svc)) {     ctx._target_dataset = routes.get(svc);   } }",
+            "String key = ctx.aws?.s3?.object?.key; if (key == null || key.length() == 0) return; Map routes = ['glue': 'aws.glue', 'emr': 'aws.emr_logs', 'emr_logs': 'aws.emr_logs', 'athena': 'aws.athena', 'lakeformation': 'aws.lakeformation', 'quicksight': 'aws.quicksight', 'databrew': 'aws.databrew', 'appflow': 'aws.appflow', 'opensearch': 'aws.opensearch', 'sagemaker': 'aws.sagemaker', 'bedrock': 'aws.bedrock', 'bedrockagent': 'aws.bedrockagent', 'rekognition': 'aws.rekognition', 'textract': 'aws.textract', 'comprehend': 'aws.comprehend', 'comprehendmedical': 'aws.comprehendmedical', 'translate': 'aws.translate', 'transcribe': 'aws.transcribe', 'polly': 'aws.polly', 'personalize': 'aws.personalize', 'lex': 'aws.lex', 'qbusiness': 'aws.qbusiness', 'lambda': 'aws.lambda_logs', 'lambda_logs': 'aws.lambda_logs', 'stepfunctions': 'aws.stepfunctions', 'apprunner': 'aws.apprunner', 'appsync': 'aws.appsync', 'fargate': 'aws.fargate', 'ec2': 'aws.ec2_logs', 'ec2_logs': 'aws.ec2_logs', 'eks': 'aws.eks', 'ecr': 'aws.ecr', 'batch': 'aws.batch', 'elasticbeanstalk': 'aws.elasticbeanstalk', 'autoscaling': 'aws.autoscaling', 'imagebuilder': 'aws.imagebuilder', 'rds': 'aws.rds', 'elasticache': 'aws.elasticache', 'aurora': 'aws.aurora', 'docdb': 'aws.docdb', 'neptune': 'aws.neptune', 'timestream': 'aws.timestream', 'keyspaces': 'aws.keyspaces', 'memorydb': 'aws.memorydb', 's3storagelens': 'aws.s3storagelens', 'efs': 'aws.efs', 'fsx': 'aws.fsx', 'backup': 'aws.backup', 'datasync': 'aws.datasync', 'storagegateway': 'aws.storagegateway', 'macie': 'aws.macie', 'accessanalyzer': 'aws.accessanalyzer', 'cognito': 'aws.cognito', 'kms': 'aws.kms', 'secretsmanager': 'aws.secretsmanager', 'acm': 'aws.acm', 'identitycenter': 'aws.identitycenter', 'detective': 'aws.detective', 'verifiedaccess': 'aws.verifiedaccess', 'securitylake': 'aws.securitylake', 'shield': 'aws.shield', 'globalaccelerator': 'aws.globalaccelerator', 'directconnect': 'aws.directconnect', 'privatelink': 'aws.privatelink', 'firehose': 'aws.firehose', 'kinesisanalytics': 'aws.kinesisanalytics', 'amazonmq': 'aws.amazonmq', 'eventbridge': 'aws.eventbridge', 'iot': 'aws.iot', 'greengrass': 'aws.greengrass', 'iotanalytics': 'aws.iotanalytics', 'iotdefender': 'aws.iotdefender', 'iotevents': 'aws.iotevents', 'iotsitewise': 'aws.iotsitewise', 'cloudformation': 'aws.cloudformation', 'ssm': 'aws.ssm', 'codebuild': 'aws.codebuild', 'codepipeline': 'aws.codepipeline', 'cloudwatch': 'aws.cloudwatch', 'controltower': 'aws.controltower', 'organizations': 'aws.organizations', 'servicecatalog': 'aws.servicecatalog', 'servicequotas': 'aws.servicequotas', 'computeoptimizer': 'aws.computeoptimizer', 'budgets': 'aws.budgets', 'ram': 'aws.ram', 'resiliencehub': 'aws.resiliencehub', 'migrationhub': 'aws.migrationhub', 'networkmanager': 'aws.networkmanager', 'dms': 'aws.dms', 'codedeploy': 'aws.codedeploy', 'codecommit': 'aws.codecommit', 'codeartifact': 'aws.codeartifact', 'amplify': 'aws.amplify', 'xray': 'aws.xray', 'codeguru': 'aws.codeguru', 'workspaces': 'aws.workspaces', 'connect': 'aws.connect', 'appstream': 'aws.appstream', 'gamelift': 'aws.gamelift', 'ses': 'aws.ses', 'pinpoint': 'aws.pinpoint', 'transfer': 'aws.transfer', 'lightsail': 'aws.lightsail', 'frauddetector': 'aws.frauddetector', 'location': 'aws.location', 'mediaconvert': 'aws.mediaconvert', 'medialive': 'aws.medialive', 'blockchain': 'aws.blockchain', 'devopsguru': 'aws.devopsguru', 'wafv2': 'aws.wafv2', 'vpclattice': 'aws.vpclattice', 'securityir': 'aws.securityir', 'cloudhsm': 'aws.cloudhsm', 'mskconnect': 'aws.mskconnect', 'mwaa': 'aws.mwaa', 'openlineage': 'aws.openlineage', 'glue_dataquality': 'aws.glue_dataquality', 'cleanrooms': 'aws.cleanrooms', 'datazone': 'aws.datazone', 'entityresolution': 'aws.entityresolution', 'dataexchange': 'aws.dataexchange', 'a2i': 'aws.a2i', 'healthlake': 'aws.healthlake', 'iottwinmaker': 'aws.iottwinmaker', 'iotfleetwise': 'aws.iotfleetwise', 'codecatalyst': 'aws.codecatalyst', 'devicefarm': 'aws.devicefarm', 'fis': 'aws.fis', 'managedgrafana': 'aws.managedgrafana', 'supplychain': 'aws.supplychain', 'arc': 'aws.arc', 'deadlinecloud': 'aws.deadlinecloud', 'appmesh': 'aws.appmesh', 'clientvpn': 'aws.clientvpn', 'cloudmap': 'aws.cloudmap', 'outposts': 'aws.outposts', 'auditmanager': 'aws.auditmanager', 'verifiedpermissions': 'aws.verifiedpermissions', 'paymentcryptography': 'aws.paymentcryptography', 'dax': 'aws.dax', 'proton': 'aws.proton', 'appfabric': 'aws.appfabric', 'b2bi': 'aws.b2bi', 'appconfig': 'aws.appconfig', 'drs': 'aws.drs', 'licensemanager': 'aws.licensemanager', 'chatbot': 'aws.chatbot', 'chimesdkvoice': 'aws.chimesdkvoice', 'wavelength': 'aws.wavelength', 'nova': 'aws.nova', 'lookoutvision': 'aws.lookoutvision', 'vpcipam': 'aws.vpcipam', 'private5g': 'aws.private5g', 'neptuneanalytics': 'aws.neptuneanalytics', 'auroradsql': 'aws.auroradsql', 'm2': 'aws.m2', 'pcs': 'aws.pcs', 'evs': 'aws.evs', 'healthomics': 'aws.healthomics', 'bedrockdataautomation': 'aws.bedrockdataautomation', 'groundstation': 'aws.groundstation', 'workmail': 'aws.workmail', 'wickr': 'aws.wickr', 'qdeveloper': 'aws.qdeveloper', 'endusermessaging': 'aws.endusermessaging', 'rdsproxy': 'aws.rdsproxy', 'rdscustom': 'aws.rdscustom', 'dmsserverless': 'aws.dmsserverless', 'elasticacheglobal': 'aws.elasticacheglobal', 'sagemakerfeaturestore': 'aws.sagemakerfeaturestore', 'sagemakerpipelines': 'aws.sagemakerpipelines', 'sagemakermodelmonitor': 'aws.sagemakermodelmonitor', 'lookoutequipment': 'aws.lookoutequipment', 'monitron': 'aws.monitron', 'networkaccessanalyzer': 'aws.networkaccessanalyzer', 'incidentmanager': 'aws.incidentmanager', 'cloud9': 'aws.cloud9', 's3_intelligent_tiering': 'aws.s3_intelligent_tiering', 's3_batch_operations': 'aws.s3_batch_operations', 'kinesisvideo': 'aws.kinesisvideo', 'cloudwatch_rum': 'aws.cloudwatch_rum', 'bedrockguardrails': 'aws.bedrockguardrails', 'gwlb': 'aws.gwlb', 'elb': 'aws.elb', 'mediaconnect': 'aws.mediaconnect', 'mediapackage': 'aws.mediapackage', 'mediatailor': 'aws.mediatailor', 'ivs': 'aws.ivs', 'ivschat': 'aws.ivschat', 'directoryservice': 'aws.directoryservice', 'acmpca': 'aws.acmpca', 'mgn': 'aws.mgn', 'cwsynthetics': 'aws.cwsynthetics', 'managedprometheus': 'aws.managedprometheus']; Matcher m = /AWSLogs\\/[0-9]+\\/([^\\/]+)\\//.matcher(key); if (m.find()) {   String svc = m.group(1).toLowerCase();   if (routes.containsKey(svc)) {     ctx._target_dataset = routes.get(svc);   } }",
           ignore_failure: true,
         },
       },
@@ -91851,7 +93313,7 @@ export const PIPELINE_REGISTRY = [
           tag: "resolve_target_dataset",
           description: "Detect AWS service from ingestion metadata and resolve target dataset",
           source:
-            "String lg = ctx.aws?.cloudwatch?.log_group; if (lg != null && lg.length() > 0) {   Map routes = ['glue': 'aws.glue', 'emr': 'aws.emr_logs', 'emr_logs': 'aws.emr_logs', 'athena': 'aws.athena', 'lakeformation': 'aws.lakeformation', 'quicksight': 'aws.quicksight', 'databrew': 'aws.databrew', 'appflow': 'aws.appflow', 'opensearch': 'aws.opensearch', 'sagemaker': 'aws.sagemaker', 'bedrock': 'aws.bedrock', 'bedrockagent': 'aws.bedrockagent', 'rekognition': 'aws.rekognition', 'textract': 'aws.textract', 'comprehend': 'aws.comprehend', 'comprehendmedical': 'aws.comprehendmedical', 'translate': 'aws.translate', 'transcribe': 'aws.transcribe', 'polly': 'aws.polly', 'personalize': 'aws.personalize', 'lex': 'aws.lex', 'qbusiness': 'aws.qbusiness', 'lambda': 'aws.lambda_logs', 'lambda_logs': 'aws.lambda_logs', 'stepfunctions': 'aws.stepfunctions', 'apprunner': 'aws.apprunner', 'appsync': 'aws.appsync', 'fargate': 'aws.fargate', 'ec2': 'aws.ec2_logs', 'ec2_logs': 'aws.ec2_logs', 'eks': 'aws.eks', 'ecr': 'aws.ecr', 'batch': 'aws.batch', 'elasticbeanstalk': 'aws.elasticbeanstalk', 'autoscaling': 'aws.autoscaling', 'imagebuilder': 'aws.imagebuilder', 'rds': 'aws.rds', 'elasticache': 'aws.elasticache', 'aurora': 'aws.aurora', 'docdb': 'aws.docdb', 'neptune': 'aws.neptune', 'timestream': 'aws.timestream', 'keyspaces': 'aws.keyspaces', 'memorydb': 'aws.memorydb', 's3storagelens': 'aws.s3storagelens', 'efs': 'aws.efs', 'fsx': 'aws.fsx', 'backup': 'aws.backup', 'datasync': 'aws.datasync', 'storagegateway': 'aws.storagegateway', 'macie': 'aws.macie', 'accessanalyzer': 'aws.accessanalyzer', 'cognito': 'aws.cognito', 'kms': 'aws.kms', 'secretsmanager': 'aws.secretsmanager', 'acm': 'aws.acm', 'identitycenter': 'aws.identitycenter', 'detective': 'aws.detective', 'verifiedaccess': 'aws.verifiedaccess', 'securitylake': 'aws.securitylake', 'shield': 'aws.shield', 'globalaccelerator': 'aws.globalaccelerator', 'directconnect': 'aws.directconnect', 'privatelink': 'aws.privatelink', 'firehose': 'aws.firehose', 'kinesisanalytics': 'aws.kinesisanalytics', 'amazonmq': 'aws.amazonmq', 'eventbridge': 'aws.eventbridge', 'iot': 'aws.iot', 'greengrass': 'aws.greengrass', 'iotanalytics': 'aws.iotanalytics', 'iotdefender': 'aws.iotdefender', 'iotevents': 'aws.iotevents', 'iotsitewise': 'aws.iotsitewise', 'cloudformation': 'aws.cloudformation', 'ssm': 'aws.ssm', 'codebuild': 'aws.codebuild', 'codepipeline': 'aws.codepipeline', 'cloudwatch': 'aws.cloudwatch', 'controltower': 'aws.controltower', 'organizations': 'aws.organizations', 'servicecatalog': 'aws.servicecatalog', 'servicequotas': 'aws.servicequotas', 'computeoptimizer': 'aws.computeoptimizer', 'budgets': 'aws.budgets', 'ram': 'aws.ram', 'resiliencehub': 'aws.resiliencehub', 'migrationhub': 'aws.migrationhub', 'networkmanager': 'aws.networkmanager', 'dms': 'aws.dms', 'codedeploy': 'aws.codedeploy', 'codecommit': 'aws.codecommit', 'codeartifact': 'aws.codeartifact', 'amplify': 'aws.amplify', 'xray': 'aws.xray', 'codeguru': 'aws.codeguru', 'workspaces': 'aws.workspaces', 'connect': 'aws.connect', 'appstream': 'aws.appstream', 'gamelift': 'aws.gamelift', 'ses': 'aws.ses', 'pinpoint': 'aws.pinpoint', 'transfer': 'aws.transfer', 'lightsail': 'aws.lightsail', 'frauddetector': 'aws.frauddetector', 'location': 'aws.location', 'mediaconvert': 'aws.mediaconvert', 'medialive': 'aws.medialive', 'blockchain': 'aws.blockchain', 'devopsguru': 'aws.devopsguru', 'wafv2': 'aws.wafv2', 'vpclattice': 'aws.vpclattice', 'securityir': 'aws.securityir', 'cloudhsm': 'aws.cloudhsm', 'mskconnect': 'aws.mskconnect', 'mwaa': 'aws.mwaa', 'cleanrooms': 'aws.cleanrooms', 'datazone': 'aws.datazone', 'entityresolution': 'aws.entityresolution', 'dataexchange': 'aws.dataexchange', 'a2i': 'aws.a2i', 'healthlake': 'aws.healthlake', 'iottwinmaker': 'aws.iottwinmaker', 'iotfleetwise': 'aws.iotfleetwise', 'codecatalyst': 'aws.codecatalyst', 'devicefarm': 'aws.devicefarm', 'fis': 'aws.fis', 'managedgrafana': 'aws.managedgrafana', 'supplychain': 'aws.supplychain', 'arc': 'aws.arc', 'deadlinecloud': 'aws.deadlinecloud', 'appmesh': 'aws.appmesh', 'clientvpn': 'aws.clientvpn', 'cloudmap': 'aws.cloudmap', 'outposts': 'aws.outposts', 'auditmanager': 'aws.auditmanager', 'verifiedpermissions': 'aws.verifiedpermissions', 'paymentcryptography': 'aws.paymentcryptography', 'dax': 'aws.dax', 'proton': 'aws.proton', 'appfabric': 'aws.appfabric', 'b2bi': 'aws.b2bi', 'appconfig': 'aws.appconfig', 'drs': 'aws.drs', 'licensemanager': 'aws.licensemanager', 'chatbot': 'aws.chatbot', 'chimesdkvoice': 'aws.chimesdkvoice', 'wavelength': 'aws.wavelength', 'nova': 'aws.nova', 'lookoutvision': 'aws.lookoutvision', 'vpcipam': 'aws.vpcipam', 'private5g': 'aws.private5g', 'neptuneanalytics': 'aws.neptuneanalytics', 'auroradsql': 'aws.auroradsql', 'm2': 'aws.m2', 'pcs': 'aws.pcs', 'evs': 'aws.evs', 'healthomics': 'aws.healthomics', 'bedrockdataautomation': 'aws.bedrockdataautomation', 'groundstation': 'aws.groundstation', 'workmail': 'aws.workmail', 'wickr': 'aws.wickr', 'qdeveloper': 'aws.qdeveloper', 'endusermessaging': 'aws.endusermessaging', 'rdsproxy': 'aws.rdsproxy', 'rdscustom': 'aws.rdscustom', 'dmsserverless': 'aws.dmsserverless', 'elasticacheglobal': 'aws.elasticacheglobal', 'sagemakerfeaturestore': 'aws.sagemakerfeaturestore', 'sagemakerpipelines': 'aws.sagemakerpipelines', 'sagemakermodelmonitor': 'aws.sagemakermodelmonitor', 'lookoutequipment': 'aws.lookoutequipment', 'monitron': 'aws.monitron', 'networkaccessanalyzer': 'aws.networkaccessanalyzer', 'incidentmanager': 'aws.incidentmanager', 'cloud9': 'aws.cloud9', 's3_intelligent_tiering': 'aws.s3_intelligent_tiering', 's3_batch_operations': 'aws.s3_batch_operations', 'kinesisvideo': 'aws.kinesisvideo', 'cloudwatch_rum': 'aws.cloudwatch_rum', 'bedrockguardrails': 'aws.bedrockguardrails', 'gwlb': 'aws.gwlb', 'elb': 'aws.elb', 'mediaconnect': 'aws.mediaconnect', 'mediapackage': 'aws.mediapackage', 'mediatailor': 'aws.mediatailor', 'ivs': 'aws.ivs', 'ivschat': 'aws.ivschat', 'directoryservice': 'aws.directoryservice', 'acmpca': 'aws.acmpca', 'mgn': 'aws.mgn', 'cwsynthetics': 'aws.cwsynthetics', 'managedprometheus': 'aws.managedprometheus'];   Matcher m = /^\\/aws\\/([^\\/]+)/.matcher(lg);   if (m.find()) {     String svc = m.group(1);     if (routes.containsKey(svc)) {       ctx._target_dataset = routes.get(svc);       return;     }   } } String key = ctx.aws?.s3?.object?.key; if (key != null && key.length() > 0) {   Map routes2 = ['glue': 'aws.glue', 'emr': 'aws.emr_logs', 'emr_logs': 'aws.emr_logs', 'athena': 'aws.athena', 'lakeformation': 'aws.lakeformation', 'quicksight': 'aws.quicksight', 'databrew': 'aws.databrew', 'appflow': 'aws.appflow', 'opensearch': 'aws.opensearch', 'sagemaker': 'aws.sagemaker', 'bedrock': 'aws.bedrock', 'bedrockagent': 'aws.bedrockagent', 'rekognition': 'aws.rekognition', 'textract': 'aws.textract', 'comprehend': 'aws.comprehend', 'comprehendmedical': 'aws.comprehendmedical', 'translate': 'aws.translate', 'transcribe': 'aws.transcribe', 'polly': 'aws.polly', 'personalize': 'aws.personalize', 'lex': 'aws.lex', 'qbusiness': 'aws.qbusiness', 'lambda': 'aws.lambda_logs', 'lambda_logs': 'aws.lambda_logs', 'stepfunctions': 'aws.stepfunctions', 'apprunner': 'aws.apprunner', 'appsync': 'aws.appsync', 'fargate': 'aws.fargate', 'ec2': 'aws.ec2_logs', 'ec2_logs': 'aws.ec2_logs', 'eks': 'aws.eks', 'ecr': 'aws.ecr', 'batch': 'aws.batch', 'elasticbeanstalk': 'aws.elasticbeanstalk', 'autoscaling': 'aws.autoscaling', 'imagebuilder': 'aws.imagebuilder', 'rds': 'aws.rds', 'elasticache': 'aws.elasticache', 'aurora': 'aws.aurora', 'docdb': 'aws.docdb', 'neptune': 'aws.neptune', 'timestream': 'aws.timestream', 'keyspaces': 'aws.keyspaces', 'memorydb': 'aws.memorydb', 's3storagelens': 'aws.s3storagelens', 'efs': 'aws.efs', 'fsx': 'aws.fsx', 'backup': 'aws.backup', 'datasync': 'aws.datasync', 'storagegateway': 'aws.storagegateway', 'macie': 'aws.macie', 'accessanalyzer': 'aws.accessanalyzer', 'cognito': 'aws.cognito', 'kms': 'aws.kms', 'secretsmanager': 'aws.secretsmanager', 'acm': 'aws.acm', 'identitycenter': 'aws.identitycenter', 'detective': 'aws.detective', 'verifiedaccess': 'aws.verifiedaccess', 'securitylake': 'aws.securitylake', 'shield': 'aws.shield', 'globalaccelerator': 'aws.globalaccelerator', 'directconnect': 'aws.directconnect', 'privatelink': 'aws.privatelink', 'firehose': 'aws.firehose', 'kinesisanalytics': 'aws.kinesisanalytics', 'amazonmq': 'aws.amazonmq', 'eventbridge': 'aws.eventbridge', 'iot': 'aws.iot', 'greengrass': 'aws.greengrass', 'iotanalytics': 'aws.iotanalytics', 'iotdefender': 'aws.iotdefender', 'iotevents': 'aws.iotevents', 'iotsitewise': 'aws.iotsitewise', 'cloudformation': 'aws.cloudformation', 'ssm': 'aws.ssm', 'codebuild': 'aws.codebuild', 'codepipeline': 'aws.codepipeline', 'cloudwatch': 'aws.cloudwatch', 'controltower': 'aws.controltower', 'organizations': 'aws.organizations', 'servicecatalog': 'aws.servicecatalog', 'servicequotas': 'aws.servicequotas', 'computeoptimizer': 'aws.computeoptimizer', 'budgets': 'aws.budgets', 'ram': 'aws.ram', 'resiliencehub': 'aws.resiliencehub', 'migrationhub': 'aws.migrationhub', 'networkmanager': 'aws.networkmanager', 'dms': 'aws.dms', 'codedeploy': 'aws.codedeploy', 'codecommit': 'aws.codecommit', 'codeartifact': 'aws.codeartifact', 'amplify': 'aws.amplify', 'xray': 'aws.xray', 'codeguru': 'aws.codeguru', 'workspaces': 'aws.workspaces', 'connect': 'aws.connect', 'appstream': 'aws.appstream', 'gamelift': 'aws.gamelift', 'ses': 'aws.ses', 'pinpoint': 'aws.pinpoint', 'transfer': 'aws.transfer', 'lightsail': 'aws.lightsail', 'frauddetector': 'aws.frauddetector', 'location': 'aws.location', 'mediaconvert': 'aws.mediaconvert', 'medialive': 'aws.medialive', 'blockchain': 'aws.blockchain', 'devopsguru': 'aws.devopsguru', 'wafv2': 'aws.wafv2', 'vpclattice': 'aws.vpclattice', 'securityir': 'aws.securityir', 'cloudhsm': 'aws.cloudhsm', 'mskconnect': 'aws.mskconnect', 'mwaa': 'aws.mwaa', 'cleanrooms': 'aws.cleanrooms', 'datazone': 'aws.datazone', 'entityresolution': 'aws.entityresolution', 'dataexchange': 'aws.dataexchange', 'a2i': 'aws.a2i', 'healthlake': 'aws.healthlake', 'iottwinmaker': 'aws.iottwinmaker', 'iotfleetwise': 'aws.iotfleetwise', 'codecatalyst': 'aws.codecatalyst', 'devicefarm': 'aws.devicefarm', 'fis': 'aws.fis', 'managedgrafana': 'aws.managedgrafana', 'supplychain': 'aws.supplychain', 'arc': 'aws.arc', 'deadlinecloud': 'aws.deadlinecloud', 'appmesh': 'aws.appmesh', 'clientvpn': 'aws.clientvpn', 'cloudmap': 'aws.cloudmap', 'outposts': 'aws.outposts', 'auditmanager': 'aws.auditmanager', 'verifiedpermissions': 'aws.verifiedpermissions', 'paymentcryptography': 'aws.paymentcryptography', 'dax': 'aws.dax', 'proton': 'aws.proton', 'appfabric': 'aws.appfabric', 'b2bi': 'aws.b2bi', 'appconfig': 'aws.appconfig', 'drs': 'aws.drs', 'licensemanager': 'aws.licensemanager', 'chatbot': 'aws.chatbot', 'chimesdkvoice': 'aws.chimesdkvoice', 'wavelength': 'aws.wavelength', 'nova': 'aws.nova', 'lookoutvision': 'aws.lookoutvision', 'vpcipam': 'aws.vpcipam', 'private5g': 'aws.private5g', 'neptuneanalytics': 'aws.neptuneanalytics', 'auroradsql': 'aws.auroradsql', 'm2': 'aws.m2', 'pcs': 'aws.pcs', 'evs': 'aws.evs', 'healthomics': 'aws.healthomics', 'bedrockdataautomation': 'aws.bedrockdataautomation', 'groundstation': 'aws.groundstation', 'workmail': 'aws.workmail', 'wickr': 'aws.wickr', 'qdeveloper': 'aws.qdeveloper', 'endusermessaging': 'aws.endusermessaging', 'rdsproxy': 'aws.rdsproxy', 'rdscustom': 'aws.rdscustom', 'dmsserverless': 'aws.dmsserverless', 'elasticacheglobal': 'aws.elasticacheglobal', 'sagemakerfeaturestore': 'aws.sagemakerfeaturestore', 'sagemakerpipelines': 'aws.sagemakerpipelines', 'sagemakermodelmonitor': 'aws.sagemakermodelmonitor', 'lookoutequipment': 'aws.lookoutequipment', 'monitron': 'aws.monitron', 'networkaccessanalyzer': 'aws.networkaccessanalyzer', 'incidentmanager': 'aws.incidentmanager', 'cloud9': 'aws.cloud9', 's3_intelligent_tiering': 'aws.s3_intelligent_tiering', 's3_batch_operations': 'aws.s3_batch_operations', 'kinesisvideo': 'aws.kinesisvideo', 'cloudwatch_rum': 'aws.cloudwatch_rum', 'bedrockguardrails': 'aws.bedrockguardrails', 'gwlb': 'aws.gwlb', 'elb': 'aws.elb', 'mediaconnect': 'aws.mediaconnect', 'mediapackage': 'aws.mediapackage', 'mediatailor': 'aws.mediatailor', 'ivs': 'aws.ivs', 'ivschat': 'aws.ivschat', 'directoryservice': 'aws.directoryservice', 'acmpca': 'aws.acmpca', 'mgn': 'aws.mgn', 'cwsynthetics': 'aws.cwsynthetics', 'managedprometheus': 'aws.managedprometheus'];   Matcher m2 = /AWSLogs\\/[0-9]+\\/([^\\/]+)\\//.matcher(key);   if (m2.find()) {     String svc = m2.group(1).toLowerCase();     if (routes2.containsKey(svc)) {       ctx._target_dataset = routes2.get(svc);     }   } }",
+            "String lg = ctx.aws?.cloudwatch?.log_group; if (lg != null && lg.length() > 0) {   Map routes = ['glue': 'aws.glue', 'emr': 'aws.emr_logs', 'emr_logs': 'aws.emr_logs', 'athena': 'aws.athena', 'lakeformation': 'aws.lakeformation', 'quicksight': 'aws.quicksight', 'databrew': 'aws.databrew', 'appflow': 'aws.appflow', 'opensearch': 'aws.opensearch', 'sagemaker': 'aws.sagemaker', 'bedrock': 'aws.bedrock', 'bedrockagent': 'aws.bedrockagent', 'rekognition': 'aws.rekognition', 'textract': 'aws.textract', 'comprehend': 'aws.comprehend', 'comprehendmedical': 'aws.comprehendmedical', 'translate': 'aws.translate', 'transcribe': 'aws.transcribe', 'polly': 'aws.polly', 'personalize': 'aws.personalize', 'lex': 'aws.lex', 'qbusiness': 'aws.qbusiness', 'lambda': 'aws.lambda_logs', 'lambda_logs': 'aws.lambda_logs', 'stepfunctions': 'aws.stepfunctions', 'apprunner': 'aws.apprunner', 'appsync': 'aws.appsync', 'fargate': 'aws.fargate', 'ec2': 'aws.ec2_logs', 'ec2_logs': 'aws.ec2_logs', 'eks': 'aws.eks', 'ecr': 'aws.ecr', 'batch': 'aws.batch', 'elasticbeanstalk': 'aws.elasticbeanstalk', 'autoscaling': 'aws.autoscaling', 'imagebuilder': 'aws.imagebuilder', 'rds': 'aws.rds', 'elasticache': 'aws.elasticache', 'aurora': 'aws.aurora', 'docdb': 'aws.docdb', 'neptune': 'aws.neptune', 'timestream': 'aws.timestream', 'keyspaces': 'aws.keyspaces', 'memorydb': 'aws.memorydb', 's3storagelens': 'aws.s3storagelens', 'efs': 'aws.efs', 'fsx': 'aws.fsx', 'backup': 'aws.backup', 'datasync': 'aws.datasync', 'storagegateway': 'aws.storagegateway', 'macie': 'aws.macie', 'accessanalyzer': 'aws.accessanalyzer', 'cognito': 'aws.cognito', 'kms': 'aws.kms', 'secretsmanager': 'aws.secretsmanager', 'acm': 'aws.acm', 'identitycenter': 'aws.identitycenter', 'detective': 'aws.detective', 'verifiedaccess': 'aws.verifiedaccess', 'securitylake': 'aws.securitylake', 'shield': 'aws.shield', 'globalaccelerator': 'aws.globalaccelerator', 'directconnect': 'aws.directconnect', 'privatelink': 'aws.privatelink', 'firehose': 'aws.firehose', 'kinesisanalytics': 'aws.kinesisanalytics', 'amazonmq': 'aws.amazonmq', 'eventbridge': 'aws.eventbridge', 'iot': 'aws.iot', 'greengrass': 'aws.greengrass', 'iotanalytics': 'aws.iotanalytics', 'iotdefender': 'aws.iotdefender', 'iotevents': 'aws.iotevents', 'iotsitewise': 'aws.iotsitewise', 'cloudformation': 'aws.cloudformation', 'ssm': 'aws.ssm', 'codebuild': 'aws.codebuild', 'codepipeline': 'aws.codepipeline', 'cloudwatch': 'aws.cloudwatch', 'controltower': 'aws.controltower', 'organizations': 'aws.organizations', 'servicecatalog': 'aws.servicecatalog', 'servicequotas': 'aws.servicequotas', 'computeoptimizer': 'aws.computeoptimizer', 'budgets': 'aws.budgets', 'ram': 'aws.ram', 'resiliencehub': 'aws.resiliencehub', 'migrationhub': 'aws.migrationhub', 'networkmanager': 'aws.networkmanager', 'dms': 'aws.dms', 'codedeploy': 'aws.codedeploy', 'codecommit': 'aws.codecommit', 'codeartifact': 'aws.codeartifact', 'amplify': 'aws.amplify', 'xray': 'aws.xray', 'codeguru': 'aws.codeguru', 'workspaces': 'aws.workspaces', 'connect': 'aws.connect', 'appstream': 'aws.appstream', 'gamelift': 'aws.gamelift', 'ses': 'aws.ses', 'pinpoint': 'aws.pinpoint', 'transfer': 'aws.transfer', 'lightsail': 'aws.lightsail', 'frauddetector': 'aws.frauddetector', 'location': 'aws.location', 'mediaconvert': 'aws.mediaconvert', 'medialive': 'aws.medialive', 'blockchain': 'aws.blockchain', 'devopsguru': 'aws.devopsguru', 'wafv2': 'aws.wafv2', 'vpclattice': 'aws.vpclattice', 'securityir': 'aws.securityir', 'cloudhsm': 'aws.cloudhsm', 'mskconnect': 'aws.mskconnect', 'mwaa': 'aws.mwaa', 'openlineage': 'aws.openlineage', 'glue_dataquality': 'aws.glue_dataquality', 'cleanrooms': 'aws.cleanrooms', 'datazone': 'aws.datazone', 'entityresolution': 'aws.entityresolution', 'dataexchange': 'aws.dataexchange', 'a2i': 'aws.a2i', 'healthlake': 'aws.healthlake', 'iottwinmaker': 'aws.iottwinmaker', 'iotfleetwise': 'aws.iotfleetwise', 'codecatalyst': 'aws.codecatalyst', 'devicefarm': 'aws.devicefarm', 'fis': 'aws.fis', 'managedgrafana': 'aws.managedgrafana', 'supplychain': 'aws.supplychain', 'arc': 'aws.arc', 'deadlinecloud': 'aws.deadlinecloud', 'appmesh': 'aws.appmesh', 'clientvpn': 'aws.clientvpn', 'cloudmap': 'aws.cloudmap', 'outposts': 'aws.outposts', 'auditmanager': 'aws.auditmanager', 'verifiedpermissions': 'aws.verifiedpermissions', 'paymentcryptography': 'aws.paymentcryptography', 'dax': 'aws.dax', 'proton': 'aws.proton', 'appfabric': 'aws.appfabric', 'b2bi': 'aws.b2bi', 'appconfig': 'aws.appconfig', 'drs': 'aws.drs', 'licensemanager': 'aws.licensemanager', 'chatbot': 'aws.chatbot', 'chimesdkvoice': 'aws.chimesdkvoice', 'wavelength': 'aws.wavelength', 'nova': 'aws.nova', 'lookoutvision': 'aws.lookoutvision', 'vpcipam': 'aws.vpcipam', 'private5g': 'aws.private5g', 'neptuneanalytics': 'aws.neptuneanalytics', 'auroradsql': 'aws.auroradsql', 'm2': 'aws.m2', 'pcs': 'aws.pcs', 'evs': 'aws.evs', 'healthomics': 'aws.healthomics', 'bedrockdataautomation': 'aws.bedrockdataautomation', 'groundstation': 'aws.groundstation', 'workmail': 'aws.workmail', 'wickr': 'aws.wickr', 'qdeveloper': 'aws.qdeveloper', 'endusermessaging': 'aws.endusermessaging', 'rdsproxy': 'aws.rdsproxy', 'rdscustom': 'aws.rdscustom', 'dmsserverless': 'aws.dmsserverless', 'elasticacheglobal': 'aws.elasticacheglobal', 'sagemakerfeaturestore': 'aws.sagemakerfeaturestore', 'sagemakerpipelines': 'aws.sagemakerpipelines', 'sagemakermodelmonitor': 'aws.sagemakermodelmonitor', 'lookoutequipment': 'aws.lookoutequipment', 'monitron': 'aws.monitron', 'networkaccessanalyzer': 'aws.networkaccessanalyzer', 'incidentmanager': 'aws.incidentmanager', 'cloud9': 'aws.cloud9', 's3_intelligent_tiering': 'aws.s3_intelligent_tiering', 's3_batch_operations': 'aws.s3_batch_operations', 'kinesisvideo': 'aws.kinesisvideo', 'cloudwatch_rum': 'aws.cloudwatch_rum', 'bedrockguardrails': 'aws.bedrockguardrails', 'gwlb': 'aws.gwlb', 'elb': 'aws.elb', 'mediaconnect': 'aws.mediaconnect', 'mediapackage': 'aws.mediapackage', 'mediatailor': 'aws.mediatailor', 'ivs': 'aws.ivs', 'ivschat': 'aws.ivschat', 'directoryservice': 'aws.directoryservice', 'acmpca': 'aws.acmpca', 'mgn': 'aws.mgn', 'cwsynthetics': 'aws.cwsynthetics', 'managedprometheus': 'aws.managedprometheus'];   Matcher m = /^\\/aws\\/([^\\/]+)/.matcher(lg);   if (m.find()) {     String svc = m.group(1);     if (routes.containsKey(svc)) {       ctx._target_dataset = routes.get(svc);       return;     }   } } String key = ctx.aws?.s3?.object?.key; if (key != null && key.length() > 0) {   Map routes2 = ['glue': 'aws.glue', 'emr': 'aws.emr_logs', 'emr_logs': 'aws.emr_logs', 'athena': 'aws.athena', 'lakeformation': 'aws.lakeformation', 'quicksight': 'aws.quicksight', 'databrew': 'aws.databrew', 'appflow': 'aws.appflow', 'opensearch': 'aws.opensearch', 'sagemaker': 'aws.sagemaker', 'bedrock': 'aws.bedrock', 'bedrockagent': 'aws.bedrockagent', 'rekognition': 'aws.rekognition', 'textract': 'aws.textract', 'comprehend': 'aws.comprehend', 'comprehendmedical': 'aws.comprehendmedical', 'translate': 'aws.translate', 'transcribe': 'aws.transcribe', 'polly': 'aws.polly', 'personalize': 'aws.personalize', 'lex': 'aws.lex', 'qbusiness': 'aws.qbusiness', 'lambda': 'aws.lambda_logs', 'lambda_logs': 'aws.lambda_logs', 'stepfunctions': 'aws.stepfunctions', 'apprunner': 'aws.apprunner', 'appsync': 'aws.appsync', 'fargate': 'aws.fargate', 'ec2': 'aws.ec2_logs', 'ec2_logs': 'aws.ec2_logs', 'eks': 'aws.eks', 'ecr': 'aws.ecr', 'batch': 'aws.batch', 'elasticbeanstalk': 'aws.elasticbeanstalk', 'autoscaling': 'aws.autoscaling', 'imagebuilder': 'aws.imagebuilder', 'rds': 'aws.rds', 'elasticache': 'aws.elasticache', 'aurora': 'aws.aurora', 'docdb': 'aws.docdb', 'neptune': 'aws.neptune', 'timestream': 'aws.timestream', 'keyspaces': 'aws.keyspaces', 'memorydb': 'aws.memorydb', 's3storagelens': 'aws.s3storagelens', 'efs': 'aws.efs', 'fsx': 'aws.fsx', 'backup': 'aws.backup', 'datasync': 'aws.datasync', 'storagegateway': 'aws.storagegateway', 'macie': 'aws.macie', 'accessanalyzer': 'aws.accessanalyzer', 'cognito': 'aws.cognito', 'kms': 'aws.kms', 'secretsmanager': 'aws.secretsmanager', 'acm': 'aws.acm', 'identitycenter': 'aws.identitycenter', 'detective': 'aws.detective', 'verifiedaccess': 'aws.verifiedaccess', 'securitylake': 'aws.securitylake', 'shield': 'aws.shield', 'globalaccelerator': 'aws.globalaccelerator', 'directconnect': 'aws.directconnect', 'privatelink': 'aws.privatelink', 'firehose': 'aws.firehose', 'kinesisanalytics': 'aws.kinesisanalytics', 'amazonmq': 'aws.amazonmq', 'eventbridge': 'aws.eventbridge', 'iot': 'aws.iot', 'greengrass': 'aws.greengrass', 'iotanalytics': 'aws.iotanalytics', 'iotdefender': 'aws.iotdefender', 'iotevents': 'aws.iotevents', 'iotsitewise': 'aws.iotsitewise', 'cloudformation': 'aws.cloudformation', 'ssm': 'aws.ssm', 'codebuild': 'aws.codebuild', 'codepipeline': 'aws.codepipeline', 'cloudwatch': 'aws.cloudwatch', 'controltower': 'aws.controltower', 'organizations': 'aws.organizations', 'servicecatalog': 'aws.servicecatalog', 'servicequotas': 'aws.servicequotas', 'computeoptimizer': 'aws.computeoptimizer', 'budgets': 'aws.budgets', 'ram': 'aws.ram', 'resiliencehub': 'aws.resiliencehub', 'migrationhub': 'aws.migrationhub', 'networkmanager': 'aws.networkmanager', 'dms': 'aws.dms', 'codedeploy': 'aws.codedeploy', 'codecommit': 'aws.codecommit', 'codeartifact': 'aws.codeartifact', 'amplify': 'aws.amplify', 'xray': 'aws.xray', 'codeguru': 'aws.codeguru', 'workspaces': 'aws.workspaces', 'connect': 'aws.connect', 'appstream': 'aws.appstream', 'gamelift': 'aws.gamelift', 'ses': 'aws.ses', 'pinpoint': 'aws.pinpoint', 'transfer': 'aws.transfer', 'lightsail': 'aws.lightsail', 'frauddetector': 'aws.frauddetector', 'location': 'aws.location', 'mediaconvert': 'aws.mediaconvert', 'medialive': 'aws.medialive', 'blockchain': 'aws.blockchain', 'devopsguru': 'aws.devopsguru', 'wafv2': 'aws.wafv2', 'vpclattice': 'aws.vpclattice', 'securityir': 'aws.securityir', 'cloudhsm': 'aws.cloudhsm', 'mskconnect': 'aws.mskconnect', 'mwaa': 'aws.mwaa', 'openlineage': 'aws.openlineage', 'glue_dataquality': 'aws.glue_dataquality', 'cleanrooms': 'aws.cleanrooms', 'datazone': 'aws.datazone', 'entityresolution': 'aws.entityresolution', 'dataexchange': 'aws.dataexchange', 'a2i': 'aws.a2i', 'healthlake': 'aws.healthlake', 'iottwinmaker': 'aws.iottwinmaker', 'iotfleetwise': 'aws.iotfleetwise', 'codecatalyst': 'aws.codecatalyst', 'devicefarm': 'aws.devicefarm', 'fis': 'aws.fis', 'managedgrafana': 'aws.managedgrafana', 'supplychain': 'aws.supplychain', 'arc': 'aws.arc', 'deadlinecloud': 'aws.deadlinecloud', 'appmesh': 'aws.appmesh', 'clientvpn': 'aws.clientvpn', 'cloudmap': 'aws.cloudmap', 'outposts': 'aws.outposts', 'auditmanager': 'aws.auditmanager', 'verifiedpermissions': 'aws.verifiedpermissions', 'paymentcryptography': 'aws.paymentcryptography', 'dax': 'aws.dax', 'proton': 'aws.proton', 'appfabric': 'aws.appfabric', 'b2bi': 'aws.b2bi', 'appconfig': 'aws.appconfig', 'drs': 'aws.drs', 'licensemanager': 'aws.licensemanager', 'chatbot': 'aws.chatbot', 'chimesdkvoice': 'aws.chimesdkvoice', 'wavelength': 'aws.wavelength', 'nova': 'aws.nova', 'lookoutvision': 'aws.lookoutvision', 'vpcipam': 'aws.vpcipam', 'private5g': 'aws.private5g', 'neptuneanalytics': 'aws.neptuneanalytics', 'auroradsql': 'aws.auroradsql', 'm2': 'aws.m2', 'pcs': 'aws.pcs', 'evs': 'aws.evs', 'healthomics': 'aws.healthomics', 'bedrockdataautomation': 'aws.bedrockdataautomation', 'groundstation': 'aws.groundstation', 'workmail': 'aws.workmail', 'wickr': 'aws.wickr', 'qdeveloper': 'aws.qdeveloper', 'endusermessaging': 'aws.endusermessaging', 'rdsproxy': 'aws.rdsproxy', 'rdscustom': 'aws.rdscustom', 'dmsserverless': 'aws.dmsserverless', 'elasticacheglobal': 'aws.elasticacheglobal', 'sagemakerfeaturestore': 'aws.sagemakerfeaturestore', 'sagemakerpipelines': 'aws.sagemakerpipelines', 'sagemakermodelmonitor': 'aws.sagemakermodelmonitor', 'lookoutequipment': 'aws.lookoutequipment', 'monitron': 'aws.monitron', 'networkaccessanalyzer': 'aws.networkaccessanalyzer', 'incidentmanager': 'aws.incidentmanager', 'cloud9': 'aws.cloud9', 's3_intelligent_tiering': 'aws.s3_intelligent_tiering', 's3_batch_operations': 'aws.s3_batch_operations', 'kinesisvideo': 'aws.kinesisvideo', 'cloudwatch_rum': 'aws.cloudwatch_rum', 'bedrockguardrails': 'aws.bedrockguardrails', 'gwlb': 'aws.gwlb', 'elb': 'aws.elb', 'mediaconnect': 'aws.mediaconnect', 'mediapackage': 'aws.mediapackage', 'mediatailor': 'aws.mediatailor', 'ivs': 'aws.ivs', 'ivschat': 'aws.ivschat', 'directoryservice': 'aws.directoryservice', 'acmpca': 'aws.acmpca', 'mgn': 'aws.mgn', 'cwsynthetics': 'aws.cwsynthetics', 'managedprometheus': 'aws.managedprometheus'];   Matcher m2 = /AWSLogs\\/[0-9]+\\/([^\\/]+)\\//.matcher(key);   if (m2.find()) {     String svc = m2.group(1).toLowerCase();     if (routes2.containsKey(svc)) {       ctx._target_dataset = routes2.get(svc);     }   } }",
           ignore_failure: true,
         },
       },

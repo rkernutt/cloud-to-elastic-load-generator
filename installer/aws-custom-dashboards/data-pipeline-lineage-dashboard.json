@@ -1,0 +1,742 @@
+{
+  "title": "Data & Analytics Pipeline — run lineage",
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "lens",
+      "uid": "dpl-k1",
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "Pipeline runs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id IS NOT NULL | STATS `Pipeline runs` = COUNT_DISTINCT(labels.pipeline_run_id)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Pipeline runs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-k2",
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "Runs with full lineage (Airflow)",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.job.type == \"DAG\" | STATS `Runs with lineage` = COUNT_DISTINCT(labels.pipeline_run_id)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Runs with lineage"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-k3",
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "Failed jobs",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.event_type == \"FAIL\" | STATS `Failed jobs` = COUNT()"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failed jobs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-k4",
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
+      "config": {
+        "title": "Datasets tracked",
+        "attributes": {
+          "type": "metric",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.event_type == \"COMPLETE\" | MV_EXPAND aws.openlineage.outputs | STATS `Datasets` = COUNT_DISTINCT(aws.openlineage.outputs)"
+          },
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Datasets"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-t1",
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Recent pipeline runs — click a run id to filter every panel",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.event_type IN (\"COMPLETE\", \"FAIL\") AND labels.pipeline_run_id IS NOT NULL | STATS started_ts = MIN(@timestamp), failed_flag = MAX(CASE(aws.openlineage.event_type == \"FAIL\", 1, 0)), jobs_count = COUNT_DISTINCT(aws.openlineage.job.name), failed_job = MV_CONCAT(VALUES(CASE(aws.openlineage.event_type == \"FAIL\", aws.openlineage.job.name, NULL)), \", \"), dag_duration_ms = MAX(CASE(aws.openlineage.job.type == \"DAG\", aws.openlineage.run.duration_ms, NULL)), any_duration_ms = MAX(aws.openlineage.run.duration_ms) BY run_id = labels.pipeline_run_id, dag = labels.dag_id, mode = labels.orchestration_mode | EVAL started = DATE_FORMAT(\"yyyy-MM-dd HH:mm:ss\", started_ts), outcome = CASE(failed_flag == 1, \"failed\", \"success\"), total_duration_ms = COALESCE(dag_duration_ms, any_duration_ms) | KEEP started, run_id, dag, mode, outcome, jobs_count, failed_job, total_duration_ms | SORT started DESC | LIMIT 50"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "started",
+              "label": "Started"
+            },
+            {
+              "operation": "value",
+              "column": "run_id",
+              "label": "Run id"
+            },
+            {
+              "operation": "value",
+              "column": "dag",
+              "label": "DAG"
+            },
+            {
+              "operation": "value",
+              "column": "mode",
+              "label": "Mode"
+            },
+            {
+              "operation": "value",
+              "column": "outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "jobs_count",
+              "label": "Jobs"
+            },
+            {
+              "operation": "value",
+              "column": "failed_job",
+              "label": "Failed job"
+            },
+            {
+              "operation": "value",
+              "column": "total_duration_ms",
+              "label": "Total duration (ms)"
+            }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-t2",
+      "grid": {
+        "x": 0,
+        "y": 17,
+        "w": 48,
+        "h": 14
+      },
+      "config": {
+        "title": "Run lineage — jobs in execution order",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id IS NOT NULL AND aws.openlineage.job.name IS NOT NULL | STATS started_ts = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type), \"DESC\"), \" → \"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), row_count = MAX(aws.openlineage.output_statistics.row_count), error = MV_CONCAT(VALUES(error.message), \" | \") BY run_id = labels.pipeline_run_id, job = aws.openlineage.job.name, integration = aws.openlineage.job.integration, job_type = aws.openlineage.job.type | EVAL started = DATE_FORMAT(\"yyyy-MM-dd HH:mm:ss\", started_ts) | KEEP started, run_id, job, integration, job_type, events, duration_ms, inputs, outputs, row_count, error | SORT run_id ASC, started ASC | LIMIT 200"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "started",
+              "label": "Started"
+            },
+            {
+              "operation": "value",
+              "column": "run_id",
+              "label": "Run id"
+            },
+            {
+              "operation": "value",
+              "column": "job",
+              "label": "Job"
+            },
+            {
+              "operation": "value",
+              "column": "integration",
+              "label": "Integration"
+            },
+            {
+              "operation": "value",
+              "column": "job_type",
+              "label": "Type"
+            },
+            {
+              "operation": "value",
+              "column": "events",
+              "label": "Events"
+            },
+            {
+              "operation": "value",
+              "column": "duration_ms",
+              "label": "Duration (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "inputs",
+              "label": "Inputs"
+            },
+            {
+              "operation": "value",
+              "column": "outputs",
+              "label": "Outputs"
+            },
+            {
+              "operation": "value",
+              "column": "row_count",
+              "label": "Rows written"
+            },
+            {
+              "operation": "value",
+              "column": "error",
+              "label": "Error"
+            }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-t3",
+      "grid": {
+        "x": 0,
+        "y": 31,
+        "w": 24,
+        "h": 12
+      },
+      "config": {
+        "title": "Dataset lineage edges (input → job → output)",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.event_type == \"COMPLETE\" AND aws.openlineage.output_count > 0 | MV_EXPAND aws.openlineage.inputs | MV_EXPAND aws.openlineage.outputs | STATS edge_count = COUNT() BY input = aws.openlineage.inputs, job = aws.openlineage.job.name, output = aws.openlineage.outputs | SORT edge_count DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "input",
+              "label": "Input dataset"
+            },
+            {
+              "operation": "value",
+              "column": "job",
+              "label": "Job"
+            },
+            {
+              "operation": "value",
+              "column": "output",
+              "label": "Output dataset"
+            },
+            {
+              "operation": "value",
+              "column": "edge_count",
+              "label": "Runs"
+            }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-t4",
+      "grid": {
+        "x": 24,
+        "y": 31,
+        "w": 24,
+        "h": 12
+      },
+      "config": {
+        "title": "Output schema by job (column drift shows here)",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.output_schema_fields IS NOT NULL | STATS schema = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.output_schema_fields)), \", \"), last_ts = MAX(@timestamp) BY job = aws.openlineage.job.name, run_id = labels.pipeline_run_id | EVAL last_seen = DATE_FORMAT(\"yyyy-MM-dd HH:mm:ss\", last_ts) | KEEP last_seen, run_id, job, schema | SORT last_seen DESC | LIMIT 50"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "last_seen",
+              "label": "Last seen"
+            },
+            {
+              "operation": "value",
+              "column": "run_id",
+              "label": "Run id"
+            },
+            {
+              "operation": "value",
+              "column": "job",
+              "label": "Job"
+            },
+            {
+              "operation": "value",
+              "column": "schema",
+              "label": "Output schema"
+            }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-x1",
+      "grid": {
+        "x": 0,
+        "y": 43,
+        "w": 24,
+        "h": 12
+      },
+      "config": {
+        "title": "Job duration per run (waterfall)",
+        "attributes": {
+          "type": "xy",
+          "axis": {
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
+          },
+          "layers": [
+            {
+              "type": "bar",
+              "dataset": {
+                "type": "esql",
+                "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.run.duration_ms IS NOT NULL AND aws.openlineage.job.type != \"DAG\" | STATS duration_ms = MAX(aws.openlineage.run.duration_ms) BY job = aws.openlineage.job.name | SORT duration_ms DESC | LIMIT 20"
+              },
+              "x": {
+                "operation": "value",
+                "column": "job"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "duration_ms",
+                  "label": "Max duration (ms)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-t5",
+      "grid": {
+        "x": 24,
+        "y": 43,
+        "w": 24,
+        "h": 12
+      },
+      "config": {
+        "title": "Jobs running slower than their own baseline (p50 over the dashboard time range; clear any run filter to see baselines)",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.run.duration_ms IS NOT NULL AND aws.openlineage.job.type != \"DAG\" | STATS duration_ms = MAX(aws.openlineage.run.duration_ms), started_ts = MIN(@timestamp) BY run_id = labels.pipeline_run_id, job = aws.openlineage.job.name | INLINE STATS baseline_p50_duration_ms = PERCENTILE(duration_ms, 50), baseline_p95_duration_ms = PERCENTILE(duration_ms, 95) BY job | EVAL ratio_pct = ROUND(100.0 * duration_ms / baseline_p50_duration_ms, 0) | WHERE ratio_pct >= 150 | EVAL started = DATE_FORMAT(\"yyyy-MM-dd HH:mm:ss\", started_ts) | KEEP started, run_id, job, duration_ms, baseline_p50_duration_ms, baseline_p95_duration_ms, ratio_pct | SORT ratio_pct DESC | LIMIT 50"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "started",
+              "label": "Started"
+            },
+            {
+              "operation": "value",
+              "column": "run_id",
+              "label": "Run id"
+            },
+            {
+              "operation": "value",
+              "column": "job",
+              "label": "Job"
+            },
+            {
+              "operation": "value",
+              "column": "duration_ms",
+              "label": "Duration (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "baseline_p50_duration_ms",
+              "label": "Baseline p50 (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "baseline_p95_duration_ms",
+              "label": "Baseline p95 (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "ratio_pct",
+              "label": "% of p50"
+            }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-x2",
+      "grid": {
+        "x": 0,
+        "y": 55,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "Job duration trend by job",
+        "attributes": {
+          "type": "bar_stacked",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.run.duration_ms IS NOT NULL AND aws.openlineage.job.type != \"DAG\" | STATS duration_ms = AVG(aws.openlineage.run.duration_ms) BY bucket = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend), job = aws.openlineage.job.name | SORT bucket"
+          },
+          "xAxis": {
+            "column": "bucket"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "duration_ms"
+            }
+          ],
+          "breakdown": {
+            "column": "job"
+          }
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-d1",
+      "grid": {
+        "x": 0,
+        "y": 65,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Failures by job",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.event_type == \"FAIL\" | STATS failures_count = COUNT() BY job = aws.openlineage.job.name"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "failures_count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "job"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-d2",
+      "grid": {
+        "x": 16,
+        "y": 65,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Lineage coverage by orchestration mode",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE labels.orchestration_mode IS NOT NULL | STATS runs_count = COUNT_DISTINCT(labels.pipeline_run_id) BY mode = labels.orchestration_mode"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "runs_count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "mode"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-d3",
+      "grid": {
+        "x": 32,
+        "y": 65,
+        "w": 16,
+        "h": 10
+      },
+      "config": {
+        "title": "Error types",
+        "attributes": {
+          "type": "donut",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.openlineage* | WHERE aws.openlineage.event_type == \"FAIL\" AND error.type IS NOT NULL | STATS errors_count = COUNT() BY err = error.type"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "errors_count"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "err"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-t6",
+      "grid": {
+        "x": 0,
+        "y": 75,
+        "w": 48,
+        "h": 14
+      },
+      "config": {
+        "title": "Raw evidence for the selected run(s) — native identifiers",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.s3access*, logs-aws.emr_logs*, logs-aws.glue*, logs-aws.glue_dataquality*, logs-aws.eks*, logs-aws.mwaa*, logs-aws.stepfunctions*, logs-aws.cloudtrail* | WHERE labels.pipeline_run_id IS NOT NULL | EVAL native_id = COALESCE(aws.emr.step_id, aws.glue_dataquality.result_id, aws.glue.job.run_id, aws.s3access.request_id, aws.stepfunctions.execution_arn, aws.mwaa.run_id, aws.cloudtrail.request_id, TO_STRING(kafka.offset)), detail = COALESCE(aws.glue_dataquality.state, MV_CONCAT(aws.glue_dataquality.failed_rules, \"; \"), aws.s3access.key, aws.emr.spark_app_id, aws.stepfunctions.state_name, aws.mwaa.task_id, aws.glue.job.name, kubernetes.pod.name, event.action) | KEEP @timestamp, labels.pipeline_run_id, event.dataset, event.outcome, native_id, detail, user.name | SORT @timestamp DESC | LIMIT 200"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "@timestamp",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "labels.pipeline_run_id",
+              "label": "Run id"
+            },
+            {
+              "operation": "value",
+              "column": "event.dataset",
+              "label": "Dataset"
+            },
+            {
+              "operation": "value",
+              "column": "event.outcome",
+              "label": "Outcome"
+            },
+            {
+              "operation": "value",
+              "column": "native_id",
+              "label": "Native id"
+            },
+            {
+              "operation": "value",
+              "column": "detail",
+              "label": "Detail"
+            },
+            {
+              "operation": "value",
+              "column": "user.name",
+              "label": "User"
+            }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-t7",
+      "grid": {
+        "x": 0,
+        "y": 89,
+        "w": 48,
+        "h": 10
+      },
+      "config": {
+        "title": "APM trace per run (pivot to APM)",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM traces-apm* | WHERE labels.pipeline_run_id IS NOT NULL AND processor.event == \"transaction\" | STATS duration_ms = MAX(transaction.duration.us) / 1000, trace_id = MV_CONCAT(VALUES(trace.id), \", \") BY run_id = labels.pipeline_run_id, service = service.name | SORT duration_ms DESC | LIMIT 50"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "run_id",
+              "label": "Run id"
+            },
+            {
+              "operation": "value",
+              "column": "service",
+              "label": "Service"
+            },
+            {
+              "operation": "value",
+              "column": "duration_ms",
+              "label": "Duration (ms)"
+            },
+            {
+              "operation": "value",
+              "column": "trace_id",
+              "label": "Trace id"
+            }
+          ],
+          "rows": []
+        }
+      }
+    },
+    {
+      "type": "lens",
+      "uid": "dpl-t8",
+      "grid": {
+        "x": 0,
+        "y": 99,
+        "w": 48,
+        "h": 12
+      },
+      "config": {
+        "title": "Data quality per run (Glue DQ result via Confluent Kafka)",
+        "attributes": {
+          "type": "datatable",
+          "dataset": {
+            "type": "esql",
+            "query": "FROM logs-aws.glue_dataquality* | WHERE labels.pipeline_run_id IS NOT NULL | EVAL failed_rules = MV_CONCAT(aws.glue_dataquality.failed_rules, \" | \") | KEEP @timestamp, labels.pipeline_run_id, aws.glue_dataquality.job.name, aws.glue_dataquality.score, aws.glue_dataquality.state, aws.glue_dataquality.rules.failed, failed_rules, kafka.offset | SORT @timestamp DESC | LIMIT 100"
+          },
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "@timestamp",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "labels.pipeline_run_id",
+              "label": "Run id"
+            },
+            {
+              "operation": "value",
+              "column": "aws.glue_dataquality.job.name",
+              "label": "DQ job"
+            },
+            {
+              "operation": "value",
+              "column": "aws.glue_dataquality.score",
+              "label": "Score"
+            },
+            {
+              "operation": "value",
+              "column": "aws.glue_dataquality.state",
+              "label": "State"
+            },
+            {
+              "operation": "value",
+              "column": "aws.glue_dataquality.rules.failed",
+              "label": "Rules failed"
+            },
+            {
+              "operation": "value",
+              "column": "failed_rules",
+              "label": "Failed rules (DQDL)"
+            },
+            {
+              "operation": "value",
+              "column": "kafka.offset",
+              "label": "Kafka offset"
+            }
+          ],
+          "rows": []
+        }
+      }
+    }
+  ]
+}

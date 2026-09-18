@@ -627,6 +627,8 @@ export function SetupPage({
     databrew: "Analytics",
     appflow: "Analytics",
     mwaa: "Analytics",
+    openlineage: "Analytics",
+    glue_dataquality: "Analytics",
     cleanrooms: "Analytics",
     datazone: "Analytics",
     entityresolution: "Analytics",

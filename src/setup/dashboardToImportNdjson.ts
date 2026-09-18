@@ -225,6 +225,8 @@ interface XYLayerSpec {
   dataset: DatasetSpec;
   x?: { column: string };
   y: Array<{ column: string; label?: string }>;
+  /** Optional series split (Lens `splitAccessor`) — one series per distinct value of this column. */
+  breakdown?: { column: string };
 }
 
 interface XYAttrs {
@@ -241,7 +243,7 @@ async function buildXYLens(attrs: XYAttrs, panelTitle: string) {
   for (let i = 0; i < layers.length; i++) {
     const layer = layers[i]!;
     const layerId = await seededUUID(`layer:${panelTitle}:${i}:${layer.dataset.query}`);
-    const { type: seriesType, dataset, x, y } = layer;
+    const { type: seriesType, dataset, x, y, breakdown } = layer;
     const { indexId, indexTitle } = await esqlIndexFromQuery(dataset.query);
     adHocDataViews[indexId] = adHocEsqlDataView(indexId, indexTitle);
 
@@ -259,11 +261,17 @@ async function buildXYLens(attrs: XYAttrs, panelTitle: string) {
       fieldName: ref.column,
       meta: { type: "number" },
     }));
+    // Breakdown column must be a real output column of the query and must not
+    // collide with the x-axis column.
+    const splitCols =
+      breakdown?.column && breakdown.column !== x?.column
+        ? [{ columnId: breakdown.column, fieldName: breakdown.column, meta: { type: "string" } }]
+        : [];
 
     dsLayers[layerId] = {
       index: indexId,
       query: { esql: dataset.query },
-      columns: [...xCols, ...yCols],
+      columns: [...xCols, ...yCols, ...splitCols],
       timeField: "@timestamp",
       indexPatternRefs: [{ id: indexId, title: indexTitle }],
     };
@@ -273,6 +281,7 @@ async function buildXYLens(attrs: XYAttrs, panelTitle: string) {
       accessors: yCols.map((c) => c.columnId),
       seriesType,
       xAccessor: x?.column,
+      ...(splitCols.length ? { splitAccessor: splitCols[0]!.columnId } : {}),
       layerType: "data",
       yConfig: yCols.map((c, yi) => ({
         forAccessor: c.columnId,
@@ -416,7 +425,16 @@ async function buildStackedBarLens(attrs: BarStackedAttrs, panelTitle: string) {
   return buildXYLens(
     {
       type: "xy",
-      layers: [{ type: "bar_stacked", dataset, x: { column: xAxis.column }, y }],
+      layers: [
+        {
+          type: "bar_stacked",
+          dataset,
+          x: { column: xAxis.column },
+          y,
+          // Split into one stacked series per breakdown value (previously ignored).
+          ...(attrs.breakdown?.column ? { breakdown: { column: attrs.breakdown.column } } : {}),
+        },
+      ],
     },
     panelTitle
   );

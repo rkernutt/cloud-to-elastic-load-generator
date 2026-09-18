@@ -1,8 +1,8 @@
 # Cloud Loadgen for Elastic — Architecture Diagrams
 
-> **Catalog sizes (services · trace generators):** AWS **217 · 56**; GCP **136 · 58**; Azure **133 · 52**; Supporting **8** (see [README](../README.md)).
+> **Catalog sizes (services · trace generators):** AWS **218 · 56**; GCP **136 · 58**; Azure **133 · 52**; Supporting **8** (see [README](../README.md)).
 
-> **Installer assets (custom Kibana dashboards · ML anomaly jobs · alerting rules):** AWS **223 · 33 · 13**; GCP **135 · 15 · 9**; Azure **138 · 14 · 9** (**496** dashboards, **62** ML jobs, **31** rules total). Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
+> **Installer assets (custom Kibana dashboards · ML anomaly jobs · alerting rules):** AWS **224 · 401 · 117**; GCP **135 · 182 · 62**; Azure **138 · 195 · 66** (**497** dashboards, **778** ML jobs, **245** rules total). Rules are defined in `installer/{aws,gcp,azure}-custom-rules/` (including Data & Analytics Pipeline rules plus Security Finding, IAM Privesc, and Data Exfil chains per cloud).
 
 ---
 
