@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] CodeBuild — Build Failures",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "codebuild", "devops"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codebuild\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-aws.codebuild*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] CodeBuild — Slow Build",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "codebuild", "devops"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codebuild\"}},{\"range\":{\"event.duration\":{\"gt\":600000000000}}}]}}}",
         "index": ["logs-aws.codebuild*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] CodeBuild — Build Timeout",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "codebuild", "devops"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codebuild\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"TIMED_OUT\"}},{\"match_phrase\":{\"message\":\"Build timed out\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.codebuild*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] CodePipeline — Stage Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "codepipeline", "devops"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codepipeline\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-aws.codepipeline*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] CodePipeline — Approval Timeout",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "codepipeline", "devops"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.codepipeline\"}},{\"match_phrase\":{\"message\":\"Approval\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"expired\"}},{\"match_phrase\":{\"message\":\"timed_out\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.codepipeline*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

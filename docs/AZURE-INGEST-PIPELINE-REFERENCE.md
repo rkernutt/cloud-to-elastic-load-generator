@@ -40,6 +40,8 @@ Maps Azure-native fields to ECS equivalents:
 | `resourceId`            | `cloud.instance.id`                                         |
 | `properties.statusCode` | `http.response.status_code`                                 |
 
+`ecsNorm` is shared with the AWS and GCP registries (`installer/shared/pipeline-processors.mjs`), so Azure pipelines also carry the painless processor tagged `set_event_action_from_service_fields`. It only fills `event.action` when the field is still unset, and it reads the `aws.{service}` blocks, so for Azure documents the `operationName` mapping above has already set the field and the processor is a no-op. Regenerate with `npm run gen:azure-pipelines` after changing the shared processors.
+
 ### 2. Identity extraction (`azureIdentityExtract`)
 
 | Azure native field                                                          | ECS field                 |

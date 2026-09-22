@@ -263,6 +263,12 @@ Tier 2 (`POST /api/saved_objects/dashboard/{id}`) handles all of these correctly
 
 All alerting rules use `consumer: "alerts"` (not `stackAlerts`) to ensure they appear in **Kibana → Stack Management → Rules** and in the **Alerts** section of Observability and Security. Rules use the `.es-query` rule type with the `esQuery` parameter wrapped in a `{"query": ...}` envelope as required by Kibana 9.x.
 
+### Alerts stay active instead of auto-recovering
+
+All 246 rules in `installer/{aws,gcp,azure}-custom-rules/*.json` (118 AWS, 66 Azure, 62 GCP) set `params.excludeHitsFromPreviousRun: false`.
+
+Kibana defaults that parameter to `true`, which makes an `.es-query` rule count only documents that are new since the previous execution. A burst of generated data then fires the alert once, and five minutes later the same documents are excluded, the query returns zero hits, and the alert recovers — so alerts disappear from the Alerts table mid-demo. With `false`, each execution evaluates the whole `timeWindowSize` (15m for most rules, 30m for a few), so an alert stays active until the matching data ages out of the window. No rule ships notification actions (`"actions": []`), so this cannot cause notification spam.
+
 ### Linked dashboards on alerts
 
 Every chained-scenario rule ships with a `relatedDashboards` field listing the dashboard titles that give that rule's alerts the most useful context. At install time the wizard, `npm run setup:alert-rules`, and the standalone-asset exporter all resolve those titles to the deterministic dashboard saved-object IDs that this project ships and emit them as `artifacts.dashboards: [{ id }]` on the rule body.

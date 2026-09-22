@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] GCP BigQuery Slot Usage Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "bigquery"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.bigquery\"}},{\"bool\":{\"should\":[{\"exists\":{\"field\":\"gcp.bigquery.total_slot_ms\"}},{\"wildcard\":{\"message\":{\"value\":\"*slot*\",\"case_insensitive\":true}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.bigquery*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] GCP BigQuery Job Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "bigquery"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.bigquery\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.bigquery*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] GCP BigQuery Slow Query",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "bigquery"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.bigquery\"}},{\"range\":{\"event.duration\":{\"gt\":60000000000}}}]}}}",
         "index": ["logs-gcp.bigquery*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] GCP BigQuery Bytes Scanned Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "bigquery"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.bigquery\"}},{\"exists\":{\"field\":\"gcp.bigquery.dataset\"}},{\"exists\":{\"field\":\"gcp.bigquery.total_bytes_processed\"}}]}}}",
         "index": ["logs-gcp.bigquery*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] GCP Cloud SQL Connection Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "cloudsql"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.cloudsql\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*connection*\",\"case_insensitive\":true}}},{\"exists\":{\"field\":\"gcp.cloud_sql.connection_count\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.cloudsql*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] GCP Cloud SQL Replication Lag",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "cloudsql"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.cloudsql\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*replica_lag*\",\"case_insensitive\":true}}},{\"wildcard\":{\"message\":{\"value\":\"*replication*\",\"case_insensitive\":true}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.cloudsql*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] GCP Cloud SQL Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "cloudsql"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.cloudsql\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.cloudsql*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -182,7 +203,9 @@
       "name": "[CloudLoadGen] GCP Cloud Spanner High Latency",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "spanner"],
       "enabled": false,
       "params": {
@@ -195,7 +218,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.spanner\"}},{\"range\":{\"event.duration\":{\"gt\":5000000000}}}]}}}",
         "index": ["logs-gcp.spanner*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -207,7 +231,9 @@
       "name": "[CloudLoadGen] GCP Cloud Spanner Errors",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "spanner"],
       "enabled": false,
       "params": {
@@ -220,7 +246,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.spanner\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.spanner*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -232,7 +259,9 @@
       "name": "[CloudLoadGen] GCP Bigtable Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "bigtable"],
       "enabled": false,
       "params": {
@@ -245,7 +274,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.bigtable\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.bigtable*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -257,7 +287,9 @@
       "name": "[CloudLoadGen] GCP Bigtable Hotspot Detection",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "bigtable"],
       "enabled": false,
       "params": {
@@ -270,7 +302,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.bigtable\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*hotspot*\",\"case_insensitive\":true}}},{\"wildcard\":{\"message\":{\"value\":\"*hot_tablet*\",\"case_insensitive\":true}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.bigtable*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -282,7 +315,9 @@
       "name": "[CloudLoadGen] GCP Dataproc Job Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "dataproc"],
       "enabled": false,
       "params": {
@@ -295,7 +330,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.dataproc\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.dataproc*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -307,7 +343,9 @@
       "name": "[CloudLoadGen] GCP Dataproc Cluster Error",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "dataproc"],
       "enabled": false,
       "params": {
@@ -320,7 +358,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.dataproc\"}},{\"terms\":{\"log.level\":[\"error\",\"ERROR\"]}}]}}}",
         "index": ["logs-gcp.dataproc*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

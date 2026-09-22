@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Azure Functions — Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "functions"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.functions\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-azure.functions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] Azure Functions — Timeout",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "functions"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.functions\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*timeout*\",\"case_insensitive\":true}}},{\"match_phrase\":{\"message\":\"Function execution timed out\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.functions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] Azure Functions — Cold Start Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "functions"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.functions\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*cold_start*\",\"case_insensitive\":true}}},{\"match_phrase\":{\"message\":\"FunctionStarted\"}},{\"term\":{\"azure.cold_start\":true}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.functions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] Azure App Service — 5xx Errors",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "app-service"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.app_service\"}},{\"range\":{\"http.response.status_code\":{\"gte\":500}}}]}}}",
         "index": ["logs-azure.app_service*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] Azure App Service — High Latency",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "app-service"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.app_service\"}},{\"range\":{\"event.duration\":{\"gt\":10000000000}}}]}}}",
         "index": ["logs-azure.app_service*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] Azure App Service — Restart Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "app-service"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.app_service\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*Restart*\",\"case_insensitive\":true}}},{\"wildcard\":{\"message\":{\"value\":\"*recycled*\",\"case_insensitive\":true}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.app_service*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] Azure AKS — Pod CrashLoopBackOff",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "kubernetes"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.kubernetes\"}},{\"match_phrase\":{\"message\":\"CrashLoopBackOff\"}}]}}}",
         "index": ["logs-azure.kubernetes*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -182,7 +203,9 @@
       "name": "[CloudLoadGen] Azure AKS — Node Not Ready",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "kubernetes"],
       "enabled": false,
       "params": {
@@ -195,7 +218,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.kubernetes\"}},{\"match_phrase\":{\"message\":\"NodeNotReady\"}}]}}}",
         "index": ["logs-azure.kubernetes*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -207,7 +231,9 @@
       "name": "[CloudLoadGen] Azure AKS — Pod OOM Killed",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "kubernetes"],
       "enabled": false,
       "params": {
@@ -220,7 +246,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.kubernetes\"}},{\"match_phrase\":{\"message\":\"OOMKilled\"}}]}}}",
         "index": ["logs-azure.kubernetes*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -232,7 +259,9 @@
       "name": "[CloudLoadGen] Azure AKS — Failed Scheduling",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "kubernetes"],
       "enabled": false,
       "params": {
@@ -245,7 +274,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.kubernetes\"}},{\"match_phrase\":{\"message\":\"FailedScheduling\"}}]}}}",
         "index": ["logs-azure.kubernetes*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -257,7 +287,9 @@
       "name": "[CloudLoadGen] Azure Virtual Machines — Unexpected Shutdown",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "virtual-machines"],
       "enabled": false,
       "params": {
@@ -270,7 +302,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.virtual_machines\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*unexpected shutdown*\",\"case_insensitive\":true}}},{\"match_phrase\":{\"message\":\"VmHostError\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.virtual_machines*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -282,7 +315,9 @@
       "name": "[CloudLoadGen] Azure Virtual Machines — Allocation Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "virtual-machines"],
       "enabled": false,
       "params": {
@@ -295,7 +330,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"azure.virtual_machines\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"AllocationFailed\"}},{\"term\":{\"event.outcome\":\"failure\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.virtual_machines*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

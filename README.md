@@ -53,11 +53,11 @@ Catalog size today:
 
 | Vendor     | Services | Dashboards | ML jobs | Traces  | Alerting rules |
 | ---------- | -------- | ---------- | ------- | ------- | -------------- |
-| AWS        | 218      | 224        | 401     | 56      | 117            |
+| AWS        | 218      | 224        | 401     | 56      | 118            |
 | GCP        | 136      | 135        | 182     | 58      | 62             |
 | Azure      | 133      | 138        | 195     | 52      | 66             |
 | Supporting | 8        | —          | —       | —       | —              |
-| **Total**  | **495**  | **497**    | **778** | **166** | **245**        |
+| **Total**  | **495**  | **497**    | **778** | **166** | **246**        |
 
 Counts are taken from the repo: services from `src/data/serviceGroups.ts` (and the GCP / Azure / Supporting equivalents), dashboards from `installer/*-custom-dashboards/*-dashboard.json`, ML jobs from `installer/*-custom-ml-jobs/jobs/*.json`, rules from `installer/*-custom-rules/*.json`.
 
@@ -75,7 +75,7 @@ The Setup wizard also installs **SLO definitions** (availability and data-pipeli
 
 Cloud Loadgen ships a complete AI SOC demo scenario built around **IAM privilege escalation**, with **20 Elastic Security detection rules** (6 IAM, 6 finding, 4 exfiltration, 4 DNS) that produce 50+ alerts for **Attack Discovery**, a **security alert enrichment workflow** that adds originating IP and hostname from **ServiceNow CMDB**, an **Agent Builder SOC Analyst** for conversational investigation, and a **364-document knowledge base** (`kb-cloudloadgen-soc`) of investigation runbooks, detection rule guides, and MITRE ATT&CK context that grounds the agent's responses in documented procedures. Full walkthrough in **[docs/SOC-DEMO-SETUP.md](docs/SOC-DEMO-SETUP.md)**.
 
-Alerting rules ship in two tiers. Chained-scenario rules cover the multi-service chains, and per-service domain rules cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **245 rules total** across AWS (117), GCP (62), and Azure (66). Each rule's `artifacts.dashboards` field links **the chain overview plus per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
+Alerting rules ship in two tiers. Chained-scenario rules cover the multi-service chains, and per-service domain rules cover compute, database, networking, AI/ML, storage, messaging, DevOps, and security-ops — **246 rules total** across AWS (118), GCP (62), and Azure (66). Each rule's `artifacts.dashboards` field links **the chain overview plus per-service dashboards** that match the rule's primary dataset (Stack 8.19 / 9.1+), and **per-rule investigation guides** in [docs/runbooks/](docs/runbooks/) cover triage, ES|QL queries, containment, and escalation criteria. Both surface from the alert's "Related dashboards" tab and the optional alert-enrichment workflow's email body.
 
 ## ML training mode
 

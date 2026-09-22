@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Azure Event Hubs Throttling",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "eventhubs"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"QuotaExceeded\"}},{\"term\":{\"http.response.status_code\":429}},{\"match_phrase\":{\"message\":\"ThrottlingError\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.event_hubs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] Azure Event Hubs Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "eventhubs"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-azure.event_hubs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] Azure Service Bus Dead Letter Queue",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "servicebus"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"DeadLetterQueue\"}},{\"match_phrase\":{\"message\":\"dead_letter\"}},{\"term\":{\"azure.service_bus.dead_letter\":true}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.service_bus*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] Azure Service Bus Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "servicebus"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-azure.service_bus*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] Azure Data Factory Pipeline Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "datafactory"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-azure.data_factory*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] Azure Data Factory Slow Pipeline",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "datafactory"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"event.duration\":{\"gt\":300000000000}}}]}}}",
         "index": ["logs-azure.data_factory*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] Azure Defender High Severity Alert",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "defender"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"range\":{\"event.severity\":{\"gte\":7}}},{\"match_phrase\":{\"message\":\"High\"}},{\"match_phrase\":{\"message\":\"Critical\"}},{\"term\":{\"azure.defender.severity\":\"High\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-azure.defender*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -182,7 +203,9 @@
       "name": "[CloudLoadGen] Azure Defender Alert Burst",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "defender"],
       "enabled": false,
       "params": {
@@ -195,7 +218,8 @@
         "esQuery": "{\"query\":{\"match_all\":{}}}",
         "index": ["logs-azure.defender*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -207,7 +231,9 @@
       "name": "[CloudLoadGen] Azure Sentinel New Incident",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "sentinel"],
       "enabled": false,
       "params": {
@@ -220,7 +246,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"match_phrase\":{\"message\":\"incident\"}},{\"terms\":{\"log.level\":[\"WARN\",\"ERROR\",\"Warning\",\"Error\"]}}]}}}",
         "index": ["logs-azure.sentinel*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -232,7 +259,9 @@
       "name": "[CloudLoadGen] Azure Sentinel High Severity",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "azure", "sentinel"],
       "enabled": false,
       "params": {
@@ -245,7 +274,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"event.severity\":{\"gte\":7}}}]}}}",
         "index": ["logs-azure.sentinel*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

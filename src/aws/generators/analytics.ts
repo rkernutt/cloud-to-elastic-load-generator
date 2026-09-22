@@ -1166,7 +1166,12 @@ function generateGlueLog(ts: string, er: number): EcsDocument {
   const message = useContinuousLogging
     ? `${new Date(ts).toISOString().replace("T", " ").replace("Z", "")} ${level.toUpperCase()} [${threadName}] ${loggerName}: ${plainMessage}`
     : plainMessage;
-  // Observability error category when job fails (see monitor-observability.html error categories)
+  // Observability error category when the job fails (see monitor-observability.html).
+  // Successful runs carry the sentinel "NONE" rather than omitting the field. A real
+  // Elastic integration declares this field in its mapping, so ES|QL can query it even
+  // when no failure has been indexed; with dynamic mapping an omitted field makes
+  // `STATS ... BY aws.glue.error_category` fail verification with "Unknown column"
+  // on any cluster that has no Glue errors yet. The sentinel keeps the column mapped.
   const OBSERVABILITY_ERROR_CATEGORIES = [
     "OUT_OF_MEMORY_ERROR",
     "PERMISSION_ERROR",
@@ -1190,7 +1195,7 @@ function generateGlueLog(ts: string, er: number): EcsDocument {
       dimensions: { JobName: job, JobRunId: runId, Type: jobType },
       cloudwatch: { log_group: logGroup, log_stream: logStream },
       glue: {
-        ...(isErr ? { error_category: rand(OBSERVABILITY_ERROR_CATEGORIES) } : {}),
+        error_category: isErr ? rand(OBSERVABILITY_ERROR_CATEGORIES) : "NONE",
         job: { name: job, run_id: runId, type: jobType, run_state: runState },
         database: db,
         table: rand(["events", "users", "transactions", "sessions", "products"]),

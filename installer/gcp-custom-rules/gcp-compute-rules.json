@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] GCP Cloud Functions — Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.cloudfunctions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] GCP Cloud Functions — Timeout",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"deadline exceeded\"}},{\"match_phrase\":{\"message\":\"Function execution took\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.cloudfunctions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] GCP Cloud Functions — Cold Start Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"must\":[{\"match_phrase\":{\"message\":\"Function execution started\"}},{\"match_phrase\":{\"message\":\"cold_start\"}}]}}]}}}",
         "index": ["logs-gcp.cloudfunctions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] GCP Cloud Run — 5xx Errors",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"http.response.status_code\":{\"gte\":500}}}]}}}",
         "index": ["logs-gcp.cloudrun*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] GCP Cloud Run — Container Crash",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"Container terminated\"}},{\"match_phrase\":{\"message\":\"ContainerKilled\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.cloudrun*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] GCP Cloud Run — Scaling Error",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"log.level\":\"ERROR\"}},{\"match_phrase\":{\"message\":\"scaling\"}}]}}}",
         "index": ["logs-gcp.cloudrun*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] GCP GKE — Pod CrashLoopBackOff",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"match_phrase\":{\"message\":\"CrashLoopBackOff\"}}]}}}",
         "index": ["logs-gcp.gke*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -182,7 +203,9 @@
       "name": "[CloudLoadGen] GCP GKE — Node Not Ready",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -195,7 +218,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"match_phrase\":{\"message\":\"NodeNotReady\"}}]}}}",
         "index": ["logs-gcp.gke*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -207,7 +231,9 @@
       "name": "[CloudLoadGen] GCP GKE — Pod OOM Killed",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -220,7 +246,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"match_phrase\":{\"message\":\"OOMKilled\"}}]}}}",
         "index": ["logs-gcp.gke*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -232,7 +259,9 @@
       "name": "[CloudLoadGen] GCP GKE — Preemptible Node Termination",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -245,7 +274,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"preempted\"}},{\"match_phrase\":{\"message\":\"preemption\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.gke*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -257,7 +287,9 @@
       "name": "[CloudLoadGen] GCP Compute Engine — Instance Error",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -270,7 +302,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"log.level\":\"ERROR\"}}]}}}",
         "index": ["logs-gcp.compute*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -282,7 +315,9 @@
       "name": "[CloudLoadGen] GCP Compute Engine — Live Migration",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "compute"],
       "enabled": false,
       "params": {
@@ -295,7 +330,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"liveMigration\"}},{\"match_phrase\":{\"message\":\"maintenance\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.compute*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

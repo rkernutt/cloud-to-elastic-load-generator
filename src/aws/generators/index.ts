@@ -86,6 +86,8 @@ import {
 import { generateDataPipelineChain } from "./dataPipelineChain.js";
 import { generateOpenLineageLog } from "./openlineage.js";
 import { generateGlueDataQualityLog } from "./glueDataQuality.js";
+import { applyEventAction } from "./eventAction.js";
+import type { EcsDocument } from "./types.js";
 import {
   generateS3Log,
   generateS3StorageLensLog,
@@ -489,6 +491,30 @@ const GENERATORS = {
   cwsynthetics: generateCwSyntheticsLog,
   managedprometheus: generateManagedPrometheusLog,
 };
+
+/**
+ * ECS `event.action` is normalised centrally rather than in each of the 200+
+ * generators. Every registered generator is wrapped so its documents carry the
+ * field whenever the service emits something that describes an action — the same
+ * mapping a real integration's ingest pipeline performs. Generators that already
+ * set `event.action` are untouched, and documents with nothing action-like are
+ * left without it rather than given an invented value.
+ *
+ * This runs on every path (preview, ship, exported samples, tests) because the
+ * bulk indexer posts documents straight to `_bulk` without an ingest pipeline.
+ */
+for (const [key, gen] of Object.entries(GENERATORS)) {
+  const original = gen as (ts: string, er: number) => unknown;
+  (GENERATORS as Record<string, unknown>)[key] = (ts: string, er: number) => {
+    const out = original(ts, er);
+    if (Array.isArray(out)) {
+      for (const d of out) if (d && typeof d === "object") applyEventAction(d as EcsDocument);
+    } else if (out && typeof out === "object") {
+      applyEventAction(out as EcsDocument);
+    }
+    return out;
+  };
+}
 
 /**
  * Map of service id → generator function.

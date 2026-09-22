@@ -22,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"wildcard\":{\"aws.guardduty.type\":\"Exfiltration*\"}}]}}}",
         "index": ["logs-aws.guardduty*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -49,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.vpcflow\"}},{\"term\":{\"network.direction\":\"egress\"}},{\"range\":{\"aws.vpcflow.bytes\":{\"gt\":52428800}}}]}}}",
         "index": ["logs-aws.vpcflow*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -79,7 +81,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"GetObject\"}},{\"range\":{\"aws.cloudtrail.additional_event_count\":{\"gt\":100}}}]}}}",
         "index": ["logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -110,7 +113,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"wildcard\":{\"aws.guardduty.type\":\"Exfiltration*\"}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"GetObject\"}},{\"range\":{\"aws.cloudtrail.additional_event_count\":{\"gt\":100}}}]}},{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.vpcflow\"}},{\"term\":{\"network.direction\":\"egress\"}},{\"range\":{\"aws.vpcflow.bytes\":{\"gt\":52428800}}}]}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.guardduty*", "logs-aws.vpcflow*", "logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

@@ -1447,6 +1447,10 @@ export function generateDataPipelineChain(ts: string, er: number): EcsDocument[]
         dimensions: { JobName: dqJobName, JobRunId: dqJobRunId, Type: "count" },
         cloudwatch: { log_group: "/aws-glue/jobs/output", log_stream: dqJobRunId },
         glue: {
+          // The DQ job itself succeeded (failed DQDL rules do not fail the job). "NONE"
+          // keeps aws.glue.error_category mapped so the Glue dashboard's error-category
+          // panels resolve on clusters that only ever received pipeline-chain documents.
+          error_category: "NONE",
           job: { name: dqJobName, run_id: dqJobRunId, type: "glueetl", run_state: "SUCCEEDED" },
           glue_version: GLUE_DQ_VERSION,
           worker: { type: "G.1X", count: 5 },

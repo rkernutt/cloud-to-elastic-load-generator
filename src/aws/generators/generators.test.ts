@@ -3,6 +3,7 @@
  * Each test checks required ECS top-level fields, cloud structure, and event.duration.
  */
 import { describe, it, expect } from "vitest";
+import { GENERATORS } from "./index.js";
 
 import {
   generateLambdaLog,
@@ -415,5 +416,29 @@ describe("Error rate consistency", () => {
       const doc: any = generateS3Log(TS, 0);
       expect(doc.event.outcome).toBe("success");
     }
+  });
+});
+
+// Fields that dashboards group or filter on must exist on every document, even when
+// the condition they describe never occurs. ES|QL fails a panel outright with
+// "Unknown column" if a referenced field was never indexed, so a cluster with no Glue
+// failures would break the Glue dashboard's error-category panels rather than render
+// them empty. A real Elastic integration declares such fields in its mapping; the
+// generator emits a sentinel to the same effect.
+describe("dashboard-referenced fields are always present", () => {
+  it("Glue emits aws.glue.error_category on every doc, including at 0% error rate", () => {
+    for (const er of [0, 0.5, 1]) {
+      for (let i = 0; i < 40; i++) {
+        const doc: any = GENERATORS.glue(TS, er);
+        expect(typeof doc.aws.glue.error_category, `er=${er}`).toBe("string");
+        if (doc.log.level !== "error") expect(doc.aws.glue.error_category).toBe("NONE");
+      }
+    }
+  });
+
+  it("the data pipeline chain's Glue doc also carries error_category", () => {
+    const docs = GENERATORS["data-pipeline-chain"](TS, 0) as any[];
+    const glue = docs.filter((d) => d.__dataset === "aws.glue");
+    for (const d of glue) expect(d.aws.glue.error_category).toBe("NONE");
   });
 });

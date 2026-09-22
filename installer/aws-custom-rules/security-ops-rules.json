@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Root Account Activity",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "cloudtrail"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"aws.cloudtrail.user_identity.type\":\"Root\"}}]}}}",
         "index": ["logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] Unauthorized API Calls",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "cloudtrail"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.outcome\":\"failure\"}},{\"terms\":{\"error.code\":[\"AccessDenied\",\"UnauthorizedAccess\",\"Client.UnauthorizedAccess\"]}}]}}}",
         "index": ["logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] Console Login Without MFA",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "cloudtrail"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"term\":{\"event.action\":\"ConsoleLogin\"}},{\"regexp\":{\"aws.cloudtrail.additional_eventdata\":\"MFAUsed.*No\"}}]}}}",
         "index": ["logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] Security Group Modified",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "cloudtrail"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"terms\":{\"event.action\":[\"AuthorizeSecurityGroupIngress\",\"RevokeSecurityGroupIngress\",\"AuthorizeSecurityGroupEgress\"]}}]}}}",
         "index": ["logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] CloudTrail Logging Disabled",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "cloudtrail"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"terms\":{\"event.action\":[\"StopLogging\",\"DeleteTrail\",\"UpdateTrail\"]}}]}}}",
         "index": ["logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] KMS Key Disabled/Deleted",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "cloudtrail"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.cloudtrail\"}},{\"terms\":{\"event.action\":[\"DisableKey\",\"ScheduleKeyDeletion\"]}}]}}}",
         "index": ["logs-aws.cloudtrail*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] GuardDuty Critical/High Finding",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "guardduty"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"range\":{\"event.severity\":{\"gte\":7}}}]}}}",
         "index": ["logs-aws.guardduty*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -182,7 +203,9 @@
       "name": "[CloudLoadGen] GuardDuty Finding Burst",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "guardduty"],
       "enabled": false,
       "params": {
@@ -195,7 +218,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}}]}}}",
         "index": ["logs-aws.guardduty*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -207,7 +231,9 @@
       "name": "[CloudLoadGen] GuardDuty Crypto Mining Detection",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "guardduty"],
       "enabled": false,
       "params": {
@@ -220,7 +246,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"CryptoCurrency\"}},{\"match_phrase\":{\"message\":\"BitcoinTool\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.guardduty*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -232,7 +259,9 @@
       "name": "[CloudLoadGen] GuardDuty Credential Exfiltration",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "security", "guardduty"],
       "enabled": false,
       "params": {
@@ -245,7 +274,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.guardduty\"}},{\"match_phrase\":{\"message\":\"UnauthorizedAccess\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"InstanceCredentialExfiltration\"}},{\"match_phrase\":{\"message\":\"IAMUser\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.guardduty*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

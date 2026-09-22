@@ -150,6 +150,43 @@ function ecsNorm(group) {
         tag: "set_event_type",
       },
     },
+    // ECS event.action from whatever the service calls its operation. Real Elastic
+    // AWS integrations do exactly this — CloudTrail's eventName, S3's operation, a
+    // job's event_type — and keep the service's own spelling rather than re-casing
+    // it. Without this, dashboards that group or count by event.action fail with
+    // "Unknown column" on datasets whose documents never carried the field.
+    // Deliberately excludes generic `type` / `status` / `state`: those describe the
+    // resource or the outcome, not the action. Mirrors
+    // src/aws/generators/eventAction.ts, which fills the same field for generated
+    // documents (they are bulk-indexed without passing through this pipeline).
+    {
+      script: {
+        lang: "painless",
+        tag: "set_event_action_from_service_fields",
+        description: "Derive ECS event.action from the service's native operation field",
+        source: [
+          "if (ctx.event != null && ctx.event.action != null) return;",
+          "def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type'];",
+          "def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state'];",
+          "def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return;",
+          "def found = null;",
+          "for (def names : [verbs, subjects]) {",
+          "  for (def n : names) {",
+          "    for (def e : vendor.entrySet()) {",
+          "      def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;",
+          "      def blk = e.getValue(); if (!(blk instanceof Map)) continue;",
+          "      def v = blk.get(n);",
+          "      if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }",
+          "    }",
+          "    if (found != null) break;",
+          "  }",
+          "  if (found != null) break;",
+          "}",
+          "if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+        ].join(" "),
+        ignore_failure: true,
+      },
+    },
   ];
 }
 

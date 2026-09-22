@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] ALB 5xx Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "alb"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"cloud.service.name\":\"alb\"}},{\"range\":{\"http.response.status_code\":{\"gte\":500}}}]}}}",
         "index": ["logs-aws.elb_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] ALB Unhealthy Targets",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "alb"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"cloud.service.name\":\"alb\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*unhealthy*\"}}},{\"wildcard\":{\"message\":{\"value\":\"*draining*\"}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.elb_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] ALB High Latency",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "alb"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"cloud.service.name\":\"alb\"}},{\"range\":{\"event.duration\":{\"gt\":5000000000}}}]}}}",
         "index": ["logs-aws.elb_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] NLB TCP Reset Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "nlb"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"cloud.service.name\":\"nlb\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*TCP_RESET*\"}}},{\"wildcard\":{\"message\":{\"value\":\"*tcp_client_reset*\"}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.elb_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] NLB Unhealthy Target",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "nlb"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"cloud.service.name\":\"nlb\"}},{\"wildcard\":{\"message\":{\"value\":\"*unhealthy*\"}}}]}}}",
         "index": ["logs-aws.elb_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] CloudFront Error Rate Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "cloudfront"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"http.response.status_code\":{\"gte\":500}}}]}}}",
         "index": ["logs-aws.cloudfront*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] CloudFront Cache Miss Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "cloudfront"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"wildcard\":{\"message\":{\"value\":\"*Miss*\"}}}],\"must_not\":[{\"wildcard\":{\"message\":{\"value\":\"*Hit*\"}}}]}}}",
         "index": ["logs-aws.cloudfront*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -182,7 +203,9 @@
       "name": "[CloudLoadGen] API Gateway 5xx Errors",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "apigateway"],
       "enabled": false,
       "params": {
@@ -195,7 +218,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"http.response.status_code\":{\"gte\":500}}}]}}}",
         "index": ["logs-aws.apigateway*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -207,7 +231,9 @@
       "name": "[CloudLoadGen] API Gateway Throttling",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "apigateway"],
       "enabled": false,
       "params": {
@@ -220,7 +246,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"Rate exceeded\"}},{\"term\":{\"http.response.status_code\":429}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.apigateway*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -232,7 +259,9 @@
       "name": "[CloudLoadGen] API Gateway High Latency",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "apigateway"],
       "enabled": false,
       "params": {
@@ -245,7 +274,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"range\":{\"event.duration\":{\"gt\":10000000000}}}]}}}",
         "index": ["logs-aws.apigateway*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -257,7 +287,9 @@
       "name": "[CloudLoadGen] WAF Block Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "waf"],
       "enabled": false,
       "params": {
@@ -270,7 +302,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.action\":\"block\"}},{\"term\":{\"event.action\":\"BLOCK\"}},{\"wildcard\":{\"aws.waf.action\":{\"value\":\"*BLOCK*\"}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.wafv2*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -282,7 +315,9 @@
       "name": "[CloudLoadGen] WAF Rate Limit Triggered",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "waf"],
       "enabled": false,
       "params": {
@@ -295,7 +330,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"match_phrase\":{\"message\":\"RATE_BASED\"}},{\"bool\":{\"should\":[{\"term\":{\"event.action\":\"block\"}},{\"term\":{\"event.action\":\"BLOCK\"}},{\"term\":{\"aws.waf.action\":\"BLOCK\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.wafv2*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -307,7 +343,9 @@
       "name": "[CloudLoadGen] Route 53 NXDOMAIN Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "route53"],
       "enabled": false,
       "params": {
@@ -320,7 +358,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"dns.response_code\":\"NXDOMAIN\"}}]}}}",
         "index": ["logs-aws.route53*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -332,7 +371,9 @@
       "name": "[CloudLoadGen] Route 53 Query Volume Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "networking", "route53"],
       "enabled": false,
       "params": {
@@ -345,7 +386,8 @@
         "esQuery": "{\"query\":{\"match_all\":{}}}",
         "index": ["logs-aws.route53*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

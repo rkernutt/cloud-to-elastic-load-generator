@@ -283,6 +283,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -788,6 +798,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -1326,6 +1346,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -1858,6 +1888,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -2396,6 +2436,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -2895,6 +2945,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -3391,6 +3451,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -3899,6 +3969,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -4416,6 +4496,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -4954,6 +5044,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -5462,6 +5562,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -5916,6 +6026,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -6367,6 +6487,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -6878,6 +7008,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -7332,6 +7472,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -7783,6 +7933,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -8321,6 +8481,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -8842,6 +9012,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -9356,6 +9536,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -9894,6 +10084,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -10412,6 +10612,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -10950,6 +11160,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -11485,6 +11705,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -11936,6 +12166,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -12460,6 +12700,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -12911,6 +13161,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -13435,6 +13695,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -13940,6 +14210,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -14451,6 +14731,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -14956,6 +15246,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -15485,6 +15785,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -15990,6 +16300,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -16507,6 +16827,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -17045,6 +17375,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -17580,6 +17920,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -18094,6 +18444,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -18632,6 +18992,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -19167,6 +19537,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -19688,6 +20068,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -20142,6 +20532,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -20593,6 +20993,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -21105,6 +21515,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -21556,6 +21976,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -22013,6 +22443,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -22464,6 +22904,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -23002,6 +23452,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -23534,6 +23994,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -24072,6 +24542,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -24589,457 +25069,13 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
-        set: {
-          field: "event.type",
-          value: ["error"],
-          override: true,
-          if: "ctx.event?.outcome == 'failure'",
-          ignore_failure: true,
-          tag: "set_event_type_error",
-        },
-      },
-      {
         script: {
           lang: "painless",
-          description: "Normalise duration fields to event.duration (nanoseconds)",
-          tag: "script_duration_norm",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
           source:
-            "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def nsObj = ctx['azure'];\n          if (nsObj != null && nsObj.parsed != null) {\n            def p = nsObj.parsed;\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && (ctx.event == null || ctx.event.duration == null)) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
           ignore_failure: true,
-        },
-      },
-      {
-        geoip: {
-          field: "source.ip",
-          target_field: "source.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_source_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "client.ip",
-          target_field: "client.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_client_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "destination.ip",
-          target_field: "destination.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_destination_ip",
-        },
-      },
-      {
-        user_agent: {
-          field: "user_agent.original",
-          target_field: "user_agent",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "user_agent_parse",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{source.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.source?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_source",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{destination.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.destination?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_destination",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{client.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.client?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_client",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.name != null",
-          ignore_failure: true,
-          tag: "append_related_user_name",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.email}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.email != null",
-          ignore_failure: true,
-          tag: "append_related_user_email",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.id}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.id != null",
-          ignore_failure: true,
-          tag: "append_related_user_id",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.name != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_name",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.hostname}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.hostname != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_hostname",
-        },
-      },
-      {
-        remove: {
-          field: "azure.parsed",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_azure_parsed",
-        },
-      },
-      {
-        remove: {
-          field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_log4j_temp_fields",
-        },
-      },
-      {
-        remove: {
-          field: "callerIpAddress",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_callerIp",
-          if: "ctx.source?.ip != null",
-          description: "Remove after mapping to source.ip",
-        },
-      },
-      {
-        remove: {
-          field: "identity",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_identity",
-          if: "ctx.user?.email != null",
-          description: "Remove after mapping to user.email",
-        },
-      },
-      {
-        remove: {
-          field: "operationName",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_operationName",
-          if: "ctx.event?.action != null",
-          description: "Remove after mapping to event.action",
-        },
-      },
-      {
-        remove: {
-          field: "level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_level",
-          if: "ctx.log?.level != null",
-          description: "Remove after mapping to log.level",
-        },
-      },
-      {
-        remove: {
-          field: "resultType",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultType",
-          description: "Covered by event.outcome",
-        },
-      },
-      {
-        remove: {
-          field: "resultSignature",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultSignature",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original_on_error",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-          if: "ctx.error?.message != null",
-        },
-      },
-    ],
-    on_failure: [
-      {
-        append: {
-          field: "error.message",
-          tag: "append_pipeline_error",
-          value:
-            "Processor '{{{ _ingest.on_failure_processor_type }}}'{{{#_ingest.on_failure_processor_tag}}} with tag '{{{ _ingest.on_failure_processor_tag }}}'{{{/_ingest.on_failure_processor_tag}}} failed with message '{{{ _ingest.on_failure_message }}}'",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          tag: "set_pipeline_error",
-          value: "pipeline_error",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-        },
-      },
-    ],
-  },
-  {
-    id: "logs-azure.entra_id-default",
-    dataset: "azure.entra_id",
-    group: "identity-security",
-    description: "Enrich and normalise Azure entra_id logs (entra-id)",
-    processors: [
-      {
-        set: {
-          field: "ecs.version",
-          tag: "set_ecs_version",
-          value: "9.3.0",
-        },
-      },
-      {
-        rename: {
-          field: "message",
-          target_field: "event.original",
-          ignore_missing: true,
-          tag: "rename_message_to_event_original",
-          description:
-            "Renames the original message field to event.original to store a copy of the original message.",
-          if: "ctx.event?.original == null",
-        },
-      },
-      {
-        remove: {
-          field: "message",
-          ignore_missing: true,
-          tag: "remove_message",
-          description:
-            "The message field is no longer required if the document has an event.original field.",
-          if: "ctx.event?.original != null",
-        },
-      },
-      {
-        json: {
-          field: "event.original",
-          target_field: "azure.parsed",
-          ignore_failure: true,
-          tag: "parse_json",
-        },
-      },
-      {
-        set: {
-          field: "user.email",
-          value: "{{{identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn}}}",
-          override: false,
-          if: "ctx.identity?.claims != null && ctx.identity.claims.containsKey('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn')",
-          ignore_failure: true,
-          tag: "set_user_email_from_identity",
-        },
-      },
-      {
-        set: {
-          field: "source.ip",
-          value: "{{{callerIpAddress}}}",
-          override: false,
-          if: "ctx.callerIpAddress != null && ctx.source?.ip == null",
-          ignore_failure: true,
-          tag: "set_source_ip_from_caller",
-        },
-      },
-      {
-        set: {
-          field: "event.action",
-          value: "{{{operationName}}}",
-          override: false,
-          if: "ctx.operationName != null && ctx.event?.action == null",
-          ignore_failure: true,
-          tag: "set_event_action_from_operation",
-        },
-      },
-      {
-        rename: {
-          field: "category",
-          target_field: "azure.log.category",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_category",
-          description:
-            "Move Azure diagnostic log category to vendor namespace to avoid collision with ECS event.category.",
-        },
-      },
-      {
-        set: {
-          field: "log.level",
-          value: "{{{level}}}",
-          override: false,
-          if: "ctx.level != null && ctx.log?.level == null",
-          ignore_failure: true,
-          tag: "set_log_level_from_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorCode",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorCode",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_code",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_code",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorMessage",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorMessage",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_message",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_message",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorType",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorType",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_type",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_type",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.level",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.logLevel",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_logLevel",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.severity",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_severity",
-        },
-      },
-      {
-        lowercase: {
-          field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "lowercase_log_level",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          value: "event",
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_kind",
-        },
-      },
-      {
-        set: {
-          field: "event.category",
-          value: ["iam"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_category",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["info"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_type",
         },
       },
       {
@@ -25539,6 +25575,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -26077,6 +26123,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -26609,6 +26665,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -27147,6 +27213,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -27682,6 +27758,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -28196,6 +28282,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -28734,6 +28830,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -29266,6 +29372,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -29804,6 +29920,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -30318,6 +30444,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -30856,6 +30992,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -31370,6 +31516,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -31894,6 +32050,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -32345,6 +32511,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -32802,6 +32978,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -33253,6 +33439,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -33764,6 +33960,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -34272,6 +34478,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -34723,6 +34939,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -35261,6 +35487,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -35712,6 +35948,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -36211,6 +36457,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -36749,6 +37005,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -37257,6 +37523,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -37708,6 +37984,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -38219,6 +38505,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -38724,6 +39020,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -39253,6 +39559,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -39707,457 +40023,13 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
-        set: {
-          field: "event.type",
-          value: ["error"],
-          override: true,
-          if: "ctx.event?.outcome == 'failure'",
-          ignore_failure: true,
-          tag: "set_event_type_error",
-        },
-      },
-      {
         script: {
           lang: "painless",
-          description: "Normalise duration fields to event.duration (nanoseconds)",
-          tag: "script_duration_norm",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
           source:
-            "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def nsObj = ctx['azure'];\n          if (nsObj != null && nsObj.parsed != null) {\n            def p = nsObj.parsed;\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && (ctx.event == null || ctx.event.duration == null)) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
           ignore_failure: true,
-        },
-      },
-      {
-        geoip: {
-          field: "source.ip",
-          target_field: "source.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_source_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "client.ip",
-          target_field: "client.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_client_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "destination.ip",
-          target_field: "destination.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_destination_ip",
-        },
-      },
-      {
-        user_agent: {
-          field: "user_agent.original",
-          target_field: "user_agent",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "user_agent_parse",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{source.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.source?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_source",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{destination.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.destination?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_destination",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{client.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.client?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_client",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.name != null",
-          ignore_failure: true,
-          tag: "append_related_user_name",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.email}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.email != null",
-          ignore_failure: true,
-          tag: "append_related_user_email",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.id}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.id != null",
-          ignore_failure: true,
-          tag: "append_related_user_id",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.name != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_name",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.hostname}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.hostname != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_hostname",
-        },
-      },
-      {
-        remove: {
-          field: "azure.parsed",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_azure_parsed",
-        },
-      },
-      {
-        remove: {
-          field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_log4j_temp_fields",
-        },
-      },
-      {
-        remove: {
-          field: "callerIpAddress",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_callerIp",
-          if: "ctx.source?.ip != null",
-          description: "Remove after mapping to source.ip",
-        },
-      },
-      {
-        remove: {
-          field: "identity",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_identity",
-          if: "ctx.user?.email != null",
-          description: "Remove after mapping to user.email",
-        },
-      },
-      {
-        remove: {
-          field: "operationName",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_operationName",
-          if: "ctx.event?.action != null",
-          description: "Remove after mapping to event.action",
-        },
-      },
-      {
-        remove: {
-          field: "level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_level",
-          if: "ctx.log?.level != null",
-          description: "Remove after mapping to log.level",
-        },
-      },
-      {
-        remove: {
-          field: "resultType",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultType",
-          description: "Covered by event.outcome",
-        },
-      },
-      {
-        remove: {
-          field: "resultSignature",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultSignature",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original_on_error",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-          if: "ctx.error?.message != null",
-        },
-      },
-    ],
-    on_failure: [
-      {
-        append: {
-          field: "error.message",
-          tag: "append_pipeline_error",
-          value:
-            "Processor '{{{ _ingest.on_failure_processor_type }}}'{{{#_ingest.on_failure_processor_tag}}} with tag '{{{ _ingest.on_failure_processor_tag }}}'{{{/_ingest.on_failure_processor_tag}}} failed with message '{{{ _ingest.on_failure_message }}}'",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          tag: "set_pipeline_error",
-          value: "pipeline_error",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-        },
-      },
-    ],
-  },
-  {
-    id: "logs-azure.microsoft_365-default",
-    dataset: "azure.microsoft_365",
-    group: "identity-security",
-    description: "Enrich and normalise Azure microsoft_365 logs (m365)",
-    processors: [
-      {
-        set: {
-          field: "ecs.version",
-          tag: "set_ecs_version",
-          value: "9.3.0",
-        },
-      },
-      {
-        rename: {
-          field: "message",
-          target_field: "event.original",
-          ignore_missing: true,
-          tag: "rename_message_to_event_original",
-          description:
-            "Renames the original message field to event.original to store a copy of the original message.",
-          if: "ctx.event?.original == null",
-        },
-      },
-      {
-        remove: {
-          field: "message",
-          ignore_missing: true,
-          tag: "remove_message",
-          description:
-            "The message field is no longer required if the document has an event.original field.",
-          if: "ctx.event?.original != null",
-        },
-      },
-      {
-        json: {
-          field: "event.original",
-          target_field: "azure.parsed",
-          ignore_failure: true,
-          tag: "parse_json",
-        },
-      },
-      {
-        set: {
-          field: "user.email",
-          value: "{{{identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn}}}",
-          override: false,
-          if: "ctx.identity?.claims != null && ctx.identity.claims.containsKey('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn')",
-          ignore_failure: true,
-          tag: "set_user_email_from_identity",
-        },
-      },
-      {
-        set: {
-          field: "source.ip",
-          value: "{{{callerIpAddress}}}",
-          override: false,
-          if: "ctx.callerIpAddress != null && ctx.source?.ip == null",
-          ignore_failure: true,
-          tag: "set_source_ip_from_caller",
-        },
-      },
-      {
-        set: {
-          field: "event.action",
-          value: "{{{operationName}}}",
-          override: false,
-          if: "ctx.operationName != null && ctx.event?.action == null",
-          ignore_failure: true,
-          tag: "set_event_action_from_operation",
-        },
-      },
-      {
-        rename: {
-          field: "category",
-          target_field: "azure.log.category",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_category",
-          description:
-            "Move Azure diagnostic log category to vendor namespace to avoid collision with ECS event.category.",
-        },
-      },
-      {
-        set: {
-          field: "log.level",
-          value: "{{{level}}}",
-          override: false,
-          if: "ctx.level != null && ctx.log?.level == null",
-          ignore_failure: true,
-          tag: "set_log_level_from_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorCode",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorCode",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_code",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_code",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorMessage",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorMessage",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_message",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_message",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorType",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorType",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_type",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_type",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.level",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.logLevel",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_logLevel",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.severity",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_severity",
-        },
-      },
-      {
-        lowercase: {
-          field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "lowercase_log_level",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          value: "event",
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_kind",
-        },
-      },
-      {
-        set: {
-          field: "event.category",
-          value: ["iam"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_category",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["info"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_type",
         },
       },
       {
@@ -40612,6 +40484,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -41120,6 +41002,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -41646,6 +41538,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -42184,6 +42086,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -42698,6 +42610,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -43237,6 +43159,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -43772,6 +43704,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -44226,1819 +44168,13 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
-        set: {
-          field: "event.type",
-          value: ["error"],
-          override: true,
-          if: "ctx.event?.outcome == 'failure'",
-          ignore_failure: true,
-          tag: "set_event_type_error",
-        },
-      },
-      {
         script: {
           lang: "painless",
-          description: "Normalise duration fields to event.duration (nanoseconds)",
-          tag: "script_duration_norm",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
           source:
-            "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def nsObj = ctx['azure'];\n          if (nsObj != null && nsObj.parsed != null) {\n            def p = nsObj.parsed;\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && (ctx.event == null || ctx.event.duration == null)) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
           ignore_failure: true,
-        },
-      },
-      {
-        geoip: {
-          field: "source.ip",
-          target_field: "source.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_source_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "client.ip",
-          target_field: "client.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_client_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "destination.ip",
-          target_field: "destination.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_destination_ip",
-        },
-      },
-      {
-        user_agent: {
-          field: "user_agent.original",
-          target_field: "user_agent",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "user_agent_parse",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{source.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.source?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_source",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{destination.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.destination?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_destination",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{client.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.client?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_client",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.name != null",
-          ignore_failure: true,
-          tag: "append_related_user_name",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.email}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.email != null",
-          ignore_failure: true,
-          tag: "append_related_user_email",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.id}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.id != null",
-          ignore_failure: true,
-          tag: "append_related_user_id",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.name != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_name",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.hostname}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.hostname != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_hostname",
-        },
-      },
-      {
-        remove: {
-          field: "azure.parsed",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_azure_parsed",
-        },
-      },
-      {
-        remove: {
-          field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_log4j_temp_fields",
-        },
-      },
-      {
-        remove: {
-          field: "callerIpAddress",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_callerIp",
-          if: "ctx.source?.ip != null",
-          description: "Remove after mapping to source.ip",
-        },
-      },
-      {
-        remove: {
-          field: "identity",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_identity",
-          if: "ctx.user?.email != null",
-          description: "Remove after mapping to user.email",
-        },
-      },
-      {
-        remove: {
-          field: "operationName",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_operationName",
-          if: "ctx.event?.action != null",
-          description: "Remove after mapping to event.action",
-        },
-      },
-      {
-        remove: {
-          field: "level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_level",
-          if: "ctx.log?.level != null",
-          description: "Remove after mapping to log.level",
-        },
-      },
-      {
-        remove: {
-          field: "resultType",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultType",
-          description: "Covered by event.outcome",
-        },
-      },
-      {
-        remove: {
-          field: "resultSignature",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultSignature",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original_on_error",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-          if: "ctx.error?.message != null",
-        },
-      },
-    ],
-    on_failure: [
-      {
-        append: {
-          field: "error.message",
-          tag: "append_pipeline_error",
-          value:
-            "Processor '{{{ _ingest.on_failure_processor_type }}}'{{{#_ingest.on_failure_processor_tag}}} with tag '{{{ _ingest.on_failure_processor_tag }}}'{{{/_ingest.on_failure_processor_tag}}} failed with message '{{{ _ingest.on_failure_message }}}'",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          tag: "set_pipeline_error",
-          value: "pipeline_error",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-        },
-      },
-    ],
-  },
-  {
-    id: "logs-azure.o365_active_users-default",
-    dataset: "azure.o365_active_users",
-    group: "o365-metrics",
-    description: "Enrich and normalise Azure o365_active_users logs (active-users-services)",
-    processors: [
-      {
-        set: {
-          field: "ecs.version",
-          tag: "set_ecs_version",
-          value: "9.3.0",
-        },
-      },
-      {
-        rename: {
-          field: "message",
-          target_field: "event.original",
-          ignore_missing: true,
-          tag: "rename_message_to_event_original",
-          description:
-            "Renames the original message field to event.original to store a copy of the original message.",
-          if: "ctx.event?.original == null",
-        },
-      },
-      {
-        remove: {
-          field: "message",
-          ignore_missing: true,
-          tag: "remove_message",
-          description:
-            "The message field is no longer required if the document has an event.original field.",
-          if: "ctx.event?.original != null",
-        },
-      },
-      {
-        json: {
-          field: "event.original",
-          target_field: "azure.parsed",
-          ignore_failure: true,
-          tag: "parse_json",
-        },
-      },
-      {
-        set: {
-          field: "user.email",
-          value: "{{{identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn}}}",
-          override: false,
-          if: "ctx.identity?.claims != null && ctx.identity.claims.containsKey('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn')",
-          ignore_failure: true,
-          tag: "set_user_email_from_identity",
-        },
-      },
-      {
-        set: {
-          field: "source.ip",
-          value: "{{{callerIpAddress}}}",
-          override: false,
-          if: "ctx.callerIpAddress != null && ctx.source?.ip == null",
-          ignore_failure: true,
-          tag: "set_source_ip_from_caller",
-        },
-      },
-      {
-        set: {
-          field: "event.action",
-          value: "{{{operationName}}}",
-          override: false,
-          if: "ctx.operationName != null && ctx.event?.action == null",
-          ignore_failure: true,
-          tag: "set_event_action_from_operation",
-        },
-      },
-      {
-        rename: {
-          field: "category",
-          target_field: "azure.log.category",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_category",
-          description:
-            "Move Azure diagnostic log category to vendor namespace to avoid collision with ECS event.category.",
-        },
-      },
-      {
-        set: {
-          field: "log.level",
-          value: "{{{level}}}",
-          override: false,
-          if: "ctx.level != null && ctx.log?.level == null",
-          ignore_failure: true,
-          tag: "set_log_level_from_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorCode",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorCode",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_code",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_code",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorMessage",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorMessage",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_message",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_message",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorType",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorType",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_type",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_type",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.level",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.logLevel",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_logLevel",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.severity",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_severity",
-        },
-      },
-      {
-        lowercase: {
-          field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "lowercase_log_level",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          value: "event",
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_kind",
-        },
-      },
-      {
-        set: {
-          field: "event.category",
-          value: ["process"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_category",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["info"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_type",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["error"],
-          override: true,
-          if: "ctx.event?.outcome == 'failure'",
-          ignore_failure: true,
-          tag: "set_event_type_error",
-        },
-      },
-      {
-        script: {
-          lang: "painless",
-          description: "Normalise duration fields to event.duration (nanoseconds)",
-          tag: "script_duration_norm",
-          source:
-            "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def nsObj = ctx['azure'];\n          if (nsObj != null && nsObj.parsed != null) {\n            def p = nsObj.parsed;\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && (ctx.event == null || ctx.event.duration == null)) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
-          ignore_failure: true,
-        },
-      },
-      {
-        geoip: {
-          field: "source.ip",
-          target_field: "source.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_source_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "client.ip",
-          target_field: "client.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_client_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "destination.ip",
-          target_field: "destination.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_destination_ip",
-        },
-      },
-      {
-        user_agent: {
-          field: "user_agent.original",
-          target_field: "user_agent",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "user_agent_parse",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{source.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.source?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_source",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{destination.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.destination?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_destination",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{client.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.client?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_client",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.name != null",
-          ignore_failure: true,
-          tag: "append_related_user_name",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.email}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.email != null",
-          ignore_failure: true,
-          tag: "append_related_user_email",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.id}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.id != null",
-          ignore_failure: true,
-          tag: "append_related_user_id",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.name != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_name",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.hostname}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.hostname != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_hostname",
-        },
-      },
-      {
-        remove: {
-          field: "azure.parsed",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_azure_parsed",
-        },
-      },
-      {
-        remove: {
-          field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_log4j_temp_fields",
-        },
-      },
-      {
-        remove: {
-          field: "callerIpAddress",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_callerIp",
-          if: "ctx.source?.ip != null",
-          description: "Remove after mapping to source.ip",
-        },
-      },
-      {
-        remove: {
-          field: "identity",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_identity",
-          if: "ctx.user?.email != null",
-          description: "Remove after mapping to user.email",
-        },
-      },
-      {
-        remove: {
-          field: "operationName",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_operationName",
-          if: "ctx.event?.action != null",
-          description: "Remove after mapping to event.action",
-        },
-      },
-      {
-        remove: {
-          field: "level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_level",
-          if: "ctx.log?.level != null",
-          description: "Remove after mapping to log.level",
-        },
-      },
-      {
-        remove: {
-          field: "resultType",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultType",
-          description: "Covered by event.outcome",
-        },
-      },
-      {
-        remove: {
-          field: "resultSignature",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultSignature",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original_on_error",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-          if: "ctx.error?.message != null",
-        },
-      },
-    ],
-    on_failure: [
-      {
-        append: {
-          field: "error.message",
-          tag: "append_pipeline_error",
-          value:
-            "Processor '{{{ _ingest.on_failure_processor_type }}}'{{{#_ingest.on_failure_processor_tag}}} with tag '{{{ _ingest.on_failure_processor_tag }}}'{{{/_ingest.on_failure_processor_tag}}} failed with message '{{{ _ingest.on_failure_message }}}'",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          tag: "set_pipeline_error",
-          value: "pipeline_error",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-        },
-      },
-    ],
-  },
-  {
-    id: "logs-azure.o365_onedrive_storage-default",
-    dataset: "azure.o365_onedrive_storage",
-    group: "o365-metrics",
-    description: "Enrich and normalise Azure o365_onedrive_storage logs (onedrive-usage-storage)",
-    processors: [
-      {
-        set: {
-          field: "ecs.version",
-          tag: "set_ecs_version",
-          value: "9.3.0",
-        },
-      },
-      {
-        rename: {
-          field: "message",
-          target_field: "event.original",
-          ignore_missing: true,
-          tag: "rename_message_to_event_original",
-          description:
-            "Renames the original message field to event.original to store a copy of the original message.",
-          if: "ctx.event?.original == null",
-        },
-      },
-      {
-        remove: {
-          field: "message",
-          ignore_missing: true,
-          tag: "remove_message",
-          description:
-            "The message field is no longer required if the document has an event.original field.",
-          if: "ctx.event?.original != null",
-        },
-      },
-      {
-        json: {
-          field: "event.original",
-          target_field: "azure.parsed",
-          ignore_failure: true,
-          tag: "parse_json",
-        },
-      },
-      {
-        set: {
-          field: "user.email",
-          value: "{{{identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn}}}",
-          override: false,
-          if: "ctx.identity?.claims != null && ctx.identity.claims.containsKey('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn')",
-          ignore_failure: true,
-          tag: "set_user_email_from_identity",
-        },
-      },
-      {
-        set: {
-          field: "source.ip",
-          value: "{{{callerIpAddress}}}",
-          override: false,
-          if: "ctx.callerIpAddress != null && ctx.source?.ip == null",
-          ignore_failure: true,
-          tag: "set_source_ip_from_caller",
-        },
-      },
-      {
-        set: {
-          field: "event.action",
-          value: "{{{operationName}}}",
-          override: false,
-          if: "ctx.operationName != null && ctx.event?.action == null",
-          ignore_failure: true,
-          tag: "set_event_action_from_operation",
-        },
-      },
-      {
-        rename: {
-          field: "category",
-          target_field: "azure.log.category",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_category",
-          description:
-            "Move Azure diagnostic log category to vendor namespace to avoid collision with ECS event.category.",
-        },
-      },
-      {
-        set: {
-          field: "log.level",
-          value: "{{{level}}}",
-          override: false,
-          if: "ctx.level != null && ctx.log?.level == null",
-          ignore_failure: true,
-          tag: "set_log_level_from_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorCode",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorCode",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_code",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_code",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorMessage",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorMessage",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_message",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_message",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorType",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorType",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_type",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_type",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.level",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.logLevel",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_logLevel",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.severity",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_severity",
-        },
-      },
-      {
-        lowercase: {
-          field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "lowercase_log_level",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          value: "event",
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_kind",
-        },
-      },
-      {
-        set: {
-          field: "event.category",
-          value: ["process"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_category",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["info"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_type",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["error"],
-          override: true,
-          if: "ctx.event?.outcome == 'failure'",
-          ignore_failure: true,
-          tag: "set_event_type_error",
-        },
-      },
-      {
-        script: {
-          lang: "painless",
-          description: "Normalise duration fields to event.duration (nanoseconds)",
-          tag: "script_duration_norm",
-          source:
-            "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def nsObj = ctx['azure'];\n          if (nsObj != null && nsObj.parsed != null) {\n            def p = nsObj.parsed;\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && (ctx.event == null || ctx.event.duration == null)) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
-          ignore_failure: true,
-        },
-      },
-      {
-        geoip: {
-          field: "source.ip",
-          target_field: "source.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_source_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "client.ip",
-          target_field: "client.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_client_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "destination.ip",
-          target_field: "destination.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_destination_ip",
-        },
-      },
-      {
-        user_agent: {
-          field: "user_agent.original",
-          target_field: "user_agent",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "user_agent_parse",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{source.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.source?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_source",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{destination.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.destination?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_destination",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{client.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.client?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_client",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.name != null",
-          ignore_failure: true,
-          tag: "append_related_user_name",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.email}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.email != null",
-          ignore_failure: true,
-          tag: "append_related_user_email",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.id}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.id != null",
-          ignore_failure: true,
-          tag: "append_related_user_id",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.name != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_name",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.hostname}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.hostname != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_hostname",
-        },
-      },
-      {
-        remove: {
-          field: "azure.parsed",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_azure_parsed",
-        },
-      },
-      {
-        remove: {
-          field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_log4j_temp_fields",
-        },
-      },
-      {
-        remove: {
-          field: "callerIpAddress",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_callerIp",
-          if: "ctx.source?.ip != null",
-          description: "Remove after mapping to source.ip",
-        },
-      },
-      {
-        remove: {
-          field: "identity",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_identity",
-          if: "ctx.user?.email != null",
-          description: "Remove after mapping to user.email",
-        },
-      },
-      {
-        remove: {
-          field: "operationName",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_operationName",
-          if: "ctx.event?.action != null",
-          description: "Remove after mapping to event.action",
-        },
-      },
-      {
-        remove: {
-          field: "level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_level",
-          if: "ctx.log?.level != null",
-          description: "Remove after mapping to log.level",
-        },
-      },
-      {
-        remove: {
-          field: "resultType",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultType",
-          description: "Covered by event.outcome",
-        },
-      },
-      {
-        remove: {
-          field: "resultSignature",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultSignature",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original_on_error",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-          if: "ctx.error?.message != null",
-        },
-      },
-    ],
-    on_failure: [
-      {
-        append: {
-          field: "error.message",
-          tag: "append_pipeline_error",
-          value:
-            "Processor '{{{ _ingest.on_failure_processor_type }}}'{{{#_ingest.on_failure_processor_tag}}} with tag '{{{ _ingest.on_failure_processor_tag }}}'{{{/_ingest.on_failure_processor_tag}}} failed with message '{{{ _ingest.on_failure_message }}}'",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          tag: "set_pipeline_error",
-          value: "pipeline_error",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-        },
-      },
-    ],
-  },
-  {
-    id: "logs-azure.o365_outlook_activity-default",
-    dataset: "azure.o365_outlook_activity",
-    group: "o365-metrics",
-    description: "Enrich and normalise Azure o365_outlook_activity logs (outlook-activity)",
-    processors: [
-      {
-        set: {
-          field: "ecs.version",
-          tag: "set_ecs_version",
-          value: "9.3.0",
-        },
-      },
-      {
-        rename: {
-          field: "message",
-          target_field: "event.original",
-          ignore_missing: true,
-          tag: "rename_message_to_event_original",
-          description:
-            "Renames the original message field to event.original to store a copy of the original message.",
-          if: "ctx.event?.original == null",
-        },
-      },
-      {
-        remove: {
-          field: "message",
-          ignore_missing: true,
-          tag: "remove_message",
-          description:
-            "The message field is no longer required if the document has an event.original field.",
-          if: "ctx.event?.original != null",
-        },
-      },
-      {
-        json: {
-          field: "event.original",
-          target_field: "azure.parsed",
-          ignore_failure: true,
-          tag: "parse_json",
-        },
-      },
-      {
-        set: {
-          field: "user.email",
-          value: "{{{identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn}}}",
-          override: false,
-          if: "ctx.identity?.claims != null && ctx.identity.claims.containsKey('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn')",
-          ignore_failure: true,
-          tag: "set_user_email_from_identity",
-        },
-      },
-      {
-        set: {
-          field: "source.ip",
-          value: "{{{callerIpAddress}}}",
-          override: false,
-          if: "ctx.callerIpAddress != null && ctx.source?.ip == null",
-          ignore_failure: true,
-          tag: "set_source_ip_from_caller",
-        },
-      },
-      {
-        set: {
-          field: "event.action",
-          value: "{{{operationName}}}",
-          override: false,
-          if: "ctx.operationName != null && ctx.event?.action == null",
-          ignore_failure: true,
-          tag: "set_event_action_from_operation",
-        },
-      },
-      {
-        rename: {
-          field: "category",
-          target_field: "azure.log.category",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_category",
-          description:
-            "Move Azure diagnostic log category to vendor namespace to avoid collision with ECS event.category.",
-        },
-      },
-      {
-        set: {
-          field: "log.level",
-          value: "{{{level}}}",
-          override: false,
-          if: "ctx.level != null && ctx.log?.level == null",
-          ignore_failure: true,
-          tag: "set_log_level_from_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorCode",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorCode",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_code",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_code",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorMessage",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorMessage",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_message",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_message",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorType",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorType",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_type",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_type",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.level",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.logLevel",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_logLevel",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.severity",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_severity",
-        },
-      },
-      {
-        lowercase: {
-          field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "lowercase_log_level",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          value: "event",
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_kind",
-        },
-      },
-      {
-        set: {
-          field: "event.category",
-          value: ["process"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_category",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["info"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_type",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["error"],
-          override: true,
-          if: "ctx.event?.outcome == 'failure'",
-          ignore_failure: true,
-          tag: "set_event_type_error",
-        },
-      },
-      {
-        script: {
-          lang: "painless",
-          description: "Normalise duration fields to event.duration (nanoseconds)",
-          tag: "script_duration_norm",
-          source:
-            "long nanos = 0L;\n          // Check parsed duration_ms, durationMs, durationSeconds, latency_ms, execution_time_ms\n          def nsObj = ctx['azure'];\n          if (nsObj != null && nsObj.parsed != null) {\n            def p = nsObj.parsed;\n            if (p.containsKey('duration_ms'))        { nanos = (long)(p.duration_ms * 1000000L); }\n            else if (p.containsKey('durationMs'))     { nanos = (long)(p.durationMs * 1000000L); }\n            else if (p.containsKey('durationSeconds')){ nanos = (long)(p.durationSeconds * 1000000000L); }\n            else if (p.containsKey('latency_ms'))     { nanos = (long)(p.latency_ms * 1000000L); }\n            else if (p.containsKey('execution_time_ms')) { nanos = (long)(p.execution_time_ms * 1000000L); }\n            else if (p.containsKey('elapsed_ms'))     { nanos = (long)(p.elapsed_ms * 1000000L); }\n          }\n          if (nanos > 0 && (ctx.event == null || ctx.event.duration == null)) {\n            if (ctx.event == null) { ctx.event = new HashMap(); }\n            ctx.event.duration = nanos;\n          }",
-          ignore_failure: true,
-        },
-      },
-      {
-        geoip: {
-          field: "source.ip",
-          target_field: "source.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_source_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "client.ip",
-          target_field: "client.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_client_ip",
-        },
-      },
-      {
-        geoip: {
-          field: "destination.ip",
-          target_field: "destination.geo",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "geoip_destination_ip",
-        },
-      },
-      {
-        user_agent: {
-          field: "user_agent.original",
-          target_field: "user_agent",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "user_agent_parse",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{source.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.source?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_source",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{destination.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.destination?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_destination",
-        },
-      },
-      {
-        append: {
-          field: "related.ip",
-          value: "{{{client.ip}}}",
-          allow_duplicates: false,
-          if: "ctx.client?.ip != null",
-          ignore_failure: true,
-          tag: "append_related_ip_client",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.name != null",
-          ignore_failure: true,
-          tag: "append_related_user_name",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.email}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.email != null",
-          ignore_failure: true,
-          tag: "append_related_user_email",
-        },
-      },
-      {
-        append: {
-          field: "related.user",
-          value: ["{{{user.id}}}"],
-          allow_duplicates: false,
-          if: "ctx.user?.id != null",
-          ignore_failure: true,
-          tag: "append_related_user_id",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.name}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.name != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_name",
-        },
-      },
-      {
-        append: {
-          field: "related.hosts",
-          value: ["{{{host.hostname}}}"],
-          allow_duplicates: false,
-          if: "ctx.host?.hostname != null",
-          ignore_failure: true,
-          tag: "append_related_hosts_hostname",
-        },
-      },
-      {
-        remove: {
-          field: "azure.parsed",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_azure_parsed",
-        },
-      },
-      {
-        remove: {
-          field: ["_log4j_ts", "_log4j_thread", "_log4j_class", "_log4j_message"],
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "remove_log4j_temp_fields",
-        },
-      },
-      {
-        remove: {
-          field: "callerIpAddress",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_callerIp",
-          if: "ctx.source?.ip != null",
-          description: "Remove after mapping to source.ip",
-        },
-      },
-      {
-        remove: {
-          field: "identity",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_identity",
-          if: "ctx.user?.email != null",
-          description: "Remove after mapping to user.email",
-        },
-      },
-      {
-        remove: {
-          field: "operationName",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_operationName",
-          if: "ctx.event?.action != null",
-          description: "Remove after mapping to event.action",
-        },
-      },
-      {
-        remove: {
-          field: "level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_level",
-          if: "ctx.log?.level != null",
-          description: "Remove after mapping to log.level",
-        },
-      },
-      {
-        remove: {
-          field: "resultType",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultType",
-          description: "Covered by event.outcome",
-        },
-      },
-      {
-        remove: {
-          field: "resultSignature",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "drop_azure_resultSignature",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original_on_error",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-          if: "ctx.error?.message != null",
-        },
-      },
-    ],
-    on_failure: [
-      {
-        append: {
-          field: "error.message",
-          tag: "append_pipeline_error",
-          value:
-            "Processor '{{{ _ingest.on_failure_processor_type }}}'{{{#_ingest.on_failure_processor_tag}}} with tag '{{{ _ingest.on_failure_processor_tag }}}'{{{/_ingest.on_failure_processor_tag}}} failed with message '{{{ _ingest.on_failure_message }}}'",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          tag: "set_pipeline_error",
-          value: "pipeline_error",
-        },
-      },
-      {
-        append: {
-          field: "tags",
-          tag: "append_preserve_original",
-          value: "preserve_original_event",
-          allow_duplicates: false,
-        },
-      },
-    ],
-  },
-  {
-    id: "logs-azure.o365_teams_activity-default",
-    dataset: "azure.o365_teams_activity",
-    group: "o365-metrics",
-    description: "Enrich and normalise Azure o365_teams_activity logs (teams-user-activity)",
-    processors: [
-      {
-        set: {
-          field: "ecs.version",
-          tag: "set_ecs_version",
-          value: "9.3.0",
-        },
-      },
-      {
-        rename: {
-          field: "message",
-          target_field: "event.original",
-          ignore_missing: true,
-          tag: "rename_message_to_event_original",
-          description:
-            "Renames the original message field to event.original to store a copy of the original message.",
-          if: "ctx.event?.original == null",
-        },
-      },
-      {
-        remove: {
-          field: "message",
-          ignore_missing: true,
-          tag: "remove_message",
-          description:
-            "The message field is no longer required if the document has an event.original field.",
-          if: "ctx.event?.original != null",
-        },
-      },
-      {
-        json: {
-          field: "event.original",
-          target_field: "azure.parsed",
-          ignore_failure: true,
-          tag: "parse_json",
-        },
-      },
-      {
-        set: {
-          field: "user.email",
-          value: "{{{identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn}}}",
-          override: false,
-          if: "ctx.identity?.claims != null && ctx.identity.claims.containsKey('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn')",
-          ignore_failure: true,
-          tag: "set_user_email_from_identity",
-        },
-      },
-      {
-        set: {
-          field: "source.ip",
-          value: "{{{callerIpAddress}}}",
-          override: false,
-          if: "ctx.callerIpAddress != null && ctx.source?.ip == null",
-          ignore_failure: true,
-          tag: "set_source_ip_from_caller",
-        },
-      },
-      {
-        set: {
-          field: "event.action",
-          value: "{{{operationName}}}",
-          override: false,
-          if: "ctx.operationName != null && ctx.event?.action == null",
-          ignore_failure: true,
-          tag: "set_event_action_from_operation",
-        },
-      },
-      {
-        rename: {
-          field: "category",
-          target_field: "azure.log.category",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_category",
-          description:
-            "Move Azure diagnostic log category to vendor namespace to avoid collision with ECS event.category.",
-        },
-      },
-      {
-        set: {
-          field: "log.level",
-          value: "{{{level}}}",
-          override: false,
-          if: "ctx.level != null && ctx.log?.level == null",
-          ignore_failure: true,
-          tag: "set_log_level_from_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorCode",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorCode",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_code",
-          target_field: "error.code",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_code",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorMessage",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorMessage",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_message",
-          target_field: "error.message",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_message",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.errorType",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_errorType",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.error_type",
-          target_field: "error.type",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_error_type",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.level",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_level",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.logLevel",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_logLevel",
-        },
-      },
-      {
-        rename: {
-          field: "azure.parsed.severity",
-          target_field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "rename_azure_parsed_severity",
-        },
-      },
-      {
-        lowercase: {
-          field: "log.level",
-          ignore_missing: true,
-          ignore_failure: true,
-          tag: "lowercase_log_level",
-        },
-      },
-      {
-        set: {
-          field: "event.kind",
-          value: "event",
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_kind",
-        },
-      },
-      {
-        set: {
-          field: "event.category",
-          value: ["process"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_category",
-        },
-      },
-      {
-        set: {
-          field: "event.type",
-          value: ["info"],
-          override: false,
-          ignore_failure: true,
-          tag: "set_event_type",
         },
       },
       {
@@ -46577,6 +44713,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -47028,6 +45174,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -47536,6 +45692,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -48062,6 +46228,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -48600,6 +46776,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -49132,6 +47318,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -49670,6 +47866,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -50188,6 +48394,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -50726,6 +48942,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -51240,6 +49466,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -51769,6 +50005,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -52265,6 +50511,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -52773,6 +51029,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -53311,6 +51577,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -53765,6 +52041,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -54216,6 +52502,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -54718,6 +53014,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -55172,6 +53478,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -55623,6 +53939,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -56161,6 +54487,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -56675,6 +55011,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -57204,6 +55550,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -57730,6 +56086,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -58247,6 +56613,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -58761,6 +57137,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -59299,6 +57685,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -59834,6 +58230,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -60348,6 +58754,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -60886,6 +59302,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -61421,6 +59847,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -61872,6 +60308,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -62396,6 +60842,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -62914,6 +61370,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -63452,6 +61918,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -63984,6 +62460,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -64522,6 +63008,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -65043,6 +63539,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -65494,6 +64000,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {
@@ -66032,6 +64548,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -66567,6 +65093,16 @@ export const PIPELINE_REGISTRY = [
         },
       },
       {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
+        },
+      },
+      {
         set: {
           field: "event.type",
           value: ["error"],
@@ -67099,6 +65635,16 @@ export const PIPELINE_REGISTRY = [
           override: false,
           ignore_failure: true,
           tag: "set_event_type",
+        },
+      },
+      {
+        script: {
+          lang: "painless",
+          tag: "set_event_action_from_service_fields",
+          description: "Derive ECS event.action from the service's native operation field",
+          source:
+            "if (ctx.event != null && ctx.event.action != null) return; def verbs = ['event_name','eventName','operation','operation_name','operation_type','api_call','api_name','api','action','action_type','command','verb','request_type','request_method','method','event_type','event_subtype','event_code','activity_type']; def subjects = ['finding_type','behavior_type','log_kind','log_line_kind','message_type','notification_type','record_type','change_type','job_phase','lifecycle','alarm_state']; def vendor = ctx.aws; if (vendor == null || !(vendor instanceof Map)) return; def found = null; for (def names : [verbs, subjects]) {   for (def n : names) {     for (def e : vendor.entrySet()) {       def k = e.getKey(); if (k == 'dimensions' || k == 'cloudwatch' || k == 's3' || k == 'kinesis') continue;       def blk = e.getValue(); if (!(blk instanceof Map)) continue;       def v = blk.get(n);       if (v != null && !(v instanceof Map) && !(v instanceof List)) { def s = v.toString().trim(); if (s.length() > 0 && s.length() <= 80) { found = s; break; } }     }     if (found != null) break;   }   if (found != null) break; } if (found != null) { if (ctx.event == null) ctx.event = new HashMap(); ctx.event.action = found; }",
+          ignore_failure: true,
         },
       },
       {

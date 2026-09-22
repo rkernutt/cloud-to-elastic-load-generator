@@ -22,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.kind\":\"alert\"}},{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.dlp\"}},{\"term\":{\"data_stream.dataset\":\"gcp.dlp\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.dlp*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -52,7 +53,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.vpcflow\"}},{\"term\":{\"data_stream.dataset\":\"gcp.vpcflow\"}}],\"minimum_should_match\":1}},{\"term\":{\"gcp.vpc_flow.direction\":\"egress\"}},{\"range\":{\"gcp.vpc_flow.bytes_sent\":{\"gt\":52428800}}}]}}}",
         "index": ["logs-gcp.vpcflow*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +84,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.gcs\"}},{\"term\":{\"data_stream.dataset\":\"gcp.gcs\"}}],\"minimum_should_match\":1}},{\"term\":{\"gcp.cloud_storage.operation\":\"storage.objects.get\"}},{\"range\":{\"gcp.cloud_storage.object_size\":{\"gt\":52428800}}}]}}}",
         "index": ["logs-gcp.gcs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -113,7 +116,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"bool\":{\"filter\":[{\"term\":{\"event.kind\":\"alert\"}},{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.dlp\"}},{\"term\":{\"data_stream.dataset\":\"gcp.dlp\"}}],\"minimum_should_match\":1}}]}},{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.vpcflow\"}},{\"term\":{\"data_stream.dataset\":\"gcp.vpcflow\"}}],\"minimum_should_match\":1}},{\"term\":{\"gcp.vpc_flow.direction\":\"egress\"}},{\"range\":{\"gcp.vpc_flow.bytes_sent\":{\"gt\":52428800}}}]}},{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.dataset\":\"gcp.gcs\"}},{\"term\":{\"data_stream.dataset\":\"gcp.gcs\"}}],\"minimum_should_match\":1}},{\"term\":{\"gcp.cloud_storage.operation\":\"storage.objects.get\"}},{\"range\":{\"gcp.cloud_storage.object_size\":{\"gt\":52428800}}}]}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.dlp*", "logs-gcp.vpcflow*", "logs-gcp.gcs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

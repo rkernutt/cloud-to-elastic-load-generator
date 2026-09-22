@@ -22,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.outcome\":\"failure\"}},{\"exists\":{\"field\":\"labels.pipeline_run_id\"}}],\"must_not\":[{\"term\":{\"event.dataset\":\"aws.glue_dataquality\"}}]}}}",
         "index": ["logs-aws.mwaa*", "logs-aws.emr*", "logs-aws.glue*", "logs-aws.stepfunctions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -53,7 +54,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.glue_dataquality\"}},{\"term\":{\"aws.glue_dataquality.failed_rule_types\":\"RowCount\"}}]}}}",
         "index": ["logs-aws.glue_dataquality*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -84,7 +86,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"exists\":{\"field\":\"error.type\"}}]}}}",
         "index": ["logs-aws.emr*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -115,7 +118,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.s3access\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"aws.s3access.key\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"aws.s3access.key\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
         "index": ["logs-aws.s3access*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -146,7 +150,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.mwaa\"}},{\"term\":{\"event.action\":\"dag_completed\"}},{\"range\":{\"aws.mwaa.duration_ms\":{\"gt\":60000}}}]}}}",
         "index": ["logs-aws.mwaa*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -177,7 +182,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.glue_dataquality\"}},{\"terms\":{\"aws.glue_dataquality.failed_rule_types\":[\"ColumnExists\",\"ColumnCount\",\"ColumnDataType\"]}}]}}}",
         "index": ["logs-aws.glue_dataquality*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -211,7 +217,7 @@
         "size": 100,
         "aggType": "count",
         "groupBy": "row",
-        "excludeHitsFromPreviousRun": true
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -245,7 +251,7 @@
         "size": 100,
         "aggType": "count",
         "groupBy": "row",
-        "excludeHitsFromPreviousRun": true
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -278,7 +284,7 @@
         "size": 100,
         "aggType": "count",
         "groupBy": "row",
-        "excludeHitsFromPreviousRun": true
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

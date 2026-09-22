@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Pub/Sub Dead Letter Messages",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "pubsub"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.pubsub\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*dead_letter*\"}}},{\"wildcard\":{\"message\":{\"value\":\"*DeadLetterPolicy*\"}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.pubsub*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] Pub/Sub Ack Deadline Exceeded",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "pubsub"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.pubsub\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*ack_deadline*\"}}},{\"wildcard\":{\"message\":{\"value\":\"*ModifyAckDeadline*\"}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.pubsub*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] Pub/Sub Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "pubsub"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.pubsub\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.pubsub*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] Cloud Build Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "cloudbuild"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.cloudbuild\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.cloudbuild*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] Cloud Build Timeout",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "cloudbuild"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.cloudbuild\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"TIMEOUT\"}},{\"wildcard\":{\"message\":{\"value\":\"*timed_out*\"}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.cloudbuild*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] Secret Manager Access Denied",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "secretmanager"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.secretmanager\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"PERMISSION_DENIED\"}},{\"term\":{\"event.outcome\":\"failure\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-gcp.secretmanager*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] Secret Manager Rotation Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "gcp", "secretmanager"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.secretmanager\"}},{\"wildcard\":{\"message\":{\"value\":\"*rotation*\"}}},{\"term\":{\"log.level\":\"ERROR\"}}]}}}",
         "index": ["logs-gcp.secretmanager*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

@@ -39,6 +39,8 @@ Maps GCP-native fields to ECS equivalents:
 | `resource.type`              | `cloud.service.name`                        |
 | `resource.labels.project_id` | `cloud.project.id`                          |
 
+`ecsNorm` is shared with the AWS and Azure registries (`installer/shared/pipeline-processors.mjs`), so GCP pipelines also carry the painless processor tagged `set_event_action_from_service_fields`. It only fills `event.action` when the field is still unset, and it reads the `aws.{service}` blocks, so for GCP documents the `protoPayload.methodName` mapping above has already set the field and the processor is a no-op. Regenerate with `npm run gen:gcp-pipelines` after changing the shared processors.
+
 ### 2. Identity extraction (`gcpIdentityExtract`)
 
 | GCP native field                                       | ECS field                 |

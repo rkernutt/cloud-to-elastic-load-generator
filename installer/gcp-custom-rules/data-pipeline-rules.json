@@ -22,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.composer\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-gcp.composer*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -52,7 +53,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.bigquery\"}},{\"term\":{\"gcp.bigquery.rows_returned\":0}}]}}}",
         "index": ["logs-gcp.bigquery*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +84,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.dataproc\"}},{\"exists\":{\"field\":\"error.type\"}}]}}}",
         "index": ["logs-gcp.dataproc*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -109,7 +112,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.gcs\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"gcp.gcs.object_name\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"gcp.gcs.object_name\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
         "index": ["logs-gcp.gcs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -139,7 +143,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"gcp.composer\"}},{\"term\":{\"gcp.composer.task_id\":\"dag_complete\"}},{\"range\":{\"gcp.composer.duration_ms\":{\"gt\":60000}}}]}}}",
         "index": ["logs-gcp.composer*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

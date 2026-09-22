@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] RDS Connection Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "rds", "databases"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.rds\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*connection*\",\"case_insensitive\":true}}},{\"match_phrase\":{\"message\":\"ready for connections\"}},{\"match_phrase\":{\"message\":\"Connect\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.rds*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] RDS Replication Lag",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "rds", "databases", "replication"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.rds\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"replica lag\"}},{\"match_phrase\":{\"message\":\"seconds_behind_master\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.rds*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] RDS Storage Full Warning",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "rds", "databases", "storage"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.rds\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*storage full*\",\"case_insensitive\":true}}},{\"wildcard\":{\"message\":{\"value\":\"*no space*\",\"case_insensitive\":true}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.rds*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] RDS Slow Queries",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "rds", "databases", "performance"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.rds\"}},{\"match_phrase\":{\"message\":\"slow query\"}},{\"range\":{\"event.duration\":{\"gt\":10000000000}}}]}}}",
         "index": ["logs-aws.rds*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] Aurora Replica Lag",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "aurora", "databases", "replication"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.aurora\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"replica lag\"}},{\"match_phrase\":{\"message\":\"replication_lag_ms\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.aurora*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] Aurora Failover Event",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "aurora", "databases", "failover"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.aurora\"}},{\"match_phrase\":{\"message\":\"failover\"}},{\"terms\":{\"log.level\":[\"warn\",\"error\"]}}]}}}",
         "index": ["logs-aws.aurora*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] DynamoDB Throttling",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "dynamodb", "databases"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.dynamodb\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"ThrottlingException\"}},{\"match_phrase\":{\"message\":\"ProvisionedThroughputExceededException\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.dynamodb*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -182,7 +203,9 @@
       "name": "[CloudLoadGen] DynamoDB Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "dynamodb", "databases"],
       "enabled": false,
       "params": {
@@ -195,7 +218,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.dynamodb\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-aws.dynamodb*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -207,7 +231,9 @@
       "name": "[CloudLoadGen] DynamoDB Conditional Check Failures",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "dynamodb", "databases"],
       "enabled": false,
       "params": {
@@ -220,7 +246,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.dynamodb\"}},{\"match_phrase\":{\"message\":\"ConditionalCheckFailedException\"}}]}}}",
         "index": ["logs-aws.dynamodb*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -232,7 +259,9 @@
       "name": "[CloudLoadGen] ElastiCache Eviction Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "elasticache", "databases"],
       "enabled": false,
       "params": {
@@ -245,7 +274,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.elasticache\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"eviction\"}},{\"match_phrase\":{\"message\":\"evicted_keys\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.elasticache*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -257,7 +287,9 @@
       "name": "[CloudLoadGen] ElastiCache Replication Error",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "elasticache", "databases", "replication"],
       "enabled": false,
       "params": {
@@ -270,7 +302,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.elasticache\"}},{\"match_phrase\":{\"message\":\"replication\"}},{\"term\":{\"log.level\":\"error\"}}]}}}",
         "index": ["logs-aws.elasticache*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -282,7 +315,9 @@
       "name": "[CloudLoadGen] ElastiCache Connection Rejected",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "elasticache", "databases"],
       "enabled": false,
       "params": {
@@ -295,7 +330,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.elasticache\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"rejected_connections\"}},{\"wildcard\":{\"message\":{\"value\":\"*max clients*\",\"case_insensitive\":true}}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.elasticache*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -307,7 +343,9 @@
       "name": "[CloudLoadGen] OpenSearch Cluster Red",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "opensearch", "databases"],
       "enabled": false,
       "params": {
@@ -320,7 +358,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.opensearch\"}},{\"match_phrase\":{\"message\":\"ClusterStatus\"}},{\"match_phrase\":{\"message\":\"red\"}}]}}}",
         "index": ["logs-aws.opensearch*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -332,7 +371,9 @@
       "name": "[CloudLoadGen] OpenSearch JVM Pressure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "opensearch", "databases"],
       "enabled": false,
       "params": {
@@ -345,7 +386,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.opensearch\"}},{\"match_phrase\":{\"message\":\"JVMMemoryPressure\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"message\":{\"value\":\"*85*\"}}},{\"match_phrase\":{\"message\":\"high_mem\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.opensearch*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -357,7 +399,9 @@
       "name": "[CloudLoadGen] OpenSearch Write Rejections",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "opensearch", "databases"],
       "enabled": false,
       "params": {
@@ -370,7 +414,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.opensearch\"}},{\"match_phrase\":{\"message\":\"rejected\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"write\"}},{\"match_phrase\":{\"message\":\"bulk\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.opensearch*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

@@ -52,7 +52,7 @@ Observability adds job_performance, error, resource_utilization, and throughput.
 | **job_performance**      | `glue.driver.skewness.stage`                                | `metrics.driver.skewness.stage`                                      | ✓                                       |
 | **job_performance**      | `glue.driver.skewness.job`                                  | `metrics.driver.skewness.job`                                        | ✓                                       |
 | **error**                | `glue.succeed.ALL` / `glue.error.ALL`                       | Implied by `event.outcome` and `job.run_state`                       | Counts are per-run in our model         |
-| **error**                | `glue.error.[error category]`                               | `aws.glue.error_category` (on failure)                               | One of 9 Observability error categories |
+| **error**                | `glue.error.[error category]`                               | `aws.glue.error_category` (`"NONE"` when the run succeeded)          | One of 9 Observability error categories |
 | **resource_utilization** | `glue.driver.workerUtilization`                             | `metrics.driver.workerUtilization`                                   | ✓                                       |
 | **resource_utilization** | `glue.driver.memory.heap.[available\|used]`                 | `metrics.driver.memory.heap`                                         | ✓                                       |
 | **resource_utilization** | `glue.driver.memory.heap.used.percentage`                   | `metrics.driver.memory.heap.used_percentage`                         | ✓                                       |
@@ -62,6 +62,8 @@ Observability adds job_performance, error, resource_utilization, and throughput.
 | **throughput**           | bytes/records per source/sink                               | `aws.glue.records.read/written`; aggregate bytes in driver.aggregate | Job-level; per-source/sink not modeled  |
 
 **Error categories** we emit (on failure): `OUT_OF_MEMORY_ERROR`, `PERMISSION_ERROR`, `CONNECTION_ERROR`, `RESOURCE_NOT_FOUND_ERROR`, `THROTTLING_ERROR`, `SYNTAX_ERROR`, `GLUE_OPERATION_TIMEOUT_ERROR`, `S3_ERROR`, `UNCLASSIFIED_SPARK_ERROR`.
+
+`aws.glue.error_category` is emitted on **every** Glue document — a real category on failure, and the sentinel `"NONE"` when the run succeeded (`src/aws/generators/analytics.ts`, and the DQ job document in `src/aws/generators/dataPipelineChain.ts`). The sentinel keeps the column mapped and present on every document so ES|QL can query it: a panel that groups or counts by a field absent from the result set fails outright with `Unknown column` rather than rendering an empty chart.
 
 ---
 

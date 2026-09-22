@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] Spark — Executor Out of Memory",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"log.level\":\"ERROR\"}},{\"term\":{\"spark.component_short\":\"Executor\"}},{\"match_phrase\":{\"message\":\"OutOfMemoryError\"}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -35,7 +38,9 @@
       "name": "[CloudLoadGen] Spark — Executor Lost (Heartbeat Timeout)",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -48,7 +53,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"exists\":{\"field\":\"spark.executor.loss_reason\"}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -63,7 +69,9 @@
       "name": "[CloudLoadGen] Spark — Stage Failure (Job Aborted)",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -76,7 +84,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"spark.component_short\":\"DAGScheduler\"}},{\"term\":{\"log.level\":\"ERROR\"}},{\"match_phrase\":{\"message\":\"Job aborted due to stage failure\"}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -91,7 +100,9 @@
       "name": "[CloudLoadGen] Spark — Shuffle Fetch Failures",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -104,7 +115,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"exists\":{\"field\":\"spark.shuffle.id\"}},{\"match_phrase\":{\"message\":\"FetchFailed\"}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -116,7 +128,9 @@
       "name": "[CloudLoadGen] Spark — High GC Pressure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -129,7 +143,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"range\":{\"spark.gc.time_ms\":{\"gte\":30000}}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -141,7 +156,9 @@
       "name": "[CloudLoadGen] Spark — S3 Access Denied",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -154,7 +171,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"spark.component_short\":\"S3AFileSystem\"}},{\"term\":{\"log.level\":\"ERROR\"}},{\"match_phrase\":{\"message\":\"Access Denied\"}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -169,7 +187,9 @@
       "name": "[CloudLoadGen] Spark — Abnormally Slow Stages",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "10m" },
+      "schedule": {
+        "interval": "10m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -182,7 +202,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"exists\":{\"field\":\"spark.stage.duration_s\"}},{\"range\":{\"spark.stage.duration_s\":{\"gte\":300}}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -194,7 +215,9 @@
       "name": "[CloudLoadGen] Spark — YARN Container Killed",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -207,7 +230,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"Exit status: 137\"}},{\"match_phrase\":{\"message\":\"Container killed on request\"}},{\"match_phrase\":{\"message\":\"Container from a bad node\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -222,7 +246,9 @@
       "name": "[CloudLoadGen] Spark — Application Failed",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -235,7 +261,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"spark.event_type\":\"SparkListenerApplicationEnd\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"JobFailed\"}},{\"match_phrase\":{\"message\":\"FAILED\"}},{\"term\":{\"log.level\":\"ERROR\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -250,7 +277,9 @@
       "name": "[CloudLoadGen] Spark — S3 Slow Operations",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "10m" },
+      "schedule": {
+        "interval": "10m"
+      },
       "tags": ["cloudloadgen", "emr", "analytics"],
       "enabled": false,
       "params": {
@@ -263,7 +292,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"term\":{\"spark.component_short\":\"S3AFileSystem\"}},{\"term\":{\"log.level\":\"WARN\"}},{\"match_phrase\":{\"message\":\"slow operation\"}}]}}}",
         "index": ["logs-aws.emr_logs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",

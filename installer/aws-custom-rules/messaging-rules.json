@@ -7,7 +7,9 @@
       "name": "[CloudLoadGen] SQS — Dead Letter Queue Messages",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "sqs", "messaging"],
       "enabled": false,
       "params": {
@@ -20,7 +22,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.sqs\"}}],\"should\":[{\"match_phrase\":{\"message\":\"DeadLetterQueue\"}},{\"match_phrase\":{\"message\":\"DLQ\"}},{\"bool\":{\"filter\":[{\"bool\":{\"should\":[{\"term\":{\"event.action\":\"SendMessage\"}},{\"wildcard\":{\"event.action\":\"*SendMessage*\"}},{\"term\":{\"aws.sqs.operation\":\"SendMessage\"}}],\"minimum_should_match\":1}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"DLQ\"}},{\"match_phrase\":{\"message\":\"dead-letter\"}},{\"wildcard\":{\"aws.sqs.queue.name\":\"*dlq*\"}}],\"minimum_should_match\":1}}]}}],\"minimum_should_match\":1}}}",
         "index": ["logs-aws.sqs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -32,7 +35,9 @@
       "name": "[CloudLoadGen] SQS — Message Age Warning",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "sqs", "messaging"],
       "enabled": false,
       "params": {
@@ -45,7 +50,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.sqs\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"ApproximateAgeOfOldestMessage\"}},{\"match_phrase\":{\"message\":\"message_age\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.sqs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -57,7 +63,9 @@
       "name": "[CloudLoadGen] SQS — Error Spike",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "sqs", "messaging"],
       "enabled": false,
       "params": {
@@ -70,7 +78,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.sqs\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-aws.sqs*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -82,7 +91,9 @@
       "name": "[CloudLoadGen] SNS — Delivery Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "sns", "messaging"],
       "enabled": false,
       "params": {
@@ -95,7 +106,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.sns\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-aws.sns*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -107,7 +119,9 @@
       "name": "[CloudLoadGen] SNS — Throttling",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "sns", "messaging"],
       "enabled": false,
       "params": {
@@ -120,7 +134,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.sns\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"Throttled\"}},{\"term\":{\"error.type\":\"ThrottledException\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.sns*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -132,7 +147,9 @@
       "name": "[CloudLoadGen] MSK — Under-Replicated Partitions",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "msk", "messaging"],
       "enabled": false,
       "params": {
@@ -145,7 +162,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.msk\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"under-replicated\"}},{\"match_phrase\":{\"message\":\"UnderReplicatedPartitions\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.msk*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -157,7 +175,9 @@
       "name": "[CloudLoadGen] MSK — Consumer Lag",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "msk", "messaging"],
       "enabled": false,
       "params": {
@@ -170,7 +190,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.msk\"}},{\"terms\":{\"log.level\":[\"warn\",\"error\"]}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"consumer_lag\"}},{\"match_phrase\":{\"message\":\"ConsumerLag\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.msk*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -182,7 +203,9 @@
       "name": "[CloudLoadGen] MSK — Broker Error",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "msk", "messaging"],
       "enabled": false,
       "params": {
@@ -195,7 +218,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.msk\"}},{\"term\":{\"log.level\":\"error\"}},{\"match_phrase\":{\"message\":\"broker\"}}]}}}",
         "index": ["logs-aws.msk*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -207,7 +231,9 @@
       "name": "[CloudLoadGen] Kinesis — Throttling",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "kinesis", "messaging"],
       "enabled": false,
       "params": {
@@ -220,7 +246,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.kinesis\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"ProvisionedThroughputExceededException\"}},{\"match_phrase\":{\"message\":\"ReadProvisionedThroughputExceeded\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.kinesis*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -232,7 +259,9 @@
       "name": "[CloudLoadGen] Kinesis — Iterator Age",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "kinesis", "messaging"],
       "enabled": false,
       "params": {
@@ -245,7 +274,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.kinesis\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"IteratorAge\"}},{\"match_phrase\":{\"message\":\"GetRecords.IteratorAgeMilliseconds\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.kinesis*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -257,7 +287,9 @@
       "name": "[CloudLoadGen] EventBridge — Failed Invocations",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "eventbridge", "messaging"],
       "enabled": false,
       "params": {
@@ -270,7 +302,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.eventbridge\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-aws.eventbridge*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -282,7 +315,9 @@
       "name": "[CloudLoadGen] EventBridge — Dead Letter Events",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "eventbridge", "messaging"],
       "enabled": false,
       "params": {
@@ -295,7 +330,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.eventbridge\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"DeadLetterQueue\"}},{\"match_phrase\":{\"message\":\"failed_invocations_dlq\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.eventbridge*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -307,7 +343,9 @@
       "name": "[CloudLoadGen] Step Functions — Execution Failure",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "stepfunctions", "messaging"],
       "enabled": false,
       "params": {
@@ -320,7 +358,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.stepfunctions\"}},{\"term\":{\"event.outcome\":\"failure\"}}]}}}",
         "index": ["logs-aws.stepfunctions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -332,7 +371,9 @@
       "name": "[CloudLoadGen] Step Functions — Execution Timeout",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "stepfunctions", "messaging"],
       "enabled": false,
       "params": {
@@ -345,7 +386,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.stepfunctions\"}},{\"bool\":{\"should\":[{\"match_phrase\":{\"message\":\"TimedOut\"}},{\"match_phrase\":{\"message\":\"TaskTimedOut\"}},{\"match_phrase\":{\"message\":\"States.Timeout\"}}],\"minimum_should_match\":1}}]}}}",
         "index": ["logs-aws.stepfunctions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
@@ -357,7 +399,9 @@
       "name": "[CloudLoadGen] Step Functions — Throttling",
       "rule_type_id": ".es-query",
       "consumer": "alerts",
-      "schedule": { "interval": "5m" },
+      "schedule": {
+        "interval": "5m"
+      },
       "tags": ["cloudloadgen", "stepfunctions", "messaging"],
       "enabled": false,
       "params": {
@@ -370,7 +414,8 @@
         "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.stepfunctions\"}},{\"match_phrase\":{\"message\":\"ThrottlingException\"}}]}}}",
         "index": ["logs-aws.stepfunctions*"],
         "timeField": "@timestamp",
-        "aggType": "count"
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
       },
       "actions": [],
       "notify_when": "onActiveAlert",
