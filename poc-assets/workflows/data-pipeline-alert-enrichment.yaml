@@ -1,0 +1,708 @@
+# Data Pipeline Alert → Run Lineage + ServiceNow CMDB Enrichment → Notification
+#
+# Triggers on any [CloudLoadGen] data-pipeline alerting rule, resolves the
+# affected pipeline run (labels.pipeline_run_id), builds an OpenLineage run
+# table (which job failed / is slow, what ran before it, what was never
+# produced downstream, native AWS ids to look at), looks up the affected CI
+# in ServiceNow CMDB, and emails the on-call group via the deployment's
+# preconfigured SMTP connector. Slack / Teams / PagerDuty / ServiceNow ITSM /
+# Opsgenie / webhook alternatives are commented out further down.
+#
+# Lineage sources: logs-aws.openlineage* (one doc per RunEvent), the raw AWS
+# streams that carry labels.pipeline_run_id (s3access, emr_logs, glue,
+# glue_dataquality — the Glue Data Quality result read from the Confluent topic
+# glue.dq.results via the Elastic Agent Kafka input —, eks — the Kafka Connect
+# S3 sink pod log —, mwaa, stepfunctions, cloudtrail) and traces-apm*. The
+# dq_result step summarises the run's DQ score / state / failed DQDL rules and
+# the Kafka record coordinates. When the triggering rule does not expose run_id
+# (the six older rules), the workflow falls back to the most recent failed run
+# in the last 6h.
+#
+# Installs DISABLED. Three manual steps before it can run:
+#   1. Review (or replace) the notify_email step.
+#   2. Attach to your alerting rules — every rule ships with actions=[].
+#   3. Flip the Enabled toggle in Stack Management → Workflows.
+#
+# Full guide (deployment matrix, sizing, self-hosted SMTP setup, step
+# reference, troubleshooting): docs/workflow-deployment.md
+
+name: Data Pipeline Alert — CMDB Enrichment & Notification
+description: >
+  Enriches data pipeline alerts with OpenLineage run lineage (failed/slow job,
+  upstream jobs, outputs never produced, stage durations vs 7-day baseline,
+  native AWS ids, Glue Data Quality result, APM trace) plus ServiceNow CMDB context (CI owner, support
+  group, open incidents) and emails the on-call group via the deployment's
+  preconfigured SMTP connector so the right person can be contacted
+  immediately.
+# Installs DISABLED on purpose — see header comment above.
+enabled: false
+tags:
+  - data-pipeline
+  - servicenow
+  - lineage
+  - enrichment
+  - automated-response
+
+consts:
+  servicenowIndex: "logs-servicenow.event-*"
+  pipelineLogsIndex: "logs-*"
+  lineageIndex: "logs-aws.openlineage*"
+  apmTracesIndex: "traces-apm*"
+
+inputs:
+  - name: emailConnector
+    type: string
+    required: true
+    default: "elastic-cloud-email"
+    description: "Email connector ID. `elastic-cloud-email` is preconfigured on Cloud; self-hosted: see docs."
+  - name: notifyTo
+    type: string
+    required: true
+    default: "data-platform-oncall@example.com"
+    description: "Recipient address for notify_email"
+  - name: slackConnector
+    type: string
+    required: false
+    default: "data-pipeline-alerts"
+    description: "Slack connector ID — only used if you uncomment notify_slack"
+  - name: kibanaUrl
+    type: string
+    required: false
+    default: "https://your-kibana.example.com"
+    description: "Kibana base URL (no trailing slash) used to build the APM trace link in notifications"
+
+triggers:
+  - type: alert
+
+steps:
+  # 0. Pre-flight log
+  - name: log_preflight
+    type: console
+    with:
+      message: |
+        Data pipeline alert enrichment starting:
+          emailConnector: {{ inputs.emailConnector }}
+          notifyTo:       {{ inputs.notifyTo }}
+  # 1. Log the inbound alert.
+  - name: log_alert_received
+    type: console
+    with:
+      message: >
+        Pipeline alert received: {{ event.alerts[0].kibana.alert.rule.name }}
+        Reason: {{ event.alerts[0].message }}
+
+  # ── Run lineage (OpenLineage) ────────────────────────────────────────────
+  # 1a. Extract run/job fields from the triggering alert regardless of how the
+  #     rule exposes them. The two Lineage rules (job failed / job slower than
+  #     baseline) are ES|QL alert-per-row rules whose row columns include
+  #     run_id, dag, job, error, duration_ms, baseline_p50_ms, ratio_pct,
+  #     owner, mode; the Glue DQ score rule adds score, failed_rules,
+  #     kafka_offset. The six older rules carry none of these — fields come
+  #     back as "" and resolve_run_id falls back to the most recent failed run.
+  - name: extract_alert_fields
+    type: ai.prompt
+    with:
+      prompt: |
+        You are a data-platform extraction assistant. Extract the following
+        fields from this Elastic alert JSON and return ONLY a JSON object with
+        these exact keys:
+          run_id, dag, job, mode, rule_name, severity
+
+        mode is the orchestration mode (`mode` or `labels.orchestration_mode`).
+        run_id is the pipeline run key (alert context column `run_id`, or
+        `labels.pipeline_run_id`). dag is the DAG / pipeline name (`dag` or
+        `labels.dag_id`). job is the failed or slow job name (`job` or
+        `aws.openlineage.job.name`). rule_name is `kibana.alert.rule.name`.
+        Use empty string for any field not present. Do not invent values.
+
+        Alert data: {{ event.alerts | json }}
+      schema:
+        type: object
+        properties:
+          run_id:
+            type: string
+          dag:
+            type: string
+          job:
+            type: string
+          mode:
+            type: string
+          rule_name:
+            type: string
+          severity:
+            type: string
+        required:
+          - rule_name
+    on-failure:
+      continue: true
+
+  # 1b. Resolve the run to enrich. If the alert carried a run_id we use it;
+  #     otherwise the most recent run with a FAIL event in the last 6h.
+  #     values[0][0] is the run id (KEEP puts run_id first).
+  - name: resolve_run_id
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM {{ consts.lineageIndex }}
+        | WHERE @timestamp > NOW() - 6 hours
+          AND (labels.pipeline_run_id == "{{ steps.extract_alert_fields.output.run_id }}"
+               OR ("{{ steps.extract_alert_fields.output.run_id }}" == "" AND aws.openlineage.event_type == "FAIL"))
+        | STATS last = MAX(@timestamp) BY run_id = labels.pipeline_run_id
+        | KEEP run_id, last
+        | SORT last DESC
+        | LIMIT 1
+    on-failure:
+      continue: true
+
+  # 1c. Lineage table for the run — one row per job (DAG-level events
+  #     excluded), returned as a single pre-formatted multi-line string cell
+  #     (Workflows templates have no loop, so the table is built in ES|QL).
+  #     Lines start with HH:mm:ss so MV_SORT yields execution order.
+  #     Status is derived numerically (FAIL=2 > COMPLETE=1 > START=0).
+  - name: lineage_table
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM {{ consts.lineageIndex }}
+        | WHERE labels.pipeline_run_id == "{{ steps.resolve_run_id.output.values[0][0] }}"
+          AND aws.openlineage.job.type != "DAG"
+        | STATS
+            started      = MIN(@timestamp),
+            state        = MAX(CASE(aws.openlineage.event_type == "FAIL", 2, aws.openlineage.event_type == "COMPLETE", 1, 0)),
+            duration_ms  = MAX(aws.openlineage.run.duration_ms),
+            inputs       = MV_CONCAT(VALUES(aws.openlineage.inputs), " | "),
+            outputs      = MV_CONCAT(VALUES(aws.openlineage.outputs), " | "),
+            rows_written = MAX(aws.openlineage.output_statistics.row_count),
+            error        = MV_CONCAT(VALUES(error.message), " | ")
+          BY job = aws.openlineage.job.name, integration = aws.openlineage.job.integration
+        | EVAL status = CASE(state == 2, "FAILED", state == 1, "ok", "running")
+        | EVAL line = CONCAT(
+            DATE_FORMAT("HH:mm:ss", started), "  ",
+            status, "  ",
+            COALESCE(integration, "-"), "  ",
+            job, "  ",
+            TO_STRING(COALESCE(duration_ms, 0)), "ms",
+            "  rows: ", TO_STRING(COALESCE(rows_written, 0)),
+            "  in: ", COALESCE(inputs, "-"),
+            "  out: ", COALESCE(outputs, "-"),
+            CASE(error IS NOT NULL, CONCAT("  ERROR: ", error), ""))
+        | STATS lines = VALUES(line)
+        | EVAL table = MV_CONCAT(MV_SORT(lines), "\n")
+        | KEEP table
+    on-failure:
+      continue: true
+
+  # 1d. Stage durations for this run vs the 7-day p50 of the same job.
+  - name: stage_baseline
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM {{ consts.lineageIndex }}
+        | WHERE @timestamp > NOW() - 7 days
+          AND aws.openlineage.run.duration_ms IS NOT NULL
+          AND aws.openlineage.job.type != "DAG"
+        | STATS duration_ms = MAX(aws.openlineage.run.duration_ms)
+          BY run_id = labels.pipeline_run_id, job = aws.openlineage.job.name
+        | INLINE STATS p50 = PERCENTILE(duration_ms, 50) BY job
+        | WHERE run_id == "{{ steps.resolve_run_id.output.values[0][0] }}"
+        | EVAL ratio = ROUND(100.0 * duration_ms / p50, 0)
+        | EVAL line = CONCAT(job, ": ", TO_STRING(duration_ms), "ms vs p50 ",
+            TO_STRING(ROUND(p50, 0)), "ms (", TO_STRING(ratio), "%)")
+        | STATS lines = VALUES(line)
+        | EVAL table = MV_CONCAT(MV_SORT(lines), "\n")
+        | KEEP table
+    on-failure:
+      continue: true
+
+  # 1e. Raw evidence — native AWS ids for the run across every stream that
+  #     carries labels.pipeline_run_id. Capped at 200 rows, time-ordered.
+  - name: raw_evidence
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM logs-aws.s3access*, logs-aws.emr_logs*, logs-aws.glue*, logs-aws.glue_dataquality*, logs-aws.eks*, logs-aws.mwaa*, logs-aws.stepfunctions*, logs-aws.cloudtrail*
+        | WHERE labels.pipeline_run_id == "{{ steps.resolve_run_id.output.values[0][0] }}"
+        | SORT @timestamp
+        | LIMIT 200
+        | EVAL native_id = COALESCE(aws.emr.step_id, aws.glue_dataquality.result_id, aws.glue.job.run_id, aws.s3access.request_id,
+              aws.stepfunctions.execution_arn, aws.mwaa.run_id, aws.cloudtrail.request_id, TO_STRING(kafka.offset))
+        | EVAL detail = COALESCE(aws.glue_dataquality.state, MV_CONCAT(aws.glue_dataquality.failed_rules, "; "),
+              aws.s3access.key, aws.emr.spark_app_id, aws.stepfunctions.state_name,
+              aws.mwaa.task_id, aws.glue.job.name, kubernetes.pod.name, event.action)
+        | EVAL line = CONCAT(
+            DATE_FORMAT("HH:mm:ss", @timestamp), "  ",
+            COALESCE(event.dataset, "-"), "  ",
+            COALESCE(event.outcome, "-"), "  ",
+            COALESCE(native_id, "-"), "  ",
+            COALESCE(detail, "-"))
+        | STATS lines = VALUES(line)
+        | EVAL table = MV_CONCAT(MV_SORT(lines), "\n")
+        | KEEP table
+    on-failure:
+      continue: true
+
+  # 1e'. Glue Data Quality result for the run — read from the Confluent topic
+  #      glue.dq.results by the Elastic Agent Kafka input. The DQ job's
+  #      ruleset-failure action is None, so a low score never fails the DAG;
+  #      this is the only place the run's quality verdict appears. One
+  #      pre-formatted line per DQ job (usually one).
+  - name: dq_result
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM logs-aws.glue_dataquality*
+        | WHERE labels.pipeline_run_id == "{{ steps.resolve_run_id.output.values[0][0] }}"
+        | STATS
+            score        = MIN(aws.glue_dataquality.score),
+            state        = MV_CONCAT(VALUES(aws.glue_dataquality.state), ","),
+            rules_failed = MAX(aws.glue_dataquality.rules.failed),
+            rules_total  = MAX(aws.glue_dataquality.rules.total),
+            failed_rules = MV_CONCAT(VALUES(aws.glue_dataquality.failed_rules), " | "),
+            job_run_id   = MV_CONCAT(VALUES(aws.glue_dataquality.job.run_id), ","),
+            topic        = MV_CONCAT(VALUES(kafka.topic), ","),
+            partition    = MAX(kafka.partition),
+            offset       = MAX(kafka.offset)
+          BY job = aws.glue_dataquality.job.name
+        | EVAL line = CONCAT(
+            job, "  score: ", TO_STRING(score),
+            "  state: ", COALESCE(state, "-"),
+            "  rules failed: ", TO_STRING(COALESCE(rules_failed, 0)), "/", TO_STRING(COALESCE(rules_total, 0)),
+            "  failed: ", COALESCE(failed_rules, "none"),
+            "  glue run: ", COALESCE(job_run_id, "-"),
+            "  kafka: ", COALESCE(topic, "-"), "/", TO_STRING(COALESCE(partition, 0)), "@", TO_STRING(COALESCE(offset, 0)))
+        | STATS lines = VALUES(line)
+        | EVAL table = MV_CONCAT(MV_SORT(lines), "\n")
+        | KEEP table
+    on-failure:
+      continue: true
+
+  # 1f. Downstream impact — jobs in this run that STARTed but never COMPLETEd,
+  #     i.e. whose outputs were never produced.
+  - name: downstream_impact
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM {{ consts.lineageIndex }}
+        | WHERE labels.pipeline_run_id == "{{ steps.resolve_run_id.output.values[0][0] }}"
+          AND aws.openlineage.job.type != "DAG"
+        | STATS
+            has_complete = MAX(CASE(aws.openlineage.event_type == "COMPLETE", 1, 0)),
+            has_start    = MAX(CASE(aws.openlineage.event_type == "START", 1, 0))
+          BY job = aws.openlineage.job.name
+        | WHERE has_start == 1 AND has_complete == 0
+        | STATS jobs = VALUES(job)
+        | EVAL jobs = MV_CONCAT(MV_SORT(jobs), ", ")
+        | KEEP jobs
+    on-failure:
+      continue: true
+
+  # 1g. APM trace for the run (for a Kibana link in the notification).
+  - name: apm_trace
+    type: elasticsearch.esql.query
+    with:
+      format: json
+      query: |
+        FROM {{ consts.apmTracesIndex }}
+        | WHERE labels.pipeline_run_id == "{{ steps.resolve_run_id.output.values[0][0] }}"
+          AND processor.event == "transaction"
+        | KEEP trace.id
+        | LIMIT 1
+    on-failure:
+      continue: true
+
+  # 2. Find the user who triggered the pipeline run.
+  #    Note: uses elasticsearch.request because the named elasticsearch.search
+  #    step rejects body-style sort clauses on Workflows v1.0.0.
+  - name: find_pipeline_user
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.pipelineLogsIndex }}/_search"
+      body:
+        size: 1
+        sort:
+          - "@timestamp":
+              order: "desc"
+        query:
+          bool:
+            must:
+              - exists:
+                  field: "user.name"
+              - range:
+                  "@timestamp":
+                    gte: "now-1h"
+            filter:
+              - bool:
+                  should:
+                    - term:
+                        event.dataset: "aws.mwaa"
+                    - term:
+                        event.dataset: "gcp.composer"
+                    - term:
+                        event.dataset: "azure.data_factory"
+                    - term:
+                        event.dataset: "aws.emr_logs"
+                    - term:
+                        event.dataset: "gcp.dataproc"
+    on-failure:
+      continue: true
+
+  # 3. Look up the user's full ServiceNow profile (email, phone, manager).
+  - name: lookup_servicenow_user
+    type: elasticsearch.search
+    with:
+      index: "{{ consts.servicenowIndex }}"
+      size: 1
+      query:
+        bool:
+          must:
+            - term:
+                tags: "sys_user"
+            - term:
+                servicenow.event.user_name.value: "{{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}"
+    on-failure:
+      continue: true
+
+  # 4. Look up the affected CI in ServiceNow CMDB.
+  - name: lookup_affected_ci
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.servicenowIndex }}/_search"
+      body:
+        size: 3
+        query:
+          bool:
+            must:
+              - term:
+                  tags: "cmdb_ci"
+            should:
+              - match:
+                  servicenow.event.category.value: "Cloud Service"
+              - match:
+                  servicenow.event.category.value: "Compute"
+            minimum_should_match: 1
+        sort:
+          - "@timestamp":
+              order: "desc"
+    on-failure:
+      continue: true
+
+  # 5. Check for open incidents on the same infrastructure.
+  - name: find_open_incidents
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.servicenowIndex }}/_search"
+      body:
+        size: 5
+        query:
+          bool:
+            must:
+              - term:
+                  tags: "incident"
+            must_not:
+              - term:
+                  servicenow.event.state.display_value: "Resolved"
+              - term:
+                  servicenow.event.state.display_value: "Closed"
+            filter:
+              - range:
+                  "@timestamp":
+                    gte: "now-7d"
+        sort:
+          - "@timestamp":
+              order: "desc"
+    on-failure:
+      continue: true
+
+  # 6. Find recent change requests that might explain the failure.
+  - name: find_recent_changes
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: "/{{ consts.servicenowIndex }}/_search"
+      body:
+        size: 3
+        query:
+          bool:
+            must:
+              - term:
+                  tags: "change_request"
+              - range:
+                  "@timestamp":
+                    gte: "now-7d"
+        sort:
+          - "@timestamp":
+              order: "desc"
+    on-failure:
+      continue: true
+
+  # 7. Send enriched notification.
+  #    Default channel: email. To switch, comment out notify_email and
+  #    uncomment one of the alternative blocks below. See "Switching to a
+  #    different channel" in docs/workflow-deployment.md.
+  #    Retries 2x then continues so step 8 still runs on transient SMTP
+  #    failures.
+  - name: notify_email
+    type: email
+    connector-id: "{{ inputs.emailConnector }}"
+    with:
+      to:
+        - "{{ inputs.notifyTo }}"
+      subject: "[Data Pipeline Alert] {{ event.alerts[0].kibana.alert.rule.name }}"
+      message: |
+        A data pipeline alert has fired and been enriched with run lineage and CMDB context.
+
+        ALERT
+        Rule: {{ event.alerts[0].kibana.alert.rule.name }}
+        Alert: {{ event.alerts[0].message }}
+        Severity: {{ steps.extract_alert_fields.output.severity }}
+
+        RUN LINEAGE (OpenLineage)
+        Run id: {{ steps.resolve_run_id.output.values[0][0] }}
+        DAG: {{ steps.extract_alert_fields.output.dag }}
+        Job flagged by rule: {{ steps.extract_alert_fields.output.job }}
+        Mode: {{ steps.extract_alert_fields.output.mode }}
+        Jobs in execution order (time  status  integration  job  duration  rows  inputs  outputs  error):
+        {{ steps.lineage_table.output.values[0][0] }}
+
+        JOBS NEVER COMPLETED (downstream impact)
+        {{ steps.downstream_impact.output.values[0][0] }}
+
+        STAGE DURATION VS 7-DAY BASELINE
+        {{ steps.stage_baseline.output.values[0][0] }}
+
+        RAW EVIDENCE (native ids: time  dataset  outcome  id  detail)
+        {{ steps.raw_evidence.output.values[0][0] }}
+
+        DATA QUALITY (Glue DQ result from Confluent topic glue.dq.results)
+        {{ steps.dq_result.output.values[0][0] }}
+
+        APM TRACE
+        {{ inputs.kibanaUrl }}/app/apm/link-to/trace/{{ steps.apm_trace.output.values[0][0] }}
+
+        AFFECTED INFRASTRUCTURE (ServiceNow CMDB)
+        CI Name: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+        CI Owner: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+        Support Group: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}
+        Department: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.department.display_value }}
+
+        PIPELINE USER (ServiceNow)
+        Triggered by: {{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}
+        Email: {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}
+        Phone: {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.phone.value }}
+        Manager: {{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.manager.display_value }}
+
+        INCIDENT CONTEXT
+        Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
+        Recent changes: {{ steps.find_recent_changes.output.hits.total.value }}
+
+        See docs/runbooks/ for per-rule triage, ES|QL queries, containment, and escalation steps.
+    on-failure:
+      retry:
+        max-attempts: 2
+        delay: "5s"
+      continue: true
+
+  # ── Notification alternatives — comment out notify_email above and
+  # ── uncomment one (or several) of the blocks below. Each needs a
+  # ── connector you've already configured in Stack Management → Connectors.
+  # ── Recipe details + connector setup: docs/workflow-deployment.md.
+
+  # Slack (.slack or .slack_api connector)
+  # - name: notify_slack
+  #   type: slack
+  #   connector-id: "{{ inputs.slackConnector }}"
+  #   with:
+  #     message: |
+  #       :rotating_light: *Data Pipeline Alert*
+  #       *Rule:* {{ event.alerts[0].kibana.alert.rule.name }}
+  #       *Alert:* {{ event.alerts[0].message }}
+  #       *Run:* `{{ steps.resolve_run_id.output.values[0][0] }}` · *DAG:* {{ steps.extract_alert_fields.output.dag }} · *Job:* {{ steps.extract_alert_fields.output.job }}
+  #       *Lineage:*
+  #       ```
+  #       {{ steps.lineage_table.output.values[0][0] }}
+  #       ```
+  #       *Never completed:* {{ steps.downstream_impact.output.values[0][0] }}
+  #       *vs baseline:*
+  #       ```
+  #       {{ steps.stage_baseline.output.values[0][0] }}
+  #       ```
+  #       *Data quality (Glue DQ):*
+  #       ```
+  #       {{ steps.dq_result.output.values[0][0] }}
+  #       ```
+  #       *APM trace:* {{ inputs.kibanaUrl }}/app/apm/link-to/trace/{{ steps.apm_trace.output.values[0][0] }}
+  #       *Affected CI:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #       *CI Owner:* {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #       *Open incidents:* {{ steps.find_open_incidents.output.hits.total.value }}
+  #   on-failure:
+  #     retry: { max-attempts: 2, delay: "5s" }
+  #     continue: true
+
+  # Microsoft Teams (incoming webhook connector)
+  # - name: notify_teams
+  #   type: teams
+  #   connector-id: "data-platform-teams-channel"
+  #   with:
+  #     message: |
+  #       **Data Pipeline Alert**
+  #       **Rule:** {{ event.alerts[0].kibana.alert.rule.name }}
+  #       **Run:** {{ steps.resolve_run_id.output.values[0][0] }} · **Job:** {{ steps.extract_alert_fields.output.job }}
+  #       **Never completed:** {{ steps.downstream_impact.output.values[0][0] }}
+  #       **APM trace:** {{ inputs.kibanaUrl }}/app/apm/link-to/trace/{{ steps.apm_trace.output.values[0][0] }}
+  #       **Affected CI:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #       **CI Owner:** {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #       **Open incidents:** {{ steps.find_open_incidents.output.hits.total.value }}
+  #   on-failure: { continue: true }
+
+  # PagerDuty
+  # - name: notify_pagerduty
+  #   type: pagerduty
+  #   connector-id: "data-platform-pagerduty"
+  #   with:
+  #     eventAction: "trigger"          # trigger | acknowledge | resolve
+  #     dedupKey: "pipeline-{{ event.alerts[0].kibana.alert.uuid }}"
+  #     summary: "Pipeline alert: {{ event.alerts[0].kibana.alert.rule.name }}"
+  #     severity: "error"               # critical | error | warning | info
+  #     source: "elastic-cloud-loadgen"
+  #     customDetails:
+  #       run_id: "{{ steps.resolve_run_id.output.values[0][0] }}"
+  #       job: "{{ steps.extract_alert_fields.output.job }}"
+  #       never_completed: "{{ steps.downstream_impact.output.values[0][0] }}"
+  #       apm_trace: "{{ inputs.kibanaUrl }}/app/apm/link-to/trace/{{ steps.apm_trace.output.values[0][0] }}"
+  #       affected_ci: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}"
+  #       ci_owner: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}"
+  #       open_incidents: "{{ steps.find_open_incidents.output.hits.total.value }}"
+  #   on-failure: { continue: true }
+
+  # ServiceNow ITSM (creates an incident)
+  # - name: notify_servicenow
+  #   type: servicenow
+  #   connector-id: "servicenow-itsm-prod"
+  #   with:
+  #     subAction: "pushToService"
+  #     subActionParams:
+  #       incident:
+  #         short_description: "Pipeline alert: {{ event.alerts[0].kibana.alert.rule.name }} — run {{ steps.resolve_run_id.output.values[0][0] }}"
+  #         description: |
+  #           Run id:         {{ steps.resolve_run_id.output.values[0][0] }}
+  #           DAG / Job:      {{ steps.extract_alert_fields.output.dag }} / {{ steps.extract_alert_fields.output.job }}
+  #
+  #           Run lineage (execution order):
+  #           {{ steps.lineage_table.output.values[0][0] }}
+  #
+  #           Jobs never completed: {{ steps.downstream_impact.output.values[0][0] }}
+  #
+  #           Stage duration vs 7-day p50:
+  #           {{ steps.stage_baseline.output.values[0][0] }}
+  #
+  #           Raw evidence (native ids):
+  #           {{ steps.raw_evidence.output.values[0][0] }}
+  #
+  #           Data quality (Glue DQ result):
+  #           {{ steps.dq_result.output.values[0][0] }}
+  #
+  #           APM trace:      {{ inputs.kibanaUrl }}/app/apm/link-to/trace/{{ steps.apm_trace.output.values[0][0] }}
+  #
+  #           Affected CI:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #           CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #           Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
+  #         severity: "2"                 # 1 high · 2 medium · 3 low
+  #         urgency: "2"
+  #         impact: "2"
+  #         category: "Software"
+  #   on-failure: { continue: true }
+
+  # Opsgenie
+  # - name: notify_opsgenie
+  #   type: opsgenie
+  #   connector-id: "data-platform-opsgenie"
+  #   with:
+  #     subAction: "createAlert"
+  #     subActionParams:
+  #       message: "Pipeline alert: {{ event.alerts[0].kibana.alert.rule.name }}"
+  #       description: |
+  #         Run id:         {{ steps.resolve_run_id.output.values[0][0] }}
+  #         Job:            {{ steps.extract_alert_fields.output.job }}
+  #         Never completed: {{ steps.downstream_impact.output.values[0][0] }}
+  #         APM trace:      {{ inputs.kibanaUrl }}/app/apm/link-to/trace/{{ steps.apm_trace.output.values[0][0] }}
+  #         Affected CI:    {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}
+  #         CI Owner:       {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}
+  #         Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}
+  #       priority: "P2"                  # P1 (highest) … P5 (lowest)
+  #       tags: ["data-pipeline", "workflow-generated"]
+  #   on-failure: { continue: true }
+
+  # Generic webhook
+  # - name: notify_webhook
+  #   type: webhook
+  #   connector-id: "internal-on-call-webhook"
+  #   with:
+  #     body: |
+  #       {
+  #         "rule": "{{ event.alerts[0].kibana.alert.rule.name }}",
+  #         "run_id": "{{ steps.resolve_run_id.output.values[0][0] }}",
+  #         "job": "{{ steps.extract_alert_fields.output.job }}",
+  #         "never_completed": "{{ steps.downstream_impact.output.values[0][0] }}",
+  #         "trace_id": "{{ steps.apm_trace.output.values[0][0] }}",
+  #         "ci": "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}",
+  #         "owner": "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}",
+  #         "open_incidents": "{{ steps.find_open_incidents.output.hits.total.value }}"
+  #       }
+  #   on-failure: { continue: true }
+
+  # 8. Index the enriched record back to Elasticsearch for dashboards.
+  - name: index_enriched_alert
+    type: elasticsearch.index
+    with:
+      index: "logs-pipeline-alert-enriched-default"
+      document:
+        "@timestamp": "{{ execution.startedAt }}"
+        event:
+          kind: "enrichment"
+          category: ["configuration"]
+          dataset: "pipeline.alert.enriched"
+        alert:
+          rule_name: "{{ event.alerts[0].kibana.alert.rule.name }}"
+          message: "{{ event.alerts[0].message }}"
+          severity: "{{ steps.extract_alert_fields.output.severity }}"
+        lineage:
+          run_id: "{{ steps.resolve_run_id.output.values[0][0] }}"
+          dag: "{{ steps.extract_alert_fields.output.dag }}"
+          job: "{{ steps.extract_alert_fields.output.job }}"
+          table: "{{ steps.lineage_table.output.values[0][0] }}"
+          downstream_impact: "{{ steps.downstream_impact.output.values[0][0] }}"
+          baseline: "{{ steps.stage_baseline.output.values[0][0] }}"
+          raw_evidence: "{{ steps.raw_evidence.output.values[0][0] }}"
+          dq_result: "{{ steps.dq_result.output.values[0][0] }}"
+          trace_id: "{{ steps.apm_trace.output.values[0][0] }}"
+        pipeline:
+          user: "{{ steps.find_pipeline_user.output.hits.hits[0]._source.user.name }}"
+          user_email: "{{ steps.lookup_servicenow_user.output.hits.hits[0]._source.servicenow.event.email.value }}"
+        servicenow:
+          ci_name: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }}"
+          ci_owner: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }}"
+          support_group: "{{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.support_group.display_value }}"
+          open_incident_count: "{{ steps.find_open_incidents.output.hits.total.value }}"
+          recent_change_count: "{{ steps.find_recent_changes.output.hits.total.value }}"
+    on-failure:
+      continue: true
+
+  - name: log_complete
+    type: console
+    with:
+      message: >
+        Enrichment complete for alert: {{ event.alerts[0].kibana.alert.rule.name }}.
+        Run: {{ steps.resolve_run_id.output.values[0][0] }},
+        Never completed: {{ steps.downstream_impact.output.values[0][0] }},
+        CI: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.name.value }},
+        Owner: {{ steps.lookup_affected_ci.output.hits.hits[0]._source.servicenow.event.owned_by.display_value }},
+        Open incidents: {{ steps.find_open_incidents.output.hits.total.value }}

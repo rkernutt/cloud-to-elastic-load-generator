@@ -1,0 +1,298 @@
+{
+  "group": "data-pipeline",
+  "description": "Alerting rules for the Data & Analytics Pipeline chained event scenario",
+  "rules": [
+    {
+      "id": "cloudloadgen-data-pipeline-failure-rate",
+      "name": "[CloudLoadGen] Data Pipeline — High Failure Rate",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [3],
+        "thresholdComparator": ">",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.outcome\":\"failure\"}},{\"exists\":{\"field\":\"labels.pipeline_run_id\"}}],\"must_not\":[{\"term\":{\"event.dataset\":\"aws.glue_dataquality\"}}]}}}",
+        "index": ["logs-aws.mwaa*", "logs-aws.emr*", "logs-aws.glue*", "logs-aws.stepfunctions*"],
+        "timeField": "@timestamp",
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — overview",
+        "Amazon MWAA — Managed Airflow",
+        "Data & Analytics Pipeline — run lineage"
+      ],
+      "investigationGuide": "# High Failure Rate\n\nThe orchestrator is logging more failures than normal. Glue Data Quality rule failures (`event.dataset: aws.glue_dataquality`) are excluded on purpose — the DQ job's ruleset-failure action is `None`, so a failed rule never fails the DAG; it is surfaced by the DQ score / DQ rules rules instead.\n\n## Triage\n1. Are failures on one DAG? Run: `FROM logs-aws.mwaa-* | WHERE event.outcome == \"failure\" | STATS failures = COUNT(*) BY aws.mwaa.dag_id | SORT failures DESC | LIMIT 10`\n2. Check linked dashboard for the spike shape\n3. Check if EMR/Spark or S3 rules also fired\n\n## Escalate when\n- Multiple DAGs failing\n- Failures still rising after 15 min\n- SLA-bound data affected\n\n## Lineage\nThe failing run's `labels.pipeline_run_id` is on every related doc (OpenLineage events plus the raw S3/EMR/Glue/Glue DQ (Kafka)/MWAA/Step Functions/CloudTrail logs), so pivot on it to see the whole run job-by-job: `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-null-data",
+      "name": "[CloudLoadGen] Data Pipeline — Null/Empty Data Detected (Glue DQ RowCount)",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.glue_dataquality\"}},{\"term\":{\"aws.glue_dataquality.failed_rule_types\":\"RowCount\"}}]}}}",
+        "index": ["logs-aws.glue_dataquality*"],
+        "timeField": "@timestamp",
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — overview",
+        "AWS Glue — Jobs & Performance",
+        "Data & Analytics Pipeline — run lineage"
+      ],
+      "investigationGuide": "# Null/Empty Data Detected (Glue DQ RowCount)\n\nThe Glue Data Quality job's `RowCount > 0` rule FAILED on the Parquet output of a pipeline run (evaluation message `Value: 0 does not meet the constraint requirement!`) — the Spark job wrote an empty dataset, so the upstream load silently produced nothing. The result arrives from the Confluent topic `glue.dq.results` via the Elastic Agent Kafka input (`event.dataset: aws.glue_dataquality`). Because the DQ job's ruleset-failure action is `None`, the DAG still reports success — this rule is the only signal.\n\n## Triage\n1. Identify the empty run: `FROM logs-aws.glue_dataquality* | WHERE @timestamp > NOW() - 1h AND aws.glue_dataquality.failed_rule_types == \"RowCount\" | KEEP @timestamp, labels.pipeline_run_id, aws.glue_dataquality.job.name, aws.glue_dataquality.job.run_id, aws.glue_dataquality.score, aws.glue_dataquality.failed_rules, kafka.topic, kafka.partition, kafka.offset | SORT @timestamp DESC | LIMIT 25`\n2. Check the source object the run read (`labels.s3_source_key`) — was it 0 bytes? `FROM logs-aws.s3access* | WHERE labels.pipeline_run_id == \"<run_id>\" | KEEP @timestamp, aws.s3access.operation, aws.s3access.key, aws.s3access.bytes_sent | SORT @timestamp ASC`\n3. If the orchestrator shows `aws.mwaa.quality_check == \"DQ_RULES_FAILED\"` but the DAG succeeded — silent data loss\n\n## Escalate when\n- The output feeds an SLA-bound dataset\n- Empty for two consecutive runs of the same DAG\n\n## Lineage\nThe affected run's `labels.pipeline_run_id` is on every related doc (OpenLineage events plus the raw S3/EMR/Glue/Glue DQ (Kafka)/MWAA/Step Functions/CloudTrail logs), so pivot on it to see which upstream job produced empty outputs: `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-emr-error",
+      "name": "[CloudLoadGen] Data Pipeline — EMR/Spark Processing Error",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.emr_logs\"}},{\"exists\":{\"field\":\"error.type\"}}]}}}",
+        "index": ["logs-aws.emr*"],
+        "timeField": "@timestamp",
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — overview",
+        "Amazon EMR — Clusters & Job Performance",
+        "Data & Analytics Pipeline — run lineage"
+      ],
+      "investigationGuide": "# EMR/Spark Processing Error\n\nThe compute cluster is logging exceptions.\n\n## Triage\n1. Classify errors: `FROM logs-aws.emr-* | WHERE @timestamp > NOW() - 1h AND error.type IS NOT NULL | STATS errors = COUNT(*) BY error.type, host.id | SORT errors DESC | LIMIT 20`\n2. Same host failing = infra; many hosts same error = code/data\n3. Check if High Failure Rate also fired\n\n## Escalate when\n- Multiple clusters affected\n- Same error after cluster restart\n\n## Lineage\nThe failing run's `labels.pipeline_run_id` is on every related doc (the EMR step log, the OpenLineage Spark job events, and the raw S3/Glue/Glue DQ (Kafka)/MWAA/Step Functions/CloudTrail logs), so pivot on it to see which Spark job failed and what downstream outputs were never produced: `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-s3-format-error",
+      "name": "[CloudLoadGen] Data Pipeline — S3 Source File Format Error",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.s3access\"}},{\"bool\":{\"should\":[{\"wildcard\":{\"aws.s3access.key\":{\"value\":\"*%*\"}}},{\"bool\":{\"must_not\":{\"wildcard\":{\"aws.s3access.key\":{\"value\":\"*.avro\"}}}}}]}}]}}}",
+        "index": ["logs-aws.s3access*"],
+        "timeField": "@timestamp",
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — overview",
+        "Amazon S3 — Access & Errors",
+        "Data & Analytics Pipeline — run lineage"
+      ],
+      "investigationGuide": "# S3 Source File Format Error\n\nAn unexpected file format landed in the source bucket.\n\n## Triage\n1. List bad files: `FROM logs-aws.s3access-* | WHERE @timestamp > NOW() - 1h | WHERE NOT ENDS_WITH(aws.s3access.key, \".avro\") OR aws.s3access.key LIKE \"*%*\" | KEEP @timestamp, aws.s3access.key, aws.s3access.bucket_name | SORT @timestamp DESC | LIMIT 50`\n2. Check if one producer or many\n3. Move bad file to quarantine prefix\n\n## Escalate when\n- Multiple producers writing wrong format\n- Bucket versioning overwritten\n\n## Lineage\nThe affected run's `labels.pipeline_run_id` is on every related doc (the S3 access log for the bad object, the OpenLineage events whose `inputs` reference it, and the raw EMR/Glue/Glue DQ (Kafka)/MWAA/Step Functions/CloudTrail logs), so pivot on it to see which jobs consumed the bad file and where the run stopped: `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-slow-run",
+      "name": "[CloudLoadGen] Data Pipeline — Slow Pipeline Run (>60s)",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.mwaa\"}},{\"term\":{\"event.action\":\"dag_completed\"}},{\"range\":{\"aws.mwaa.duration_ms\":{\"gt\":60000}}}]}}}",
+        "index": ["logs-aws.mwaa*"],
+        "timeField": "@timestamp",
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — overview",
+        "Amazon MWAA — Managed Airflow",
+        "Data & Analytics Pipeline — run lineage"
+      ],
+      "investigationGuide": "# Slow Pipeline Run (>60s)\n\nA DAG exceeded its informal SLA.\n\n## Triage\n1. Compare to baseline: `FROM logs-aws.mwaa-* | WHERE event.action == \"dag_completed\" AND @timestamp > NOW() - 7d | STATS p50 = PERCENTILE(aws.mwaa.duration_ms, 50), p95 = PERCENTILE(aws.mwaa.duration_ms, 95) BY aws.mwaa.dag_id | WHERE p95 > 30000 | SORT p95 DESC`\n2. If within 2x of p95, likely noise\n3. Check EMR errors and input volume\n\n## Escalate when\n- SLA-bound DAG slow for two consecutive runs\n- Correlated with executor errors\n\n## Lineage\nThe slow run's `labels.pipeline_run_id` is on every related doc (OpenLineage events plus the raw S3/EMR/Glue/Glue DQ (Kafka)/MWAA/Step Functions/CloudTrail logs), so pivot on it to see which job (stage) consumed the time — `duration_ms` is per job: `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-schema-drift",
+      "name": "[CloudLoadGen] Data Pipeline — Glue DQ schema-drift rules failed",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline", "schema-drift"],
+      "enabled": false,
+      "params": {
+        "searchType": "esQuery",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [1],
+        "thresholdComparator": ">=",
+        "size": 100,
+        "esQuery": "{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"event.dataset\":\"aws.glue_dataquality\"}},{\"terms\":{\"aws.glue_dataquality.failed_rule_types\":[\"ColumnExists\",\"ColumnCount\",\"ColumnDataType\"]}}]}}}",
+        "index": ["logs-aws.glue_dataquality*"],
+        "timeField": "@timestamp",
+        "aggType": "count",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — overview",
+        "AWS Glue — Jobs & Performance",
+        "Data & Analytics Pipeline — run lineage"
+      ],
+      "investigationGuide": "# Glue DQ schema-drift rules failed\n\nThe Glue Data Quality job evaluated its DQDL ruleset against the Parquet output of a pipeline run and one or more schema rules FAILED — `ColumnExists` (a column disappeared, message `Input data does not include column <col>!`), `ColumnCount` (a column was added or removed) or `ColumnDataType` (a column changed type). The result arrives from the Confluent topic `glue.dq.results` via the Elastic Agent Kafka input (`event.dataset: aws.glue_dataquality`); the run is also tagged `labels.schema_drift_detected: \"true\"`. The DQ job's ruleset-failure action is `None`, so the DAG still succeeds — the drift is only visible through the DQ score/state and `aws.mwaa.quality_check == \"SCHEMA_DRIFT\"`.\n\n## Triage\n1. Check which rules failed and what the evaluated metrics were: `FROM logs-aws.glue_dataquality* | WHERE @timestamp > NOW() - 1h AND aws.glue_dataquality.failed_rule_types IN (\"ColumnExists\", \"ColumnCount\", \"ColumnDataType\") | KEEP @timestamp, labels.pipeline_run_id, aws.glue_dataquality.job.name, aws.glue_dataquality.job.run_id, aws.glue_dataquality.score, aws.glue_dataquality.failed_rules, error.message | SORT @timestamp DESC`\n2. Compare the schema the Spark job actually wrote (`aws.openlineage.output_schema_fields` on the `spark_avro_to_parquet` COMPLETE event) with the previous run of the same DAG\n3. Review the Glue DQ job run in CloudWatch (`/aws-glue/jobs/output`, `aws.glue.job.run_id`) for the full rule output\n4. If the change is expected (new upstream column), update the DQDL ruleset and downstream consumers\n5. If unexpected, investigate the source data for corruption or upstream producer changes\n\n## Escalate when\n- The same DQ job fails schema rules in two consecutive runs\n- The schema change was not part of a planned release\n- `ColumnDataType` failed (breaking change for existing consumers)\n\n## Lineage\nThe affected run's `labels.pipeline_run_id` is on every related doc (the Glue DQ job log, the Kafka DQ result, the Kafka Connect S3 sink commit, the OpenLineage events carrying `aws.openlineage.output_schema_fields`, and the raw S3/EMR/MWAA/Step Functions/CloudTrail logs), so pivot on it to see which job wrote the drifted schema and which downstream consumers are affected: `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-dq-score-low",
+      "name": "[CloudLoadGen] Data Pipeline — Glue DQ score below 0.9 (per run)",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline", "data-quality", "kafka"],
+      "enabled": false,
+      "params": {
+        "searchType": "esqlQuery",
+        "esqlQuery": {
+          "esql": "FROM logs-aws.glue_dataquality* | WHERE aws.glue_dataquality.score < 0.9 | STATS score = MIN(aws.glue_dataquality.score), state = MV_CONCAT(VALUES(aws.glue_dataquality.state), \",\"), rules_failed = MAX(aws.glue_dataquality.rules.failed), rules_total = MAX(aws.glue_dataquality.rules.total), failed_rules = MV_CONCAT(VALUES(aws.glue_dataquality.failed_rules), \" | \"), failed_rule_types = MV_CONCAT(VALUES(aws.glue_dataquality.failed_rule_types), \",\"), result_id = MV_CONCAT(VALUES(aws.glue_dataquality.result_id), \",\"), job_run_id = MV_CONCAT(VALUES(aws.glue_dataquality.job.run_id), \",\"), kafka_topic = MV_CONCAT(VALUES(kafka.topic), \",\"), kafka_partition = MAX(kafka.partition), kafka_offset = MAX(kafka.offset), evaluated_at = MAX(@timestamp) BY run_id = labels.pipeline_run_id, dag = labels.dag_id, job = aws.glue_dataquality.job.name, ruleset = aws.glue_dataquality.ruleset_name, mode = labels.orchestration_mode | SORT score ASC | LIMIT 100"
+        },
+        "timeField": "@timestamp",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [0],
+        "thresholdComparator": ">",
+        "size": 100,
+        "aggType": "count",
+        "groupBy": "row",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — overview",
+        "Data & Analytics Pipeline — run lineage",
+        "AWS Glue — Jobs & Performance"
+      ],
+      "investigationGuide": "# Glue DQ score below 0.9 (per run)\n\nThe Glue Data Quality job (`glue_dq_evaluate` / `EvaluateDataQuality` stage) evaluated its DQDL ruleset against the Parquet output of a pipeline run and the overall score (`aws.glue_dataquality.score`, share of rules that passed) dropped below 0.9. The result is read from the Confluent topic `glue.dq.results` by the Elastic Agent Kafka input (`event.dataset: aws.glue_dataquality`). One alert fires per (run, DQ job, ruleset), and the alert context already carries: `run_id` (labels.pipeline_run_id), `dag`, `job` (the Glue DQ job name), `ruleset`, `mode` (mwaa|eventbridge|manual), `score`, `state` (SUCCEEDED|FAILED), `rules_failed` / `rules_total`, `failed_rules` (the DQDL rule strings that failed), `failed_rule_types`, `result_id` (Glue DQ ResultId), `job_run_id` (Glue JobRunId — the CloudWatch log stream under `/aws-glue/jobs/output`), and `kafka_topic` / `kafka_partition` / `kafka_offset` (the exact record on the topic).\n\nThe DQ job's ruleset-failure action is `None`, so a low score never fails the DAG — the orchestrator reports `aws.mwaa.quality_check == \"DQ_RULES_FAILED\"` (or `SCHEMA_DRIFT`) with `aws.mwaa.dq_score`, but the run itself succeeds. This rule is what turns a silent quality drop into a page.\n\n## Reading `failed_rule_types`\n- `RowCount` — the output is empty (Spark wrote 0 rows); the Null/Empty Data rule fires too. Upstream source problem.\n- `ColumnExists` / `ColumnCount` / `ColumnDataType` — schema drift in the output; the schema-drift rule fires too. Producer or transform change.\n- `Completeness` / `IsComplete` / `ColumnValues` — data-content problem in an otherwise well-formed output; roughly 5% of healthy runs show a single marginal `Completeness` miss — a one-off just above 0.9 is noise, a repeat or a drop well below is not.\n\n## Triage\n1. Pull the full rule-by-rule result for the run (PASS/FAIL, evaluation message, evaluated metrics): `FROM logs-aws.glue_dataquality* | WHERE labels.pipeline_run_id == \"<run_id>\" | MV_EXPAND aws.glue_dataquality.rule_results | KEEP @timestamp, aws.glue_dataquality.job.name, aws.glue_dataquality.score, aws.glue_dataquality.rule_results | LIMIT 50`\n2. Confirm the Glue DQ job itself ran cleanly (a job error is a different problem from a rule failure): `FROM logs-aws.glue* | WHERE labels.pipeline_run_id == \"<run_id>\" AND aws.glue.job.run_id == \"<job_run_id>\" | KEEP @timestamp, aws.glue.job.name, aws.glue.job.run_state, aws.glue.records.read, aws.glue.records.written, aws.glue.records.errors, aws.glue.dpu_seconds, event.duration | SORT @timestamp ASC`\n3. Verify the result was durably archived by the Kafka Connect S3 sink — the connect pod log and the matching S3 PutObject share the run id: `FROM logs-aws.eks*, logs-aws.s3access* | WHERE labels.pipeline_run_id == \"<run_id>\" AND (kubernetes.pod.name LIKE \"glue-dq-s3-sink-connect-*\" OR aws.s3access.key LIKE \"topics/glue.dq.results/*\") | KEEP @timestamp, event.dataset, kubernetes.pod.name, aws.s3access.bucket, aws.s3access.key, message | SORT @timestamp ASC`\n4. Compare with the score history of the same DQ job to see whether this is a step change or a trend: `FROM logs-aws.glue_dataquality* | WHERE aws.glue_dataquality.job.name == \"<job>\" AND @timestamp > NOW() - 7d | STATS score = MIN(aws.glue_dataquality.score), failed = MAX(aws.glue_dataquality.rules.failed) BY run_id = labels.pipeline_run_id, t = BUCKET(@timestamp, 1h) | SORT t DESC | LIMIT 50`\n\n## Escalate when\n- `score` < 0.7, or `state == \"FAILED\"`\n- `RowCount` or any schema rule type is in `failed_rule_types` (data loss or breaking change, not a marginal miss)\n- The same `job` scores below 0.9 in two or more consecutive `run_id`s\n- The output feeds an SLA-bound consumer and `mode == \"manual\"` (nobody will re-run it)\n\n## Lineage\nThe affected run's `labels.pipeline_run_id` is on every related doc (the Kafka DQ result, the Glue DQ job log, the native EventBridge `Data Quality Evaluation Results Available` event, the Kafka Connect S3 sink commit, the OpenLineage events and the raw S3/EMR/MWAA/Step Functions/CloudTrail logs), so pivot on it to see which job produced the low-quality output and what read it afterwards: `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-lineage-job-failed",
+      "name": "[CloudLoadGen] Data Pipeline — Lineage: job failed (per run)",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline", "lineage", "openlineage"],
+      "enabled": false,
+      "params": {
+        "searchType": "esqlQuery",
+        "esqlQuery": {
+          "esql": "FROM logs-aws.openlineage* | WHERE aws.openlineage.event_type == \"FAIL\" | STATS error = MV_CONCAT(VALUES(error.message), \" | \"), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), integration = MV_CONCAT(VALUES(aws.openlineage.job.integration), \",\"), failed_at = MAX(@timestamp), owner = MV_CONCAT(VALUES(user.name), \",\") BY run_id = labels.pipeline_run_id, dag = labels.dag_id, job = aws.openlineage.job.name, mode = labels.orchestration_mode | SORT failed_at DESC | LIMIT 100"
+        },
+        "timeField": "@timestamp",
+        "timeWindowSize": 15,
+        "timeWindowUnit": "m",
+        "threshold": [0],
+        "thresholdComparator": ">",
+        "size": 100,
+        "aggType": "count",
+        "groupBy": "row",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — run lineage",
+        "Data & Analytics Pipeline — overview"
+      ],
+      "investigationGuide": "# Lineage: job failed (per run)\n\nAn OpenLineage `FAIL` event was emitted for a job in a pipeline run. One alert fires per (run, job), and the alert context already carries what you need: `run_id` (labels.pipeline_run_id), `dag`, `job` (DAG-level `<dag_id>`, task-level `<dag_id>.<task_id>`, or the Spark job name), `mode` (mwaa|eventbridge|manual), `integration` (AIRFLOW|SPARK), `error`, `inputs` (the dataset URIs the job read), and `owner` (the DAG owner).\n\n## Triage\n1. Reconstruct the run's full lineage — one row per job in start order, with its event sequence, duration, inputs, outputs and error: `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`\n2. Pull the raw evidence behind the lineage — the same `labels.pipeline_run_id` is stamped on every native AWS log for the run, so this shows the native ids to chase in the AWS console: `FROM logs-aws.s3access*, logs-aws.emr_logs*, logs-aws.glue*, logs-aws.glue_dataquality*, logs-aws.eks*, logs-aws.mwaa*, logs-aws.stepfunctions*, logs-aws.cloudtrail* | WHERE labels.pipeline_run_id == \"<run_id>\" | KEEP @timestamp, event.dataset, event.action, event.outcome, aws.emr.step_id, aws.glue.job.run_id, aws.glue_dataquality.result_id, aws.glue_dataquality.state, aws.glue_dataquality.failed_rules, kafka.offset, aws.s3access.key, aws.stepfunctions.state_name, error.type, error.message | SORT @timestamp ASC | LIMIT 200`\n3. Read `error` in the alert context alongside the `inputs` — a missing or malformed input URI (bad S3 key, wrong format) points upstream; a Spark or Glue exception with sane inputs points at the job itself.\n\n## Downstream impact\nIn the lineage table from step 1, every job that starts after the failed one and has no `COMPLETE` in its `events` column never ran — its `outputs` were never produced. Those output URIs (Parquet prefix, run manifest, Glue DQ result on the `glue.dq.results` topic and its S3 sink object) are what downstream consumers are now missing. The DAG-level job (`job.type == \"DAG\"`) will show `FAIL` too and marks the run as a whole as failed.\n\n## Escalate when\n- The same `job` has failed in more than one `run_id` in the last hour (pattern, not a one-off)\n- The failed job feeds an SLA-bound output (run manifest or the DQ-validated Parquet output)\n- `inputs` reference an object that was also flagged by the S3 Source File Format Error rule (upstream producer problem, not a pipeline bug)\n- `owner` is unreachable and the run is `mode == \"manual\"` (nobody will retry it)"
+    },
+    {
+      "id": "cloudloadgen-data-pipeline-lineage-stage-slow",
+      "name": "[CloudLoadGen] Data Pipeline — Lineage: job slower than baseline (>2× p50)",
+      "rule_type_id": ".es-query",
+      "consumer": "alerts",
+      "schedule": {
+        "interval": "5m"
+      },
+      "tags": ["cloudloadgen", "data-pipeline", "lineage", "openlineage"],
+      "enabled": false,
+      "params": {
+        "searchType": "esqlQuery",
+        "esqlQuery": {
+          "esql": "FROM logs-aws.openlineage* | WHERE aws.openlineage.run.duration_ms IS NOT NULL AND aws.openlineage.job.type != \"DAG\" | STATS duration_ms = MAX(aws.openlineage.run.duration_ms), finished_at = MAX(@timestamp), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \") BY run_id = labels.pipeline_run_id, dag = labels.dag_id, job = aws.openlineage.job.name, mode = labels.orchestration_mode | INLINE STATS baseline_p50_ms = PERCENTILE(duration_ms, 50), baseline_p95_ms = PERCENTILE(duration_ms, 95), runs_in_window = COUNT() BY job | WHERE runs_in_window >= 3 AND duration_ms > 2 * baseline_p50_ms | EVAL ratio_pct = ROUND(100.0 * duration_ms / baseline_p50_ms, 0) | SORT ratio_pct DESC | LIMIT 100"
+        },
+        "timeField": "@timestamp",
+        "timeWindowSize": 30,
+        "timeWindowUnit": "m",
+        "threshold": [0],
+        "thresholdComparator": ">",
+        "size": 100,
+        "aggType": "count",
+        "groupBy": "row",
+        "excludeHitsFromPreviousRun": false
+      },
+      "actions": [],
+      "notify_when": "onActiveAlert",
+      "relatedDashboards": [
+        "Data & Analytics Pipeline — run lineage",
+        "Data & Analytics Pipeline — overview"
+      ],
+      "investigationGuide": "# Lineage: job slower than baseline (>2× p50)\n\nA single job (Airflow task or Spark job — DAG-level rows are excluded) took more than twice the median duration of the same job across the other runs in the 30-minute window. One alert fires per (run, job).\n\n## Reading the alert context\n- `duration_ms` — this run's duration for `job` (from `aws.openlineage.run.duration_ms` on its COMPLETE/FAIL event)\n- `baseline_p50_ms` / `baseline_p95_ms` — the median and p95 of the SAME `job` across all runs in the window (INLINE STATS ... BY job), so the baseline is peer runs, not history\n- `ratio_pct` — `100 * duration_ms / baseline_p50_ms`; 200 means exactly 2× the median, 500 means 5×\n- `runs_in_window` — at least 3 runs are required before the baseline is trusted\n- `run_id`, `dag`, `mode`, `inputs` — identify the run and what it read\n\n## Triage\n1. Did input volume grow? Compare this run's output rows to previous runs of the same job: `FROM logs-aws.openlineage* | WHERE aws.openlineage.job.name == \"<job>\" AND aws.openlineage.event_type == \"COMPLETE\" | STATS rows = MAX(aws.openlineage.output_statistics.row_count), bytes = MAX(aws.openlineage.output_statistics.size), duration_ms = MAX(aws.openlineage.run.duration_ms) BY run_id = labels.pipeline_run_id | SORT duration_ms DESC | LIMIT 20` — and the size of the source object it read: `FROM logs-aws.s3access* | WHERE labels.pipeline_run_id == \"<run_id>\" | KEEP @timestamp, aws.s3access.key, aws.s3access.bytes_sent, aws.s3access.operation | SORT @timestamp ASC`. A proportional rise in rows/bytes means the job is fine and the data grew.\n2. If volume is flat, check the compute: `FROM logs-aws.emr_logs* | WHERE labels.pipeline_run_id == \"<run_id>\" | KEEP @timestamp, aws.emr.compute_mode, aws.emr.cluster_id, aws.emr.step_id, event.action, event.outcome, error.type | SORT @timestamp ASC` — a different `aws.emr.compute_mode` (serverless vs cluster) or a cold cluster explains most step-level slowdowns; compare `aws.emr.cluster_id` against the fast runs.\n3. Follow the APM trace for the run to see where the time went span-by-span: `FROM traces-apm* | WHERE labels.pipeline_run_id == \"<run_id>\" | KEEP @timestamp, transaction.name, span.name, span.duration.us, service.name | SORT @timestamp ASC | LIMIT 200`\n4. Rebuild the whole run's lineage to see whether other jobs in the same run were also slow (a run-wide slowdown = infrastructure; one job = data or code): `FROM logs-aws.openlineage* | WHERE labels.pipeline_run_id == \"<run_id>\" | STATS started = MIN(@timestamp), events = MV_CONCAT(MV_SORT(VALUES(aws.openlineage.event_type)), \"→\"), duration_ms = MAX(aws.openlineage.run.duration_ms), inputs = MV_CONCAT(VALUES(aws.openlineage.inputs), \" | \"), outputs = MV_CONCAT(VALUES(aws.openlineage.outputs), \" | \"), error = MV_CONCAT(VALUES(error.message), \" | \") BY job = aws.openlineage.job.name | SORT started ASC`\n\n## Escalate when\n- `ratio_pct` >= 400 with flat input volume\n- The same `job` is slow in two or more consecutive `run_id`s\n- The slow job is `spark_avro_to_parquet` and the EMR step shows a compute-mode change nobody scheduled\n- The DAG-level duration now breaches the Slow Pipeline Run (>60s) rule as well"
+    }
+  ]
+}
