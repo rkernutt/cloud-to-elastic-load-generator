@@ -10,13 +10,13 @@ below).
 
 ## Contents
 
-| Folder | What's in it |
-| --- | --- |
-| `dashboards/` | 3 Kibana dashboards: pipeline observability, OpenLineage run lineage, Glue jobs & data quality |
-| `alert-rules/` | 9 Kibana alerting rules covering failure rate, DQ, schema drift, lineage job failures and slow runs |
-| `ml-jobs/` | 7 anomaly-detection jobs: duration/error/latency anomalies, DQ score drift, lineage job failures, lineage output rows |
+| Folder              | What's in it                                                                                                                                                                |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dashboards/`       | 3 Kibana dashboards: pipeline observability, OpenLineage run lineage, Glue jobs & data quality                                                                              |
+| `alert-rules/`      | 9 Kibana alerting rules covering failure rate, DQ, schema drift, lineage job failures and slow runs                                                                         |
+| `ml-jobs/`          | 7 anomaly-detection jobs: duration/error/latency anomalies, DQ score drift, lineage job failures, lineage output rows                                                       |
 | `ingest-pipelines/` | 5 Elasticsearch ingest pipelines that parse the raw payloads for this pipeline's telemetry: MWAA, EMR logs, Glue job logs, Glue Data Quality results, OpenLineage RunEvents |
-| `workflows/` | The Kibana Workflow that enriches an alert with run id, lineage table, baseline comparison and DQ result before it reaches a human |
+| `workflows/`        | The Kibana Workflow that enriches an alert with run id, lineage table, baseline comparison and DQ result before it reaches a human                                          |
 
 ## Installing these in a target Elastic deployment
 
