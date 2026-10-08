@@ -136,7 +136,7 @@ export function LoadGeneratorApp({
   const [logsPerService, setLogsPerService] = useState(savedConfig.logsPerService ?? 500);
   const [tracesPerService, setTracesPerService] = useState(savedConfig.tracesPerService ?? 100);
   const [errorRate, setErrorRate] = useState(savedConfig.errorRate ?? 0.05);
-  const [batchSize, setBatchSize] = useState(savedConfig.batchSize ?? 250);
+  const [batchSize, setBatchSize] = useState(savedConfig.batchSize ?? 100);
   const [deploymentType, setDeploymentType] = useState<
     "self-managed" | "cloud-hosted" | "serverless"
   >(() => {
@@ -456,7 +456,7 @@ export function LoadGeneratorApp({
     setLogsPerService(500);
     setTracesPerService(100);
     setErrorRate(0.05);
-    setBatchSize(250);
+    setBatchSize(100);
     setLogsIndexPrefix(config.defaultLogsIndexPrefix);
     setMetricsIndexPrefix(config.defaultMetricsIndexPrefix);
     setEventType("logs");
