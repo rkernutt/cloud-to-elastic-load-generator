@@ -73,6 +73,32 @@ export const SUPPORTING_SERVICE_GROUPS: ServiceGroup[] = [
       },
     ],
   },
+  {
+    id: "data-security",
+    label: "Data Security & Backup",
+    color: "#F04E98",
+    icon: "🛡",
+    services: [
+      {
+        id: "rubrik_webhook",
+        label: "Rubrik RSC Webhooks",
+        icon: "⛓",
+        desc: "PD-CEF / custom JSON events & audit (incl. Anomaly Success+critical)",
+      },
+      {
+        id: "rubrik_graphql",
+        label: "Rubrik GraphQL Events",
+        icon: "◈",
+        desc: "activitySeriesConnection / userAuditConnection node shapes",
+      },
+      {
+        id: "rubrik_syslog",
+        label: "Rubrik CDM Syslog",
+        icon: "☰",
+        desc: "CDM Activity Log syslog lines for Custom TCP/UDP",
+      },
+    ],
+  },
 ];
 
 export const SUPPORTING_ALL_SERVICE_IDS = SUPPORTING_SERVICE_GROUPS.flatMap((g) =>

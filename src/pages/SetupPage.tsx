@@ -1074,6 +1074,9 @@ export function SetupPage({
     "outlook-activity": "Supporting Services",
     "onedrive-usage-storage": "Supporting Services",
     servicenow_cmdb: "Supporting Services",
+    rubrik_webhook: "Supporting Services",
+    rubrik_graphql: "Supporting Services",
+    rubrik_syslog: "Supporting Services",
   };
 
   const CATEGORY_ORDER: ServiceCategory[] = [
