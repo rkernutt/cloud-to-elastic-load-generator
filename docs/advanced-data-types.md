@@ -75,7 +75,19 @@ ServiceNow CMDB is treated as **reference data** — capped at 50 documents per 
 
 ## Cross-cloud generators and Supporting Services
 
-The **Supporting Services** vendor (the fourth option on Start) bundles cross-cloud generators that are not specific to any single hyperscaler: **Microsoft Entra ID** (directory audit & sign-in), **Microsoft 365** (unified audit), **Managed Active Directory**, **O365 metrics** (Teams, Outlook, OneDrive), and **ServiceNow CMDB**. These generators were previously duplicated within each cloud vendor and have been consolidated into their own top-level vendor for clarity.
+The **Supporting Services** vendor (the fourth option on Start) bundles cross-cloud generators that are not specific to any single hyperscaler: **Microsoft Entra ID** (directory audit & sign-in), **Microsoft 365** (unified audit), **Managed Active Directory**, **O365 metrics** (Teams, Outlook, OneDrive), **ServiceNow CMDB**, and **Rubrik** (RSC webhooks, GraphQL activity/audit, CDM syslog). These generators were previously duplicated within each cloud vendor and have been consolidated into their own top-level vendor for clarity.
+
+### Rubrik (RSC / CDM)
+
+Three Supporting Services ship Rubrik-shaped samples for the hybrid ingest PoC in [`rkernutt/rubrik-elastic-ingest`](https://github.com/rkernutt/rubrik-elastic-ingest):
+
+| Service id       | Dataset          | Ingestion default    |
+| ---------------- | ---------------- | -------------------- |
+| `rubrik_webhook` | `rubrik.webhook` | Custom HTTP Endpoint |
+| `rubrik_graphql` | `rubrik.graphql` | CEL Custom API       |
+| `rubrik_syslog`  | `rubrik.syslog`  | Custom TCP Syslog    |
+
+UI **Ship** writes ECS-wrapped docs to `logs-rubrik.*` (raw payload in `message` / `event.original`). For Agent pipeline exercise (raw PD-CEF / GraphQL nodes / syslog lines), use **`npm run rubrik:loadgen`** — see **[rubrik-poc.md](./rubrik-poc.md)**. Anomaly samples intentionally use **`status: Success`** with **`severity: critical`** (`RansomwareStrainDetected`).
 
 CSPM/KSPM generators (`cspm`/`gcp-cspm`/`azure-cspm`, `kspm`/`gcp-kspm`/`azure-kspm`) remain within each cloud vendor since the CIS rule set and resource shape are vendor-specific — matching how Elastic's [cloudbeat](https://github.com/elastic/cloudbeat) normalises vendor-specific API responses into the shared findings schema.
 

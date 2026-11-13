@@ -204,6 +204,8 @@ Generators must produce documents that are indistinguishable from real cloud tel
 | `src/azure/generators/`          | Azure generators                                                                                                          |
 | `src/supporting/`                | Supporting Services vendor config, service groups, generators (Entra ID, M365, Managed AD, O365 metrics, ServiceNow CMDB) |
 | `src/servicenow/generators/`     | ServiceNow CMDB log generator (used by Supporting Services)                                                               |
+| `src/rubrik/generators/`         | Rubrik webhook / GraphQL / syslog sample generators + raw payloads (Supporting Services + `npm run rubrik:loadgen`)       |
+| `docs/rubrik-poc.md`             | Rubrik→Elastic PoC usage (HTTP Endpoint, Elasticsearch, file, syslog)                                                     |
 | `src/helpers/identity.ts`        | Shared user identity pool and audit trail event builders                                                                  |
 | `src/hooks/useMLTrainingLoop.ts` | React hook for automated ML reset → baseline → wait → inject → stabilise workflow                                         |
 | `src/pages/`                     | React page components (Landing, Connection, Services, Setup, Ship)                                                        |

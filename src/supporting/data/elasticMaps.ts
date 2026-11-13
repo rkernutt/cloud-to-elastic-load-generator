@@ -7,6 +7,9 @@ export const SUPPORTING_ELASTIC_DATASET_MAP: Record<string, string> = {
   "outlook-activity": "o365_metrics.outlook_activity",
   "onedrive-usage-storage": "o365_metrics.onedrive_usage_storage",
   servicenow_cmdb: "servicenow.event",
+  rubrik_webhook: "rubrik.webhook",
+  rubrik_graphql: "rubrik.graphql",
+  rubrik_syslog: "rubrik.syslog",
 };
 
 export const SUPPORTING_METRICS_DATASET_MAP: Record<string, string> = {
