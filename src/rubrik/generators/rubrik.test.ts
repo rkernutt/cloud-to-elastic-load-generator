@@ -59,6 +59,12 @@ describe("Rubrik ECS wrap + UI generators", () => {
     const raw = generateAnomalyRansomwareRaw(ts, "webhook");
     const doc = wrapRawAsEcs(raw, ts);
     expect(doc.__dataset).toBe("rubrik.webhook");
+    expect((doc as any).ecs.version).toBe("8.11.0");
+    expect((doc as any).data_stream).toEqual({
+      type: "logs",
+      dataset: "rubrik.webhook",
+      namespace: "default",
+    });
     expect((doc.event as any).module).toBe("rubrik");
     expect((doc.event as any).kind).toBe("alert");
     expect((doc.event as any).outcome).toBe("success");
@@ -76,6 +82,8 @@ describe("Rubrik ECS wrap + UI generators", () => {
       expect((doc as any).__dataset).toMatch(/^rubrik\./);
       expect((doc as any).event.module).toBe("rubrik");
       expect((doc as any).observer.vendor).toBe("Rubrik");
+      expect((doc as any)["@timestamp"]).toBeTruthy();
+      expect((doc as any).data_stream.dataset).toMatch(/^rubrik\./);
     }
   });
 });

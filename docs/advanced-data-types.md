@@ -87,7 +87,7 @@ Three Supporting Services ship Rubrik-shaped samples for the hybrid ingest PoC i
 | `rubrik_graphql` | `rubrik.graphql` | CEL Custom API       |
 | `rubrik_syslog`  | `rubrik.syslog`  | Custom TCP Syslog    |
 
-UI **Ship** writes ECS-wrapped docs to `logs-rubrik.*` (raw payload in `message` / `event.original`). For Agent pipeline exercise (raw PD-CEF / GraphQL nodes / syslog lines), use **`npm run rubrik:loadgen`** — see **[rubrik-poc.md](./rubrik-poc.md)**. Anomaly samples intentionally use **`status: Success`** with **`severity: critical`** (`RansomwareStrainDetected`).
+UI **Ship** writes ECS-wrapped docs to `logs-rubrik.*` (raw payload in `message` / `event.original`). For Agent pipeline exercise (raw PD-CEF / GraphQL nodes / syslog lines), use **`npm run rubrik:loadgen`** — see **[rubrik-poc.md](./rubrik-poc.md)**. Anomaly samples intentionally use **`status: Success`** with **`severity: critical`** (`RansomwareStrainDetected`). Bulk/HTTP paths target **Elastic 9.0+** (`create` into data streams, shared pipeline names with `rubrik-elastic-ingest`).
 
 CSPM/KSPM generators (`cspm`/`gcp-cspm`/`azure-cspm`, `kspm`/`gcp-kspm`/`azure-kspm`) remain within each cloud vendor since the CIS rule set and resource shape are vendor-specific — matching how Elastic's [cloudbeat](https://github.com/elastic/cloudbeat) normalises vendor-specific API responses into the shared findings schema.
 

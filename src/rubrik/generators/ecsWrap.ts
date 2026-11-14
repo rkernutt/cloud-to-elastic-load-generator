@@ -7,6 +7,7 @@
  */
 
 import type { EcsDocument } from "../../aws/generators/types.js";
+import { LOADGEN_ECS_VERSION } from "../../ship/esBulkCompat.js";
 import type { RawEventBundle, RubrikScenario } from "./raw.js";
 
 function severityNum(s: string): number {
@@ -240,6 +241,13 @@ export function wrapRawAsEcs(bundle: RawEventBundle, ts: string): EcsDocument {
   const doc: EcsDocument = {
     __dataset: dataset,
     "@timestamp": timestamp,
+    // Align with loadgen enrich + Elastic 9.0+ ECS field (pipeline sets 8.17 with override:false)
+    ecs: { version: LOADGEN_ECS_VERSION },
+    data_stream: {
+      type: "logs",
+      dataset,
+      namespace: "default",
+    },
     message: bundle.path === "syslog" ? x.message || rawStr : rawStr,
     event: {
       module: "rubrik",

@@ -2,6 +2,23 @@
 
 Use this load generator to exercise Rubrik ingest **before** real RSC/CDM traffic. Pipelines and ECS mapping live in [`rkernutt/rubrik-elastic-ingest`](https://github.com/rkernutt/rubrik-elastic-ingest); this repo emits matching sample shapes.
 
+## Elastic 9.x compatibility
+
+Validated for **all Elastic 9.x** (floor **9.0+**), not only the latest patch.
+
+| Surface                    | Contract                                                                                                                              |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| CLI `--mode elasticsearch` | `_bulk` with **`create`** only (data streams), `Content-Type: application/x-ndjson`, `Authorization: ApiKey …`, optional `?pipeline=` |
+| Docs                       | Every bulk doc gets **`@timestamp`** (copied from Rubrik `timestamp` / `lastUpdated` / `time` when present)                           |
+| Routing                    | Loadgen-only `__dataset` is stripped before ship                                                                                      |
+| Pipelines                  | Names match ingest repo: `rubrik-common-ecs`, `rubrik-webhook`, `rubrik-graphql-events`, `rubrik-syslog`                              |
+| Streams                    | `logs-rubrik.webhook\|graphql\|syslog-default` (same as ingest index templates)                                                       |
+| ECS stamp                  | `ecs.version: 8.11.0` on UI/`--ecs` docs (pipeline may set `8.17.0` with `override: false`)                                           |
+
+Avoid pinning `compatible-with=` Accept headers, `index` actions on data streams, or Kibana/workflow features that require 9.3+/9.4+ for this PoC path. UI Ship uses the same `create` + strip-`__dataset` pattern via `/proxy/_bulk`.
+
+If field or pipeline names change in `rubrik-elastic-ingest`, update this loadgen in lockstep (`src/ship/esBulkCompat.ts`, generators, and this doc).
+
 ## What you get
 
 | Service (Supporting Services UI)             | Dataset / stream        | Raw shape                                                |
@@ -14,8 +31,9 @@ Every mix includes **Anomaly / `RansomwareStrainDetected`** with **`severity: cr
 
 ## Prerequisites
 
-1. Install ingest pipelines from `rubrik-elastic-ingest` (`rubrik-common-ecs`, then `rubrik-webhook`, `rubrik-graphql-events`, `rubrik-syslog`).
-2. Point Agent integrations at those pipelines:
+1. Install ingest pipelines from `rubrik-elastic-ingest` (`rubrik-common-ecs`, then `rubrik-webhook`, `rubrik-graphql-events`, `rubrik-syslog`) on an **Elastic 9.0+** cluster.
+2. Install `logs-rubrik.*` index templates from that repo (`elasticsearch/install.sh --bootstrap`) so data streams auto-create.
+3. Point Agent integrations at those pipelines:
    - **Custom HTTP Endpoint** → `rubrik-webhook` (and optionally GraphQL relay)
    - **CEL Custom API** → `rubrik-graphql-events`
    - **Custom TCP/UDP Logs** + syslog parsing → `rubrik-syslog`
@@ -38,7 +56,7 @@ npm run rubrik:loadgen -- --mode http --path graphql --count 25 \
 npm run rubrik:loadgen -- --mode syslog --path syslog --count 20 \
   --syslog-host <agent-host> --syslog-port 9514
 
-# Elasticsearch _bulk through the pipeline (no Agent)
+# Elasticsearch _bulk through the pipeline (no Agent) — Elastic 9.0+
 npm run rubrik:loadgen -- --mode elasticsearch --path webhook --count 25 \
   --es-url https://<ES>:9200 --api-key "$ES_API_KEY" \
   --pipeline rubrik-webhook --index logs-rubrik.webhook-default
@@ -65,6 +83,8 @@ Use the UI when you want Discover-ready docs without Agent. Use the CLI when you
 
 ## Verify in Kibana
 
+ES|QL below works on Elastic **9.0+** (no 9.1+-only syntax):
+
 ```esql
 FROM logs-rubrik.*
 | WHERE rubrik.severity == "critical" AND rubrik.class IN ("Anomaly", "ANOMALY")
@@ -80,4 +100,5 @@ Expect `rubrik.status: Success` (or `event.outcome: success`) alongside critical
 - ECS mapping: Project `docs/rubrik-ecs-field-mapping.md` / ingest repo `docs/ecs-field-mapping.md`
 - Pipelines: `rkernutt/rubrik-elastic-ingest` → `pipelines/`
 - Generators: `src/rubrik/generators/`
+- Shared bulk helpers: `src/ship/esBulkCompat.ts`
 - CLI: `scripts/rubrik-loadgen.mjs`
