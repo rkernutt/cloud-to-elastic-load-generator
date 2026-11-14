@@ -385,6 +385,19 @@ export function enrichForCloud(
   cloud: CloudEnrichContext
 ): LooseDoc {
   if (cloud.kind === "aws") return enrichAwsDocument(doc, opts);
-  if (cloud.kind === "supporting") return doc;
+  if (cloud.kind === "supporting") {
+    // Lightweight 9.0+-stable stamps for Supporting Services (incl. Rubrik).
+    // Full AWS/GCP/Azure enrich is skipped; data streams still need ecs + data_stream.
+    const dataset = typeof doc.__dataset === "string" ? doc.__dataset : undefined;
+    const dsType =
+      opts.eventType === "metrics" ? "metrics" : opts.eventType === "traces" ? "traces" : "logs";
+    return {
+      ...doc,
+      ecs: doc.ecs ?? { version: ECS_VERSION },
+      ...(dataset && !doc.data_stream
+        ? { data_stream: { type: dsType, dataset, namespace: "default" } }
+        : {}),
+    };
+  }
   return enrichGcpAzureDocument(doc, opts, cloud.ctx);
 }

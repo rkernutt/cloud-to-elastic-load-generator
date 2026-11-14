@@ -6,7 +6,11 @@
  * activity/audit nodes, CDM syslog) and ships them to:
  *   - file (NDJSON / .log) — stage for object-storage or Agent file input
  *   - http — Elastic Agent Custom HTTP Endpoint (webhook / GraphQL JSON)
- *   - elasticsearch — _bulk (optional ?pipeline= for raw pre-pipeline docs)
+ *   - elasticsearch — _bulk create (optional ?pipeline= for raw pre-pipeline docs)
+ *
+ * Elasticsearch mode targets **all Elastic 9.x** (9.0+): data-stream `create`
+ * actions, `application/x-ndjson`, ApiKey auth, and guaranteed `@timestamp`.
+ * Pipeline names stay aligned with rkernutt/rubrik-elastic-ingest.
  *
  * Usage examples:
  *   npm run rubrik:loadgen -- --mode file --path all --count 30
@@ -25,6 +29,14 @@ import http from "http";
 import https from "https";
 import { fileURLToPath } from "url";
 import net from "net";
+import {
+  BULK_CONTENT_TYPE,
+  buildCreateBulkNdjson,
+  parseElasticMajorVersion,
+  prepareDocForDataStreamBulk,
+  rubrikDataStream,
+  rubrikPipelineForPath,
+} from "../src/ship/esBulkCompat.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, "..");
@@ -81,12 +93,15 @@ Options:
   --es-url URL                            Elasticsearch URL
   --api-key KEY                           Elasticsearch API key
   --pipeline NAME                         _bulk ?pipeline= (raw docs through rubrik-*)
-  --index NAME                            Override destination index/data stream
+  --index NAME                            Override destination data stream (logs-rubrik.*-default)
   --anomaly                               Force RansomwareStrainDetected (Success+critical)
   --ecs                                   Ship ECS-wrapped docs instead of raw payloads
   --error-rate N                          Scenario mix bias 0..1 (default: 0.15)
   --syslog-host HOST                      TCP syslog target (mode=syslog)
   --syslog-port PORT                      TCP syslog port (default: 514)
+
+Elasticsearch mode is Elastic 9.0+ compatible (data-stream create + @timestamp).
+Pipeline names must match rubrik-elastic-ingest: rubrik-webhook | rubrik-graphql-events | rubrik-syslog.
 
 Examples (Rob / Rubrik→Elastic PoC):
   # 1) Stage NDJSON + syslog for Agent / object storage
@@ -96,7 +111,7 @@ Examples (Rob / Rubrik→Elastic PoC):
   npm run rubrik:loadgen -- --mode http --path webhook --count 25 \\
     --url http://agent-host:8080/
 
-  # 3) Exercise pipeline via ES _bulk without Agent
+  # 3) Exercise pipeline via ES _bulk without Agent (Elastic 9.0+)
   npm run rubrik:loadgen -- --mode elasticsearch --path webhook --count 25 \\
     --es-url https://ES:9200 --api-key "$ES_API_KEY" --pipeline rubrik-webhook \\
     --index logs-rubrik.webhook-default
@@ -113,19 +128,16 @@ function pathsFor(p) {
   throw new Error(`Unknown --path ${p}`);
 }
 
-function defaultIndex(pathName, ecs) {
-  if (!ecs) {
-    // Raw docs still need a destination data stream; pipelines set event.dataset
-    return `logs-rubrik.${pathName}-default`;
-  }
-  return `logs-rubrik.${pathName}-default`;
+/** Max docs per `_bulk` request — stays under ES/Serverless body limits on 9.0+. */
+const BULK_BATCH_SIZE = 100;
+
+function defaultIndex(pathName) {
+  // Data stream name from rubrik-elastic-ingest index templates (logs-rubrik.*-*)
+  return rubrikDataStream(pathName);
 }
 
 function defaultPipeline(pathName) {
-  if (pathName === "webhook") return "rubrik-webhook";
-  if (pathName === "graphql") return "rubrik-graphql-events";
-  if (pathName === "syslog") return "rubrik-syslog";
-  return "";
+  return rubrikPipelineForPath(pathName);
 }
 
 function request(urlStr, { method = "GET", headers = {}, body } = {}) {
@@ -180,33 +192,58 @@ async function shipHttp(url, payloads) {
   return { ok, fail };
 }
 
+async function warnIfNotElastic9(esUrl, apiKey) {
+  try {
+    const res = await request(`${esUrl.replace(/\/$/, "")}/`, {
+      method: "GET",
+      headers: { Authorization: `ApiKey ${apiKey}` },
+    });
+    if (res.status >= 300) return;
+    const major = parseElasticMajorVersion(JSON.parse(res.body));
+    if (major != null && major < 9) {
+      console.warn(
+        `  warning: Elasticsearch major=${major}; Rubrik loadgen is validated for Elastic 9.0+ data streams`
+      );
+    }
+  } catch {
+    /* optional probe — do not block ship */
+  }
+}
+
 async function shipElasticsearch(esUrl, apiKey, index, pipeline, docs) {
-  const lines = [];
-  for (const doc of docs) {
-    lines.push(JSON.stringify({ create: { _index: index } }));
-    lines.push(JSON.stringify(doc));
+  // 9.0+ data-stream contract: create + @timestamp + strip __dataset
+  const prepared = docs.map((d) => prepareDocForDataStreamBulk(d));
+  let ok = 0;
+  let fail = 0;
+  let sample;
+  for (let i = 0; i < prepared.length; i += BULK_BATCH_SIZE) {
+    const batch = prepared.slice(i, i + BULK_BATCH_SIZE);
+    const ndjson = buildCreateBulkNdjson(index, batch);
+    let bulkUrl = `${esUrl.replace(/\/$/, "")}/_bulk`;
+    // Stable since 7.x / 9.0: apply ingest pipeline before the data-stream write
+    if (pipeline) bulkUrl += `?pipeline=${encodeURIComponent(pipeline)}`;
+    const res = await request(bulkUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": BULK_CONTENT_TYPE,
+        Authorization: `ApiKey ${apiKey}`,
+        "Content-Length": Buffer.byteLength(ndjson),
+      },
+      body: ndjson,
+    });
+    if (res.status >= 300) {
+      throw new Error(`_bulk HTTP ${res.status}: ${res.body.slice(0, 500)}`);
+    }
+    const json = JSON.parse(res.body);
+    const errors = (json.items || []).filter((it) => {
+      const r = it.create || it.index;
+      return r && r.error;
+    });
+    ok += (json.items || []).length - errors.length;
+    fail += errors.length;
+    if (!sample && errors[0]) sample = errors[0];
   }
-  const ndjson = lines.join("\n") + "\n";
-  let bulkUrl = `${esUrl.replace(/\/$/, "")}/_bulk`;
-  if (pipeline) bulkUrl += `?pipeline=${encodeURIComponent(pipeline)}`;
-  const res = await request(bulkUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-ndjson",
-      Authorization: `ApiKey ${apiKey}`,
-      "Content-Length": Buffer.byteLength(ndjson),
-    },
-    body: ndjson,
-  });
-  if (res.status >= 300) {
-    throw new Error(`_bulk HTTP ${res.status}: ${res.body.slice(0, 500)}`);
-  }
-  const json = JSON.parse(res.body);
-  const errors = (json.items || []).filter((it) => {
-    const r = it.create || it.index;
-    return r && r.error;
-  });
-  return { ok: (json.items || []).length - errors.length, fail: errors.length, sample: errors[0] };
+  return { ok, fail, sample };
 }
 
 function shipSyslogTcp(host, port, lines) {
@@ -326,14 +363,21 @@ for (const pathName of selectedPaths) {
       console.error("  --es-url and --api-key required for --mode elasticsearch");
       process.exit(1);
     }
-    const index = args.index || defaultIndex(pathName, !args.raw);
+    if (pathName === selectedPaths[0]) {
+      await warnIfNotElastic9(args.esUrl, args.apiKey);
+    }
+    const index = args.index || defaultIndex(pathName);
     const pipeline = args.pipeline || (args.raw ? defaultPipeline(pathName) : "");
-    // Syslog raw through ES bulk: send { message: <MSG body> } so rubrik-syslog can grok
+    // Syslog raw through ES bulk: message for rubrik-syslog grok + @timestamp for data streams
     const docs = bundles.map((b) => {
       if (!args.raw) return b.ecs;
       if (pathName === "syslog") {
         const msg = (b.line || "").replace(/^<[^>]+>[^:]+:\s*/, "");
-        return { message: msg || b.line, event: { original: b.line } };
+        return {
+          "@timestamp": b.ecs?.["@timestamp"] || ts,
+          message: msg || b.line,
+          event: { original: b.line },
+        };
       }
       return b.payload;
     });

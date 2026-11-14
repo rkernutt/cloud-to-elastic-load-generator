@@ -1,4 +1,10 @@
-/** Shared helpers for bulk indexing via /proxy/_bulk */
+/**
+ * Shared helpers for bulk indexing via /proxy/_bulk.
+ *
+ * UI Ship already uses data-stream-safe `create` actions and strips `__dataset`
+ * (see runShipWorkload). Prefer those patterns on every Elastic 9.x cluster —
+ * see `esBulkCompat.ts` for the Rubrik CLI contract and shared NDJSON builders.
+ */
 
 export function errMsg(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
