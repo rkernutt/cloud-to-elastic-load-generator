@@ -84,6 +84,7 @@ import {
   generateIncidentManagerLog,
 } from "./security.js";
 import { generateDataPipelineChain } from "./dataPipelineChain.js";
+import { generateCostSpikeChain } from "./costSpikeChain.js";
 import { generateOpenLineageLog } from "./openlineage.js";
 import { generateGlueDataQualityLog } from "./glueDataQuality.js";
 import { applyEventAction } from "./eventAction.js";
@@ -323,6 +324,7 @@ const GENERATORS = {
   "data-exfil-chain": generateDataExfilChain,
   "entra-federation-chain": generateEntraFederatedChain,
   "data-pipeline-chain": generateDataPipelineChain,
+  "cost-spike-chain": generateCostSpikeChain,
   securityir: generateSecurityIrLog,
   cloudhsm: generateCloudHsmLog,
   auditmanager: generateAuditManagerLog,

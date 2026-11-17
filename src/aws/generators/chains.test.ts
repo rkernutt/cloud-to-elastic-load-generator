@@ -1,5 +1,6 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { generateDataPipelineChain, setPipelineOrchestration } from "./dataPipelineChain.js";
+import { generateCostSpikeChain } from "./costSpikeChain.js";
 import { generateOpenLineageLog } from "./openlineage.js";
 import { generateGlueDataQualityLog } from "./glueDataQuality.js";
 import { GENERATORS } from "./index.js";
@@ -13,6 +14,7 @@ const CHAIN_IDS = [
   "iam-privesc-chain",
   "data-exfil-chain",
   "data-pipeline-chain",
+  "cost-spike-chain",
 ];
 
 describe("AWS chain generators — structural invariants", () => {
@@ -108,6 +110,67 @@ describe("AWS data pipeline chain — orchestration modes", () => {
       }
     }
     expect(found).toBe(true);
+  });
+});
+
+describe("AWS cost spike chain — Lambda burst correlated with billing anomaly", () => {
+  it("produces a burst of aws.lambda_logs docs sharing one function/account/region", () => {
+    const docs = generateCostSpikeChain(TS, 0.05) as Doc[];
+    const lambdaDocs = docs.filter((d) => d.__dataset === "aws.lambda_logs");
+    expect(lambdaDocs.length).toBeGreaterThanOrEqual(150);
+
+    const fns = new Set(
+      lambdaDocs.map((d) => (d.aws as Record<string, any>)?.lambda?.function?.name)
+    );
+    const accountIds = new Set(
+      lambdaDocs.map((d) => (d.cloud as Record<string, any>)?.account?.id)
+    );
+    const regions = new Set(lambdaDocs.map((d) => (d.cloud as Record<string, any>)?.region));
+    expect(fns.size).toBe(1);
+    expect(accountIds.size).toBe(1);
+    expect(regions.size).toBe(1);
+  });
+
+  it("produces exactly one aws.billing anomaly doc rooted in the same function/account", () => {
+    const docs = generateCostSpikeChain(TS, 0.05) as Doc[];
+    const lambdaDocs = docs.filter((d) => d.__dataset === "aws.lambda_logs");
+    const billingDocs = docs.filter((d) => d.__dataset === "aws.billing");
+    expect(billingDocs.length).toBe(1);
+
+    const billingDoc = billingDocs[0]!;
+    const fn = (lambdaDocs[0]!.aws as Record<string, any>).lambda.function.name;
+    const acctId = (lambdaDocs[0]!.cloud as Record<string, any>).account.id;
+    const region = (lambdaDocs[0]!.cloud as Record<string, any>).region;
+
+    expect((billingDoc.cloud as Record<string, any>).account.id).toBe(acctId);
+    expect((billingDoc.cloud as Record<string, any>).region).toBe(region);
+    expect((billingDoc.aws as Record<string, any>).billing.linked_account_id).toBe(acctId);
+
+    const payload = JSON.parse(billingDoc.message as string);
+    expect(payload.rootCauses[0].linkedAccount).toBe(acctId);
+    expect(payload.rootCauses[0].functionName).toBe(fn);
+    expect(payload.rootCauses[0].region).toBe(region);
+  });
+
+  it("no invented join key — correlation is purely via shared dimensions", () => {
+    // True-to-life: real billing data carries no event-level correlation id. Assert
+    // the chain doesn't smuggle one in under `labels` the way the other chains do.
+    const docs = generateCostSpikeChain(TS, 0.05) as Doc[];
+    for (const d of docs) {
+      const labels = d.labels as Record<string, unknown> | undefined;
+      expect(labels?.chain_id).toBeUndefined();
+      expect(labels?.cost_spike_id).toBeUndefined();
+    }
+  });
+
+  it("billing anomaly lands after the burst window (models real billing lag)", () => {
+    const docs = generateCostSpikeChain(TS, 0.05) as Doc[];
+    const lambdaDocs = docs.filter((d) => d.__dataset === "aws.lambda_logs");
+    const billingDoc = docs.find((d) => d.__dataset === "aws.billing")!;
+    const latestLambdaTs = Math.max(
+      ...lambdaDocs.map((d) => new Date(d["@timestamp"] as string).getTime())
+    );
+    expect(new Date(billingDoc["@timestamp"] as string).getTime()).toBeGreaterThan(latestLambdaTs);
   });
 });
 

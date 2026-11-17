@@ -273,6 +273,7 @@ export const AZURE_TRACE_SERVICES = [
   // Correlated logs + traces (+ metrics where available) in a single run;
   // available on every tab, each doc routed to its own signal stream.
   { id: "azure-data-pipeline-chain", label: "Data Pipeline — correlated logs + traces" },
+  { id: "azure-cost-spike-chain", label: "Cost Spike — correlated logs + billing" },
   { id: "azure-security-chain", label: "Defender → Sentinel — correlated logs + traces" },
   { id: "azure-iam-privesc-chain", label: "Entra PrivEsc chain — correlated logs + traces" },
   { id: "azure-data-exfil-chain", label: "Data exfil chain — correlated logs + traces" },

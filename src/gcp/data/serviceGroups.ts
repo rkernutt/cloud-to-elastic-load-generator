@@ -723,6 +723,12 @@ const GCP_SERVICE_GROUPS: GcpServiceGroup[] = [
         icon: "⛁",
         desc: "Data & Analytics pipeline: Composer → GCS → Dataproc/Spark → Data Catalog → BigQuery with failure cascades + APM traces",
       },
+      {
+        id: "gcp-cost-spike-chain",
+        label: "Cost Spike Chain",
+        icon: "💰",
+        desc: "Cloud Functions invocation burst drives a billing cost spike, correlated by project/function/region (no invented join key — real billing data has none)",
+      },
     ],
   },
 ];

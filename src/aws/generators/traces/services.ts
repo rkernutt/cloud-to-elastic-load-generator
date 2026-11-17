@@ -411,6 +411,13 @@ export const TRACE_SERVICES = [
     group: "Scenarios",
   },
   {
+    id: "cost-spike-chain",
+    label: "Cost Spike (correlated)",
+    desc: "Lambda invocation burst → Cost Anomaly Detection billing spike — correlated logs + billing, same account/function/region",
+    icon: "💰",
+    group: "Scenarios",
+  },
+  {
     id: "security-chain",
     label: "GuardDuty → SecHub → Lake",
     desc: "Linked GuardDuty → Security Hub → Security Lake finding chain — correlated logs + traces",

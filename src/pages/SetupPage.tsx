@@ -642,6 +642,7 @@ export function SetupPage({
     "data-exfil-chain": "Advanced Data Types",
     "data-pipeline": "Advanced Data Types",
     "data-pipeline-chain": "Advanced Data Types",
+    "cost-spike-chain": "Advanced Data Types",
 
     // AI & Machine Learning
     sagemaker: "AI & Machine Learning",
@@ -907,6 +908,7 @@ export function SetupPage({
     "azure-iam-privesc-chain": "Advanced Data Types",
     "azure-data-exfil-chain": "Advanced Data Types",
     "azure-data-pipeline-chain": "Advanced Data Types",
+    "azure-cost-spike-chain": "Advanced Data Types",
     "azure-data-pipeline": "Advanced Data Types",
 
     // ── GCP services ────────────────────────────────────────────────────────
@@ -1063,6 +1065,7 @@ export function SetupPage({
     "gcp-iam-privesc-chain": "Advanced Data Types",
     "gcp-data-exfil-chain": "Advanced Data Types",
     "gcp-data-pipeline-chain": "Advanced Data Types",
+    "gcp-cost-spike-chain": "Advanced Data Types",
     "gcp-data-pipeline": "Advanced Data Types",
 
     // ── Supporting services (cross-cloud) ────────────────────────────────

@@ -433,6 +433,12 @@ const AZURE_SERVICE_GROUPS: AzureServiceGroup[] = [
         icon: "⛁",
         desc: "Data & Analytics pipeline: Data Factory → Blob → Databricks/Spark → Purview → Synapse with failure cascades + APM traces",
       },
+      {
+        id: "azure-cost-spike-chain",
+        label: "Cost Spike Chain",
+        icon: "💰",
+        desc: "Azure Functions invocation burst drives a Cost Management anomaly, correlated by subscription/resource group/function/region (no invented join key — real billing data has none)",
+      },
     ],
   },
 ];

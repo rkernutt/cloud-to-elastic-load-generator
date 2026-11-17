@@ -166,6 +166,7 @@ const GCP_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {
   "gcp-data-exfil-chain": "api",
   "gcp-entra-federation-chain": "api",
   "gcp-data-pipeline-chain": "api",
+  "gcp-cost-spike-chain": "api",
 };
 
 const GCP_INGESTION_META: Record<string, { label: string; color: string; inputType: string }> = {

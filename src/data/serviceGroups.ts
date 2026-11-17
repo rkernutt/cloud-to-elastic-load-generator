@@ -287,6 +287,12 @@ const SERVICE_GROUPS: ServiceGroup[] = [
         icon: "⛁",
         desc: "Data pipeline: S3 (Avro) → EMR/Spark → S3 (Parquet) + metadata → Glue Catalog → Athena → Tableau | orchestrated via MWAA, EventBridge, or manual trigger | OpenLineage run events (Airflow provider + Spark listener) for dataset lineage | schema drift + failure cascades",
       },
+      {
+        id: "cost-spike-chain",
+        label: "Cost Spike Chain",
+        icon: "💰",
+        desc: "Lambda invocation burst drives a Cost Anomaly Detection billing spike, correlated by account/function/region (no invented join key — real billing data has none)",
+      },
     ],
   },
   {

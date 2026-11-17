@@ -10,6 +10,7 @@ const CHAIN_IDS = [
   "azure-iam-privesc-chain",
   "azure-data-exfil-chain",
   "azure-data-pipeline-chain",
+  "azure-cost-spike-chain",
 ];
 
 describe("Azure chain generators — structural invariants", () => {
@@ -79,5 +80,85 @@ describe("Azure data pipeline chain — correlation", () => {
       }
     }
     expect(found).toBe(true);
+  });
+});
+
+describe("Azure cost spike chain — Functions burst correlated with billing anomaly", () => {
+  it("produces a burst of azure.functions docs sharing one function app/subscription/resource group/region", () => {
+    const gen = AZURE_GENERATORS["azure-cost-spike-chain"]!;
+    const docs = gen(TS, 0.05) as Doc[];
+    const fnDocs = docs.filter((d) => d.__dataset === "azure.functions");
+    expect(fnDocs.length).toBeGreaterThanOrEqual(150);
+
+    const fnNames = new Set(
+      fnDocs.map((d) => (d.azure as Record<string, any>)?.functions?.function_name)
+    );
+    const fnApps = new Set(
+      fnDocs.map((d) => (d.azure as Record<string, any>)?.functions?.function_app)
+    );
+    const subs = new Set(fnDocs.map((d) => (d.cloud as Record<string, any>)?.account?.id));
+    const resourceGroups = new Set(
+      fnDocs.map((d) => (d.azure as Record<string, any>)?.functions?.resource_group)
+    );
+    const regions = new Set(fnDocs.map((d) => (d.cloud as Record<string, any>)?.region));
+    expect(fnNames.size).toBe(1);
+    expect(fnApps.size).toBe(1);
+    expect(subs.size).toBe(1);
+    expect(resourceGroups.size).toBe(1);
+    expect(regions.size).toBe(1);
+  });
+
+  it("produces exactly one azure.cost_management anomaly doc rooted in the same function app/subscription/resource group", () => {
+    const gen = AZURE_GENERATORS["azure-cost-spike-chain"]!;
+    const docs = gen(TS, 0.05) as Doc[];
+    const fnDocs = docs.filter((d) => d.__dataset === "azure.functions");
+    const billingDocs = docs.filter((d) => d.__dataset === "azure.cost_management");
+    expect(billingDocs.length).toBe(1);
+
+    const billingDoc = billingDocs[0]!;
+    const fnName = (fnDocs[0]!.azure as Record<string, any>).functions.function_name;
+    const fnApp = (fnDocs[0]!.azure as Record<string, any>).functions.function_app;
+    const resourceGroup = (fnDocs[0]!.azure as Record<string, any>).functions.resource_group;
+    const subId = (fnDocs[0]!.cloud as Record<string, any>).account.id;
+    const region = (fnDocs[0]!.cloud as Record<string, any>).region;
+
+    expect((billingDoc.cloud as Record<string, any>).account.id).toBe(subId);
+    expect((billingDoc.cloud as Record<string, any>).region).toBe(region);
+    expect((billingDoc.azure as Record<string, any>).cost_management.resource_group).toBe(
+      resourceGroup
+    );
+
+    const props = (billingDoc.azure as Record<string, any>).cost_management.properties;
+    expect(props.functionApp).toBe(fnApp);
+    expect(props.functionName).toBe(fnName);
+  });
+
+  it("no invented join key — correlation is purely via shared dimensions", () => {
+    // True-to-life: real Cost Management data carries no event-level correlation id
+    // shared with invocation docs. Assert the chain doesn't smuggle one in, and that
+    // Azure's own per-document correlationId is not forced identical across docs.
+    const gen = AZURE_GENERATORS["azure-cost-spike-chain"]!;
+    const docs = gen(TS, 0.05) as Doc[];
+    for (const d of docs) {
+      const labels = d.labels as Record<string, unknown> | undefined;
+      expect(labels?.chain_id).toBeUndefined();
+      expect(labels?.cost_spike_id).toBeUndefined();
+    }
+
+    const fnDocs = docs.filter((d) => d.__dataset === "azure.functions");
+    const billingDoc = docs.find((d) => d.__dataset === "azure.cost_management")!;
+    const correlationIds = new Set(fnDocs.map((d) => d.correlationId as string));
+    expect(correlationIds.has(billingDoc.correlationId as string)).toBe(false);
+  });
+
+  it("billing anomaly lands after the burst window (models real billing lag)", () => {
+    const gen = AZURE_GENERATORS["azure-cost-spike-chain"]!;
+    const docs = gen(TS, 0.05) as Doc[];
+    const fnDocs = docs.filter((d) => d.__dataset === "azure.functions");
+    const billingDoc = docs.find((d) => d.__dataset === "azure.cost_management")!;
+    const latestFnTs = Math.max(
+      ...fnDocs.map((d) => new Date(d["@timestamp"] as string).getTime())
+    );
+    expect(new Date(billingDoc["@timestamp"] as string).getTime()).toBeGreaterThan(latestFnTs);
   });
 });

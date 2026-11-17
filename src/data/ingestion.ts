@@ -216,6 +216,7 @@ const SERVICE_INGESTION_DEFAULTS = {
   "entra-federation-chain": "api",
   "dns-c2-chain": "api",
   "data-pipeline-chain": "api",
+  "cost-spike-chain": "api",
   storagelens: "s3",
   qbusiness: "cloudwatch",
   // v11.5 new services

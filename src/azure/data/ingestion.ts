@@ -14,6 +14,7 @@ const AZURE_SERVICE_INGESTION_OVERRIDES: Record<string, string> = {
   "azure-iam-privesc-chain": "api",
   "azure-data-exfil-chain": "api",
   "azure-data-pipeline-chain": "api",
+  "azure-cost-spike-chain": "api",
 };
 
 const AZURE_SERVICE_INGESTION_DEFAULTS: Record<string, string> = {

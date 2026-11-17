@@ -27,23 +27,31 @@ import type { EcsDocument } from "./types.js";
  * Generates a synthetic AWS Lambda log event (function invocation, metrics, optional trace ID).
  * @param ts - ISO timestamp for @timestamp.
  * @param er - Error rate in [0,1]; influences level and error count.
+ * @param identity - Optional fixed function/account/region, so callers that burst many
+ *   invocations (e.g. a cost-spike chain) can keep every doc pinned to the same function.
  * @returns ECS-style document with cloud, aws.lambda, log, message, event.
  */
-export function generateLambdaLog(ts: string, er: number): EcsDocument {
-  const fn = rand([
-    "user-auth",
-    "payment-processor",
-    "image-resizer",
-    "notification-sender",
-    "data-pipeline",
-    "api-handler",
-    "order-validator",
-    "inventory-sync",
-    "webhook-receiver",
-    "report-generator",
-  ]);
-  const region = rand(REGIONS);
-  const acct = randAccount();
+export function generateLambdaLog(
+  ts: string,
+  er: number,
+  identity?: { fn?: string; acct?: { id: string; name: string }; region?: string }
+): EcsDocument {
+  const fn =
+    identity?.fn ??
+    rand([
+      "user-auth",
+      "payment-processor",
+      "image-resizer",
+      "notification-sender",
+      "data-pipeline",
+      "api-handler",
+      "order-validator",
+      "inventory-sync",
+      "webhook-receiver",
+      "report-generator",
+    ]);
+  const region = identity?.region ?? rand(REGIONS);
+  const acct = identity?.acct ?? randAccount();
   const isErr = Math.random() < er;
   const level = isErr
     ? "ERROR"

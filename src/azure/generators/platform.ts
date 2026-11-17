@@ -284,16 +284,37 @@ export function generateAppServiceLog(ts: string, er: number): EcsDocument {
   };
 }
 
-export function generateFunctionsLog(ts: string, er: number): EcsDocument {
-  const { region, subscription, resourceGroup, isErr } = makeAzureSetup(er);
-  const fnApp = `func-${rand(["http", "timer", "queue"])}-${randId(4).toLowerCase()}`;
+export function generateFunctionsLog(
+  ts: string,
+  er: number,
+  identity?: {
+    fnName?: string;
+    fnApp?: string;
+    region?: string;
+    subscription?: { id: string; name: string };
+    resourceGroup?: string;
+  }
+): EcsDocument {
+  const {
+    region: baseRegion,
+    subscription: baseSubscription,
+    resourceGroup: baseResourceGroup,
+    isErr,
+  } = makeAzureSetup(er);
+  const region = identity?.region ?? baseRegion;
+  const subscription = identity?.subscription ?? baseSubscription;
+  const resourceGroup = identity?.resourceGroup ?? baseResourceGroup;
+  const fnApp =
+    identity?.fnApp ?? `func-${rand(["http", "timer", "queue"])}-${randId(4).toLowerCase()}`;
   const resourceId = armSite(subscription.id, resourceGroup, fnApp);
   const callerIp = randIp();
   const correlationId = randUUID();
   const invocationId = randUUID();
   const time = azureDiagnosticTime(ts);
   const variant = rand(["exec", "host", "error", "runtime", "trigger"] as const);
-  const fnName = rand(["OrderProcessor", "TelemetryIngest", "NightlyReport", "WebhookHandler"]);
+  const fnName =
+    identity?.fnName ??
+    rand(["OrderProcessor", "TelemetryIngest", "NightlyReport", "WebhookHandler"]);
   const trigger = rand([
     "httpTrigger",
     "timerTrigger",

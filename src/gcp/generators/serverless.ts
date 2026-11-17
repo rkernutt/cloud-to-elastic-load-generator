@@ -53,9 +53,17 @@ function cfGoErrorStack(): string {
   return `panic: ${rand(["runtime error: index out of range", "assignment to entry in nil map", "send on closed channel"])}\n\ngoroutine ${randInt(1, 99)} [running]:\nmain.${rand(["Handler", "process", "dispatch"])}(...)\n\t/workspace/main.go:${randInt(15, 200)} +0x${randId(3).toLowerCase()}\nreflect.Value.call({0x${randId(6).toLowerCase()}?, 0x${randId(6).toLowerCase()}?}, ...)\n\t/usr/local/go/src/reflect/value.go:${randInt(500, 620)} +0x${randId(3).toLowerCase()}`;
 }
 
-export function generateCloudFunctionsLog(ts: string, er: number): EcsDocument {
-  const { region, project, isErr } = makeGcpSetup(er);
-  const functionName = `${rand(["ingest", "transform", "notify", "validate", "webhook"])}-${randId(4).toLowerCase()}`;
+export function generateCloudFunctionsLog(
+  ts: string,
+  er: number,
+  identity?: { functionName?: string; region?: string; project?: { id: string; name: string } }
+): EcsDocument {
+  const { region: setupRegion, project: setupProject, isErr } = makeGcpSetup(er);
+  const region = identity?.region ?? setupRegion;
+  const project = identity?.project ? { ...setupProject, ...identity.project } : setupProject;
+  const functionName =
+    identity?.functionName ??
+    `${rand(["ingest", "transform", "notify", "validate", "webhook"])}-${randId(4).toLowerCase()}`;
   const executionShort = randId(12).toLowerCase();
   const executionId = `projects/${project.id}/locations/${region}/functions/${functionName}/executions/${executionShort}`;
   const memoryMb = rand([128, 256, 512, 1024, 2048, 4096]);

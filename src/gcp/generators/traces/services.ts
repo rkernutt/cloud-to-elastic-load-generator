@@ -420,6 +420,13 @@ export const GCP_TRACE_SERVICES = [
     group: "Scenarios",
   },
   {
+    id: "gcp-cost-spike-chain",
+    label: "Cost Spike (correlated)",
+    desc: "Cloud Functions invocation burst → billing cost spike — correlated logs + billing, same project/function/region",
+    icon: "💰",
+    group: "Scenarios",
+  },
+  {
     id: "gcp-security-chain",
     label: "SCC → Chronicle Chain",
     desc: "Security Command Center → Chronicle finding chain — correlated logs + traces",

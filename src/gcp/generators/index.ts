@@ -13,6 +13,7 @@ import {
   generateGcpEntraFederatedChain,
 } from "./securityChains.js";
 import { generateGcpDataPipelineChain } from "./dataPipelineChain.js";
+import { generateGcpCostSpikeChain } from "./costSpikeChain.js";
 import {
   generateCloudFunctionsLog,
   generateCloudRunLog,
@@ -395,6 +396,7 @@ const GCP_GENERATORS: Record<string, GcpLogGen> = {
   "gcp-data-exfil-chain": generateGcpDataExfilChain,
   "gcp-entra-federation-chain": generateGcpEntraFederatedChain,
   "gcp-data-pipeline-chain": generateGcpDataPipelineChain,
+  "gcp-cost-spike-chain": generateGcpCostSpikeChain,
 };
 
 export { GCP_GENERATORS };

@@ -10,6 +10,7 @@ const CHAIN_IDS = [
   "gcp-iam-privesc-chain",
   "gcp-data-exfil-chain",
   "gcp-data-pipeline-chain",
+  "gcp-cost-spike-chain",
 ];
 
 describe("GCP chain generators — structural invariants", () => {
@@ -79,5 +80,68 @@ describe("GCP data pipeline chain — correlation", () => {
       }
     }
     expect(found).toBe(true);
+  });
+});
+
+describe("GCP cost spike chain — Cloud Functions burst correlated with billing anomaly", () => {
+  it("produces a burst of gcp.cloudfunctions docs sharing one function/project/region", () => {
+    const gen = GCP_GENERATORS["gcp-cost-spike-chain"]!;
+    const docs = gen(TS, 0.05) as Doc[];
+    const fnDocs = docs.filter((d) => d.__dataset === "gcp.cloudfunctions");
+    expect(fnDocs.length).toBeGreaterThanOrEqual(150);
+
+    const fns = new Set(
+      fnDocs.map((d) => (d.gcp as Record<string, any>)?.cloud_functions?.function_name)
+    );
+    const projectIds = new Set(fnDocs.map((d) => (d.cloud as Record<string, any>)?.project?.id));
+    const regions = new Set(fnDocs.map((d) => (d.cloud as Record<string, any>)?.region));
+    expect(fns.size).toBe(1);
+    expect(projectIds.size).toBe(1);
+    expect(regions.size).toBe(1);
+  });
+
+  it("produces exactly one gcp.billing anomaly doc rooted in the same function/project", () => {
+    const gen = GCP_GENERATORS["gcp-cost-spike-chain"]!;
+    const docs = gen(TS, 0.05) as Doc[];
+    const fnDocs = docs.filter((d) => d.__dataset === "gcp.cloudfunctions");
+    const billingDocs = docs.filter((d) => d.__dataset === "gcp.billing");
+    expect(billingDocs.length).toBe(1);
+
+    const billingDoc = billingDocs[0]!;
+    const fn = (fnDocs[0]!.gcp as Record<string, any>).cloud_functions.function_name;
+    const projectId = (fnDocs[0]!.cloud as Record<string, any>).project.id;
+    const region = (fnDocs[0]!.cloud as Record<string, any>).region;
+
+    expect((billingDoc.cloud as Record<string, any>).project.id).toBe(projectId);
+    expect((billingDoc.cloud as Record<string, any>).region).toBe(region);
+    expect((billingDoc.gcp as Record<string, any>).billing.project_id).toBe(projectId);
+
+    const rootCause = (billingDoc.gcp as Record<string, any>).billing.anomaly.root_cause;
+    expect(rootCause.function_name).toBe(fn);
+    expect(rootCause.region).toBe(region);
+    expect(rootCause.project_id).toBe(projectId);
+  });
+
+  it("no invented join key — correlation is purely via shared dimensions", () => {
+    // True-to-life: real billing data carries no event-level correlation id. Assert
+    // the chain doesn't smuggle one in under `labels` the way the other chains do.
+    const gen = GCP_GENERATORS["gcp-cost-spike-chain"]!;
+    const docs = gen(TS, 0.05) as Doc[];
+    for (const d of docs) {
+      const labels = d.labels as Record<string, unknown> | undefined;
+      expect(labels?.chain_id).toBeUndefined();
+      expect(labels?.cost_spike_id).toBeUndefined();
+    }
+  });
+
+  it("billing anomaly lands after the burst window (models real billing lag)", () => {
+    const gen = GCP_GENERATORS["gcp-cost-spike-chain"]!;
+    const docs = gen(TS, 0.05) as Doc[];
+    const fnDocs = docs.filter((d) => d.__dataset === "gcp.cloudfunctions");
+    const billingDoc = docs.find((d) => d.__dataset === "gcp.billing")!;
+    const latestFnTs = Math.max(
+      ...fnDocs.map((d) => new Date(d["@timestamp"] as string).getTime())
+    );
+    expect(new Date(billingDoc["@timestamp"] as string).getTime()).toBeGreaterThan(latestFnTs);
   });
 });

@@ -154,6 +154,7 @@ const AZURE_ELASTIC_DATASET_MAP: Record<string, string> = {
   "azure-iam-privesc-chain": "azure.activitylogs",
   "azure-data-exfil-chain": "azure.defender",
   "azure-data-pipeline-chain": "azure.data_factory",
+  "azure-cost-spike-chain": "azure.functions",
 };
 
 const AZURE_METRICS_SUPPORTED_SERVICE_IDS = new Set([
