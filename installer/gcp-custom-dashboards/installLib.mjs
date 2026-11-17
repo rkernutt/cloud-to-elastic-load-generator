@@ -169,6 +169,20 @@ export function isUnavailable(err) {
   );
 }
 
+/**
+ * True for any HTTP 400 from POST /api/dashboards — whether the endpoint is
+ * unavailable on this deployment, or its request-body schema has changed
+ * between Kibana versions (e.g. a Zod `invalid_union` error with no matching
+ * text). Either way, the NDJSON-import fallback is more version-tolerant and
+ * should be tried instead of failing the whole install outright.
+ */
+export function isDashboardsApiRejection(err) {
+  return (
+    err.message.includes("HTTP 400") &&
+    err.message.startsWith("Kibana request failed: POST /api/dashboards")
+  );
+}
+
 export function parseVersion(versionStr) {
   const [major = 0, minor = 0, patch = 0] = (versionStr ?? "0.0.0")
     .split(".")
@@ -270,13 +284,14 @@ export async function installOne(client, title, definition, ndjson, kibanaVersio
       const id = result?.id ?? result?.data?.id ?? "(unknown id)";
       return { status: "installed", id, via: "Dashboards API" };
     } catch (err) {
-      if (!isUnavailable(err)) throw err;
+      if (!isUnavailable(err) && !isDashboardsApiRejection(err)) throw err;
     }
   }
 
   if (!ndjson) {
     throw new Error(
-      "Dashboards API unavailable on this deployment and no pre-generated ndjson found.\n" +
+      "Dashboards API rejected the request and no pre-generated ndjson fallback was found " +
+        `for "${title}".\n` +
         "       Run 'npm run gen:gcp-dashboards' then retry."
     );
   }
