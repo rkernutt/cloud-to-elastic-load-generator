@@ -13,6 +13,11 @@ import {
 } from "../../azure/generators/miscExtended.js";
 import { generateManagedAdLog } from "../../gcp/generators/security.js";
 import { generateServiceNowCmdbLog } from "../../servicenow/generators/index.js";
+import {
+  generateRubrikWebhookLog,
+  generateRubrikGraphqlLog,
+  generateRubrikSyslogLog,
+} from "../../rubrik/generators/index.js";
 
 export const SUPPORTING_GENERATORS: Record<
   string,
@@ -26,4 +31,7 @@ export const SUPPORTING_GENERATORS: Record<
   "outlook-activity": generateOutlookActivityLog,
   "onedrive-usage-storage": generateOnedriveUsageStorageLog,
   servicenow_cmdb: generateServiceNowCmdbLog,
+  rubrik_webhook: generateRubrikWebhookLog,
+  rubrik_graphql: generateRubrikGraphqlLog,
+  rubrik_syslog: generateRubrikSyslogLog,
 };

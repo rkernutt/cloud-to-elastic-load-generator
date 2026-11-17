@@ -39,7 +39,7 @@ export const SUPPORTING_CONFIG: CloudAppConfig = {
   lsKey: "supportingElasticConfig",
   defaultLogsIndexPrefix: "logs-supporting",
   defaultMetricsIndexPrefix: "metrics-supporting",
-  defaultSelectedLogServices: ["entra-id", "servicenow_cmdb"],
+  defaultSelectedLogServices: ["entra-id", "servicenow_cmdb", "rubrik_webhook"],
   defaultSelectedTraceServices: [],
   serviceGroups: SUPPORTING_SERVICE_GROUPS as ServiceGroup[],
   allServiceIds: SUPPORTING_ALL_SERVICE_IDS,
