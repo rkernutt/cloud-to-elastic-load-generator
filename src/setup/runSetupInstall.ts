@@ -71,6 +71,51 @@ function workflowsBlockedExplanation(): string {
   );
 }
 
+function agentBuilderBlockedExplanation(
+  detected?: { spaceId: string; solution: string } | null
+): string {
+  if (detected && (detected.solution === "oblt" || detected.solution === "security")) {
+    const uiName = detected.solution === "oblt" ? "Observability" : "Security";
+    return (
+      ` — space "${detected.spaceId}" is set to the ${uiName} solution view` +
+      ` (\`solution: "${detected.solution}"\` via the Spaces API), which shows its own AI` +
+      " Assistant by default instead of Agent Builder. Check Stack Management → Spaces →" +
+      ` ${detected.spaceId} in Kibana for a toggle between the two — changing the space's` +
+      " solution view entirely would also change its whole navigation, so confirm that's" +
+      " what you want before touching it."
+    );
+  }
+  return (
+    " — Agent Builder needs an appropriate Elastic subscription, and on non-Serverless" +
+    " deployments its availability also depends on the target space's solution view:" +
+    " it's on by default in the Elasticsearch/Classic view, but in the Observability or" +
+    ' Security solution views you must switch that space from "AI Assistant" to' +
+    ' "Agent Builder" before its API responds. Check Stack Management → Spaces → ' +
+    "<space> → Solution view, and your subscription tier, before assuming this is a bug."
+  );
+}
+
+/** Reads the target space's `solution` (classic/es/oblt/security) via the Spaces API, read-only. */
+async function detectSpaceSolution(
+  kb: string,
+  apiKey: string,
+  spaceId: string | undefined
+): Promise<{ spaceId: string; solution: string } | null> {
+  const id = spaceId || "default";
+  try {
+    const res = (await proxyCall({
+      baseUrl: kb,
+      apiKey,
+      path: `/api/spaces/space/${encodeURIComponent(id)}`,
+      method: "GET",
+      allow404: true,
+    })) as { solution?: string } | null;
+    return res?.solution ? { spaceId: id, solution: res.solution } : null;
+  } catch {
+    return null;
+  }
+}
+
 function isHttpConflict(msg: string): boolean {
   return msg.includes("HTTP 409") || msg.includes("409") || msg.includes("already exists");
 }
@@ -1268,8 +1313,10 @@ async function installAgentBuilderInner(opts: {
   try {
     const result = await installAgentBuilderForVendor({ kb, apiKey, vendor, addLog, spaceId });
     if (result === "unavailable") {
+      const detected = await detectSpaceSolution(kb, apiKey, spaceId);
       addLog(
-        "  ⚠ Agent Builder API is not available on this deployment (HTTP 404 or blocked). Skipping.",
+        "  ⚠ Agent Builder API is not available on this deployment (HTTP 404 or blocked)." +
+          ` Skipping.${agentBuilderBlockedExplanation(detected)}`,
         "warn"
       );
       return;
@@ -1277,9 +1324,9 @@ async function installAgentBuilderInner(opts: {
   } catch (e) {
     const msg = String(e);
     if (isKibanaApiUnavailable(msg)) {
+      const detected = await detectSpaceSolution(kb, apiKey, spaceId);
       addLog(
-        "  ⚠ Agent Builder API is not available on this deployment. Skipping." +
-          kibanaFeatureBlockedExplanation(msg),
+        `  ⚠ Agent Builder API is not available on this deployment. Skipping.${agentBuilderBlockedExplanation(detected)}`,
         "warn"
       );
       return;
@@ -1291,7 +1338,11 @@ async function installAgentBuilderInner(opts: {
   try {
     const result = await installSecurityAgentBuilder({ kb, apiKey, addLog, spaceId });
     if (result === "unavailable") {
-      addLog("  ⚠ Agent Builder API unavailable for SOC agent. Skipping.", "warn");
+      const detected = await detectSpaceSolution(kb, apiKey, spaceId);
+      addLog(
+        `  ⚠ Agent Builder API unavailable for SOC agent. Skipping.${agentBuilderBlockedExplanation(detected)}`,
+        "warn"
+      );
     } else {
       addLog(
         "  ⚑ To populate the SOC knowledge base index, run: npm run setup:knowledge-base",
