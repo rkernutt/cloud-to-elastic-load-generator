@@ -80,9 +80,6 @@ function generateGcpCostSpikeChain(ts: string, _er: number): EcsDocument[] {
   const upliftPercentage = Math.min(900, Math.round((spikeRatio - 1) * 100));
   const baselineDailySpend = Number(randFloat(20, 150));
   const costAmount = Number((baselineDailySpend * spikeRatio).toFixed(2));
-  const currency = "USD";
-  const usageUnit = "request";
-  const usageAmount = burstCount;
 
   const billingDoc: EcsDocument = {
     "@timestamp": billingTs,
@@ -90,14 +87,18 @@ function generateGcpCostSpikeChain(ts: string, _er: number): EcsDocument[] {
     gcp: {
       billing: {
         billing_account_id: `01${randId(6)}-${randId(4)}-${randId(4)}`,
+        service_id: "29E7-DA93-CA13",
         service_description: "Cloud Functions",
+        sku_id: `${randId(4)}-${randId(4)}-${randId(4)}`.toUpperCase(),
         sku_description: "Invocations",
-        cost_amount: costAmount,
-        currency,
-        usage_amount: usageAmount,
-        usage_unit: usageUnit,
-        credits_amount: 0,
+        total: costAmount,
+        cost_type: "regular",
+        invoice_month: billingTs.slice(0, 7).replace("-", ""),
+        usage_start_time: new Date(burstStartMs).toISOString(),
+        usage_end_time: billingTs,
+        location: { region },
         project_id: project.id,
+        project_name: project.name,
         anomaly: {
           id: `cost-anomaly-${randId(10).toLowerCase()}`,
           uplift_percentage: upliftPercentage,
@@ -120,7 +121,7 @@ function generateGcpCostSpikeChain(ts: string, _er: number): EcsDocument[] {
       provider: "cloudbilling.googleapis.com",
       duration: randInt(100, 5000) * 1e6,
     },
-    message: `Billing cost row: service="Cloud Functions" sku="Invocations" cost=${costAmount.toFixed(2)} ${currency} usage=${usageAmount} ${usageUnit} project=${project.id} — ${upliftPercentage}% above baseline, root cause function=${fn} region=${region}`,
+    message: `Billing cost row: service="Cloud Functions" sku="Invocations" cost=${costAmount.toFixed(2)} USD project=${project.id} — ${upliftPercentage}% above baseline, root cause function=${fn} region=${region}`,
     log: { level: "warn" },
     error: { code: "CostSpike", message: "Unusual cost detected", type: "billing" },
     __dataset: "gcp.billing",

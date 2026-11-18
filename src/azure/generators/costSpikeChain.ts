@@ -43,6 +43,8 @@ import {
   randInt,
   randId,
   randUUID,
+  randIp,
+  randFloat,
   AZURE_REGIONS,
   randSubscription,
   randResourceGroup,
@@ -97,6 +99,7 @@ function generateAzureCostSpikeChain(ts: string, _er: number): EcsDocument[] {
   const exportName = `export-${randId(4).toLowerCase()}`;
   const resourceId = `/subscriptions/${subscription.id}/resourceGroups/${resourceGroup}/providers/Microsoft.CostManagement/exports/${exportName}`;
   const statusCode = 200;
+  const actualCost = Number((Number(randFloat(20, 150)) * spikeRatio).toFixed(2));
 
   const props = {
     serviceName: COST_MANAGEMENT_SERVICE_NAME,
@@ -119,12 +122,21 @@ function generateAzureCostSpikeChain(ts: string, _er: number): EcsDocument[] {
     category: "CostAnomaly",
     resultType: "Success",
     resultSignature: String(statusCode),
-    callerIpAddress: "127.0.0.1",
+    callerIpAddress: randIp(),
     correlationId,
     level: "Warning",
     properties: props,
     cloud: azureCloud(region, subscription, "Microsoft.CostManagement/alerts"),
     azure: {
+      subscription_id: subscription.id,
+      resource: { group: resourceGroup, name: fnApp, type: "Microsoft.Web/sites" },
+      billing: {
+        actual_cost: actualCost,
+        currency: "USD",
+        usage_start: new Date(baseDate.getTime() - burstMinutes * 60_000).toISOString(),
+        usage_end: billingTs,
+        product: COST_MANAGEMENT_SERVICE_NAME,
+      },
       cost_management: {
         export: exportName,
         resource_group: resourceGroup,

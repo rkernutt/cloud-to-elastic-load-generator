@@ -144,7 +144,8 @@ describe("AWS cost spike chain — Lambda burst correlated with billing anomaly"
 
     expect((billingDoc.cloud as Record<string, any>).account.id).toBe(acctId);
     expect((billingDoc.cloud as Record<string, any>).region).toBe(region);
-    expect((billingDoc.aws as Record<string, any>).billing.linked_account_id).toBe(acctId);
+    expect((billingDoc.aws as Record<string, any>).linked_account.id).toBe(acctId);
+    expect((billingDoc.aws as Record<string, any>).billing.UnblendedCost.amount).toBeGreaterThan(0);
 
     const payload = JSON.parse(billingDoc.message as string);
     expect(payload.rootCauses[0].linkedAccount).toBe(acctId);
