@@ -118,7 +118,7 @@ Each install run starts by emitting a one-line plan summary so the activity log 
 
 ```
 ── Install run started 05/05/2026, 14:59:14 ──
-Plan: install AWS integration, APM integration, 224 dashboards, 401 ML jobs, 117 alerting rules.
+Plan: install AWS integration, APM integration, 223 dashboards, 401 ML jobs, 117 alerting rules.
 Skipping (toggles off): alert-enrichment Workflow.
 Installing AWS Integration…
 …
