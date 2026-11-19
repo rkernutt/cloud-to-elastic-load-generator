@@ -1,6 +1,6 @@
 {
   "group": "gcp-compute",
-  "description": "GCP serverless & compute \u2014 Cloud Functions, Cloud Run, Compute Engine, GKE",
+  "description": "GCP serverless & compute — Cloud Functions, Cloud Run, Compute Engine, GKE",
   "jobs": [
     {
       "id": "gcp-cloud-functions-error-spike",
@@ -81,7 +81,7 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.cloud_run.service_name", "cloud.region"]
+          "influencers": ["gcp.cloud-run.labels.service_name", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -254,13 +254,13 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_count partitionfield=gcp.gcs.bucket.name",
+              "detector_description": "high_count partitionfield=gcp.cloud_storage.bucket_name",
               "function": "high_count",
-              "partition_field_name": "gcp.gcs.bucket.name",
+              "partition_field_name": "gcp.cloud_storage.bucket_name",
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.gcs.bucket.name", "cloud.region"]
+          "influencers": ["gcp.cloud_storage.bucket_name", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -323,7 +323,7 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.gcs.bucket.name", "cloud.region"]
+          "influencers": ["gcp.cloud-storage.labels.bucket_name", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -525,7 +525,11 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.cloud_run.revision", "gcp.cloud_run.service_name", "cloud.region"]
+          "influencers": [
+            "gcp.cloud-run.labels.revision_name",
+            "gcp.cloud-run.labels.service_name",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {

@@ -31,7 +31,7 @@
         "GCP Data Exfiltration Chain — overview",
         "GCP Security Command Center — overview"
       ],
-      "investigationGuide": "# Security Command Center (SCC) Exfiltration Finding\n\nSecurity Command Center flagged an exfiltration-class finding — highest-fidelity signal.\n\n## Triage\n1. Identify principal: `FROM logs-gcp.scc-* | WHERE @timestamp > NOW() - 1h AND gcp.scc.finding_class LIKE \"*EXFILTRATION*\" | KEEP @timestamp, gcp.scc.finding_class, gcp.scc.severity, source.ip, destination.ip | SORT @timestamp DESC`\n2. Check if principal still has active sessions\n3. Rotate credentials immediately if confirmed\n\n## Escalate when\n- Always page security on-call for EXFILTRATION-class findings\n- Principal has access to customer-data buckets"
+      "investigationGuide": "# Security Command Center (SCC) Exfiltration Finding\n\nSecurity Command Center flagged an exfiltration-class finding — highest-fidelity signal.\n\n## Triage\n1. Identify principal: `FROM logs-gcp.scc-* | WHERE @timestamp > NOW() - 1h AND gcp.security_command_center.json_payload.finding.findingClass LIKE \"*EXFILTRATION*\" | KEEP @timestamp, gcp.security_command_center.json_payload.finding.findingClass, gcp.security_command_center.severity, source.ip | SORT @timestamp DESC`\n2. Check if principal still has active sessions\n3. Rotate credentials immediately if confirmed\n\n## Escalate when\n- Always page security on-call for EXFILTRATION-class findings\n- Principal has access to customer-data buckets"
     },
     {
       "id": "cloudloadgen-gcp-exfil-high-egress",
@@ -62,7 +62,7 @@
         "GCP Data Exfiltration Chain — overview",
         "GCP VPC Flow — Traffic & Denials"
       ],
-      "investigationGuide": "# VPC Flow High Egress Bytes\n\nA single flow shipped >50 MiB outbound.\n\n## Triage\n1. Top sources: `FROM logs-gcp.vpcflow-* | WHERE @timestamp > NOW() - 1h AND network.direction == \"egress\" AND gcp.vpcflow.bytes > 52428800 | STATS bytes = SUM(gcp.vpcflow.bytes) BY source.ip | SORT bytes DESC | LIMIT 25`\n2. Check destination geo — foreign IPs are higher signal\n3. Cross-reference with Security Command Center (SCC) rule\n\n## Escalate when\n- Same source IP triggering repeatedly\n- Destination on egress-deny list"
+      "investigationGuide": "# VPC Flow High Egress Bytes\n\nA single flow shipped >50 MiB outbound.\n\n## Triage\n1. Top sources: `FROM logs-gcp.vpcflow-* | WHERE @timestamp > NOW() - 1h AND gcp.vpc_flow.direction == \"egress\" AND gcp.vpc_flow.bytes_sent > 52428800 | STATS bytes = SUM(gcp.vpc_flow.bytes_sent) BY source.ip | SORT bytes DESC | LIMIT 25`\n2. Check destination geo — foreign IPs are higher signal\n3. Cross-reference with Security Command Center (SCC) rule\n\n## Escalate when\n- Same source IP triggering repeatedly\n- Destination on egress-deny list"
     },
     {
       "id": "cloudloadgen-gcp-exfil-gcs-suspicious",
@@ -122,7 +122,7 @@
       "actions": [],
       "notify_when": "onActiveAlert",
       "relatedDashboards": ["GCP Data Exfiltration Chain — overview"],
-      "investigationGuide": "# Full Chain Correlation — Data Exfiltration\n\n**Treat as confirmed incident until proven otherwise.** Multiple exfiltration signals co-occurred.\n\n## Triage\n1. Page on-call security lead immediately\n2. Correlate: `FROM logs-gcp.scc-*, logs-gcp.vpcflow-*, logs-gcp.audit-* | WHERE @timestamp > NOW() - 30m | WHERE (event.dataset == \"gcp.scc\" AND gcp.scc.finding_class LIKE \"*EXFILTRATION*\") OR (event.dataset == \"gcp.vpcflow\" AND network.direction == \"egress\" AND gcp.vpcflow.bytes > 52428800) OR (event.dataset == \"gcp.audit\" AND event.action == \"storage.objects.get\" AND gcp.audit.num_response_items > 100) | KEEP @timestamp, event.dataset, user.name, source.ip | SORT @timestamp ASC`\n3. Contain: rotate credentials, block destination IP\n\n## Escalate when\n- **Always.** This is the page-the-CISO bar."
+      "investigationGuide": "# Full Chain Correlation — Data Exfiltration\n\n**Treat as confirmed incident until proven otherwise.** Multiple exfiltration signals co-occurred.\n\n## Triage\n1. Page on-call security lead immediately\n2. Correlate: `FROM logs-gcp.scc-*, logs-gcp.vpcflow-*, logs-gcp.audit-* | WHERE @timestamp > NOW() - 30m | WHERE (event.dataset == \"gcp.scc\" AND gcp.security_command_center.json_payload.finding.findingClass LIKE \"*EXFILTRATION*\") OR (event.dataset == \"gcp.vpcflow\" AND gcp.vpc_flow.direction == \"egress\" AND gcp.vpc_flow.bytes_sent > 52428800) OR (event.dataset == \"gcp.audit\" AND event.action == \"storage.objects.get\" AND gcp.audit.num_response_items > 100) | KEEP @timestamp, event.dataset, user.name, source.ip | SORT @timestamp ASC`\n3. Contain: rotate credentials, block destination IP\n\n## Escalate when\n- **Always.** This is the page-the-CISO bar."
     }
   ]
 }

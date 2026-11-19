@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | WHERE azure.activity_log.operation_name == \"Microsoft.SecurityInsights/incidents/write\" | STATS c = COUNT()"
+            "query": "FROM logs-azure.activitylogs* | WHERE azure.activity_log.operation_name == \"Microsoft.SecurityInsights/incidents/write\" | STATS c = COUNT()"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
         }
@@ -104,7 +104,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.defender*, logs-azure.sentinel*, logs-azure.activity_log* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.defender*, logs-azure.sentinel*, logs-azure.activitylogs* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]

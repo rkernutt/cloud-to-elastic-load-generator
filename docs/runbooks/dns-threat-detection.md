@@ -302,8 +302,8 @@ FROM logs-aws.route53_resolver_logs-*
 FROM logs-aws.route53_resolver_logs-*
 | WHERE @timestamp > NOW() - 7d
 | STATS daily_unique = COUNT_DISTINCT(dns.question.name)
-  BY host.name, BUCKET(@timestamp, 1 day)
-| SORT host.name, `BUCKET(@timestamp, 1 day)` DESC
+  BY host.name, day = BUCKET(@timestamp, 1 day)
+| SORT host.name, day DESC
 ```
 
 ### Likely causes

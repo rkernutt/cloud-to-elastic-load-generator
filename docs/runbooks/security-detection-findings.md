@@ -39,7 +39,7 @@ AWS GuardDuty raised a HIGH or CRITICAL severity finding. GuardDuty's threat int
 ```esql
 FROM logs-aws.guardduty-*
 | WHERE @timestamp > NOW() - 1h AND (event.severity >= 7 OR message LIKE "*HIGH*" OR message LIKE "*CRITICAL*")
-| KEEP @timestamp, event.action, event.severity, source.ip, destination.ip, message
+| KEEP @timestamp, aws.guardduty.type, event.severity, source.ip, destination.ip, message
 | SORT @timestamp DESC
 | LIMIT 25
 ```
@@ -49,7 +49,7 @@ FROM logs-aws.guardduty-*
 ```esql
 FROM logs-aws.guardduty-*
 | WHERE @timestamp > NOW() - 30d
-| STATS count = COUNT(*) BY event.action
+| STATS count = COUNT(*) BY aws.guardduty.type
 | SORT count DESC
 | LIMIT 20
 ```
@@ -84,7 +84,7 @@ GuardDuty detected cryptocurrency mining activity on your infrastructure — typ
 
 ### Five-minute triage
 
-1. **Identify the instance.** Check `aws.guardduty.resource.instance_details.instance_id`.
+1. **Identify the instance.** Check `aws.guardduty.resource.instanceDetails.instanceId`.
 2. **Check the instance role.** If the instance has a privileged IAM role, the attacker may have pivoted to other services.
 3. **Is the instance internet-facing?** Check security groups and public IP assignment.
 
@@ -96,7 +96,7 @@ GuardDuty detected cryptocurrency mining activity on your infrastructure — typ
 FROM logs-aws.guardduty-*
 | WHERE @timestamp > NOW() - 1h
 | WHERE message LIKE "*CryptoCurrency*" OR message LIKE "*BitcoinTool*" OR message LIKE "*crypto*"
-| KEEP @timestamp, event.action, source.ip, destination.ip, message
+| KEEP @timestamp, aws.guardduty.type, source.ip, destination.ip, message
 | SORT @timestamp DESC
 ```
 
@@ -147,9 +147,9 @@ AWS Security Hub found one or more compliance checks in FAILED status — securi
 #### Failed compliance checks
 
 ```esql
-FROM logs-aws.securityhub-*
+FROM logs-aws.securityhub_findings-*
 | WHERE @timestamp > NOW() - 1h AND event.outcome == "failure"
-| KEEP @timestamp, message, event.action
+| KEEP @timestamp, message, aws.securityhub_findings.Title
 | SORT @timestamp DESC
 | LIMIT 25
 ```

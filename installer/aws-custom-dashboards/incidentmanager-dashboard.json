@@ -20,7 +20,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.incidentmanager* | STATS `Total Events` = COUNT()"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"incident-manager\" | STATS `Total Events` = COUNT()"
           },
           "metrics": [
             {
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.incidentmanager* | WHERE log.level == \"error\" | STATS `Errors` = COUNT()"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"incident-manager\" | WHERE log.level == \"error\" | STATS `Errors` = COUNT()"
           },
           "metrics": [
             {
@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.incidentmanager* | STATS `Unique Response Plans` = COUNT_DISTINCT(`aws.incidentmanager.response_plan`)"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"incident-manager\" | STATS `Unique Response Plans` = COUNT_DISTINCT(`aws.incident_manager.response_plan`)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.incidentmanager* | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"incident-manager\" | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
           },
           "dimensions": [
             {
@@ -134,7 +134,7 @@
           "type": "bar_stacked",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.incidentmanager* | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"incident-manager\" | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
           },
           "xAxis": {
             "column": "bucket",

@@ -39,7 +39,7 @@ GuardDuty has classified an event as data exfiltration. This is the highest-fide
 FROM logs-aws.guardduty-*
 | WHERE @timestamp > NOW() - 1h
 | WHERE message LIKE "*Exfiltration*" OR message LIKE "*exfil*"
-| KEEP @timestamp, event.action, event.severity, source.ip, destination.ip, message
+| KEEP @timestamp, aws.guardduty.type, event.severity, source.ip, destination.ip, message
 | SORT @timestamp DESC
 ```
 

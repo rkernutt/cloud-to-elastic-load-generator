@@ -1,6 +1,6 @@
 {
   "group": "gcp-databases",
-  "description": "GCP databases \u2014 Cloud SQL, Spanner, Firestore",
+  "description": "GCP databases — Cloud SQL, Spanner, Firestore",
   "jobs": [
     {
       "id": "gcp-cloud-sql-slow-query-spike",
@@ -18,7 +18,7 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.cloud_sql.instance_name", "cloud.region"]
+          "influencers": ["gcp.cloud-sql.labels.database_id", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -76,7 +76,7 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.cloud_sql.instance_name", "cloud.region"]
+          "influencers": ["gcp.cloud-sql.labels.database_id", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -191,13 +191,13 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(gcp.bigquery.metrics.bigquery.googleapis.com/query/total_slot_ms.avg)",
+              "detector_description": "high_mean(gcp.bigquery.metrics.bigquery.googleapis.com/slots/allocated.avg)",
               "function": "high_mean",
-              "field_name": "gcp.bigquery.metrics.bigquery.googleapis.com/query/total_slot_ms.avg",
+              "field_name": "gcp.bigquery.metrics.bigquery.googleapis.com/slots/allocated.avg",
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.bigquery.dataset", "gcp.bigquery.job_id", "cloud.region"]
+          "influencers": ["gcp.bigquery.labels.dataset_id", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -224,7 +224,7 @@
               },
               {
                 "exists": {
-                  "field": "gcp.bigquery.metrics.bigquery.googleapis.com/query/total_slot_ms.avg"
+                  "field": "gcp.bigquery.metrics.bigquery.googleapis.com/slots/allocated.avg"
                 }
               }
             ]

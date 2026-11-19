@@ -83,90 +83,6 @@
       }
     },
     {
-      "id": "azure-entra-id-rare-sign-in-location",
-      "description": "Detects Entra ID sign-ins from unusual countries or regions",
-      "job": {
-        "description": "Detects rare sign-in location (country/region) values in Entra SignInLogs",
-        "groups": ["azure", "identity", "cloudloadgen"],
-        "analysis_config": {
-          "bucket_span": "60m",
-          "detectors": [
-            {
-              "detector_description": "rare by=azure.entra_id.properties.location.countryOrRegion",
-              "function": "rare",
-              "by_field_name": "azure.entra_id.properties.location.countryOrRegion",
-              "detector_index": 0
-            }
-          ],
-          "influencers": [
-            "azure.entra_id.properties.location.countryOrRegion",
-            "azure.entra_id.user",
-            "azure.entra_id.ip_address"
-          ]
-        },
-        "allow_lazy_open": true,
-        "analysis_limits": {
-          "model_memory_limit": "32mb"
-        },
-        "data_description": {
-          "time_field": "@timestamp"
-        },
-        "custom_settings": {
-          "created_by": "azure-elastic-load-generator",
-          "tags": ["cloudloadgen"]
-        }
-      },
-      "datafeed": {
-        "indices": ["logs-azure.*"],
-        "max_empty_searches": 10,
-        "query": {
-          "bool": {
-            "filter": [
-              {
-                "term": {
-                  "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "event.dataset": "azure.entra_id"
-                }
-              },
-              {
-                "bool": {
-                  "should": [
-                    {
-                      "term": {
-                        "azure.entra_id.category": "SignInLogs"
-                      }
-                    },
-                    {
-                      "term": {
-                        "azure.entra_id.category": "SignIn"
-                      }
-                    }
-                  ],
-                  "minimum_should_match": 1
-                }
-              },
-              {
-                "exists": {
-                  "field": "azure.entra_id.properties.location.countryOrRegion"
-                }
-              }
-            ]
-          }
-        },
-        "chunking_config": {
-          "mode": "auto"
-        },
-        "query_delay": "120s",
-        "delayed_data_check_config": {
-          "enabled": true
-        }
-      }
-    },
-    {
       "id": "azure-m365-rare-operation",
       "description": "Detects rare Microsoft 365 audit record types (unexpected or high-risk operations)",
       "job": {
@@ -201,7 +117,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["logs-microsoft_365.audit*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -209,11 +125,6 @@
               {
                 "term": {
                   "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "event.dataset": "azure.microsoft_365"
                 }
               },
               {
@@ -268,7 +179,7 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-azure.*"],
+        "indices": ["logs-microsoft_365.audit*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
@@ -276,11 +187,6 @@
               {
                 "term": {
                   "cloud.provider": "azure"
-                }
-              },
-              {
-                "term": {
-                  "event.dataset": "azure.microsoft_365"
                 }
               },
               {
@@ -444,14 +350,14 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_count partitionfield=azure.monitor.resource_name",
+              "detector_description": "high_count partitionfield=azure.monitor.resource_id",
               "function": "high_count",
-              "partition_field_name": "azure.monitor.resource_name",
+              "partition_field_name": "azure.monitor.resource_id",
               "detector_index": 0
             }
           ],
           "influencers": [
-            "azure.monitor.resource_name",
+            "azure.monitor.resource_id",
             "azure.monitor.resource_group",
             "cloud.region"
           ]
@@ -506,14 +412,14 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_count partitionfield=azure.spring_apps.resource_name",
+              "detector_description": "high_count partitionfield=azure.spring_apps.app_name",
               "function": "high_count",
-              "partition_field_name": "azure.spring_apps.resource_name",
+              "partition_field_name": "azure.spring_apps.app_name",
               "detector_index": 0
             }
           ],
           "influencers": [
-            "azure.spring_apps.resource_name",
+            "azure.spring_apps.app_name",
             "azure.spring_apps.resource_group",
             "cloud.region"
           ]

@@ -1,6 +1,6 @@
 # Installer 4 — ML Anomaly Detection Jobs
 
-Interactive CLI that installs **Elasticsearch ML anomaly detection jobs** for AWS services across multiple service groups (**401** jobs across **33** groups for AWS alone; **778** total across AWS, GCP, and Azure). Jobs are created via the Elasticsearch ML API directly — no Kibana required.
+Interactive CLI that installs **Elasticsearch ML anomaly detection jobs** for AWS services across multiple service groups (**401** jobs across **33** groups for AWS alone; **777** total across AWS, GCP, and Azure). Jobs are created via the Elasticsearch ML API directly — no Kibana required.
 
 ---
 

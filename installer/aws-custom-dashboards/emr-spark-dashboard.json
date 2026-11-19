@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.emr_logs* | WHERE spark.stage.duration_s IS NOT NULL | STATS avg_dur = AVG(spark.stage.duration_s) | EVAL `Avg Stage (s)` = ROUND(avg_dur, 1)"
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.stage.duration_ms IS NOT NULL | STATS avg_dur = AVG(spark.stage.duration_ms) / 1000 | EVAL `Avg Stage (s)` = ROUND(avg_dur, 1)"
           },
           "metrics": [
             {
@@ -133,7 +133,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.emr_logs* | WHERE spark.component_short IS NOT NULL | STATS count = COUNT() BY spark.component_short"
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.component IS NOT NULL | STATS count = COUNT() BY spark.component"
           },
           "metrics": [
             {
@@ -228,7 +228,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr_logs* | WHERE spark.stage.duration_s IS NOT NULL | STATS avg_dur = AVG(spark.stage.duration_s) BY ts = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT ts"
+                "query": "FROM logs-aws.emr_logs* | WHERE spark.stage.duration_ms IS NOT NULL | STATS avg_dur = AVG(spark.stage.duration_ms) / 1000 BY ts = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT ts"
               },
               "x": {
                 "operation": "value",
@@ -387,7 +387,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.emr_logs* | WHERE spark.gc.time_ms IS NOT NULL | STATS avg_gc = AVG(spark.gc.time_ms) BY ts = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT ts"
+                "query": "FROM logs-aws.emr_logs* | WHERE spark.gc.major_time_ms IS NOT NULL | STATS avg_gc = AVG(spark.gc.major_time_ms + spark.gc.minor_time_ms) BY ts = BUCKET(`@timestamp`, 50, ?_tstart, ?_tend) | SORT ts"
               },
               "x": {
                 "operation": "value",
@@ -420,7 +420,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.emr_logs* | WHERE spark.component IS NOT NULL | SORT `@timestamp` DESC | KEEP `@timestamp`, log.level, spark.component_short, spark.log_message | LIMIT 50"
+            "query": "FROM logs-aws.emr_logs* | WHERE spark.component IS NOT NULL | SORT `@timestamp` DESC | KEEP `@timestamp`, log.level, spark.component, message | LIMIT 50"
           },
           "metrics": [
             {

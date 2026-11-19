@@ -90,7 +90,7 @@
       "actions": [],
       "notify_when": "onActiveAlert",
       "relatedDashboards": ["GCP Data & Analytics Pipeline — overview", "GCP Dataproc — overview"],
-      "investigationGuide": "# Dataproc/Spark Processing Error\n\nThe compute cluster is logging exceptions.\n\n## Triage\n1. Classify errors: `FROM logs-gcp.dataproc-* | WHERE @timestamp > NOW() - 1h AND error.type IS NOT NULL | STATS errors = COUNT(*) BY error.type, host.id | SORT errors DESC | LIMIT 20`\n2. Same host failing = infra; many hosts same error = code/data\n3. Check if High Failure Rate also fired\n\n## Escalate when\n- Multiple clusters affected\n- Same error after cluster restart"
+      "investigationGuide": "# Dataproc/Spark Processing Error\n\nThe compute cluster is logging exceptions.\n\n## Triage\n1. Classify errors: `FROM logs-gcp.dataproc-* | WHERE @timestamp > NOW() - 1h AND error.type IS NOT NULL | STATS errors = COUNT(*) BY error.type, gcp.dataproc.cluster_name | SORT errors DESC | LIMIT 20`\n2. Same host failing = infra; many hosts same error = code/data\n3. Check if High Failure Rate also fired\n\n## Escalate when\n- Multiple clusters affected\n- Same error after cluster restart"
     },
     {
       "id": "cloudloadgen-gcp-data-pipeline-gcs-format-error",
@@ -121,7 +121,7 @@
         "GCP Data & Analytics Pipeline — overview",
         "GCP Cloud Storage — overview"
       ],
-      "investigationGuide": "# GCS Source File Format Error\n\nAn unexpected file format landed in the source bucket.\n\n## Triage\n1. List bad files: `FROM logs-gcp.gcs-* | WHERE @timestamp > NOW() - 1h | WHERE NOT ENDS_WITH(gcp.gcs.object_name, \".avro\") OR gcp.gcs.object_name LIKE \"*%*\" | KEEP @timestamp, gcp.gcs.object_name, gcp.gcs.bucket_name | SORT @timestamp DESC | LIMIT 50`\n2. Check if one producer or many\n3. Move bad file to quarantine prefix\n\n## Escalate when\n- Multiple producers writing wrong format\n- Bucket versioning overwritten"
+      "investigationGuide": "# GCS Source File Format Error\n\nAn unexpected file format landed in the source bucket.\n\n## Triage\n1. List bad files: `FROM logs-gcp.gcs-* | WHERE @timestamp > NOW() - 1h | WHERE NOT ENDS_WITH(gcp.cloud_storage.object_name, \".avro\") OR gcp.cloud_storage.object_name LIKE \"*%*\" | KEEP @timestamp, gcp.cloud_storage.object_name, gcp.cloud_storage.bucket_name | SORT @timestamp DESC | LIMIT 50`\n2. Check if one producer or many\n3. Move bad file to quarantine prefix\n\n## Escalate when\n- Multiple producers writing wrong format\n- Bucket versioning overwritten"
     },
     {
       "id": "cloudloadgen-gcp-data-pipeline-slow-run",

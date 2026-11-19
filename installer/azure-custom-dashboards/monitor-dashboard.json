@@ -1,11 +1,19 @@
 {
   "title": "Azure Monitor — Alerts & Diagnostics",
-  "time_range": { "from": "now-24h", "to": "now" },
+  "time_range": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "lens",
       "uid": "azmon-k1",
-      "grid": { "x": 0, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -14,14 +22,25 @@
             "type": "esql",
             "query": "FROM logs-azure.monitor* | STATS Events = COUNT()"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Events"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azmon-k2",
-      "grid": { "x": 12, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -30,46 +49,79 @@
             "type": "esql",
             "query": "FROM logs-azure.monitor* | EVAL f = CASE(event.outcome == \"failure\", 1, 0) | STATS m = AVG(f) | EVAL `Failure %` = ROUND(m * 100, 1)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Failure %"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azmon-k3",
-      "grid": { "x": 24, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.monitor* | STATS `Resources` = COUNT_DISTINCT(`azure.monitor.resource_name`)"
+            "query": "FROM logs-azure.monitor* | STATS `Resources` = COUNT_DISTINCT(`azure.monitor.resource_id`)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Distinct resources" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Distinct resources"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azmon-k4",
-      "grid": { "x": 36, "y": 0, "w": 12, "h": 5 },
+      "grid": {
+        "x": 36,
+        "y": 0,
+        "w": 12,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.monitor* | STATS `Avg ms` = ROUND(AVG(`azure.monitor.duration_ms`), 0)"
+            "query": "FROM logs-azure.monitor* | STATS `Avg ms` = ROUND(AVG(event.duration) / 1000000, 0)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Avg duration (ms)" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Avg duration (ms)"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azmon-d1",
-      "grid": { "x": 0, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Category",
         "attributes": {
@@ -78,32 +130,62 @@
             "type": "esql",
             "query": "FROM logs-azure.monitor* | STATS c = COUNT() BY cat = `azure.monitor.category` | SORT c DESC | LIMIT 10"
           },
-          "metrics": [{ "operation": "value", "column": "c" }],
-          "group_by": [{ "operation": "value", "column": "cat" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "cat"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azmon-d2",
-      "grid": { "x": 16, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 16,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Result",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.monitor* | STATS c = COUNT() BY r = `azure.monitor.status` | SORT c DESC"
+            "query": "FROM logs-azure.monitor* | STATS c = COUNT() BY r = resultType | SORT c DESC"
           },
-          "metrics": [{ "operation": "value", "column": "c" }],
-          "group_by": [{ "operation": "value", "column": "r" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "r"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azmon-d3",
-      "grid": { "x": 32, "y": 5, "w": 16, "h": 10 },
+      "grid": {
+        "x": 32,
+        "y": 5,
+        "w": 16,
+        "h": 10
+      },
       "config": {
         "title": "Outcome",
         "attributes": {
@@ -112,22 +194,45 @@
             "type": "esql",
             "query": "FROM logs-azure.monitor* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
-          "metrics": [{ "operation": "value", "column": "c" }],
-          "group_by": [{ "operation": "value", "column": "o" }]
+          "metrics": [
+            {
+              "operation": "value",
+              "column": "c"
+            }
+          ],
+          "group_by": [
+            {
+              "operation": "value",
+              "column": "o"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azmon-l1",
-      "grid": { "x": 0, "y": 15, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 15,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Events over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -136,8 +241,17 @@
                 "type": "esql",
                 "query": "FROM logs-azure.monitor* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": { "operation": "value", "column": "b" },
-              "y": [{ "operation": "value", "column": "c", "label": "Events" }]
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Events"
+                }
+              ]
             }
           ]
         }
@@ -146,26 +260,50 @@
     {
       "type": "lens",
       "uid": "azmon-l2",
-      "grid": { "x": 0, "y": 25, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
       "config": {
-        "title": "HTTP status mix",
+        "title": "Success vs failure over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.monitor* | STATS s2 = SUM(CASE(`azure.monitor.http_status` >= 200 AND `azure.monitor.http_status` < 300, 1, 0)), s4 = SUM(CASE(`azure.monitor.http_status` >= 400, 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.monitor* | STATS s2 = SUM(CASE(event.outcome == \"success\", 1, 0)), s4 = SUM(CASE(event.outcome == \"failure\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": { "operation": "value", "column": "b" },
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
               "y": [
-                { "operation": "value", "column": "s2", "label": "2xx" },
-                { "operation": "value", "column": "s4", "label": "4xx+" }
+                {
+                  "operation": "value",
+                  "column": "s2",
+                  "label": "Success"
+                },
+                {
+                  "operation": "value",
+                  "column": "s4",
+                  "label": "Failure"
+                }
               ]
             }
           ]
@@ -175,14 +313,27 @@
     {
       "type": "lens",
       "uid": "azmon-l3",
-      "grid": { "x": 24, "y": 25, "w": 24, "h": 10 },
+      "grid": {
+        "x": 24,
+        "y": 25,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Alert category",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -191,8 +342,17 @@
                 "type": "esql",
                 "query": "FROM logs-azure.monitor* | STATS d = SUM(CASE(category == \"Alert\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": { "operation": "value", "column": "b" },
-              "y": [{ "operation": "value", "column": "d", "label": "Alerts" }]
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "d",
+                  "label": "Alerts"
+                }
+              ]
             }
           ]
         }
@@ -201,14 +361,27 @@
     {
       "type": "lens",
       "uid": "azmon-b1",
-      "grid": { "x": 0, "y": 35, "w": 24, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 10
+      },
       "config": {
         "title": "Top operations",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -217,8 +390,17 @@
                 "type": "esql",
                 "query": "FROM logs-azure.monitor* | STATS c = COUNT() BY op = operationName | SORT c DESC | LIMIT 10"
               },
-              "x": { "operation": "value", "column": "op" },
-              "y": [{ "operation": "value", "column": "c", "label": "Count" }]
+              "x": {
+                "operation": "value",
+                "column": "op"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "c",
+                  "label": "Count"
+                }
+              ]
             }
           ]
         }
@@ -227,23 +409,51 @@
     {
       "type": "lens",
       "uid": "azmon-t1",
-      "grid": { "x": 0, "y": 45, "w": 48, "h": 12 },
+      "grid": {
+        "x": 0,
+        "y": 45,
+        "w": 48,
+        "h": 12
+      },
       "config": {
         "title": "Recent",
         "attributes": {
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.monitor* | KEEP `@timestamp`, operationName, `azure.monitor.category`, `azure.monitor.status`, `azure.monitor.http_status`, `azure.monitor.duration_ms`, correlationId | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.monitor* | KEEP `@timestamp`, operationName, `azure.monitor.category`, resultType, event.duration, correlationId | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
-            { "operation": "value", "column": "`@timestamp`", "label": "Time" },
-            { "operation": "value", "column": "operationName", "label": "Operation" },
-            { "operation": "value", "column": "azure.monitor.category", "label": "Category" },
-            { "operation": "value", "column": "azure.monitor.status", "label": "Status" },
-            { "operation": "value", "column": "azure.monitor.http_status", "label": "HTTP" },
-            { "operation": "value", "column": "azure.monitor.duration_ms", "label": "Ms" },
-            { "operation": "value", "column": "correlationId", "label": "Correlation" }
+            {
+              "operation": "value",
+              "column": "`@timestamp`",
+              "label": "Time"
+            },
+            {
+              "operation": "value",
+              "column": "operationName",
+              "label": "Operation"
+            },
+            {
+              "operation": "value",
+              "column": "azure.monitor.category",
+              "label": "Category"
+            },
+            {
+              "operation": "value",
+              "column": "resultType",
+              "label": "Result"
+            },
+            {
+              "operation": "value",
+              "column": "event.duration",
+              "label": "Duration (ns)"
+            },
+            {
+              "operation": "value",
+              "column": "correlationId",
+              "label": "Correlation"
+            }
           ],
           "rows": []
         }
@@ -252,7 +462,12 @@
     {
       "type": "lens",
       "uid": "azure-mx-k1-monitor",
-      "grid": { "x": 0, "y": 58, "w": 24, "h": 5 },
+      "grid": {
+        "x": 0,
+        "y": 58,
+        "w": 24,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -261,14 +476,25 @@
             "type": "esql",
             "query": "FROM metrics-azure.monitor_metrics* | STATS `Metric Trace Count` = ROUND(AVG(`azure.monitor.metrics.TraceCount.avg`), 2)"
           },
-          "metrics": [{ "type": "primary", "operation": "value", "column": "Metric Trace Count" }]
+          "metrics": [
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Trace Count"
+            }
+          ]
         }
       }
     },
     {
       "type": "lens",
       "uid": "azure-mx-k2-monitor",
-      "grid": { "x": 24, "y": 58, "w": 24, "h": 5 },
+      "grid": {
+        "x": 24,
+        "y": 58,
+        "w": 24,
+        "h": 5
+      },
       "config": {
         "title": "",
         "attributes": {
@@ -278,7 +504,11 @@
             "query": "FROM metrics-azure.monitor_metrics* | STATS `Metric Exception Count` = ROUND(AVG(`azure.monitor.metrics.ExceptionCount.avg`), 2)"
           },
           "metrics": [
-            { "type": "primary", "operation": "value", "column": "Metric Exception Count" }
+            {
+              "type": "primary",
+              "operation": "value",
+              "column": "Metric Exception Count"
+            }
           ]
         }
       }
@@ -286,14 +516,27 @@
     {
       "type": "lens",
       "uid": "azure-mx-ts-monitor",
-      "grid": { "x": 0, "y": 63, "w": 48, "h": 10 },
+      "grid": {
+        "x": 0,
+        "y": 63,
+        "w": 48,
+        "h": 10
+      },
       "config": {
         "title": "Trace Count over time",
         "attributes": {
           "type": "xy",
           "axis": {
-            "x": { "title": { "visible": false } },
-            "left": { "title": { "visible": false } }
+            "x": {
+              "title": {
+                "visible": false
+              }
+            },
+            "left": {
+              "title": {
+                "visible": false
+              }
+            }
           },
           "layers": [
             {
@@ -302,8 +545,17 @@
                 "type": "esql",
                 "query": "FROM metrics-azure.monitor_metrics* | STATS m = AVG(`azure.monitor.metrics.TraceCount.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
-              "x": { "operation": "value", "column": "b" },
-              "y": [{ "operation": "value", "column": "m", "label": "Trace Count" }]
+              "x": {
+                "operation": "value",
+                "column": "b"
+              },
+              "y": [
+                {
+                  "operation": "value",
+                  "column": "m",
+                  "label": "Trace Count"
+                }
+              ]
             }
           ]
         }

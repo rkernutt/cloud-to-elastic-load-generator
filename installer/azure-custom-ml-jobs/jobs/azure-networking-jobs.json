@@ -1,6 +1,6 @@
 {
   "group": "azure-networking",
-  "description": "Azure networking \u2014 Firewall, Application Gateway",
+  "description": "Azure networking — Firewall, Application Gateway",
   "jobs": [
     {
       "id": "azure-firewall-deny-spike",
@@ -75,9 +75,9 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_mean(azure.application_gateway.metrics.TotalLatency.avg)",
+              "detector_description": "high_mean(azure.application_gateway.latency_ms)",
               "function": "high_mean",
-              "field_name": "azure.application_gateway.metrics.TotalLatency.avg",
+              "field_name": "azure.application_gateway.latency_ms",
               "detector_index": 0
             }
           ],
@@ -96,19 +96,14 @@
         }
       },
       "datafeed": {
-        "indices": ["metrics-azure.application_gateway_metrics*"],
+        "indices": ["logs-azure.application_gateway*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
-                "term": {
-                  "event.dataset": "azure.application_gateway_metrics"
-                }
-              },
-              {
                 "exists": {
-                  "field": "azure.application_gateway.metrics.TotalLatency.avg"
+                  "field": "azure.application_gateway.latency_ms"
                 }
               }
             ]
@@ -275,8 +270,8 @@
             }
           ],
           "influencers": [
-            "azure.front_door.profile_name",
-            "azure.front_door.endpoint",
+            "azure.dimensions.ProfileName",
+            "azure.dimensions.EndpointName",
             "cloud.region"
           ]
         },

@@ -12,7 +12,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS `Avg latency (ms)` = ROUND(AVG(`gcp.alloy_db.query_duration_ms`), 1)"
+            "query": "FROM logs-gcp.alloy_db* | STATS `Avg latency (ms)` = ROUND(AVG(`gcp.alloy_db.query_duration_ms`), 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Avg latency (ms)" }]
         }
@@ -28,7 +28,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS `Avg connections` = ROUND(AVG(`gcp.alloy_db.connection_count`), 0)"
+            "query": "FROM logs-gcp.alloy_db* | STATS `Avg connections` = ROUND(AVG(`gcp.alloy_db.connection_count`), 0)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Avg connections" }]
         }
@@ -44,7 +44,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS `Avg CPU %` = ROUND(AVG(`gcp.alloy_db.cpu_utilization`) * 100, 1)"
+            "query": "FROM logs-gcp.alloy_db* | STATS `Avg CPU %` = ROUND(AVG(`gcp.alloy_db.cpu_utilization`) * 100, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Avg CPU %" }]
         }
@@ -60,7 +60,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
+            "query": "FROM logs-gcp.alloy_db* | EVAL is_err = CASE(event.outcome == \"failure\", 1, 0) | STATS e = AVG(is_err) | EVAL `Error %` = ROUND(e * 100, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Error %" }]
         }
@@ -76,7 +76,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY qt = `gcp.alloy_db.query_type` | SORT c DESC"
+            "query": "FROM logs-gcp.alloy_db* | STATS c = COUNT() BY qt = `gcp.alloy_db.query_type` | SORT c DESC"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "qt" }]
@@ -93,7 +93,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY cl = `gcp.alloy_db.cluster_name` | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-gcp.alloy_db* | STATS c = COUNT() BY cl = `gcp.alloy_db.cluster_name` | SORT c DESC | LIMIT 10"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "cl" }]
@@ -110,7 +110,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
+            "query": "FROM logs-gcp.alloy_db* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "o" }]
@@ -134,7 +134,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.alloydb* | STATS lat = AVG(`gcp.alloy_db.query_duration_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.alloy_db* | STATS lat = AVG(`gcp.alloy_db.query_duration_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "lat", "label": "Latency ms" }]
@@ -160,7 +160,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.alloydb* | STATS conn = AVG(`gcp.alloy_db.connection_count`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-gcp.alloy_db* | STATS conn = AVG(`gcp.alloy_db.connection_count`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "conn", "label": "Connections" }]
@@ -186,7 +186,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-gcp.alloydb* | STATS mem = ROUND(AVG(`gcp.alloy_db.memory_utilization`) * 100, 1) BY cl = `gcp.alloy_db.cluster_name` | SORT mem DESC | LIMIT 10"
+                "query": "FROM logs-gcp.alloy_db* | STATS mem = ROUND(AVG(`gcp.alloy_db.memory_utilization`) * 100, 1) BY cl = `gcp.alloy_db.cluster_name` | SORT mem DESC | LIMIT 10"
               },
               "x": { "operation": "value", "column": "cl" },
               "y": [{ "operation": "value", "column": "mem", "label": "Memory %" }]
@@ -205,7 +205,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-gcp.alloydb* | KEEP `@timestamp`, `gcp.alloy_db.cluster_name`, `gcp.alloy_db.instance_name`, `gcp.alloy_db.query_type`, `gcp.alloy_db.query_duration_ms`, `gcp.alloy_db.connection_count`, `gcp.alloy_db.rows_returned`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-gcp.alloy_db* | KEEP `@timestamp`, `gcp.alloy_db.cluster_name`, `gcp.alloy_db.instance_name`, `gcp.alloy_db.query_type`, `gcp.alloy_db.query_duration_ms`, `gcp.alloy_db.connection_count`, `gcp.alloy_db.rows_returned`, event.outcome | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             { "operation": "value", "column": "`@timestamp`", "label": "Time" },

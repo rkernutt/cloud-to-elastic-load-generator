@@ -186,7 +186,7 @@ export function getSecurityTools(): AgentToolDef[] {
       description:
         "Lists GuardDuty findings with severity, finding type, and affected resources. Filters by severity level.",
       configuration: {
-        query: `FROM logs-aws.guardduty* | WHERE @timestamp >= NOW() - ?hours::integer * 1h | STATS count = COUNT(*) BY event.action, event.severity, source.ip | SORT event.severity DESC, count DESC | LIMIT 20`,
+        query: `FROM logs-aws.guardduty* | WHERE @timestamp >= NOW() - ?hours::integer * 1h | STATS count = COUNT(*) BY aws.guardduty.type, event.severity, source.ip | SORT event.severity DESC, count DESC | LIMIT 20`,
         params: {
           hours: { type: "integer", description: "Look-back window in hours" },
         },

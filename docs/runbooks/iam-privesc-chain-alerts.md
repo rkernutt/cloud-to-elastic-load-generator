@@ -36,9 +36,8 @@ A non-admin principal minted a new programmatic access key. By itself this is a 
 ```esql
 FROM logs-aws.cloudtrail-*
 | WHERE @timestamp > NOW() - 1h AND event.action == "CreateAccessKey"
-| KEEP @timestamp, user.name AS caller,
-       aws.cloudtrail.request_parameters AS target_params,
-       source.ip, user_agent.original
+| RENAME user.name AS caller, aws.cloudtrail.request_parameters AS target_params
+| KEEP @timestamp, caller, target_params, source.ip, user_agent.original
 | SORT @timestamp DESC
 ```
 
@@ -100,9 +99,8 @@ A non-admin principal attached the `AdministratorAccess` policy to a user. This 
 FROM logs-aws.cloudtrail-*
 | WHERE @timestamp > NOW() - 1h
 | WHERE event.action == "AttachUserPolicy" AND aws.cloudtrail.request_parameters LIKE "*AdministratorAccess*"
-| KEEP @timestamp, user.name AS caller,
-       aws.cloudtrail.request_parameters AS attach_request,
-       source.ip, user_agent.original
+| RENAME user.name AS caller, aws.cloudtrail.request_parameters AS attach_request
+| KEEP @timestamp, caller, attach_request, source.ip, user_agent.original
 | SORT @timestamp DESC
 ```
 
@@ -160,9 +158,8 @@ A role-assumption was tagged by an upstream classifier as part of a privilege-es
 FROM logs-aws.cloudtrail-*
 | WHERE @timestamp > NOW() - 1h
 | WHERE event.action == "AssumeRole" AND threat.tactic.name IS NOT NULL
-| KEEP @timestamp, user.name AS caller,
-       aws.cloudtrail.request_parameters AS role_arn,
-       threat.tactic.name, threat.technique.id, source.ip
+| RENAME user.name AS caller, aws.cloudtrail.request_parameters AS role_arn
+| KEEP @timestamp, caller, role_arn, threat.tactic.name, threat.technique.id, source.ip
 | SORT @timestamp DESC
 ```
 

@@ -31,7 +31,7 @@
         "Azure Data Exfiltration Chain — overview",
         "Azure Defender For Cloud — overview"
       ],
-      "investigationGuide": "# Microsoft Defender Exfiltration Finding\n\nThe cloud threat detector flagged an exfiltration action — highest-fidelity signal.\n\n## Triage\n1. Identify principal: `FROM logs-azure.defender-* | WHERE @timestamp > NOW() - 1h AND azure.defender.alert_type LIKE \"*Exfiltration*\" | KEEP @timestamp, azure.defender.alert_type, azure.defender.severity, source.ip, destination.ip | SORT @timestamp DESC`\n2. Check if principal still has active sessions\n3. Rotate credentials immediately if confirmed\n\n## Escalate when\n- Always page security on-call for Exfiltration findings\n- Principal has access to customer-data storage"
+      "investigationGuide": "# Microsoft Defender Exfiltration Finding\n\nThe cloud threat detector flagged an exfiltration action — highest-fidelity signal.\n\n## Triage\n1. Identify principal: `FROM logs-azure.defender-* | WHERE @timestamp > NOW() - 1h AND azure.defender.alert_type LIKE \"*Exfiltration*\" | KEEP @timestamp, azure.defender.alert_type, azure.defender.severity, source.ip | SORT @timestamp DESC`\n2. Check if principal still has active sessions\n3. Rotate credentials immediately if confirmed\n\n## Escalate when\n- Always page security on-call for Exfiltration findings\n- Principal has access to customer-data storage"
     },
     {
       "id": "cloudloadgen-azure-exfil-high-blob-egress",
@@ -62,7 +62,7 @@
         "Azure Data Exfiltration Chain — overview",
         "Azure Blob Storage — overview"
       ],
-      "investigationGuide": "# Blob Read With High Result Count\n\nA principal performed many blob read operations programmatically.\n\n## Triage\n1. Identify who and what: `FROM logs-azure.activitylogs-* | WHERE @timestamp > NOW() - 1h AND event.action == \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\" AND azure.activitylogs.result_count > 100 | KEEP @timestamp, user.name, source.ip, user_agent.original, azure.activitylogs.resource_id | SORT azure.activitylogs.result_count DESC`\n2. Is the container sensitive (PII, secrets, backups)?\n3. Console or programmatic? Check user_agent\n\n## Escalate when\n- Container holds customer data or secrets\n- Principal is a service account reading at unusual volume"
+      "investigationGuide": "# Blob Read With High Result Count\n\nA principal performed many blob read operations programmatically.\n\n## Triage\n1. Identify who and what: `FROM logs-azure.activitylogs-* | WHERE @timestamp > NOW() - 1h AND event.action == \"Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read\" | STATS reads = COUNT(*) BY user.name, source.ip, azure.activity_log.resource_id | WHERE reads > 100 | SORT reads DESC`\n2. Is the container sensitive (PII, secrets, backups)?\n3. Console or programmatic? Check user_agent\n\n## Escalate when\n- Container holds customer data or secrets\n- Principal is a service account reading at unusual volume"
     },
     {
       "id": "cloudloadgen-azure-exfil-nsg-outbound",
@@ -93,7 +93,7 @@
         "Azure Data Exfiltration Chain — overview",
         "Azure Network Security Groups — overview"
       ],
-      "investigationGuide": "# NSG Flow Logs High Egress Bytes\n\nA single flow shipped >50 MiB outbound.\n\n## Triage\n1. Top sources: `FROM logs-azure.nsgflowlogs-* | WHERE @timestamp > NOW() - 1h AND network.direction == \"egress\" AND azure.nsgflowlogs.bytes > 52428800 | STATS bytes = SUM(azure.nsgflowlogs.bytes) BY source.ip | SORT bytes DESC | LIMIT 25`\n2. Check destination geo — foreign IPs are higher signal\n3. Cross-reference with Microsoft Defender rule\n\n## Escalate when\n- Same source IP triggering repeatedly\n- Destination on egress-deny list"
+      "investigationGuide": "# NSG Flow Logs High Egress Bytes\n\nA single flow shipped >50 MiB outbound.\n\n## Triage\n1. Top sources: `FROM logs-azure.network_security_groups-* | WHERE @timestamp > NOW() - 1h AND azure.network_security_groups.flow_log.direction == \"O\" AND azure.network_security_groups.flow_log.bytes > 52428800 | STATS bytes = SUM(azure.network_security_groups.flow_log.bytes) BY source.ip | SORT bytes DESC | LIMIT 25`\n2. Check destination geo — foreign IPs are higher signal\n3. Cross-reference with Microsoft Defender rule\n\n## Escalate when\n- Same source IP triggering repeatedly\n- Destination on egress-deny list"
     },
     {
       "id": "cloudloadgen-azure-exfil-full-chain",

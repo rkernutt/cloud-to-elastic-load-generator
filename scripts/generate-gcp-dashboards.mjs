@@ -495,7 +495,7 @@ writeDash("pubsub-dashboard.json", "GCP Pub/Sub — Publish & Subscribe", [
     "gcp-ps-d1",
     { x: 0, y: 5, w: 16, h: 10 },
     "Action",
-    q(I_PS, "STATS c = COUNT() BY a = `gcp.pubsub.action`"),
+    q(I_PS, "STATS c = COUNT() BY a = event.action"),
     "c",
     "a"
   ),
@@ -513,14 +513,13 @@ writeDash("pubsub-dashboard.json", "GCP Pub/Sub — Publish & Subscribe", [
     "Recent",
     q(
       I_PS,
-      "KEEP @timestamp, `gcp.pubsub.topic_name`, `gcp.pubsub.subscription_name`, `gcp.pubsub.action`, `gcp.pubsub.message_size_bytes`, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
+      "KEEP @timestamp, `gcp.pubsub.topic`, `gcp.pubsub.subscription`, event.action, event.outcome, message | SORT @timestamp DESC | LIMIT 100"
     ),
     [
       ["@timestamp", "Time"],
-      ["gcp.pubsub.topic_name", "Topic"],
-      ["gcp.pubsub.subscription_name", "Sub"],
-      ["gcp.pubsub.action", "Action"],
-      ["gcp.pubsub.message_size_bytes", "Bytes"],
+      ["gcp.pubsub.topic", "Topic"],
+      ["gcp.pubsub.subscription", "Sub"],
+      ["event.action", "Action"],
       ["event.outcome", "Outcome"],
       ["message", "Message"],
     ]

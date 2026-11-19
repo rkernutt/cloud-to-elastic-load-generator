@@ -18,12 +18,19 @@
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.vertex_ai.model_name", "cloud.region"]
+          "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["metrics-gcp.vertexai_metrics*"],
@@ -31,7 +38,11 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "gcp.vertexai_metrics" } },
+              {
+                "term": {
+                  "event.dataset": "gcp.vertexai_metrics"
+                }
+              },
               {
                 "exists": {
                   "field": "gcp.vertex-ai-search.metrics.discoveryengine.googleapis.com/search_requests_regional.avg"
@@ -40,9 +51,13 @@
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "120s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -64,9 +79,16 @@
           "influencers": ["gcp.vertex_ai.endpoint_id", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -74,15 +96,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "wildcard": { "cloud.service.name": "*aiplatform*" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*aiplatform*"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "120s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]

@@ -12,7 +12,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.o365_active_users* | STATS c = COUNT()"
+            "query": "FROM metrics-o365_metrics.active_users_services_user_counts* | STATS c = COUNT()"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "c" }]
         }
@@ -28,7 +28,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.o365_active_users* | STATS c = COUNT() BY o = event.outcome"
+            "query": "FROM metrics-o365_metrics.active_users_services_user_counts* | STATS c = COUNT() BY o = event.outcome"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "o" }]
@@ -52,7 +52,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.o365_active_users* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM metrics-o365_metrics.active_users_services_user_counts* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -71,7 +71,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.o365_active_users* | STATS c = COUNT() BY region = cloud.account.id | SORT c DESC | LIMIT 15"
+            "query": "FROM metrics-o365_metrics.active_users_services_user_counts* | STATS c = COUNT() BY region = cloud.account.id | SORT c DESC | LIMIT 15"
           },
           "metrics": [
             { "operation": "value", "column": "region", "label": "Region" },

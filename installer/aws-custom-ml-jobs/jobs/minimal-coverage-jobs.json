@@ -363,14 +363,10 @@
               "detector_description": "High count of ECS service failures",
               "function": "high_count",
               "detector_index": 0,
-              "partition_field_name": "aws.ecs.dimensions.ClusterName"
+              "partition_field_name": "aws.ecs.ecs_cluster"
             }
           ],
-          "influencers": [
-            "aws.ecs.dimensions.ClusterName",
-            "aws.ecs.dimensions.ServiceName",
-            "cloud.region"
-          ]
+          "influencers": ["aws.ecs.ecs_cluster", "aws.ecs.ecs_task_definition", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -392,7 +388,7 @@
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.ecs_metrics"
+                  "event.dataset": "aws.ecs"
                 }
               },
               {
@@ -603,10 +599,10 @@
               "detector_description": "High count of AWS Health issue events",
               "function": "high_count",
               "detector_index": 0,
-              "partition_field_name": "aws.awshealth.event_type_code"
+              "partition_field_name": "aws.health.event_type_code"
             }
           ],
-          "influencers": ["aws.awshealth.event_type_code", "cloud.region", "cloud.account.id"]
+          "influencers": ["aws.health.event_type_code", "cloud.region", "cloud.account.id"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -621,14 +617,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.awshealth*"],
+        "indices": ["logs-aws.health*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.awshealth"
+                  "event.dataset": "aws.health"
                 }
               },
               {
@@ -795,14 +791,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.kafka_metrics*"],
+        "indices": ["logs-aws.msk*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.kafka_metrics"
+                  "event.dataset": "aws.msk"
                 }
               },
               {
@@ -835,10 +831,10 @@
               "detector_description": "High count of NAT Gateway errors",
               "function": "high_count",
               "detector_index": 0,
-              "partition_field_name": "aws.natgateway.nat_gateway_id"
+              "partition_field_name": "aws.natgateway.id"
             }
           ],
-          "influencers": ["aws.natgateway.nat_gateway_id", "cloud.region"]
+          "influencers": ["aws.natgateway.id", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -1299,10 +1295,10 @@
               "detector_description": "High count of SQS message processing failures",
               "function": "high_count",
               "detector_index": 0,
-              "partition_field_name": "aws.sqs.queue_name"
+              "partition_field_name": "aws.sqs.queue.name"
             }
           ],
-          "influencers": ["aws.sqs.queue_name", "cloud.region"]
+          "influencers": ["aws.sqs.queue.name", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -1415,10 +1411,10 @@
               "detector_description": "High count of Transit Gateway errors",
               "function": "high_count",
               "detector_index": 0,
-              "partition_field_name": "aws.transitgateway.transit_gateway_id"
+              "partition_field_name": "aws.transitgateway.tgw_id"
             }
           ],
-          "influencers": ["aws.transitgateway.transit_gateway_id", "cloud.region"]
+          "influencers": ["aws.transitgateway.tgw_id", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -1531,10 +1527,10 @@
               "detector_description": "High count of VPN tunnel errors",
               "function": "high_count",
               "detector_index": 0,
-              "partition_field_name": "aws.vpn.tunnel_id"
+              "partition_field_name": "aws.vpn.tunnel_outside_ip"
             }
           ],
-          "influencers": ["aws.vpn.tunnel_id", "aws.vpn.connection_id", "cloud.region"]
+          "influencers": ["aws.vpn.tunnel_outside_ip", "aws.vpn.vpn_connection_id", "cloud.region"]
         },
         "allow_lazy_open": true,
         "analysis_limits": {

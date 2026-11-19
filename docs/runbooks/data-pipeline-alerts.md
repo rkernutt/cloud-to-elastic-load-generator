@@ -5,11 +5,11 @@ Investigation guides for the rules in the **Data & Analytics Pipeline** chain (t
 > **Linked dashboards:** `Data & Analytics Pipeline — overview` and `Data & Analytics Pipeline — run lineage`
 > **Chain reference:** [data-analytics-pipeline.md](../chained-events/data-analytics-pipeline.md) (and the GCP / Azure variants)
 
-| Vendor | Orchestrator dataset | Compute dataset    | Source dataset      | Quality / query dataset |
-| ------ | -------------------- | ------------------ | ------------------- | ----------------------- |
-| AWS    | `aws.mwaa`           | `aws.emr`          | `aws.s3access`      | `aws.glue_dataquality`  |
-| GCP    | `gcp.composer`       | `gcp.dataproc`     | `gcp.gcs`           | `gcp.bigquery`          |
-| Azure  | `azure.datafactory`  | `azure.databricks` | `azure.blobstorage` | `azure.synapse`         |
+| Vendor | Orchestrator dataset | Compute dataset    | Source dataset       | Quality / query dataset |
+| ------ | -------------------- | ------------------ | -------------------- | ----------------------- |
+| AWS    | `aws.mwaa`           | `aws.emr_logs`     | `aws.s3access`       | `aws.glue_dataquality`  |
+| GCP    | `gcp.composer`       | `gcp.dataproc`     | `gcp.gcs`            | `gcp.bigquery`          |
+| Azure  | `azure.data_factory` | `azure.databricks` | `azure.blob_storage` | `azure.synapse`         |
 
 The shipped rules are AWS-named. If you switched the deployment to GCP or Azure, swap the dataset names in the queries below — the structure is identical, except that the AWS null-data and schema-drift rules read a Glue Data Quality result (`aws.glue_dataquality.*`) where the GCP / Azure variants read a query log.
 
@@ -41,7 +41,7 @@ FROM logs-aws.mwaa-*
 | LIMIT 10
 ```
 
-(GCP: `FROM logs-gcp.composer-*` and `gcp.composer.dag_id`. Azure: `FROM logs-azure.datafactory-*` and `azure.datafactory.pipeline_name`.)
+(GCP: `FROM logs-gcp.composer-*` and `gcp.composer.dag_id`. Azure: `FROM logs-azure.data_factory-*` and `azure.data_factory.pipeline_name`.)
 
 #### Failure timeline (15-minute buckets)
 
@@ -169,9 +169,9 @@ The compute cluster (Spark) is logging exceptions. Spark errors that surface to 
 #### Error classification
 
 ```esql
-FROM logs-aws.emr-*
+FROM logs-aws.emr_logs-*
 | WHERE @timestamp > NOW() - 1h AND error.type IS NOT NULL
-| STATS errors = COUNT(*) BY error.type, host.id
+| STATS errors = COUNT(*) BY error.type, aws.emr.cluster_id
 | SORT errors DESC
 | LIMIT 20
 ```
@@ -179,9 +179,9 @@ FROM logs-aws.emr-*
 #### Error-message sample
 
 ```esql
-FROM logs-aws.emr-*
+FROM logs-aws.emr_logs-*
 | WHERE @timestamp > NOW() - 1h AND error.type IS NOT NULL
-| KEEP @timestamp, error.type, error.message, host.id, aws.emr.cluster_id
+| KEEP @timestamp, error.type, error.message, aws.emr.cluster_id
 | SORT @timestamp DESC
 | LIMIT 25
 ```
@@ -231,12 +231,12 @@ The source bucket has a file the pipeline doesn't expect. Either someone landed 
 FROM logs-aws.s3access-*
 | WHERE @timestamp > NOW() - 1h
 | WHERE NOT ENDS_WITH(aws.s3access.key, ".avro") OR aws.s3access.key LIKE "*%*"
-| KEEP @timestamp, aws.s3access.key, aws.s3access.bucket_name, aws.s3access.requester
+| KEEP @timestamp, aws.s3access.key, aws.s3access.bucket, aws.s3access.requester
 | SORT @timestamp DESC
 | LIMIT 50
 ```
 
-(GCP: `gcp.gcs.object_name`, `gcp.gcs.bucket_name`. Azure: `azure.blobstorage.blob_name`, `azure.blobstorage.container_name`.)
+(GCP: `gcp.cloud_storage.object_name`, `gcp.cloud_storage.bucket_name`. Azure: `azure.blob_storage.blob_name`, `azure.blob_storage.container_name`.)
 
 #### Producer identification
 
@@ -244,7 +244,7 @@ FROM logs-aws.s3access-*
 FROM logs-aws.s3access-*
 | WHERE @timestamp > NOW() - 1h
 | WHERE NOT ENDS_WITH(aws.s3access.key, ".avro")
-| STATS bad_keys = COUNT(*) BY aws.s3access.requester, aws.s3access.bucket_name
+| STATS bad_keys = COUNT(*) BY aws.s3access.requester, aws.s3access.bucket
 | SORT bad_keys DESC
 ```
 
@@ -381,8 +381,8 @@ FROM logs-aws.glue_dataquality-*
 | WHERE @timestamp > NOW() - 7d
 | STATS avg_score = AVG(aws.glue_dataquality.score), min_score = MIN(aws.glue_dataquality.score),
         failed_results = COUNT(*) WHERE aws.glue_dataquality.state == "FAILED"
-  BY aws.glue_dataquality.job.name, BUCKET(@timestamp, 1d)
-| SORT aws.glue_dataquality.job.name, `BUCKET(@timestamp, 1d)` ASC
+  BY aws.glue_dataquality.job.name, day = BUCKET(@timestamp, 1 day)
+| SORT aws.glue_dataquality.job.name, day ASC
 ```
 
 ### Likely causes

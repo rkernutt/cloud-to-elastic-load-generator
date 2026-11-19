@@ -91,7 +91,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-azure.synapse_workspace_metrics* | STATS `Metric Integration Runtime Available Memory` = ROUND(AVG(`azure.synapse_workspace.metrics.IntegrationRuntimeAvailableMemory.avg`), 2)"
+            "query": "FROM metrics-azure.synapse_metrics* | STATS `Metric Integration Runtime Available Memory` = ROUND(AVG(`azure.synapse_workspace.metrics.IntegrationRuntimeAvailableMemory.avg`), 2)"
           },
           "metrics": [
             {
@@ -113,7 +113,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-azure.synapse_workspace_metrics* | STATS `Metric Integration Pipeline Runs Ended` = ROUND(AVG(`azure.synapse_workspace.metrics.IntegrationPipelineRunsEnded.avg`), 2)"
+            "query": "FROM metrics-azure.synapse_metrics* | STATS `Metric Integration Pipeline Runs Ended` = ROUND(AVG(`azure.synapse_workspace.metrics.IntegrationPipelineRunsEnded.avg`), 2)"
           },
           "metrics": [
             {
@@ -142,7 +142,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-azure.synapse_workspace_metrics* | STATS m = AVG(`azure.synapse_workspace.metrics.IntegrationRuntimeAvailableMemory.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM metrics-azure.synapse_metrics* | STATS m = AVG(`azure.synapse_workspace.metrics.IntegrationRuntimeAvailableMemory.avg`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [

@@ -20,7 +20,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.s3_batch_operations* | STATS `Total Events` = COUNT()"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"s3-batch-operations\" | STATS `Total Events` = COUNT()"
           },
           "metrics": [
             {
@@ -47,7 +47,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.s3_batch_operations* | WHERE log.level == \"error\" | STATS `Errors` = COUNT()"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"s3-batch-operations\" | WHERE log.level == \"error\" | STATS `Errors` = COUNT()"
           },
           "metrics": [
             {
@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.s3_batch_operations* | STATS `Unique Operations` = COUNT_DISTINCT(`aws.s3_batch_operations.operation`)"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"s3-batch-operations\" | STATS `Unique Operations` = COUNT_DISTINCT(`aws.s3_batch_operations.operation`)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.s3_batch_operations* | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"s3-batch-operations\" | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
           },
           "dimensions": [
             {
@@ -134,7 +134,7 @@
           "type": "bar_stacked",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.s3_batch_operations* | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
+            "query": "FROM logs-aws.cloudwatch_logs*, logs-aws_logs.generic*, logs-awsfirehose* | WHERE cloud.service.name == \"s3-batch-operations\" | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
           },
           "xAxis": {
             "column": "bucket",

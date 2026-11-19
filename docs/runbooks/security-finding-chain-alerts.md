@@ -26,7 +26,7 @@ The cloud's threat detector raised a HIGH or CRITICAL finding — the highest se
 ### Five-minute triage
 
 1. **Read the finding type.** Run [HIGH/CRITICAL list](#high-critical-list). The finding type tells you the kill-chain phase (Recon, Backdoor, Trojan, Exfiltration…).
-2. **Identify the resource.** Note `resource.instance_details.instance_id` or `resource.access_key_details.user_name`. That's your scope.
+2. **Identify the resource.** Note `resource.instanceDetails.instanceId` or `resource.accessKeyDetails.userName`. That's your scope.
 3. **Check for related chains.** If the finding type is `Exfiltration*`, jump to the [Data Exfiltration Chain runbook](./data-exfil-chain-alerts.md). If it's `*PrivilegeEscalation*` or `Persistence*`, check the [IAM PrivEsc runbook](./iam-privesc-chain-alerts.md).
 
 ### Investigation queries
@@ -38,8 +38,8 @@ FROM logs-aws.guardduty-*
 | WHERE @timestamp > NOW() - 1h
 | WHERE aws.guardduty.severity.value IN ("High", "Critical")
 | KEEP @timestamp, aws.guardduty.severity.value, aws.guardduty.type,
-       aws.guardduty.resource.instance_details.instance_id,
-       aws.guardduty.resource.access_key_details.user_name,
+       aws.guardduty.resource.instanceDetails.instanceId,
+       aws.guardduty.resource.accessKeyDetails.userName,
        source.ip, destination.ip
 | SORT @timestamp DESC
 | LIMIT 25
@@ -229,7 +229,7 @@ FROM logs-aws.guardduty-*
 FROM logs-aws.guardduty-*
 | WHERE @timestamp > NOW() - 1h AND source.ip == "<top_ip>"
 | KEEP @timestamp, aws.guardduty.type, aws.guardduty.severity.value,
-       aws.guardduty.resource.instance_details.instance_id
+       aws.guardduty.resource.instanceDetails.instanceId
 | SORT @timestamp ASC
 | LIMIT 50
 ```

@@ -37,9 +37,9 @@ The cloud's native threat detector has classified an action as exfiltration. Thi
 FROM logs-aws.guardduty-*
 | WHERE @timestamp > NOW() - 1h AND aws.guardduty.type LIKE "Exfiltration*"
 | KEEP @timestamp, aws.guardduty.type, aws.guardduty.severity.value,
-       aws.guardduty.resource.instance_details.instance_id,
-       aws.guardduty.resource.access_key_details.user_name,
-       source.ip, destination.ip, destination.geo.country_iso_code
+       aws.guardduty.resource.instanceDetails.instanceId,
+       aws.guardduty.resource.accessKeyDetails.userName,
+       source.ip, destination.ip
 | SORT @timestamp DESC
 ```
 

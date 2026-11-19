@@ -12,7 +12,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | STATS Events = COUNT()"
+            "query": "FROM logs-azure.activitylogs* | STATS Events = COUNT()"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Events" }]
         }
@@ -28,7 +28,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | EVAL f = CASE(to_lower(resultType) != \"success\", 1, 0) | STATS m = AVG(f) | EVAL `Failure %` = ROUND(m * 100, 1)"
+            "query": "FROM logs-azure.activitylogs* | EVAL f = CASE(to_lower(resultType) != \"success\", 1, 0) | STATS m = AVG(f) | EVAL `Failure %` = ROUND(m * 100, 1)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Failure %" }]
         }
@@ -44,7 +44,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | STATS `Operations` = COUNT_DISTINCT(operationName)"
+            "query": "FROM logs-azure.activitylogs* | STATS `Operations` = COUNT_DISTINCT(operationName)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Distinct ops" }]
         }
@@ -60,7 +60,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | STATS `Avg ms` = ROUND(AVG(`azure.activity_log.duration_ms`), 0)"
+            "query": "FROM logs-azure.activitylogs* | STATS `Avg ms` = ROUND(AVG(`azure.activity_log.duration_ms`), 0)"
           },
           "metrics": [{ "type": "primary", "operation": "value", "column": "Avg duration (ms)" }]
         }
@@ -76,7 +76,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | STATS c = COUNT() BY r = resultType | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-azure.activitylogs* | STATS c = COUNT() BY r = resultType | SORT c DESC | LIMIT 10"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "r" }]
@@ -93,7 +93,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | STATS c = COUNT() BY cat = category | SORT c DESC | LIMIT 10"
+            "query": "FROM logs-azure.activitylogs* | STATS c = COUNT() BY cat = category | SORT c DESC | LIMIT 10"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "cat" }]
@@ -110,7 +110,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
+            "query": "FROM logs-azure.activitylogs* | STATS c = COUNT() BY o = event.outcome | SORT c DESC"
           },
           "metrics": [{ "operation": "value", "column": "c" }],
           "group_by": [{ "operation": "value", "column": "o" }]
@@ -134,7 +134,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.activity_log* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.activitylogs* | STATS c = COUNT() BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "c", "label": "Events" }]
@@ -160,7 +160,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.activity_log* | STATS bad = SUM(CASE(to_lower(resultType) != \"success\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.activitylogs* | STATS bad = SUM(CASE(to_lower(resultType) != \"success\", 1, 0)) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "bad", "label": "Failures" }]
@@ -186,7 +186,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.activity_log* | STATS d = AVG(`azure.activity_log.duration_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
+                "query": "FROM logs-azure.activitylogs* | STATS d = AVG(`azure.activity_log.duration_ms`) BY b = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT b"
               },
               "x": { "operation": "value", "column": "b" },
               "y": [{ "operation": "value", "column": "d", "label": "Ms" }]
@@ -212,7 +212,7 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-azure.activity_log* | STATS c = COUNT() BY op = operationName | SORT c DESC | LIMIT 10"
+                "query": "FROM logs-azure.activitylogs* | STATS c = COUNT() BY op = operationName | SORT c DESC | LIMIT 10"
               },
               "x": { "operation": "value", "column": "op" },
               "y": [{ "operation": "value", "column": "c", "label": "Count" }]
@@ -231,7 +231,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-azure.activity_log* | KEEP `@timestamp`, operationName, category, resultType, `callerIpAddress`, `azure.activity_log.resource_name`, correlationId | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-azure.activitylogs* | KEEP `@timestamp`, operationName, category, resultType, `callerIpAddress`, `azure.activity_log.resource_name`, correlationId | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             { "operation": "value", "column": "`@timestamp`", "label": "Time" },

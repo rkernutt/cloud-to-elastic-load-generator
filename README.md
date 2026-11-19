@@ -55,9 +55,9 @@ Catalog size today:
 | ---------- | -------- | ---------- | ------- | ------- | -------------- |
 | AWS        | 218      | 223        | 401     | 56      | 118            |
 | GCP        | 136      | 135        | 182     | 58      | 62             |
-| Azure      | 133      | 138        | 195     | 52      | 66             |
+| Azure      | 133      | 138        | 194     | 52      | 66             |
 | Supporting | 11       | —          | —       | —       | —              |
-| **Total**  | **495**  | **496**    | **778** | **166** | **246**        |
+| **Total**  | **495**  | **496**    | **777** | **166** | **246**        |
 
 Counts are taken from the repo: services from `src/data/serviceGroups.ts` (and the GCP / Azure / Supporting equivalents), dashboards from `installer/*-custom-dashboards/*-dashboard.json`, ML jobs from `installer/*-custom-ml-jobs/jobs/*.json`, rules from `installer/*-custom-rules/*.json`.
 

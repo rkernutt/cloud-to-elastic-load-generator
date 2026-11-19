@@ -37,14 +37,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.accessanalyzer*"],
+        "indices": ["logs-aws.access_analyzer*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.accessanalyzer"
+                  "event.dataset": "aws.access_analyzer"
                 }
               },
               {
@@ -3200,10 +3200,14 @@
               "detector_description": "High count of Fargate task failures",
               "function": "high_count",
               "detector_index": 0,
-              "partition_field_name": "aws.ecs.cluster_arn"
+              "partition_field_name": "aws.dimensions.ClusterName"
             }
           ],
-          "influencers": ["aws.ecs.cluster_arn", "aws.ecs.task_definition", "cloud.region"]
+          "influencers": [
+            "aws.dimensions.ClusterName",
+            "aws.dimensions.TaskDefinitionFamily",
+            "cloud.region"
+          ]
         },
         "allow_lazy_open": true,
         "analysis_limits": {
@@ -3218,14 +3222,14 @@
         }
       },
       "datafeed": {
-        "indices": ["logs-aws.fargate*"],
+        "indices": ["logs-aws.ecs_fargate*"],
         "max_empty_searches": 10,
         "query": {
           "bool": {
             "filter": [
               {
                 "term": {
-                  "event.dataset": "aws.fargate"
+                  "event.dataset": "aws.ecs_fargate"
                 }
               },
               {

@@ -12,18 +12,25 @@
           "bucket_span": "15m",
           "detectors": [
             {
-              "detector_description": "high_count partitionfield=gcp.gemini.model_id",
+              "detector_description": "high_count partitionfield=gcp.gemini.model",
               "function": "high_count",
-              "partition_field_name": "gcp.gemini.model_id",
+              "partition_field_name": "gcp.gemini.model",
               "detector_index": 0
             }
           ],
-          "influencers": ["gcp.gemini.model_id", "cloud.region"]
+          "influencers": ["gcp.gemini.model", "cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["logs-gcp.*"],
@@ -31,15 +38,31 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "cloud.provider": "gcp" } },
-              { "wildcard": { "cloud.service.name": "*generativelanguage.googleapis.com*" } },
-              { "term": { "event.outcome": "failure" } }
+              {
+                "term": {
+                  "cloud.provider": "gcp"
+                }
+              },
+              {
+                "wildcard": {
+                  "cloud.service.name": "*generativelanguage.googleapis.com*"
+                }
+              },
+              {
+                "term": {
+                  "event.outcome": "failure"
+                }
+              }
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "120s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     },
     {
@@ -61,9 +84,16 @@
           "influencers": ["cloud.region"]
         },
         "allow_lazy_open": true,
-        "analysis_limits": { "model_memory_limit": "32mb" },
-        "data_description": { "time_field": "@timestamp" },
-        "custom_settings": { "created_by": "gcp-elastic-load-generator", "tags": ["cloudloadgen"] }
+        "analysis_limits": {
+          "model_memory_limit": "32mb"
+        },
+        "data_description": {
+          "time_field": "@timestamp"
+        },
+        "custom_settings": {
+          "created_by": "gcp-elastic-load-generator",
+          "tags": ["cloudloadgen"]
+        }
       },
       "datafeed": {
         "indices": ["metrics-gcp.gemini_metrics*"],
@@ -71,7 +101,11 @@
         "query": {
           "bool": {
             "filter": [
-              { "term": { "event.dataset": "gcp.gemini_metrics" } },
+              {
+                "term": {
+                  "event.dataset": "gcp.gemini_metrics"
+                }
+              },
               {
                 "exists": {
                   "field": "gcp.gemini.metrics.generativelanguage.googleapis.com/generate_content_usage_output_token_count.avg"
@@ -80,9 +114,13 @@
             ]
           }
         },
-        "chunking_config": { "mode": "auto" },
+        "chunking_config": {
+          "mode": "auto"
+        },
         "query_delay": "120s",
-        "delayed_data_check_config": { "enabled": true }
+        "delayed_data_check_config": {
+          "enabled": true
+        }
       }
     }
   ]
