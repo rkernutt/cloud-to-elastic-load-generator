@@ -1,0 +1,72 @@
+{
+  "version": "0",
+  "id": "844e2571-85d4-695f-b930-0153b71dcb42",
+  "detail-type": "SageMaker HyperParameter Tuning Job State Change",
+  "source": "aws.sagemaker",
+  "account": "111122223333",
+  "time": "2018-10-06T12:26:13Z",
+  "region": "us-east-1",
+  "resources": [
+    "arn:aws:sagemaker:us-east-1:111122223333:hyper-parameter-tuning-job/example-tuning-job"
+  ],
+  "detail": {
+    "HyperParameterTuningJobName": "example-tuning-job",
+    "HyperParameterTuningJobArn": "arn:aws:sagemaker:us-east-1:111122223333:hyper-parameter-tuning-job/example-tuning-job",
+    "TrainingJobDefinition": {
+      "StaticHyperParameters": {},
+      "AlgorithmSpecification": {
+        "TrainingImage": "111122223333.dkr.ecr.us-east-1.amazonaws.com/example-algo:1",
+        "TrainingInputMode": "File",
+        "MetricDefinitions": [
+          {
+            "Name": "validation:rmse",
+            "Regex": "validation:rmse=([0-9\\.]+)"
+          }
+        ]
+      },
+      "RoleArn": "arn:aws:iam::111122223333:role/ExampleSageMakerRole",
+      "InputDataConfig": [
+        {
+          "ChannelName": "train",
+          "DataSource": {
+            "S3DataSource": {
+              "S3DataType": "S3Prefix",
+              "S3Uri": "s3://example-bucket/train/",
+              "S3DataDistributionType": "FullyReplicated"
+            }
+          },
+          "ContentType": "text/csv",
+          "CompressionType": "None",
+          "RecordWrapperType": "None"
+        }
+      ],
+      "OutputDataConfig": {
+        "S3OutputPath": "s3://example-bucket/tuning-output/"
+      },
+      "ResourceConfig": {
+        "InstanceType": "ml.m5.large",
+        "InstanceCount": 1,
+        "VolumeSizeInGB": 30
+      },
+      "StoppingCondition": {
+        "MaxRuntimeInSeconds": 3600
+      }
+    },
+    "HyperParameterTuningJobStatus": "Completed",
+    "CreationTime": "1583831889050",
+    "LastModifiedTime": "1583831889050",
+    "TrainingJobStatusCounters": {
+      "Completed": 1,
+      "InProgress": 0,
+      "RetryableError": 0,
+      "NonRetryableError": 0,
+      "Stopped": 0
+    },
+    "ObjectiveStatusCounters": {
+      "Succeeded": 1,
+      "Pending": 0,
+      "Failed": 0
+    },
+    "Tags": {}
+  }
+}

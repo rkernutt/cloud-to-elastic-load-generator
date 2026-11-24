@@ -1,0 +1,137 @@
+---
+description: Pipeline for Amazon SageMaker CloudWatch logs
+processors:
+  - set:
+      tag: set_ecs_version
+      field: ecs.version
+      value: 9.3.0
+  - set:
+      tag: set_event_kind
+      field: event.kind
+      value: event
+  - append:
+      tag: append_event_category
+      field: event.category
+      value: process
+  - append:
+      tag: append_event_type_info
+      field: event.type
+      value: info
+  - set:
+      tag: set_cloud_provider
+      field: cloud.provider
+      value: aws
+  - set:
+      tag: set_cloud_service_name
+      field: cloud.service.name
+      value: sagemaker
+  - set:
+      tag: set_log_logger
+      field: log.logger
+      copy_from: aws.cloudwatch.log_group
+      ignore_empty_value: true
+      ignore_failure: true
+  - set:
+      tag: set_workload_training
+      if: ctx.aws?.cloudwatch?.log_group == '/aws/sagemaker/TrainingJobs'
+      field: aws_sagemaker.workload
+      value: training
+  - set:
+      tag: set_workload_processing
+      if: ctx.aws?.cloudwatch?.log_group == '/aws/sagemaker/ProcessingJobs'
+      field: aws_sagemaker.workload
+      value: processing
+  - set:
+      tag: set_workload_transform
+      if: ctx.aws?.cloudwatch?.log_group == '/aws/sagemaker/TransformJobs'
+      field: aws_sagemaker.workload
+      value: transform
+  - grok:
+      tag: grok_endpoint_log_group
+      field: aws.cloudwatch.log_group
+      ignore_missing: true
+      ignore_failure: true
+      patterns:
+        - "^/aws/sagemaker/Endpoints/%{DATA:aws_sagemaker.endpoint.name}$"
+  - set:
+      tag: set_workload_endpoint
+      if: ctx.aws_sagemaker?.endpoint?.name != null
+      field: aws_sagemaker.workload
+      value: endpoint
+  - grok:
+      tag: grok_other_log_group
+      if: ctx.aws_sagemaker?.workload == null && ctx.aws?.cloudwatch?.log_group != null
+      field: aws.cloudwatch.log_group
+      ignore_missing: true
+      ignore_failure: true
+      patterns:
+        - "^/aws/sagemaker/%{DATA:aws_sagemaker.workload}$"
+  - lowercase:
+      tag: lowercase_workload
+      field: aws_sagemaker.workload
+      ignore_missing: true
+      ignore_failure: true
+  - dissect:
+      tag: dissect_training_stream
+      if: ctx.aws_sagemaker?.workload == 'training'
+      field: aws.cloudwatch.log_stream
+      ignore_missing: true
+      ignore_failure: true
+      pattern: "%{aws_sagemaker.job.name}/algo-%{aws_sagemaker.instance.member}-%{aws_sagemaker.stream.epoch}"
+  - grok:
+      tag: grok_endpoint_stream
+      if: ctx.aws_sagemaker?.workload == 'endpoint'
+      field: aws.cloudwatch.log_stream
+      ignore_missing: true
+      ignore_failure: true
+      patterns:
+        - "^%{DATA:aws_sagemaker.variant.name}/%{DATA:host.name}/%{DATA:aws_sagemaker.stream.suffix}$"
+        - "^%{DATA:aws_sagemaker.variant.name}/%{DATA:host.name}$"
+  - grok:
+      tag: grok_job_stream
+      if: ctx.aws_sagemaker?.workload == 'processing' || ctx.aws_sagemaker?.workload == 'transform'
+      field: aws.cloudwatch.log_stream
+      ignore_missing: true
+      ignore_failure: true
+      patterns:
+        - "^%{DATA:aws_sagemaker.job.name}/%{DATA:aws_sagemaker.host}/%{DATA:aws_sagemaker.stream.suffix}$"
+        - "^%{DATA:aws_sagemaker.job.name}/%{DATA:aws_sagemaker.host}$"
+  - grok:
+      tag: grok_algorithm_line
+      field: message
+      ignore_missing: true
+      ignore_failure: true
+      patterns:
+        - '^\[%{MONTHNUM}/%{MONTHDAY}/%{YEAR} %{TIME} %{LOGLEVEL:log.level} %{NUMBER} %{DATA}:%{NUMBER}\]'
+  - lowercase:
+      tag: lowercase_log_level
+      field: log.level
+      ignore_missing: true
+      ignore_failure: true
+  - set:
+      tag: set_failure_reason_level
+      if: ctx.message != null && (ctx.message.contains('FailureReason:') || ctx.message.contains('AlgorithmError') || ctx.message.startsWith('Traceback'))
+      field: log.level
+      value: error
+  - set:
+      tag: set_event_outcome_failure
+      if: ctx.log?.level == 'error'
+      field: event.outcome
+      value: failure
+on_failure:
+  - set:
+      tag: set_pipeline_error_to_event_kind
+      field: event.kind
+      value: pipeline_error
+  - append:
+      tag: append_preserve_original_event_tag
+      field: tags
+      value: preserve_original_event
+  - append:
+      tag: append_on_failure_message
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        in pipeline '{{{ _ingest.pipeline }}}'
+        failed with message '{{{ _ingest.on_failure_message }}}'

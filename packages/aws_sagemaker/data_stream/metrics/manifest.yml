@@ -1,0 +1,67 @@
+title: SageMaker metrics
+type: metrics
+streams:
+  - input: aws/metrics
+    title: SageMaker CloudWatch metrics
+    description: Collect Amazon SageMaker invocation, utilization, and pipeline metrics from CloudWatch.
+    template_path: stream.yml.hbs
+    vars:
+      - name: period
+        type: text
+        title: Period
+        description: How often to collect metrics.
+        show_user: true
+        default: 5m
+      - name: data_granularity
+        type: text
+        title: Data Granularity
+        description: CloudWatch statistic period passed to GetMetricData, for example `1m` or `5m`.
+        default: 5m
+      - name: regions
+        type: text
+        title: Regions
+        description: AWS regions to query.
+        multi: true
+        required: true
+        show_user: true
+      - name: latency
+        type: text
+        title: Latency
+        description: Delay before querying a period, so CloudWatch has finished publishing the statistics.
+        default: 15m
+      - name: include_linked_accounts
+        type: bool
+        title: Include Linked Accounts
+        description: Collect metrics from linked accounts in the organization.
+        default: false
+      - name: owning_account
+        type: text
+        title: Owning Account
+        description: Limit metrics to this AWS account ID.
+      - name: tags_filter
+        type: yaml
+        title: Tags Filter
+        description: CloudWatch tag filter applied when listing metrics.
+      - name: tags
+        type: text
+        title: Tags
+        multi: true
+        required: true
+        show_user: true
+        default:
+          - forwarded
+      - name: processors
+        type: yaml
+        title: Processors
+        description: Agent processors applied before the ingest pipeline.
+      - name: preserve_original_event
+        type: bool
+        title: Preserve original event
+        description: Store the raw event in `event.original`.
+        required: true
+        show_user: true
+        default: false
+elasticsearch:
+  index_template:
+    mappings:
+      subobjects: false

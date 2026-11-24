@@ -1,0 +1,172 @@
+format_version: 3.7.1
+name: aws_sagemaker
+title: Amazon SageMaker
+version: 0.1.1
+source:
+  license: Elastic-2.0
+description: Collect Amazon SageMaker container logs and CloudWatch metrics with Elastic Agent.
+type: integration
+categories:
+  - aws
+  - cloud
+  - observability
+conditions:
+  kibana:
+    version: "^9.5.6"
+  elastic:
+    subscription: basic
+screenshots:
+  - src: /img/sample-screenshot.png
+    title: Amazon SageMaker
+    size: 600x600
+    type: image/png
+icons:
+  - src: /img/sample-logo.svg
+    title: Amazon SageMaker
+    size: 32x32
+    type: image/svg+xml
+policy_templates:
+  - name: aws_sagemaker
+    title: Amazon SageMaker
+    description: Collect Amazon SageMaker logs and metrics from CloudWatch.
+    deployment_modes:
+      default:
+        enabled: true
+      agentless:
+        enabled: true
+        release: beta
+        organization: observability
+        division: engineering
+        team: obs-signals-integrations-team
+    inputs:
+      - type: aws-cloudwatch
+        title: Collect SageMaker logs from CloudWatch
+        description: Collect container stdout and stderr from SageMaker log groups.
+        provider_permissions:
+          - provider: aws
+            description: CloudWatch Logs read access for SageMaker log groups.
+            permissions:
+              - name: logs:DescribeLogGroups
+              - name: logs:DescribeLogStreams
+              - name: logs:FilterLogEvents
+      - type: aws/metrics
+        title: Collect SageMaker CloudWatch metrics
+        description: Collect SageMaker invocation, utilization, and pipeline metrics.
+        provider_permissions:
+          - provider: aws
+            description: CloudWatch metrics read access for SageMaker namespaces.
+            permissions:
+              - name: cloudwatch:GetMetricData
+              - name: cloudwatch:ListMetrics
+    vars:
+      - name: access_key_id
+        type: password
+        title: Access Key ID
+        multi: false
+        required: false
+        show_user: true
+        secret: true
+        description: AWS access key ID. Leave empty to use the agent host role or a shared credentials file.
+      - name: secret_access_key
+        type: password
+        title: Secret Access Key
+        multi: false
+        required: false
+        show_user: true
+        secret: true
+        description: AWS secret access key paired with the access key ID.
+      - name: session_token
+        type: password
+        title: Session Token
+        multi: false
+        required: false
+        show_user: false
+        secret: true
+        description: Session token for temporary credentials.
+      - name: role_arn
+        type: text
+        title: Role ARN
+        multi: false
+        required: false
+        show_user: true
+        description: IAM role to assume for cross-account collection, or the role created for Elastic identity federation.
+      - name: supports_identity_federation
+        type: bool
+        title: Supports Identity Federation
+        multi: false
+        required: false
+        show_user: false
+        description: Use an Elastic cloud connector instead of static AWS keys.
+      - name: credential_profile_name
+        type: text
+        title: Credential Profile Name
+        multi: false
+        required: false
+        show_user: false
+        description: Profile name in the shared AWS credentials file.
+      - name: shared_credential_file
+        type: text
+        title: Shared Credential File
+        multi: false
+        required: false
+        show_user: false
+        description: Path to the shared AWS credentials file on the agent host.
+      - name: default_region
+        type: text
+        title: Default Region
+        multi: false
+        required: false
+        show_user: false
+        description: Fallback AWS region for the SDK.
+      - name: proxy_url
+        type: text
+        title: Proxy URL
+        multi: false
+        required: false
+        show_user: false
+        description: Proxy URL for AWS API calls.
+    var_groups:
+      - name: credential_type
+        required: true
+        title: Setup Access
+        selector_title: Preferred method
+        description: Choose how the agent authenticates to AWS.
+        options:
+          - name: identity_federation
+            title: Identity Federation
+            vars:
+              - role_arn
+              - supports_identity_federation
+            hide_in_deployment_modes:
+              - default
+            provider: aws
+            iac_template_url: https://console.aws.amazon.com/cloudformation/home#/stacks/quickcreate?templateURL=https://elastic-cspm-cft.s3.eu-central-1.amazonaws.com/cloudformation-federated-identity-wii-aws-9.6.0.yml&param_ElasticOrganizationId=ORGANIZATION_ID&param_ElasticCloudProvider=CLOUD_PROVIDER&param_ElasticCloudRegion=CLOUD_REGION&param_ElasticCloudEnvironment=CLOUD_ENVIRONMENT&param_ElasticResourceType=RESOURCE_TYPE&param_ElasticResourceId=RESOURCE_ID
+          - name: direct_access_key
+            title: Direct Access Keys
+            vars:
+              - access_key_id
+              - secret_access_key
+          - name: temporary_access_key
+            title: Temporary Access Keys
+            vars:
+              - access_key_id
+              - secret_access_key
+              - session_token
+            hide_in_deployment_modes:
+              - agentless
+          - name: assume_role
+            title: Assume Role
+            vars:
+              - role_arn
+            hide_in_deployment_modes:
+              - agentless
+          - name: shared_credentials
+            title: Shared Credentials
+            vars:
+              - shared_credential_file
+              - credential_profile_name
+            hide_in_deployment_modes:
+              - agentless
+owner:
+  github: elastic/integrations
+  type: elastic

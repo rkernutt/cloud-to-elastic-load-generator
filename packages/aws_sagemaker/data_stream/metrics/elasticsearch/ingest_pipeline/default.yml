@@ -1,0 +1,161 @@
+---
+description: Pipeline for Amazon SageMaker CloudWatch metrics
+processors:
+  - set:
+      tag: set_ecs_version
+      field: ecs.version
+      value: 9.3.0
+  - set:
+      tag: set_event_kind
+      field: event.kind
+      value: metric
+  - set:
+      tag: set_cloud_provider
+      field: cloud.provider
+      value: aws
+      override: false
+  - set:
+      tag: set_cloud_service_name
+      field: cloud.service.name
+      value: sagemaker
+  - script:
+      tag: copy_sagemaker_metrics
+      lang: painless
+      source: |-
+        if (ctx.aws_sagemaker == null) {
+          ctx.aws_sagemaker = new HashMap();
+        }
+        if (ctx.aws_sagemaker.metrics == null) {
+          ctx.aws_sagemaker.metrics = new HashMap();
+        }
+        def metrics = ctx.aws_sagemaker.metrics;
+        def ns = ctx.aws?.cloudwatch?.namespace;
+        if (ns != null) {
+          metrics.namespace = ns;
+        }
+        def src = null;
+        if (ns == 'AWS/SageMaker') {
+          src = ctx.aws?.sagemaker?.metrics;
+        } else if (ns == '/aws/sagemaker/Endpoints') {
+          src = ctx.aws?.endpoints?.metrics;
+        } else if (ns == '/aws/sagemaker/TrainingJobs') {
+          src = ctx.aws?.trainingjobs?.metrics;
+        } else if (ns == '/aws/sagemaker/ProcessingJobs') {
+          src = ctx.aws?.processingjobs?.metrics;
+        } else if (ns == '/aws/sagemaker/TransformJobs') {
+          src = ctx.aws?.transformjobs?.metrics;
+        } else if (ns == '/aws/sagemaker/InferenceComponents') {
+          src = ctx.aws?.inferencecomponents?.metrics;
+        } else if (ns == 'AWS/Sagemaker/ModelBuildingPipeline') {
+          src = ctx.aws?.modelbuildingpipeline?.metrics;
+        }
+        if (src != null) {
+          if (src.Invocations?.sum != null) { metrics.invocations = src.Invocations.sum; }
+          if (src.Invocation4XXErrors?.sum != null) { metrics.invocation_4xx_errors = src.Invocation4XXErrors.sum; }
+          if (src.Invocation5XXErrors?.sum != null) { metrics.invocation_5xx_errors = src.Invocation5XXErrors.sum; }
+          if (src.InvocationModelErrors?.sum != null) { metrics.invocation_model_errors = src.InvocationModelErrors.sum; }
+          if (src.ModelLatency?.avg != null) { metrics.model_latency = src.ModelLatency.avg; }
+          if (src.OverheadLatency?.avg != null) { metrics.overhead_latency = src.OverheadLatency.avg; }
+          if (src.CPUUtilization?.avg != null) { metrics.cpu_utilization = src.CPUUtilization.avg; }
+          if (src.MemoryUtilization?.avg != null) { metrics.memory_utilization = src.MemoryUtilization.avg; }
+          if (src.GPUUtilization?.avg != null) { metrics.gpu_utilization = src.GPUUtilization.avg; }
+          if (src.GPUMemoryUtilization?.avg != null) { metrics.gpu_memory_utilization = src.GPUMemoryUtilization.avg; }
+          if (src.DiskUtilization?.avg != null) { metrics.disk_utilization = src.DiskUtilization.avg; }
+          if (src.CPUUtilizationNormalized?.avg != null) { metrics.cpu_utilization_normalized = src.CPUUtilizationNormalized.avg; }
+          if (src.MemoryUtilizationNormalized?.avg != null) { metrics.memory_utilization_normalized = src.MemoryUtilizationNormalized.avg; }
+          if (src.GPUUtilizationNormalized?.avg != null) { metrics.gpu_utilization_normalized = src.GPUUtilizationNormalized.avg; }
+          if (src.GPUMemoryUtilizationNormalized?.avg != null) { metrics.gpu_memory_utilization_normalized = src.GPUMemoryUtilizationNormalized.avg; }
+          if (src.DiskUtilizationNormalized?.avg != null) { metrics.disk_utilization_normalized = src.DiskUtilizationNormalized.avg; }
+          if (src.ExecutionStarted?.sum != null) { metrics.execution_started = src.ExecutionStarted.sum; }
+          if (src.ExecutionFailed?.sum != null) { metrics.execution_failed = src.ExecutionFailed.sum; }
+          if (src.ExecutionSucceeded?.sum != null) { metrics.execution_succeeded = src.ExecutionSucceeded.sum; }
+          if (src.ExecutionDuration?.avg != null) { metrics.execution_duration = src.ExecutionDuration.avg; }
+          if (src.StepFailed?.sum != null) { metrics.step_failed = src.StepFailed.sum; }
+          if (src.StepDuration?.avg != null) { metrics.step_duration = src.StepDuration.avg; }
+        }
+        boolean utilization = metrics.cpu_utilization != null || metrics.memory_utilization != null || metrics.gpu_utilization != null || metrics.gpu_memory_utilization != null || metrics.disk_utilization != null || metrics.cpu_utilization_normalized != null || metrics.memory_utilization_normalized != null || metrics.gpu_utilization_normalized != null || metrics.gpu_memory_utilization_normalized != null || metrics.disk_utilization_normalized != null;
+        if (metrics.model_latency != null || metrics.overhead_latency != null) {
+          metrics.unit = 'microseconds';
+        } else if (metrics.execution_duration != null || metrics.step_duration != null) {
+          metrics.unit = 'milliseconds';
+        } else if (utilization) {
+          metrics.unit = 'percent';
+        } else {
+          metrics.unit = 'count';
+        }
+        if (ctx.event == null) {
+          ctx.event = new HashMap();
+        }
+        if (utilization) {
+          ctx.event.category = ['host'];
+        } else {
+          ctx.event.category = ['process'];
+        }
+        def dims = ctx.aws?.dimensions;
+        if (dims != null) {
+          if (dims.EndpointName != null) {
+            if (ctx.aws_sagemaker.endpoint == null) { ctx.aws_sagemaker.endpoint = new HashMap(); }
+            ctx.aws_sagemaker.endpoint.name = dims.EndpointName;
+          }
+          if (dims.VariantName != null) {
+            if (ctx.aws_sagemaker.variant == null) { ctx.aws_sagemaker.variant = new HashMap(); }
+            ctx.aws_sagemaker.variant.name = dims.VariantName;
+          }
+          if (dims.Host != null) { ctx.aws_sagemaker.host = dims.Host; }
+          if (dims.TrainingJobName != null) {
+            if (ctx.aws_sagemaker.job == null) { ctx.aws_sagemaker.job = new HashMap(); }
+            ctx.aws_sagemaker.job.name = dims.TrainingJobName;
+          }
+          if (dims.ProcessingJobName != null) {
+            if (ctx.aws_sagemaker.job == null) { ctx.aws_sagemaker.job = new HashMap(); }
+            ctx.aws_sagemaker.job.name = dims.ProcessingJobName;
+          }
+          if (dims.TransformJobName != null) {
+            if (ctx.aws_sagemaker.job == null) { ctx.aws_sagemaker.job = new HashMap(); }
+            ctx.aws_sagemaker.job.name = dims.TransformJobName;
+          }
+          if (dims.PipelineName != null) {
+            if (ctx.aws_sagemaker.pipeline == null) { ctx.aws_sagemaker.pipeline = new HashMap(); }
+            ctx.aws_sagemaker.pipeline.name = dims.PipelineName;
+          }
+          if (dims.StepName != null) {
+            if (ctx.aws_sagemaker.pipeline == null) { ctx.aws_sagemaker.pipeline = new HashMap(); }
+            if (ctx.aws_sagemaker.pipeline.step == null) { ctx.aws_sagemaker.pipeline.step = new HashMap(); }
+            ctx.aws_sagemaker.pipeline.step.name = dims.StepName;
+          }
+          if (dims.InferenceComponentName != null) {
+            if (ctx.aws_sagemaker.inference_component == null) { ctx.aws_sagemaker.inference_component = new HashMap(); }
+            ctx.aws_sagemaker.inference_component.name = dims.InferenceComponentName;
+          }
+        }
+        if (ctx.aws != null) {
+          ctx.aws.remove('sagemaker');
+          ctx.aws.remove('endpoints');
+          ctx.aws.remove('trainingjobs');
+          ctx.aws.remove('processingjobs');
+          ctx.aws.remove('transformjobs');
+          ctx.aws.remove('inferencecomponents');
+          ctx.aws.remove('modelbuildingpipeline');
+          ctx.aws.remove('dimensions');
+          ctx.aws.remove('cloudwatch');
+          if (ctx.aws.isEmpty()) {
+            ctx.remove('aws');
+          }
+        }
+on_failure:
+  - set:
+      tag: set_pipeline_error_to_event_kind
+      field: event.kind
+      value: pipeline_error
+  - append:
+      tag: append_preserve_original_event_tag
+      field: tags
+      value: preserve_original_event
+  - append:
+      tag: append_on_failure_message
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        in pipeline '{{{ _ingest.pipeline }}}'
+        failed with message '{{{ _ingest.on_failure_message }}}'

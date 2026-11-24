@@ -1,0 +1,90 @@
+title: SageMaker logs
+type: logs
+streams:
+  - input: aws-cloudwatch
+    title: SageMaker CloudWatch logs
+    description: Collect container stdout and stderr from Amazon SageMaker CloudWatch log groups.
+    template_path: aws_cloudwatch.yml.hbs
+    vars:
+      - name: log_group_name_prefix
+        type: text
+        title: Log Group Name Prefix
+        description: Prefix of SageMaker log groups to collect. Covers training, processing, transform, and per-endpoint groups.
+        show_user: true
+        default: /aws/sagemaker/
+      - name: log_group_name
+        type: text
+        title: Log Group Name
+        description: Exact log group name. Use this instead of the prefix when collecting one group. `region_name` is required.
+      - name: log_group_arn
+        type: text
+        title: Log Group ARN
+        description: ARN of one log group. Mutually exclusive with the log group name and prefix.
+      - name: region_name
+        type: text
+        title: Region
+        description: AWS region of the log groups. Required when a name or prefix is set.
+        show_user: true
+        required: true
+      - name: number_of_workers
+        type: integer
+        title: Number of Workers
+        description: Workers reading log groups that match the prefix. FilterLogEvents is a shared account quota, so the default is 1.
+        default: 1
+      - name: log_streams
+        type: text
+        title: Log Streams
+        description: Log stream names to collect.
+        multi: true
+      - name: log_stream_prefix
+        type: text
+        title: Log Stream Prefix
+        description: Collect only streams whose names start with this prefix.
+      - name: start_position
+        type: text
+        title: Start Position
+        description: Where to start reading. `end` collects new events. `beginning` backfills the group. `lastSync` resumes the last successful read.
+        show_user: true
+        default: end
+      - name: scan_frequency
+        type: text
+        title: Scan Frequency
+        description: How often Filebeat checks for new events. The default stays under the shared FilterLogEvents quota.
+        default: 5m
+      - name: api_timeout
+        type: text
+        title: API Timeout
+        description: Maximum duration of a CloudWatch Logs API call.
+        default: 120s
+      - name: api_sleep
+        type: text
+        title: API Sleep
+        description: Pause between FilterLogEvents calls in the same collection period. The shared quota is about 5 transactions per second per account per Region.
+        default: 200ms
+      - name: latency
+        type: text
+        title: Latency
+        description: How long to wait for logs to become visible in CloudWatch Logs, for example `5m`.
+      - name: tags
+        type: text
+        title: Tags
+        multi: true
+        required: true
+        show_user: true
+        default:
+          - forwarded
+      - name: processors
+        type: yaml
+        title: Processors
+        description: Agent processors applied before the ingest pipeline.
+      - name: preserve_original_event
+        type: bool
+        title: Preserve original event
+        description: Store the raw event in `event.original`.
+        required: true
+        show_user: true
+        default: false
+elasticsearch:
+  index_template:
+    mappings:
+      subobjects: false
