@@ -37,6 +37,7 @@ const ELASTIC_DATASET_MAP = {
   vpn: "aws.vpn",
   health: "aws.awshealth",
   bedrockagent: "aws.bedrockagent",
+  sagemaker: "aws_sagemaker.logs",
   billing: "aws.billing",
   natgateway: "aws.natgateway",
   // Elastic Security posture (non-AWS dataset path)
@@ -207,6 +208,7 @@ const REAL_LOG_DATASET_VALUES = new Set<string>([
   // customer's Confluent topic into this dataset.
   "kafka_log.generic",
   "aws.glue_dataquality",
+  "aws_sagemaker.logs",
 ]);
 
 /**
@@ -547,7 +549,7 @@ const ELASTIC_METRICS_DATASET_MAP = {
   nlb: "aws.elb_metrics",
   networkfirewall: "aws.firewall_metrics",
   billing: "aws.billing",
-  sagemaker: "aws.sagemaker",
+  sagemaker: "aws_sagemaker.metrics",
   bedrock: "aws.bedrock",
   bedrockagent: "aws.bedrockagent",
   storagelens: "aws.s3_storage_lens",

@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_pipelines* | STATS `Total Events` = COUNT()"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/Sagemaker/ModelBuildingPipeline\" | STATS `Executions` = SUM(`aws_sagemaker.metrics.execution_started`) + SUM(`aws_sagemaker.metrics.execution_failed`)"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Total Events"
+              "column": "Executions"
             }
           ]
         }
@@ -47,13 +47,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_pipelines* | WHERE log.level == \"error\" | STATS `Errors` = COUNT()"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/Sagemaker/ModelBuildingPipeline\" | STATS `Failed Executions` = SUM(`aws_sagemaker.metrics.execution_failed`)"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Errors"
+              "column": "Failed Executions"
             }
           ]
         }
@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_pipelines* | STATS `Unique Pipelines` = COUNT_DISTINCT(`aws.sagemaker_pipelines.pipeline_name`)"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/Sagemaker/ModelBuildingPipeline\" | STATS `Unique Pipelines` = COUNT_DISTINCT(`aws_sagemaker.pipeline.name`)"
           },
           "metrics": [
             {
@@ -96,12 +96,12 @@
         "h": 10
       },
       "config": {
-        "title": "Event Outcome",
+        "title": "Execution Outcome",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_pipelines* | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/Sagemaker/ModelBuildingPipeline\" | EVAL outcome = CASE(`aws_sagemaker.metrics.execution_failed` > 0, \"failed\", \"succeeded\") | STATS count = COUNT() BY outcome"
           },
           "dimensions": [
             {
@@ -129,12 +129,12 @@
         "h": 12
       },
       "config": {
-        "title": "Events Over Time",
+        "title": "Pipeline Executions Over Time",
         "attributes": {
           "type": "bar_stacked",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_pipelines* | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/Sagemaker/ModelBuildingPipeline\" | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`), outcome = CASE(`aws_sagemaker.metrics.execution_failed` > 0, \"failed\", \"succeeded\") | STATS count = COUNT() BY bucket, outcome | SORT bucket"
           },
           "xAxis": {
             "column": "bucket",

@@ -1,0 +1,64 @@
+{
+  "attributes": {
+    "id": "aws_sagemaker-training-failure",
+    "title": "SageMaker training job failures",
+    "description": "Detects spikes in failed SageMaker training jobs by job name.",
+    "type": "Cloud",
+    "logo": { "icon": "machineLearningApp" },
+    "query": {
+      "bool": {
+        "filter": [
+          { "term": { "event.dataset": "aws_sagemaker.logs" } },
+          { "term": { "aws_sagemaker.workload": "training" } },
+          { "term": { "event.outcome": "failure" } }
+        ]
+      }
+    },
+    "jobs": [
+      {
+        "id": "aws_sagemaker_training_failure",
+        "config": {
+          "groups": ["aws", "aws_sagemaker"],
+          "description": "SageMaker training job failures per job",
+          "analysis_config": {
+            "bucket_span": "15m",
+            "detectors": [
+              {
+                "detector_description": "high_count of training failures by job",
+                "function": "high_count",
+                "partition_field_name": "aws_sagemaker.job.name",
+                "detector_index": 0
+              }
+            ],
+            "influencers": ["aws_sagemaker.job.name", "cloud.region"]
+          },
+          "analysis_limits": { "model_memory_limit": "32mb" },
+          "data_description": { "time_field": "@timestamp" },
+          "custom_settings": { "created_by": "ml-module-aws-sagemaker" }
+        }
+      }
+    ],
+    "datafeeds": [
+      {
+        "id": "datafeed-aws_sagemaker_training_failure",
+        "job_id": "aws_sagemaker_training_failure",
+        "config": {
+          "indices": ["logs-aws_sagemaker.logs-*"],
+          "job_id": "aws_sagemaker_training_failure",
+          "query": {
+            "bool": {
+              "filter": [
+                { "term": { "event.dataset": "aws_sagemaker.logs" } },
+                { "term": { "aws_sagemaker.workload": "training" } },
+                { "term": { "event.outcome": "failure" } }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "id": "aws_sagemaker-training-failure",
+  "references": [],
+  "type": "ml-module"
+}

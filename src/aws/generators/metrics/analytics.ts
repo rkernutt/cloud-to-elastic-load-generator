@@ -385,14 +385,40 @@ const SAGEMAKER_ENDPOINTS = [
   { name: "forecasting-prod", model: "deepar-forecast-v4", instance: "ml.m5.2xlarge" },
 ];
 
+function sagemakerMetricDoc(
+  ts: string,
+  region: string,
+  account: { id: string; name: string },
+  category: "process" | "host",
+  body: Record<string, unknown>
+): Record<string, unknown> {
+  return {
+    "@timestamp": ts,
+    ecs: { version: "9.3.0" },
+    cloud: {
+      provider: "aws",
+      region,
+      account: { id: account.id, name: account.name },
+      service: { name: "sagemaker" },
+    },
+    data_stream: { type: "metrics", dataset: "aws_sagemaker.metrics", namespace: "default" },
+    event: {
+      kind: "metric",
+      category: [category],
+      dataset: "aws_sagemaker.metrics",
+      module: "aws_sagemaker",
+    },
+    aws_sagemaker: body,
+  };
+}
+
+/** CloudWatch metrics in the shape the aws_sagemaker metrics pipeline indexes. */
 export function generateSagemakerMetrics(ts: string, er: number) {
   const { region, account } = pickCloudContext(REGIONS, ACCOUNTS);
-  const docs: ReturnType<typeof metricDoc>[] = [];
+  const docs: Record<string, unknown>[] = [];
 
-  // Endpoint invocation metrics
   for (const ep of sample(SAGEMAKER_ENDPOINTS, randInt(1, 3))) {
     const invocations = randInt(0, 100_000);
-    const instanceCount = randInt(1, 5);
     const modelErr = Math.round(
       invocations *
         (Math.random() < er ? jitter(0.05, 0.04, 0.001, 0.3) : jitter(0.001, 0.0008, 0, 0.005))
@@ -400,65 +426,79 @@ export function generateSagemakerMetrics(ts: string, er: number) {
     const hasGpu =
       ep.instance.includes("g4dn") || ep.instance.includes("g5") || ep.instance.includes("p3");
     docs.push(
-      metricDoc(
-        ts,
-        "sagemaker",
-        "aws.sagemaker",
-        region,
-        account,
-        { EndpointName: ep.name, VariantName: "AllTraffic" },
-        {
-          Invocations: counter(invocations),
-          InvocationsPerInstance: counter(Math.round(invocations / instanceCount)),
-          ModelLatency: stat(dp(jitter(50_000, 40_000, 5_000, 5_000_000)), {
-            max: dp(jitter(500_000, 400_000, 50_000, 10_000_000)),
-          }),
-          OverheadLatency: stat(dp(jitter(5_000, 4_000, 500, 100_000))),
-          Invocation4XXErrors: counter(randInt(0, 100)),
-          Invocation5XXErrors: counter(modelErr),
-          InvocationModelErrors: counter(modelErr),
-          ModelSetupTime: stat(dp(jitter(2000, 1500, 100, 10000))),
-          CPUUtilization: stat(
-            dp(Math.random() < er ? jitter(85, 10, 60, 100) : jitter(40, 25, 5, 80))
-          ),
-          MemoryUtilization: stat(dp(jitter(55, 25, 10, 95))),
+      sagemakerMetricDoc(ts, region, account, "process", {
+        endpoint: { name: ep.name },
+        variant: { name: "AllTraffic" },
+        metrics: {
+          namespace: "AWS/SageMaker",
+          unit: "microseconds",
+          invocations,
+          invocation_4xx_errors: randInt(0, 100),
+          invocation_5xx_errors: modelErr,
+          invocation_model_errors: modelErr,
+          model_latency: dp(jitter(50_000, 40_000, 5_000, 5_000_000)),
+          overhead_latency: dp(jitter(5_000, 4_000, 500, 100_000)),
+        },
+      })
+    );
+    docs.push(
+      sagemakerMetricDoc(ts, region, account, "host", {
+        endpoint: { name: ep.name },
+        variant: { name: "AllTraffic" },
+        metrics: {
+          namespace: "/aws/sagemaker/Endpoints",
+          unit: "percent",
+          cpu_utilization: dp(Math.random() < er ? jitter(85, 10, 60, 100) : jitter(40, 25, 5, 80)),
+          memory_utilization: dp(jitter(55, 25, 10, 95)),
           ...(hasGpu
             ? {
-                GPUUtilization: stat(dp(jitter(70, 20, 10, 100))),
-                GPUMemoryUtilization: stat(dp(jitter(60, 25, 10, 95))),
+                gpu_utilization: dp(jitter(70, 20, 10, 180)),
+                gpu_memory_utilization: dp(jitter(60, 25, 10, 95)),
               }
             : {}),
-          DiskUtilization: stat(dp(jitter(20, 15, 1, 80))),
-        }
-      )
+          disk_utilization: dp(jitter(20, 15, 1, 80)),
+        },
+      })
     );
   }
 
-  // Training job metrics (separate dimension set)
   if (Math.random() < 0.5) {
     const trainingJobName = `${rand(["xgboost", "bert", "resnet", "lstm"])}-training-${Math.random().toString(36).substring(2, 8)}`;
-    const epoch = randInt(1, 100);
     docs.push(
-      metricDoc(
-        ts,
-        "sagemaker",
-        "aws.sagemaker",
-        region,
-        account,
-        { TrainingJobName: trainingJobName, Host: "algo-1" },
-        {
-          "train:loss": stat(dp(jitter(0.3, 0.25, 0.01, 2))),
-          "train:accuracy": stat(dp(jitter(0.85, 0.1, 0.5, 0.99))),
-          "validation:loss": stat(dp(jitter(0.35, 0.25, 0.02, 2.5))),
-          "validation:accuracy": stat(dp(jitter(0.83, 0.1, 0.45, 0.99))),
-          "train:epoch": stat(epoch),
-          CPUUtilization: stat(dp(jitter(50, 30, 5, 100))),
-          MemoryUtilization: stat(dp(jitter(60, 25, 10, 95))),
-          GPUUtilization: stat(dp(jitter(75, 20, 10, 100))),
-          GPUMemoryUtilization: stat(dp(jitter(65, 25, 10, 95))),
-          DiskUtilization: stat(dp(jitter(25, 20, 1, 90))),
-        }
-      )
+      sagemakerMetricDoc(ts, region, account, "host", {
+        job: { name: trainingJobName },
+        host: `${trainingJobName}/algo-1`,
+        metrics: {
+          namespace: "/aws/sagemaker/TrainingJobs",
+          unit: "percent",
+          cpu_utilization: dp(jitter(50, 30, 5, 100)),
+          memory_utilization: dp(jitter(60, 25, 10, 95)),
+          gpu_utilization: dp(jitter(75, 20, 10, 180)),
+          gpu_memory_utilization: dp(jitter(65, 25, 10, 95)),
+          disk_utilization: dp(jitter(25, 20, 1, 90)),
+        },
+      })
+    );
+  }
+
+  if (Math.random() < 0.4) {
+    const pipeline = rand(["fraud-training", "feature-prep", "batch-inference"]);
+    const step = rand(["Train", "Process", "Evaluate"]);
+    const failed = Math.random() < er;
+    docs.push(
+      sagemakerMetricDoc(ts, region, account, "process", {
+        pipeline: { name: pipeline, step: { name: step } },
+        metrics: {
+          namespace: "AWS/Sagemaker/ModelBuildingPipeline",
+          unit: "milliseconds",
+          execution_started: failed ? 0 : 1,
+          execution_failed: failed ? 1 : 0,
+          execution_succeeded: failed ? 0 : 1,
+          execution_duration: dp(jitter(900_000, 400_000, 60_000, 3_600_000)),
+          step_failed: failed ? 1 : 0,
+          step_duration: dp(jitter(120_000, 80_000, 5_000, 900_000)),
+        },
+      })
     );
   }
 

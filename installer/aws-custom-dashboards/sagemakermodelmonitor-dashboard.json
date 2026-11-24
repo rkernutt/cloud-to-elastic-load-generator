@@ -1,5 +1,5 @@
 {
-  "title": "Amazon SageMaker Model Monitor — Endpoint Monitoring & Violations",
+  "title": "Amazon SageMaker — Endpoint Errors",
   "time_range": {
     "from": "now-24h",
     "to": "now"
@@ -20,13 +20,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_modelmonitor* | STATS `Total Events` = COUNT()"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/SageMaker\" | STATS `5xx Errors` = SUM(`aws_sagemaker.metrics.invocation_5xx_errors`)"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Total Events"
+              "column": "5xx Errors"
             }
           ]
         }
@@ -47,13 +47,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_modelmonitor* | WHERE log.level == \"error\" | STATS `Errors` = COUNT()"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/SageMaker\" | STATS `4xx Errors` = SUM(`aws_sagemaker.metrics.invocation_4xx_errors`)"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Errors"
+              "column": "4xx Errors"
             }
           ]
         }
@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_modelmonitor* | STATS `Unique Endpoints` = COUNT_DISTINCT(`aws.sagemaker_model_monitor.endpoint_name`)"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/SageMaker\" | STATS `Unique Endpoints` = COUNT_DISTINCT(`aws_sagemaker.endpoint.name`)"
           },
           "metrics": [
             {
@@ -101,13 +101,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_modelmonitor* | STATS `Total Violations` = SUM(`aws.sagemaker_model_monitor.violation_count`)"
+            "query": "FROM metrics-aws_sagemaker.metrics* | WHERE `aws_sagemaker.metrics.namespace` == \"AWS/SageMaker\" | STATS `Model Errors` = SUM(`aws_sagemaker.metrics.invocation_model_errors`)"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Total Violations"
+              "column": "Model Errors"
             }
           ]
         }
@@ -123,12 +123,12 @@
         "h": 10
       },
       "config": {
-        "title": "Event Outcome",
+        "title": "Endpoint Log Levels",
         "attributes": {
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_modelmonitor* | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
+            "query": "FROM logs-aws_sagemaker.logs* | WHERE `aws_sagemaker.workload` == \"endpoint\" | STATS count = COUNT() BY outcome = log.level | SORT count DESC | LIMIT 10"
           },
           "dimensions": [
             {
@@ -161,7 +161,7 @@
           "type": "bar_stacked",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker_modelmonitor* | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
+            "query": "FROM logs-aws_sagemaker.logs* | WHERE `aws_sagemaker.workload` == \"endpoint\" | EVAL bucket = DATE_TRUNC(15 minutes, `@timestamp`) | STATS count = COUNT() BY bucket, outcome = log.level | SORT bucket"
           },
           "xAxis": {
             "column": "bucket",

@@ -20,7 +20,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-aws.sagemaker* | STATS `Total Invocations` = SUM(`aws.sagemaker.metrics.Invocations.sum`)"
+            "query": "FROM metrics-aws_sagemaker.metrics* | STATS `Total Invocations` = SUM(`aws_sagemaker.metrics.invocations`)"
           },
           "metrics": [
             {
@@ -47,13 +47,13 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-aws.sagemaker* | STATS `Avg Latency (ms)` = AVG(`aws.sagemaker.metrics.ModelLatency.avg`)"
+            "query": "FROM metrics-aws_sagemaker.metrics* | STATS `Avg Model Latency (µs)` = AVG(`aws_sagemaker.metrics.model_latency`)"
           },
           "metrics": [
             {
               "type": "primary",
               "operation": "value",
-              "column": "Avg Latency (ms)"
+              "column": "Avg Model Latency (µs)"
             }
           ]
         }
@@ -74,7 +74,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-aws.sagemaker* | STATS `Total 4xx Errors` = SUM(`aws.sagemaker.metrics.Invocation4XXErrors.sum`)"
+            "query": "FROM metrics-aws_sagemaker.metrics* | STATS `Total 4xx Errors` = SUM(`aws_sagemaker.metrics.invocation_4xx_errors`)"
           },
           "metrics": [
             {
@@ -101,7 +101,7 @@
           "type": "metric",
           "dataset": {
             "type": "esql",
-            "query": "FROM metrics-aws.sagemaker* | STATS `Total 5xx Errors` = SUM(`aws.sagemaker.metrics.Invocation5XXErrors.sum`)"
+            "query": "FROM metrics-aws_sagemaker.metrics* | STATS `Total 5xx Errors` = SUM(`aws_sagemaker.metrics.invocation_5xx_errors`)"
           },
           "metrics": [
             {
@@ -143,7 +143,7 @@
               "type": "area",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.sagemaker* | STATS invocations = SUM(`aws.sagemaker.metrics.Invocations.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws_sagemaker.metrics* | STATS invocations = SUM(`aws_sagemaker.metrics.invocations`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -171,7 +171,7 @@
         "h": 10
       },
       "config": {
-        "title": "Model Latency (avg ms)",
+        "title": "Model Latency (µs)",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -191,7 +191,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.sagemaker* | STATS avg_latency = AVG(`aws.sagemaker.metrics.ModelLatency.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws_sagemaker.metrics* | STATS avg_latency = AVG(`aws_sagemaker.metrics.model_latency`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -239,7 +239,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.sagemaker* | STATS errors_4xx = SUM(`aws.sagemaker.metrics.Invocation4XXErrors.sum`), errors_5xx = SUM(`aws.sagemaker.metrics.Invocation5XXErrors.sum`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws_sagemaker.metrics* | STATS errors_4xx = SUM(`aws_sagemaker.metrics.invocation_4xx_errors`), errors_5xx = SUM(`aws_sagemaker.metrics.invocation_5xx_errors`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -292,7 +292,7 @@
               "type": "line",
               "dataset": {
                 "type": "esql",
-                "query": "FROM metrics-aws.sagemaker* | STATS gpu = AVG(`aws.sagemaker.metrics.GPUUtilization.avg`), cpu = AVG(`aws.sagemaker.metrics.CPUUtilization.avg`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
+                "query": "FROM metrics-aws_sagemaker.metrics* | STATS gpu = AVG(`aws_sagemaker.metrics.gpu_utilization`), cpu = AVG(`aws_sagemaker.metrics.cpu_utilization`) BY bucket = BUCKET(`@timestamp`, 75, ?_tstart, ?_tend) | SORT bucket"
               },
               "x": {
                 "operation": "value",
@@ -330,7 +330,7 @@
           "type": "donut",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker* | STATS count = COUNT() BY outcome = log.level"
+            "query": "FROM logs-aws_sagemaker.logs* | STATS count = COUNT() BY outcome = log.level"
           },
           "metrics": [
             {
@@ -357,7 +357,7 @@
         "h": 10
       },
       "config": {
-        "title": "Events by Job Type",
+        "title": "Events by Workload",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -377,11 +377,11 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.sagemaker* | STATS count = COUNT() BY job_type = `aws.sagemaker.job.type` | SORT count DESC"
+                "query": "FROM logs-aws_sagemaker.logs* | STATS count = COUNT() BY workload = `aws_sagemaker.workload` | SORT count DESC"
               },
               "x": {
                 "operation": "value",
-                "column": "job_type"
+                "column": "workload"
               },
               "y": [
                 {
@@ -405,7 +405,7 @@
         "h": 10
       },
       "config": {
-        "title": "Events by Action",
+        "title": "Events by Log Group",
         "attributes": {
           "type": "xy",
           "axis": {
@@ -425,11 +425,11 @@
               "type": "bar_horizontal",
               "dataset": {
                 "type": "esql",
-                "query": "FROM logs-aws.sagemaker* | STATS count = COUNT() BY action = event.action | SORT count DESC | LIMIT 10"
+                "query": "FROM logs-aws_sagemaker.logs* | STATS count = COUNT() BY log_group = `log.logger` | SORT count DESC | LIMIT 10"
               },
               "x": {
                 "operation": "value",
-                "column": "action"
+                "column": "log_group"
               },
               "y": [
                 {
@@ -458,7 +458,7 @@
           "type": "datatable",
           "dataset": {
             "type": "esql",
-            "query": "FROM logs-aws.sagemaker* | KEEP `@timestamp`, `aws.sagemaker.job.name`, `aws.sagemaker.job.type`, event.action, log.level, event.duration | SORT `@timestamp` DESC | LIMIT 100"
+            "query": "FROM logs-aws_sagemaker.logs* | KEEP `@timestamp`, `aws_sagemaker.workload`, `aws_sagemaker.job.name`, `aws_sagemaker.endpoint.name`, log.level, message | SORT `@timestamp` DESC | LIMIT 100"
           },
           "metrics": [
             {
@@ -468,18 +468,18 @@
             },
             {
               "operation": "value",
-              "column": "aws.sagemaker.job.name",
+              "column": "aws_sagemaker.workload",
+              "label": "Workload"
+            },
+            {
+              "operation": "value",
+              "column": "aws_sagemaker.job.name",
               "label": "Job Name"
             },
             {
               "operation": "value",
-              "column": "aws.sagemaker.job.type",
-              "label": "Job Type"
-            },
-            {
-              "operation": "value",
-              "column": "event.action",
-              "label": "Action"
+              "column": "aws_sagemaker.endpoint.name",
+              "label": "Endpoint"
             },
             {
               "operation": "value",
@@ -488,8 +488,8 @@
             },
             {
               "operation": "value",
-              "column": "event.duration",
-              "label": "Duration (ns)"
+              "column": "message",
+              "label": "Message"
             }
           ],
           "rows": []

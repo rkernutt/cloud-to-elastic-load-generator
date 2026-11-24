@@ -1,0 +1,63 @@
+{
+  "attributes": {
+    "id": "aws_sagemaker-endpoint-5xx",
+    "title": "SageMaker endpoint 5xx errors",
+    "description": "Detects spikes in SageMaker endpoint invocation 5xx errors by endpoint.",
+    "type": "Cloud",
+    "logo": { "icon": "machineLearningApp" },
+    "query": {
+      "bool": {
+        "filter": [
+          { "term": { "event.dataset": "aws_sagemaker.metrics" } },
+          { "term": { "aws_sagemaker.metrics.namespace": "AWS/SageMaker" } }
+        ]
+      }
+    },
+    "jobs": [
+      {
+        "id": "aws_sagemaker_endpoint_5xx",
+        "config": {
+          "groups": ["aws", "aws_sagemaker"],
+          "description": "SageMaker endpoint invocation 5xx errors per endpoint",
+          "analysis_config": {
+            "bucket_span": "15m",
+            "detectors": [
+              {
+                "detector_description": "high_mean of invocation_5xx_errors by endpoint",
+                "function": "high_mean",
+                "field_name": "aws_sagemaker.metrics.invocation_5xx_errors",
+                "partition_field_name": "aws_sagemaker.endpoint.name",
+                "detector_index": 0
+              }
+            ],
+            "influencers": ["aws_sagemaker.endpoint.name", "cloud.region"]
+          },
+          "analysis_limits": { "model_memory_limit": "32mb" },
+          "data_description": { "time_field": "@timestamp" },
+          "custom_settings": { "created_by": "ml-module-aws-sagemaker" }
+        }
+      }
+    ],
+    "datafeeds": [
+      {
+        "id": "datafeed-aws_sagemaker_endpoint_5xx",
+        "job_id": "aws_sagemaker_endpoint_5xx",
+        "config": {
+          "indices": ["metrics-aws_sagemaker.metrics-*"],
+          "job_id": "aws_sagemaker_endpoint_5xx",
+          "query": {
+            "bool": {
+              "filter": [
+                { "term": { "event.dataset": "aws_sagemaker.metrics" } },
+                { "term": { "aws_sagemaker.metrics.namespace": "AWS/SageMaker" } }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "id": "aws_sagemaker-endpoint-5xx",
+  "references": [],
+  "type": "ml-module"
+}

@@ -1,0 +1,47 @@
+{
+  "id": "endpoint-latency",
+  "type": "alerting_rule_template",
+  "managed": true,
+  "references": [
+    {
+      "id": "aws_sagemaker-amazon-sagemaker",
+      "name": "tag-ref-amazon-sagemaker",
+      "type": "tag"
+    }
+  ],
+  "attributes": {
+    "engine": "v2",
+    "rule": {
+      "kind": "alert",
+      "metadata": {
+        "name": "SageMaker endpoint model latency over 1s",
+        "description": "SageMaker ModelLatency exceeded 1 second. CloudWatch reports this metric in microseconds.",
+        "tags": ["SageMaker"],
+        "builder": { "type": "threshold" }
+      },
+      "schedule": { "every": "5m", "lookback": "15m" },
+      "time_field": "@timestamp",
+      "query": {
+        "base": "FROM metrics-aws_sagemaker.metrics-* | WHERE aws_sagemaker.metrics.namespace == \"AWS/SageMaker\" | STATS max_us = MAX(aws_sagemaker.metrics.model_latency) BY aws_sagemaker.endpoint.name",
+        "breach": { "segment": "WHERE max_us > 1000000" }
+      },
+      "recovery": { "strategy": "no_breach" },
+      "no_data": { "strategy": "ignore" },
+      "grouping": { "fields": ["aws_sagemaker.endpoint.name"] },
+      "artifacts": [
+        {
+          "id": "runbook",
+          "type": "runbook",
+          "data": {
+            "content": "Compare model latency and overhead latency for the endpoint. 1000000 microseconds is 1 second. Check CPU and GPU utilization on the /aws/sagemaker/Endpoints namespace and scale the instance type if utilization stays high."
+          }
+        },
+        {
+          "id": "dashboard",
+          "type": "dashboard",
+          "data": { "dashboard_id": "aws_sagemaker-endpoints" }
+        }
+      ]
+    }
+  }
+}

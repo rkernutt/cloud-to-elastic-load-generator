@@ -1,0 +1,71 @@
+{
+  "attributes": {
+    "id": "aws_sagemaker-pipeline-failure",
+    "title": "SageMaker pipeline execution failures",
+    "description": "Detects spikes in SageMaker Model Building Pipeline execution failures by pipeline.",
+    "type": "Cloud",
+    "logo": { "icon": "machineLearningApp" },
+    "query": {
+      "bool": {
+        "filter": [
+          { "term": { "event.dataset": "aws_sagemaker.metrics" } },
+          {
+            "term": {
+              "aws_sagemaker.metrics.namespace": "AWS/Sagemaker/ModelBuildingPipeline"
+            }
+          }
+        ]
+      }
+    },
+    "jobs": [
+      {
+        "id": "aws_sagemaker_pipeline_failure",
+        "config": {
+          "groups": ["aws", "aws_sagemaker"],
+          "description": "SageMaker pipeline execution failures per pipeline",
+          "analysis_config": {
+            "bucket_span": "15m",
+            "detectors": [
+              {
+                "detector_description": "high_mean of execution_failed by pipeline",
+                "function": "high_mean",
+                "field_name": "aws_sagemaker.metrics.execution_failed",
+                "partition_field_name": "aws_sagemaker.pipeline.name",
+                "detector_index": 0
+              }
+            ],
+            "influencers": ["aws_sagemaker.pipeline.name", "cloud.region"]
+          },
+          "analysis_limits": { "model_memory_limit": "32mb" },
+          "data_description": { "time_field": "@timestamp" },
+          "custom_settings": { "created_by": "ml-module-aws-sagemaker" }
+        }
+      }
+    ],
+    "datafeeds": [
+      {
+        "id": "datafeed-aws_sagemaker_pipeline_failure",
+        "job_id": "aws_sagemaker_pipeline_failure",
+        "config": {
+          "indices": ["metrics-aws_sagemaker.metrics-*"],
+          "job_id": "aws_sagemaker_pipeline_failure",
+          "query": {
+            "bool": {
+              "filter": [
+                { "term": { "event.dataset": "aws_sagemaker.metrics" } },
+                {
+                  "term": {
+                    "aws_sagemaker.metrics.namespace": "AWS/Sagemaker/ModelBuildingPipeline"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "id": "aws_sagemaker-pipeline-failure",
+  "references": [],
+  "type": "ml-module"
+}

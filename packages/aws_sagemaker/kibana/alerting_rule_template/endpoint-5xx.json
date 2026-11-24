@@ -1,0 +1,47 @@
+{
+  "id": "endpoint-5xx",
+  "type": "alerting_rule_template",
+  "managed": true,
+  "references": [
+    {
+      "id": "aws_sagemaker-amazon-sagemaker",
+      "name": "tag-ref-amazon-sagemaker",
+      "type": "tag"
+    }
+  ],
+  "attributes": {
+    "engine": "v2",
+    "rule": {
+      "kind": "alert",
+      "metadata": {
+        "name": "SageMaker endpoint 5xx errors",
+        "description": "A SageMaker endpoint reported invocation 5xx errors.",
+        "tags": ["SageMaker"],
+        "builder": { "type": "threshold" }
+      },
+      "schedule": { "every": "5m", "lookback": "15m" },
+      "time_field": "@timestamp",
+      "query": {
+        "base": "FROM metrics-aws_sagemaker.metrics-* | WHERE aws_sagemaker.metrics.namespace == \"AWS/SageMaker\" | STATS errors = SUM(aws_sagemaker.metrics.invocation_5xx_errors) BY aws_sagemaker.endpoint.name",
+        "breach": { "segment": "WHERE errors > 0" }
+      },
+      "recovery": { "strategy": "no_breach" },
+      "no_data": { "strategy": "ignore" },
+      "grouping": { "fields": ["aws_sagemaker.endpoint.name"] },
+      "artifacts": [
+        {
+          "id": "runbook",
+          "type": "runbook",
+          "data": {
+            "content": "Check endpoint status is InService and read /aws/sagemaker/Endpoints/{name}. Compare invocation 4xx, 5xx, and model errors on the endpoint. Scale the instance count if the container is failing under load."
+          }
+        },
+        {
+          "id": "dashboard",
+          "type": "dashboard",
+          "data": { "dashboard_id": "aws_sagemaker-endpoint-errors" }
+        }
+      ]
+    }
+  }
+}

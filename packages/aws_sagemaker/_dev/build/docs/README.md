@@ -1,10 +1,10 @@
 {{- generatedHeader }}
-{{/\*
+{{/*
 This template can be used as a starting point for writing documentation for your new integration. For each section, fill in the details
 described in the comments.
 
 Find more detailed documentation guidelines in https://www.elastic.co/docs/extend/integrations/documentation-guidelines
-\*/}}
+*/}}
 
 # aws_sagemaker Integration for Elastic
 
@@ -55,14 +55,14 @@ Elastic Agent must be installed. For more details, check the Elastic Agent [inst
 
 Elastic Agent is required to stream data from the syslog or log file receiver and ship the data to Elastic, where the events will then be processed via the integration's ingest pipelines.
 
-{{/\* If Elastic Managed integration is available for this integration, include the following section. You can determine if it is available by checking the `manifest.yml` file, and looking for the existence of `policy_templates.deployment_modes.agentless.enabled: "true"`.
+{{/* If Elastic Managed integration is available for this integration, include the following section. You can determine if it is available by checking the `manifest.yml` file, and looking for the existence of `policy_templates.deployment_modes.agentless.enabled: "true"`.
 
 ### Elastic Managed enabled integration
 
 Elastic Managed integrations are only supported on Elastic Cloud Serverless and Elastic Cloud Hosted deployments. An Elastic Managed integration lets you ingest data from a cloud source while avoiding the orchestration, management, and maintenance associated with standard ingest infrastructure. Elastic runs the collector for you, so you can focus on your data instead of the infrastructure that collects it.
 
 For more information, refer to [Elastic Managed integrations](https://www.elastic.co/docs/manage-data/ingest/managed-integrations/managed-integrations) and the [Elastic Managed integrations FAQ](https://www.elastic.co/docs/manage-data/ingest/managed-integrations/managed-integrations-faq).
-\*/}}
+*/}}
 
 ### Set up steps in aws_sagemaker
 
@@ -81,11 +81,11 @@ Create an IAM user or role for the agent. Grant the log and metric read actions 
 
 ### Set up steps in Kibana
 
-{{/\* List the steps that are required to set up the integration in Kibana.
+{{/* List the steps that are required to set up the integration in Kibana.
 This includes how to add the integration, and how to configure the integration, with descriptions of each available configuration option.
 
 If multiple input types are supported, add instructions for each in a subsection.
-\*/}}
+*/}}
 
 The same package installs on Elastic Cloud Hosted, a self-managed stack, and Elastic Cloud Serverless.
 
@@ -106,7 +106,7 @@ In Discover, open `logs-aws_sagemaker.logs-*` and `metrics-aws_sagemaker.metrics
 
 ## Troubleshooting
 
-{{/\* The troubleshooting section should contain troubleshooting for common issues specific to this integration. Do not include generic troubleshooting information. Where appropriate, include details specific to each input type.
+{{/* The troubleshooting section should contain troubleshooting for common issues specific to this integration. Do not include generic troubleshooting information. Where appropriate, include details specific to each input type.
 Whenever possible, link to the troubleshooting documentation provided by the third-party software.
 
 IMPORTANT: Use plain text for issue descriptions, NOT bold. Example:
@@ -114,7 +114,7 @@ IMPORTANT: Use plain text for issue descriptions, NOT bold. Example:
 - No data is being collected: Verify network connectivity and credentials
 - TCP framing issues: Check that both sides use the same framing method
   Do NOT use **bold** for issue names like "**No data is being collected**:".
-  \*/}}
+  */}}
 
 - No log events: Confirm the region and that log groups exist under `/aws/sagemaker/`. Endpoint logs use one group per endpoint, `/aws/sagemaker/Endpoints/{EndpointName}`.
 - Throttling on FilterLogEvents: Keep `number_of_workers` at 1. The quota is shared by every collector in the account and Region.
@@ -166,16 +166,16 @@ The fields template function will be replaced by a generated list of all fields 
 ##### {data stream name} fields
 
 To include a generated list of fields from the `fields/` directory, uncomment and use:
-{{/* {{ fields "data_stream_name" }} \*/}}
+{{/* {{ fields "data_stream_name" }} */}}
 
 ##### {data stream name} sample event
 
 The event template function will be replace by a sample event, taken from `sample_event.json`, when building this integration.
 
 To include a sample event from `sample_event.json`, uncomment and use:
-{{/* {{ event "data_stream_name" }} \*/}}
+{{/* {{ event "data_stream_name" }} */}}
 
-{{/\* Export ILM Policies
+{{/* Export ILM Policies
 This accepts a list of data stream names as arguments and documents one policy
 per data stream. If no arguments are provided, data streams are auto-discovered by
 scanning for data_stream/<name>/elasticsearch/ilm/ directories and
@@ -183,7 +183,7 @@ data_stream/<name>/lifecycle.yml files (lifecycle.yml takes precedence when both
 
      If there are no policies defined, this renders as an empty string (no heading).
 
-\*/}}
+*/}}
 {{ ilm }}
 
 {{/* Export Transforms
